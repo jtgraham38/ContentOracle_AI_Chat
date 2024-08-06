@@ -1,0 +1,58 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "276296229577598486e79c1d460be78b",
+    "packages": [
+        {
+            "name": "jtgraham38/jgwordpresskit",
+            "version": "1.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jtgraham38/JGWordPressKit.git",
+                "reference": "96768457c0250bbbb9b3bc79b1ec36aec9113c34"
+            },
+            "dist": {
+                "type": "tar",
+                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/jgwordpresskit/jtgraham38-jgwordpresskit-96768457c0250bbbb9b3bc79b1ec36aec9113c34-zip-b9dbe1.tar",
+                "reference": "96768457c0250bbbb9b3bc79b1ec36aec9113c34",
+                "shasum": "7aaa865d13987c4acd33bc99165d361961847e9b"
+            },
+            "require": {
+                "php": ">=7.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "jtgraham38\\jgwordpresskit\\": "src/"
+                }
+            },
+            "license": [
+                "GPLv3"
+            ],
+            "authors": [
+                {
+                    "name": "Jacob Graham",
+                    "email": "jtgraham38@gmail.com"
+                }
+            ],
+            "description": "A very simple, modular framework for developing WordPress plugins.",
+            "support": {
+                "source": "https://github.com/jtgraham38/JGWordPressKit/tree/1.0.6",
+                "issues": "https://github.com/jtgraham38/JGWordPressKit/issues"
+            },
+            "time": "2024-07-12T03:56:38+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
+}

@@ -1,0 +1,21 @@
+{
+    "name": "jtgraham38/wprag",
+    "description": "A WordPress plugin implementing something.",
+    "type": "wordpress-plugin",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Jacob",
+            "email": "jtgraham38@gmail.com"
+        }
+    ],
+    "require": {
+        "jtgraham38/jgwordpresskit": "^1.0.6"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://php.jacob-t-graham.com"
+        }
+    ]
+}
