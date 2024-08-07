@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "276296229577598486e79c1d460be78b",
+    "content-hash": "dd66afeeabb349a307ffec43305baf08",
     "packages": [
         {
             "name": "jtgraham38/jgwordpresskit",
-            "version": "1.0.6",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jtgraham38/JGWordPressKit.git",
-                "reference": "96768457c0250bbbb9b3bc79b1ec36aec9113c34"
+                "reference": "7a14c894d5012be6b86c3064778712f4caf99bb9"
             },
             "dist": {
                 "type": "tar",
-                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/jgwordpresskit/jtgraham38-jgwordpresskit-96768457c0250bbbb9b3bc79b1ec36aec9113c34-zip-b9dbe1.tar",
-                "reference": "96768457c0250bbbb9b3bc79b1ec36aec9113c34",
-                "shasum": "7aaa865d13987c4acd33bc99165d361961847e9b"
+                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/jgwordpresskit/jtgraham38-jgwordpresskit-7a14c894d5012be6b86c3064778712f4caf99bb9-zip-2d577d.tar",
+                "reference": "7a14c894d5012be6b86c3064778712f4caf99bb9",
+                "shasum": "6d33835fc38607225f0d1cb7cfd3f8b6ea71fa27"
             },
             "require": {
                 "php": ">=7.3"
@@ -40,10 +40,10 @@
             ],
             "description": "A very simple, modular framework for developing WordPress plugins.",
             "support": {
-                "source": "https://github.com/jtgraham38/JGWordPressKit/tree/1.0.6",
+                "source": "https://github.com/jtgraham38/JGWordPressKit/tree/1.1.0",
                 "issues": "https://github.com/jtgraham38/JGWordPressKit/issues"
             },
-            "time": "2024-07-12T03:56:38+00:00"
+            "time": "2024-08-07T15:26:23+00:00"
         }
     ],
     "packages-dev": [],
@@ -54,5 +54,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.2.0"
 }

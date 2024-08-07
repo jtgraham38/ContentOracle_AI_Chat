@@ -18,18 +18,38 @@ if (!defined('ABSPATH')) {
 }
 
 // Require Composer's autoload file
-require_once __DIR__ . '/vendor/autoload.php';
+require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 
 // Use statements for namespaced classes
 use jtgraham38\jgwordpresskit\Plugin;
-use jtgraham38\jgwordpresskit\PluginFeature;
+
 
 //create a new plugin manager
-$plugin = new Plugin("prefix_", plugin_dir_path( __FILE__ ), plugin_dir_url( __FILE__ ));
+$plugin = new Plugin("contentoracle_", plugin_dir_path( __FILE__ ), plugin_dir_url( __FILE__ ));
 
 //register features with the plugin manager here...
-//TODO: $feature = ... (import an instance of PluginFeature());
-//TODO: $plugin->register_feature($feature);
+
+//settings feature
+require_once plugin_dir_path(__FILE__) . 'features/settings/settings.php';
+$feature = new ContentOracleSettings();
+$plugin->register_feature($feature); 
+
+
+
+//NOTE: this will be moved, here for now
+add_action('admin_menu', function(){
+    // add the settings page
+    add_menu_page(
+        'ContentOracle AI', // page title
+        'ContentOracle',        // menu title
+        'manage_options',   // capability
+        'contentoracle-ai', // menu slug
+        function(){ // callback function
+            echo "content oracle";    //(content added when the custom post type is registered)
+        },
+        'dashicons-smiley'    // icon
+    );
+});
 
 //init the plugin
 $plugin->init();
