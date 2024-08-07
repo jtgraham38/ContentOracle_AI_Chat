@@ -45,7 +45,11 @@ add_action('admin_menu', function(){
         'manage_options',   // capability
         'contentoracle-ai', // menu slug
         function(){ // callback function
-            echo "content oracle";    //(content added when the custom post type is registered)
+            echo '    <h1>ContentOracle AI Search</h1>
+    <p>ContentOracle AI Search seamlessly blends the power of generative AI with your website’s search feature.</p>
+    <p>For more information, visit the <a href="https://jacob-t-graham.com/contentoracle-ai-search-a-website-add-on-that-uses-ai-to-boost-the-power-of-your-web-content/">ContentOracle AI Search plugin page</a>.</p>
+    <p>For support, visit the <a href="https://jacob-t-graham.com/contact/">Jacob Graham contact page</a>.</p>
+';    //(content added when the custom post type is registered)
         },
         'dashicons-smiley'    // icon
     );
