@@ -34,6 +34,10 @@ require_once plugin_dir_path(__FILE__) . 'features/settings/settings.php';
 $feature = new ContentOracleSettings();
 $plugin->register_feature($feature); 
 
+//api feature
+require_once plugin_dir_path(__FILE__) . 'features/wp_api/api.php';
+$feature = new ContentOracleApi();
+$plugin->register_feature($feature);
 
 
 //NOTE: this will be moved, here for now

@@ -11,6 +11,8 @@ $options = [
     'keep_user_on_site' => 'Keep User on Site',
     'keep_user_reading' => 'Keep User Reading',
     'join_mailing_list' => 'Join Mailing List',
+    'encourage_signup' => 'Encourage Signup',
+    'encourage_social_share' => 'Encourage Social Share',
     'none' => 'None'
 ];
 
