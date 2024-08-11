@@ -21,8 +21,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./editor.scss */ "./src/editor.scss");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/compose */ "@wordpress/compose");
-/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_compose__WEBPACK_IMPORTED_MODULE_5__);
 
 /**
  * Retrieves the translation of text.
@@ -60,19 +58,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
 function Edit({
   attributes,
   setAttributes,
   className
 }) {
-  //TODO: get a unique id for this block instance
-  //const instanceId = useInstanceId();
+  //get a unique id suffix for this block instance
+  const iid = Math.random().toString(36).substr(2, 9);
 
   //load the props
   const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)();
   const borderProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.__experimentalUseBorderProps)(attributes);
-  console.log(attributes.width);
 
   //create styles for each element
   const buttonStyles = {
@@ -84,27 +80,35 @@ function Edit({
     borderRadius: borderProps.style.borderRadius
   };
   const labelStyles = {
-    color: blockProps.style.color,
+    //color: blockProps.style.color,
     fontSize: blockProps.style.fontSize
   };
   const rootStyles = {
     width: attributes.width
   };
-  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "Display Settings"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+  return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "contentoracle-ai_panelbody_root"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "Display Settings"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "contentoracle-ai_panelbody_group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "contentoracle-ai_panelbody_input_container"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
     className: "components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2",
-    htmlFor: "wp-block-search__width-0"
-  }, "Width"), "todo: link this label to the input with a unique id", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    htmlFor: `wp-block-search_width_${iid}`
+  }, "Width"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
     type: "range",
-    min: "10",
+    min: "15",
     max: "100",
     step: "1",
+    defaultValue: parseInt(attributes.width.slice(0, -1)),
+    id: `wp-block-search_width_${iid}`,
     onChange: event => {
       setAttributes({
         width: event.target.value + "%"
       });
       console.log(attributes.width);
     }
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, attributes?.width || "-", " ")))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, attributes?.width || "-", " "))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "contentoracle-ai_search_root",
     style: rootStyles
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
@@ -295,16 +299,6 @@ module.exports = window["wp"]["components"];
 
 /***/ }),
 
-/***/ "@wordpress/compose":
-/*!*********************************!*\
-  !*** external ["wp","compose"] ***!
-  \*********************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["compose"];
-
-/***/ }),
-
 /***/ "@wordpress/i18n":
 /*!******************************!*\
   !*** external ["wp","i18n"] ***!
@@ -321,7 +315,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-search","version":"0.1.0","title":"Contentoracle Ai Search","category":"contentoracle","description":"Help users find your content with the power of ContentOracle AI.","icon":"smiley","example":{},"keywords":["search","ai","contentoracle","searchbar","query","answer","question"],"textdomain":"contentoracle","attributes":{"width":{"type":"string","default":"25%"}},"selectors":{"root":".contentoracle-ai_search_root","container":".contentoracle-ai_search_container","label":".contentoracle-ai_search_label","input":".contentoracle-ai_search_input","button":".contentoracle-ai_search_button"},"supports":{"color":{"background":true,"text":true,"button":false},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"typography":{"fontSize":true,"fontSizeUnit":["px","em","rem"],"fontStyle":true},"width":{"type":"string","default":"100%"},"align":true,"html":false},"editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","viewScript":"file:./view.js"}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-search","version":"0.1.0","title":"Contentoracle Ai Search","category":"contentoracle","description":"Help users find your content with the power of ContentOracle AI.","icon":"smiley","example":{},"keywords":["search","ai","contentoracle","searchbar","query","answer","question"],"textdomain":"contentoracle","attributes":{"width":{"type":"string","default":"100%"},"backgroundColor":{"type":"string","default":"contrast"},"textColor":{"type":"string","default":"base-2"}},"selectors":{"root":".contentoracle-ai_search_root","container":".contentoracle-ai_search_container","label":".contentoracle-ai_search_label","input":".contentoracle-ai_search_input","button":".contentoracle-ai_search_button"},"supports":{"color":{"background":true,"text":true,"button":false},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"typography":{"fontSize":true,"fontSizeUnit":["px","em","rem"],"fontStyle":true},"width":{"type":"string","default":"100%"},"align":true,"html":false},"editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","viewScript":"file:./view.js"}');
 
 /***/ })
 

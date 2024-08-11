@@ -34,20 +34,18 @@ import './editor.scss';
 import { RichText, __experimentalUseBorderProps as useBorderProps } from '@wordpress/block-editor';
 import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody } from '@wordpress/components';
-import { useInstanceId } from '@wordpress/compose';
 
 export default function Edit({
 	attributes,
 	setAttributes,
 	className,
 }) {	
-	//TODO: get a unique id for this block instance
-	//const instanceId = useInstanceId();
+	//get a unique id suffix for this block instance
+	const iid = Math.random().toString(36).substr(2, 9)
 
 	//load the props
 	const blockProps = useBlockProps();
 	const borderProps = useBorderProps(attributes);
-	console.log(attributes.width);
 
 	//create styles for each element
 	const buttonStyles = {
@@ -61,7 +59,7 @@ export default function Edit({
 	}
 
 	const labelStyles = {
-		color: blockProps.style.color,
+		//color: blockProps.style.color,
 		fontSize: blockProps.style.fontSize,
 	}
 
@@ -74,26 +72,31 @@ export default function Edit({
 		<>
 		<InspectorControls>
 			<PanelBody>
-				<div>
+				<div className="contentoracle-ai_panelbody_root">
 					<h3>Display Settings</h3>
 					
-					<label 
-						className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2" 
-						htmlFor="wp-block-search__width-0">
-						Width
-					</label>
-					todo: link this label to the input with a unique id
-					<input 
-						type="range" 
-						min="10" 
-						max="100" 
-						step="1"
-						onChange={ ( event ) => {
-							setAttributes( { width: event.target.value + "%" } );
-							console.log(attributes.width)
-						} }
-					></input>
-					<p>{ attributes?.width || "-" } </p>
+					<div className="contentoracle-ai_panelbody_group">
+						<div className="contentoracle-ai_panelbody_input_container">
+							<label 
+								className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2" 
+								htmlFor={`wp-block-search_width_${iid}`}>
+								Width
+							</label>
+							<input 
+								type="range" 
+								min="15" 
+								max="100" 
+								step="1"
+								defaultValue={ parseInt(attributes.width.slice(0,-1)) }
+								id={`wp-block-search_width_${iid}`}
+								onChange={ ( event ) => {
+									setAttributes( { width: event.target.value + "%" } );
+									console.log(attributes.width)
+								} }
+							></input>
+						</div>
+						<p>{ attributes?.width || "-" } </p>
+					</div>
 
 				</div>
 			</PanelBody>

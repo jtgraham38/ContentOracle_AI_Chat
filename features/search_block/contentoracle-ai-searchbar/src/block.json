@@ -21,8 +21,16 @@
 	"attributes": {
         "width": {
             "type": "string",
-            "default": "25%"
-        }
+            "default": "100%"
+        },
+		"backgroundColor": {
+			"type": "string",
+			"default": "contrast"
+		},
+		"textColor": {
+			"type": "string",
+			"default": "base-2"
+		}
     },
 	"selectors": {
         "root": ".contentoracle-ai_search_root",
