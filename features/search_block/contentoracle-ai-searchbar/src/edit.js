@@ -67,7 +67,6 @@ export default function Edit({
 		width: attributes.width
 	}
 
-
 	return (
 		<>
 		<InspectorControls>
@@ -91,7 +90,6 @@ export default function Edit({
 								id={`wp-block-search_width_${iid}`}
 								onChange={ ( event ) => {
 									setAttributes( { width: event.target.value + "%" } );
-									console.log(attributes.width)
 								} }
 							></input>
 						</div>
@@ -107,10 +105,10 @@ export default function Edit({
 				tagName="label"
 				className="contentoracle-ai_search_label wp-block-search__label"
 				placeholder="Label here..."
-				defaultValue="Search"
+				value={ attributes.label }
 				style={ labelStyles }
-				onChange={ ( value ) => {
-					setAttributes( { label: value } );
+				onChange={ ( newValue ) => {
+					setAttributes( { label: newValue } );
 				} }
 			>
 
@@ -120,9 +118,12 @@ export default function Edit({
 					type="search" 
 					aria-label="Optional placeholder text" 
 					placeholder="Optional placeholder…" 
-					defaultValue=""
+					defaultValue={ attributes.placeholder }
 					className="contentoracle-ai_search_input wp-block-search__input"
 					style={ inputStyles }
+					onChange={ ( event ) => {
+						setAttributes( { placeholder: event.target.value } );
+					} }
 				>
 				</input>
 				<div 

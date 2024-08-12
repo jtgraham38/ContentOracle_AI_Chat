@@ -106,7 +106,6 @@ function Edit({
       setAttributes({
         width: event.target.value + "%"
       });
-      console.log(attributes.width);
     }
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, attributes?.width || "-", " "))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "contentoracle-ai_search_root",
@@ -115,11 +114,11 @@ function Edit({
     tagName: "label",
     className: "contentoracle-ai_search_label wp-block-search__label",
     placeholder: "Label here...",
-    defaultValue: "Search",
+    value: attributes.label,
     style: labelStyles,
-    onChange: value => {
+    onChange: newValue => {
       setAttributes({
-        label: value
+        label: newValue
       });
     }
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -129,9 +128,14 @@ function Edit({
     type: "search",
     "aria-label": "Optional placeholder text",
     placeholder: "Optional placeholder\u2026",
-    defaultValue: "",
+    defaultValue: attributes.placeholder,
     className: "contentoracle-ai_search_input wp-block-search__input",
-    style: inputStyles
+    style: inputStyles,
+    onChange: event => {
+      setAttributes({
+        placeholder: event.target.value
+      });
+    }
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     type: "submit",
     style: buttonStyles,
@@ -315,7 +319,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-search","version":"0.1.0","title":"Contentoracle Ai Search","category":"contentoracle","description":"Help users find your content with the power of ContentOracle AI.","icon":"smiley","example":{},"keywords":["search","ai","contentoracle","searchbar","query","answer","question"],"textdomain":"contentoracle","attributes":{"width":{"type":"string","default":"100%"},"backgroundColor":{"type":"string","default":"contrast"},"textColor":{"type":"string","default":"base-2"}},"selectors":{"root":".contentoracle-ai_search_root","container":".contentoracle-ai_search_container","label":".contentoracle-ai_search_label","input":".contentoracle-ai_search_input","button":".contentoracle-ai_search_button"},"supports":{"color":{"background":true,"text":true,"button":false},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"typography":{"fontSize":true,"fontSizeUnit":["px","em","rem"],"fontStyle":true},"width":{"type":"string","default":"100%"},"align":true,"html":false},"editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","viewScript":"file:./view.js"}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-search","version":"0.1.0","title":"Contentoracle Ai Search","category":"contentoracle","description":"Help users find your content with the power of ContentOracle AI.","icon":"smiley","example":{},"keywords":["search","ai","contentoracle","searchbar","query","answer","question"],"textdomain":"contentoracle","attributes":{"width":{"type":"string","default":"100%"},"label":{"type":"string","default":"Search"},"placeholder":{"type":"string","default":"Ask AI..."},"backgroundColor":{"type":"string","default":"contrast"},"textColor":{"type":"string","default":"base-2"}},"selectors":{"root":".contentoracle-ai_search_root","container":".contentoracle-ai_search_container","label":".contentoracle-ai_search_label","input":".contentoracle-ai_search_input","button":".contentoracle-ai_search_button"},"supports":{"color":{"background":true,"text":true,"button":false},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"typography":{"fontSize":true,"fontSizeUnit":["px","em","rem"],"fontStyle":true},"width":{"type":"string","default":"100%"},"align":true,"html":false},"editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","viewScript":"file:./view.js"}');
 
 /***/ })
 

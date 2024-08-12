@@ -23,6 +23,14 @@
             "type": "string",
             "default": "100%"
         },
+		"label":{
+			"type": "string",
+			"default": "Search"
+		},
+		"placeholder": {
+			"type": "string",
+			"default": "Ask AI..."
+		},
 		"backgroundColor": {
 			"type": "string",
 			"default": "contrast"
