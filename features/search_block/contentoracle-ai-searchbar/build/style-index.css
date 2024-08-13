@@ -7,10 +7,27 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
-.wp-block-create-block-contentoracle-ai-searchbar {
-  background-color: #21759b;
-  color: #fff;
+.contentoracle-ai_search_root {
+  padding: 0.75rem;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_label {
+  display: block;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_container {
+  display: flex;
+  align-items: center;
   padding: 2px;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_input {
+  flex-grow: 1; /* grow to fill the space */
+  padding: 1rem 0.4rem;
+  font-size: var(--wp--preset--font-size--small);
+  border-width: 0;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_button {
+  padding: 1rem;
+  font-size: var(--wp--preset--font-size--small);
+  margin-left: 0.25rem;
 }
 
 /*# sourceMappingURL=style-index.css.map*/
