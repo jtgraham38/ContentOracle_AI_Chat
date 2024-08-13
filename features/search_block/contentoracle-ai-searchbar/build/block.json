@@ -21,7 +21,23 @@
   "attributes": {
     "width": {
       "type": "string",
-      "default": "25%"
+      "default": "100%"
+    },
+    "label": {
+      "type": "string",
+      "default": "Search"
+    },
+    "placeholder": {
+      "type": "string",
+      "default": "Ask AI..."
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": "contrast"
+    },
+    "textColor": {
+      "type": "string",
+      "default": "base-2"
     }
   },
   "selectors": {
