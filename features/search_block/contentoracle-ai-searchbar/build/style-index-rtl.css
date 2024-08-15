@@ -21,11 +21,12 @@
 .contentoracle-ai_search_root .contentoracle-ai_search_input {
   flex-grow: 1; /* grow to fill the space */
   padding: 1rem 0.4rem;
-  font-size: var(--wp--preset--font-size--small);
+  font-size: var(--wp--preset--font-size--medium);
   border-width: 0;
 }
 .contentoracle-ai_search_root .contentoracle-ai_search_button {
   padding: 1rem;
-  font-size: var(--wp--preset--font-size--small);
+  font-size: var(--wp--preset--font-size--medium);
   margin-right: 0.25rem;
+  border: none;
 }

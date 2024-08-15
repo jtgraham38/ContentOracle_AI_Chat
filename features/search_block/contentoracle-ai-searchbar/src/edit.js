@@ -89,6 +89,7 @@ export default function Edit({
 								defaultValue={ parseInt(attributes.width.slice(0,-1)) }
 								id={`wp-block-search_width_${iid}`}
 								onChange={ ( event ) => {
+									console.log(attributes)
 									setAttributes( { width: event.target.value + "%" } );
 								} }
 							></input>

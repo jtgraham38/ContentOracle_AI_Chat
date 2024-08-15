@@ -22,6 +22,10 @@ class ContentOracleSearchBlock extends PluginFeature{
 
     //register the custom search block
     public function register_search_blocks(){
+        //include seach block utils
+        require_once $this->get_base_dir() . 'features/search_block/util.php';
+
+        //register search block
         register_block_type($this->get_base_dir() . '/features/search_block/contentoracle-ai-searchbar/build');
     }
 
