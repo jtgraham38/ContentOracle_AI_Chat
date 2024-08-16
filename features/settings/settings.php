@@ -17,6 +17,7 @@ class ContentOracleSettings extends PluginFeature{
     public function add_actions(){
         add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'init_settings'));
+        add_action('init', array($this, 'create_results_page'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -93,6 +94,16 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle_ai_settings'  // section
         );
 
+        add_settings_field(
+            $this->get_prefix() . "ai_results_page",    // id of the field
+            'ContentOracle AI Search Results Page',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/ai_search_results_page_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_ai_settings'  // section
+        );
+
 
 
         // create the settings themselves
@@ -142,6 +153,15 @@ class ContentOracleSettings extends PluginFeature{
                 'sanitize_callback' => 'wp_parse_args'
             )
         );
+
+        register_setting(
+            'contentoracle_ai_settings', // option group
+            $this->get_prefix() . 'ai_results_page',    // option name
+            array(  // args
+                'type' => 'string',
+                'default' => 'none'
+            )
+        );
     }
 
     //add settings page
@@ -159,5 +179,29 @@ class ContentOracleSettings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/contentoracle_settings.php';
             } // $function
         );
+    }
+
+    //create the results page for the ai search if it does not exist
+    public function create_results_page(){
+        $results_page_id = get_option($this->get_prefix() . 'ai_results_page', null);
+        $results_page = get_post($results_page_id);
+
+        //if no results page is set...
+        if (!$results_page || $results_page->post_type != 'page'){
+            //create the page
+            $page = array(
+                'post_title' => 'ContentOracle AI Search Results',
+                'post_content' => '<p>ai search results!</p>',//file_get_contents($this->get_base_dir() . 'elements/storagepress_default_listing_page.php'),
+                'post_status' => 'publish',
+                'post_type' => 'page',
+            );
+            $page_id = wp_insert_post($page);
+
+            //update the option to create the page
+            if ($page_id && !is_wp_error($page_id)) {
+                // Update the option with the ID of the new page
+                update_option($this->get_prefix() . 'ai_results_page', $page_id);
+            }
+        }
     }
 }
