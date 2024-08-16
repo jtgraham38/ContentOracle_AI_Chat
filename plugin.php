@@ -44,6 +44,11 @@ require_once plugin_dir_path(__FILE__) . 'features/search_block/search_block.php
 $feature = new ContentOracleSearchBlock();
 $plugin->register_feature($feature);
 
+//register main ai chat block
+require_once plugin_dir_path(__FILE__) . 'features/ai_block/ai_block.php';
+$feature = new ContentOracleAiBlock();
+$plugin->register_feature($feature);
+
 
 //NOTE: this will be moved, here for now
 add_action('admin_menu', function(){
