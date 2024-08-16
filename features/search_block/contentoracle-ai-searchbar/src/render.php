@@ -52,26 +52,26 @@ if ( ! empty( $attributes['width'] ) ) {
 
 
 //echoes for debugging
-echo "<pre>";
-echo "Attrs<br>";
-print_r($attributes);
-// echo "<hr>";
-// echo "classnames<br>";
-// print_r($classnames);
-// echo "<hr>";
-// echo "inline_styles<br>";
-// print_r($inline_styles);
-// echo "<hr>";
-// echo "color_classes<br>";
-// print_r($color_classes);
-// echo "<hr>";
-// echo "typography_classes<br>";
-// print_r($typography_classes);
-// echo "<hr>";
-// echo "border_color_classes<br>";
-// print_r($border_color_classes);
+// echo "<pre>";
+// echo "Attrs<br>";
+// print_r($attributes);
+// // echo "<hr>";
+// // echo "classnames<br>";
+// // print_r($classnames);
+// // echo "<hr>";
+// // echo "inline_styles<br>";
+// // print_r($inline_styles);
+// // echo "<hr>";
+// // echo "color_classes<br>";
+// // print_r($color_classes);
+// // echo "<hr>";
+// // echo "typography_classes<br>";
+// // print_r($typography_classes);
+// // echo "<hr>";
+// // echo "border_color_classes<br>";
+// // print_r($border_color_classes);
 
-echo "</pre>";
+// echo "</pre>";
 ?>
 
 <div
@@ -86,8 +86,8 @@ echo "</pre>";
         <?php echo esc_html( $attributes['label'] ) ?>
     </label>
     <form 
-        action="#" 
-        method="POST" 
+        action="<?php echo esc_url( home_url( '/' ) ) ?>" 
+        method="GET" 
         role="search" 
         class="<?php echo esc_attr( $container_classes ) ?>" 
         <?php echo $container_styles ?>
@@ -96,6 +96,7 @@ echo "</pre>";
             class="<?php echo esc_attr( $input_classes ) ?>" 
             <?php echo $input_styles ?> type="search" 
             id="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>" 
+            name="contentoracle_ai_search"
             required
             placeholder="<?php echo $attributes['placeholder'] ?>"
         >
