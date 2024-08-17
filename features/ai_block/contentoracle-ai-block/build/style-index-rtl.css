@@ -7,8 +7,23 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
-.wp-block-create-block-contentoracle-ai-block {
-  background-color: #21759b;
-  color: #fff;
+.contentoracle-ai_chat_root {
+  padding: 0.25rem;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_input_container {
+  display: flex;
+  align-items: center;
   padding: 2px;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_input {
+  flex-grow: 1; /* grow to fill the space */
+  padding: 1rem 0.4rem;
+  font-size: var(--wp--preset--font-size--medium);
+  border-width: 0;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_button {
+  padding: 1rem;
+  font-size: var(--wp--preset--font-size--medium);
+  margin-right: 0.25rem;
+  border: none;
 }

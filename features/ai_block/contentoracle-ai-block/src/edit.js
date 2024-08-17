@@ -21,6 +21,11 @@ import { useBlockProps } from '@wordpress/block-editor';
  */
 import './editor.scss';
 
+/*
+My imports
+*/
+import { __experimentalUseBorderProps as useBorderProps } from '@wordpress/block-editor';
+
 /**
  * The edit function describes the structure of your block in the context of the
  * editor. This represents what the editor will render when the block is used.
@@ -29,13 +34,32 @@ import './editor.scss';
  *
  * @return {Element} Element to render.
  */
-export default function Edit() {
+export default function Edit({
+	attributes,
+	setAttributes,
+	className,
+}) {
+
+	//merge the blockprops, borderProps, and classname
+	const blockProps = useBlockProps({
+		className: 'contentoracle-ai_chat_root'
+	});
+	const borderProps = useBorderProps(attributes);	//TODO: integrate border props!
+	
+	//return the editor markup
 	return (
-		<p { ...useBlockProps() }>
-			{ __(
-				'Contentoracle Ai Block – hello from the editor!',
-				'contentoracle-ai-block'
-			) }
-		</p>
+		<>
+			<div { ...blockProps }>
+
+				<div>
+					<div>ContentOracle AI Chat</div>
+				</div>
+				<div></div>
+				<div className="contentoracle-ai_chat_input_container">
+					<input type="text" className="contentoracle-ai_chat_input" />
+					<div className="contentoracle-ai_chat_button">Send</div>
+				</div>
+			</div>
+		</>
 	);
 }
