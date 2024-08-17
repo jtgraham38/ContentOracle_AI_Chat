@@ -100,6 +100,7 @@ if ( ! empty( $attributes['width'] ) ) {
             required
             placeholder="<?php echo $attributes['placeholder'] ?>"
         >
+        <input type="hidden" name="contentoracle_ai_search_should_redirect" value="1">
         <input 
             type="submit" 
             class="<?php echo esc_attr( $button_classes ) ?>"

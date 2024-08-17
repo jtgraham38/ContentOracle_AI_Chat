@@ -41,10 +41,12 @@ class ContentOracleSearchBlock extends PluginFeature{
             $ai_results_page_id = get_option($this->get_prefix() . 'ai_results_page', null);
             $ai_results_page = get_post($ai_results_page_id);
 
-            if ($ai_results_page && $ai_results_page->post_type == 'page' && $ai_results_page->post_status == 'publish') {
-
+            if ($ai_results_page && $ai_results_page->post_type == 'page' && $ai_results_page->post_status == 'publish') { 
+                $should_redirect = isset( $_GET['contentoracle_ai_search_should_redirect'] );
                 //ensure we only redirect if we are not already on the ai search results page
-                if ( !isset($query->query['page_id']) || $query->query['page_id'] != $ai_results_page_id ) {
+                if ( 
+                    $should_redirect
+                ) {
                     $ai_results_page_url = get_permalink($ai_results_page_id);
                     $ai_search_url = add_query_arg('contentoracle_ai_search', $ai_search_query, $ai_results_page_url);
                     wp_redirect($ai_search_url );
