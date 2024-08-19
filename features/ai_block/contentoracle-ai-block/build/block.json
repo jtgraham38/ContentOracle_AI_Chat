@@ -19,18 +19,23 @@
     "question"
   ],
   "textdomain": "contentoracle-ai-block",
-  "attributes": {},
+  "attributes": {
+    "header": {
+      "type": "string",
+      "default": "ContentOracle Ai Chat"
+    }
+  },
   "selectors": {
     "root": ".contentoracle-ai_chat_root",
     "input_container": ".contentoracle-ai_chat_input_container",
     "input": ".contentoracle-ai_chat_input",
-    "button": ".contentoracle-ai_chat_button"
+    "button": ".contentoracle-ai_chat_button",
+    "conversation": ".contentoracle-ai_chat_conversation"
   },
   "supports": {
     "color": {
       "background": true,
-      "text": true,
-      "button": false
+      "text": true
     },
     "__experimentalBorder": {
       "color": true,

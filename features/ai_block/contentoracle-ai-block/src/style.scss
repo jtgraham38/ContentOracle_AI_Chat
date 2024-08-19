@@ -5,8 +5,47 @@
  * Replace them with your own styles or remove the file completely.
  */
 
-.contentoracle-ai_chat_root{
+
+ .contentoracle-ai_chat_root{
 	padding: 0.25rem;
+	.contentoracle-ai_chat_conversation{
+		height: 10rem;
+		overflow-y: auto;
+		margin: 0.5rem 0;
+		padding: 0.25rem 0.75rem;
+
+		.contentoracle-ai_chat_bubble{
+			margin: 0.25rem 0;
+			padding: 0.25rem;
+			border-radius: 0.5rem;
+			display: inline-block;
+			max-width: 80%;
+			&.contentoracle-ai_chat_bubble_user{
+				background-color: #f0f0f0;
+				float: right;
+			}
+			&.contentoracle-ai_chat_bubble_bot{
+				background-color: #f0f0f0;
+				float: left;
+			}
+		}
+
+		.contentoracle-ai_chat_bubble::after{
+			content: "";
+			position: absolute;
+			bottom: 0;
+			left: 20px; // Adjust this value to position the tail
+			width: 0;
+			height: 0;
+			border: 10px solid transparent;
+			border-top-color: #f1f0f0; // Same color as the chat bubble background
+			border-bottom: 0;
+			border-left: 0;
+			margin-left: -5px;
+			margin-bottom: -10px;
+		}
+
+	}
 	.contentoracle-ai_chat_input_container{
 		display: flex;
 		align-items: center;

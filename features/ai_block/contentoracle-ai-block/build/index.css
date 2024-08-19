@@ -6,8 +6,18 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
-.wp-block-create-block-contentoracle-ai-block {
-  border: 1px dotted #f00;
+/* panelbody styles */
+.contentoracle-ai_panelbody_root .contentoracle-ai_panelbody_group {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  align-items: center;
+}
+.contentoracle-ai_panelbody_root .contentoracle-ai_panelbody_input_container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0.2rem;
 }
 
 /*# sourceMappingURL=index.css.map*/
