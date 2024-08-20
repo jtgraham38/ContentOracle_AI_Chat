@@ -22,8 +22,11 @@ class ContentOracleAiBlock extends PluginFeature{
 
     //register the custom search block
     public function register_ai_blocks(){
+        //include chat block utils
+        //include seach block utils
+        require_once $this->get_base_dir() . 'features/ai_block/util.php';
 
-        //register search block
+        //register chat block
         register_block_type($this->get_base_dir() . '/features/ai_block/contentoracle-ai-block/build');
     }
 

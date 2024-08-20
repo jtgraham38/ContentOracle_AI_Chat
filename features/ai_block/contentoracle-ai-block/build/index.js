@@ -72,9 +72,9 @@ function Edit({
   const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)({
     className: 'contentoracle-ai_chat_root'
   });
-  console.log(blockProps);
-  const borderProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.__experimentalUseBorderProps)(attributes); //TODO: integrate border props!
-  console.log(borderProps);
+  //console.log(blockProps);
+  const borderProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.__experimentalUseBorderProps)(attributes);
+  //console.log(borderProps);
   //add border classes to the block props classes
   if (borderProps?.className) {
     if (blockProps?.className) {
@@ -125,13 +125,12 @@ function Edit({
   };
 
   //make header props
-  const headerProps = {
+  const labelProps = {
     className: 'contentoracle-ai_chat_header',
     style: {
       color: blockProps?.style?.color
     }
   };
-  console.log("headerProps", headerProps);
 
   //make chat window props
   const chatWindowProps = {
@@ -225,7 +224,7 @@ function Edit({
   })))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...blockProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", {
-    ...headerProps
+    ...labelProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
     tagName: "header",
     placeholder: "AI Chat header here...",

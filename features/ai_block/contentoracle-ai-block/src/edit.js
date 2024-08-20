@@ -48,9 +48,9 @@ export default function Edit({
 	const blockProps = useBlockProps({
 		className: 'contentoracle-ai_chat_root'
 	});
-	console.log(blockProps);
-	const borderProps = useBorderProps(attributes);	//TODO: integrate border props!
-	console.log(borderProps);
+	//console.log(blockProps);
+	const borderProps = useBorderProps(attributes);
+	//console.log(borderProps);
 	//add border classes to the block props classes
 	if (borderProps?.className){
 		if (blockProps?.className){
@@ -102,13 +102,12 @@ export default function Edit({
 	}
 
 	//make header props
-	const headerProps = {
+	const labelProps = {
 		className: 'contentoracle-ai_chat_header',
 		style: {
 			color: blockProps?.style?.color
 		}
 	}
-	console.log("headerProps", headerProps);
 
 	//make chat window props
 	const chatWindowProps = {
@@ -214,8 +213,8 @@ export default function Edit({
 
 			<div { ...blockProps }>
 
-				<div>
-					<h3 { ...headerProps }>
+				<div className='contentoracle-ai_chat_header'>
+					<h3 { ...labelProps }>
 					<RichText
 						tagName="header"
 						placeholder="AI Chat header here..."
