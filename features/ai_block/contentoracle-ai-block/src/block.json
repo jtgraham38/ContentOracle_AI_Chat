@@ -23,7 +23,31 @@
 		"header": {
             "type": "string",
             "default": "ContentOracle Ai Chat"
-        }
+        },
+		"placeholder": {
+			"type": "string",
+			"default": "Ask me anything..."
+		},
+		"height": {
+			"type": "string",
+			"default": "20rem"
+		},
+		"botMsgBgColor": {
+			"type": "string",
+			"default": "#d1d1d1"
+		},
+		"botMsgTextColor": {
+			"type": "string",
+			"default": "#111111"
+		},
+		"userMsgBgColor": {
+			"type": "string",
+			"default": "#3232fd"
+		},
+		"userMsgTextColor": {
+			"type": "string",
+			"default": "#eeeeff"
+		}
 	},
 	"selectors": {
 		"root": ".contentoracle-ai_chat_root",
