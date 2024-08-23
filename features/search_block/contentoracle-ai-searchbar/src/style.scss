@@ -28,5 +28,14 @@
 		font-size: var(--wp--preset--font-size--medium);
 		margin-left: 0.25rem;
 		border: none;
+
+		&:hover{
+			cursor: pointer;
+			scale: 1.05;
+		}
+
+		&:active{
+			scale: 0.95;
+		}
 	}
 }

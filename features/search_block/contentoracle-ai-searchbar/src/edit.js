@@ -67,6 +67,18 @@ export default function Edit({
 		width: attributes.width
 	}
 
+	//get block props, minus the style classNames
+	const blockPropsNoStyle = {...blockProps};
+
+	//remove everything form classNames beginning with "has-" or "is-"
+	blockPropsNoStyle.className = blockPropsNoStyle.className.split(' ').filter( (className) => {
+		return !className.startsWith('has-') && !className.startsWith('is-');
+	}).join(' ');
+	delete blockPropsNoStyle.style;
+	
+	//add my classname to the style-less block props
+	blockPropsNoStyle.className += ' contentoracle-ai_search_root';
+
 	return (
 		<>
 		<InspectorControls>
@@ -101,7 +113,7 @@ export default function Edit({
 			</PanelBody>
 		</InspectorControls>
 
-		<div className="contentoracle-ai_search_root" style={ rootStyles }>
+		<div { ...blockPropsNoStyle } style={ rootStyles }>
 			<RichText
 				tagName="label"
 				className="contentoracle-ai_search_label wp-block-search__label"

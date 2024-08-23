@@ -86,6 +86,20 @@ function Edit({
   const rootStyles = {
     width: attributes.width
   };
+
+  //get block props, minus the style classNames
+  const blockPropsNoStyle = {
+    ...blockProps
+  };
+
+  //remove everything form classNames beginning with "has-" or "is-"
+  blockPropsNoStyle.className = blockPropsNoStyle.className.split(' ').filter(className => {
+    return !className.startsWith('has-') && !className.startsWith('is-');
+  }).join(' ');
+  delete blockPropsNoStyle.style;
+
+  //add my classname to the style-less block props
+  blockPropsNoStyle.className += ' contentoracle-ai_search_root';
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "contentoracle-ai_panelbody_root"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", null, "Display Settings"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -109,7 +123,7 @@ function Edit({
       });
     }
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, attributes?.width || "-", " "))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "contentoracle-ai_search_root",
+    ...blockPropsNoStyle,
     style: rootStyles
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
     tagName: "label",

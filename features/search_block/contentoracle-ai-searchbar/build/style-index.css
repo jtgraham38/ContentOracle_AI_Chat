@@ -30,5 +30,12 @@
   margin-left: 0.25rem;
   border: none;
 }
+.contentoracle-ai_search_root .contentoracle-ai_search_button:hover {
+  cursor: pointer;
+  scale: 1.05;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_button:active {
+  scale: 0.95;
+}
 
 /*# sourceMappingURL=style-index.css.map*/
