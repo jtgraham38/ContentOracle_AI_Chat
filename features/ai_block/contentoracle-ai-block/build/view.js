@@ -23,10 +23,35 @@
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
  */
+//NOTE: one day, I need to migrate this to use the interactivity API
 
-/* eslint-disable no-console */
-console.log('Hello World! (from create-block-contentoracle-ai-block block)');
-/* eslint-enable no-console */
+//NOTE: even when there are muiltiple blocks on a page, this script will only run once
+
+console.log(window.wp.api);
+document.addEventListener('DOMContentLoaded', function () {
+  //get the rest api base url from the wp global
+  const restBaseUrl = window.wp.api.settings.root;
+  console.log(restBaseUrl);
+
+  //get the &contentoracle_ai_search parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const search = urlParams.get('contentoracle_ai_search');
+
+  //preemptively send the search term if it is set
+  if (search) {
+    //send the search term to the server
+    sendUserMessage(search);
+  }
+});
+
+//send a message from the user to the server
+async function sendUserMessage(message) {
+  //set defaults
+  //RES
+
+  //send the message to the server
+  window.alert('Sending message: ' + message);
+}
 /******/ })()
 ;
 //# sourceMappingURL=view.js.map

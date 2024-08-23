@@ -16,5 +16,9 @@
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "^27.9.0"
+	},
+	"dependencies": {
+		"@wordpress/blocks": "^13.6.0",
+		"@wordpress/interactivity": "^6.6.0"
 	}
 }

@@ -82,7 +82,8 @@
       "margin": true,
       "padding": true
     },
-    "html": false
+    "html": false,
+    "interactivity": true
   },
   "editorScript": "file:./index.js",
   "editorStyle": "file:./index.css",

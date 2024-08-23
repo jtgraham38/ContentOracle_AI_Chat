@@ -76,9 +76,18 @@ $button_inline_styles = implode(";", array_map(
     array_keys($button_attrs['inline_styles'])
 ));
 
+//generate unique id for the chat
+$chat_id = wp_unique_id('contentoracle-ai_chat_');
+
 ?>
 
-<div style="<?php echo esc_attr($root_inline_styles) ?>" class="<?php echo esc_attr($root_classnames) ?>">
+<div 
+    id="<?php echo esc_attr( $unique_id ) ?>" 
+    style="<?php echo esc_attr($root_inline_styles) ?>" 
+    class="<?php echo esc_attr($root_classnames) ?>"
+    data-wp-interactive="contentoracle-ai-chat-block"
+    wp_rest_url="<?php echo esc_attr(get_rest_url()) ?>"
+>
     <div class="contentoracle-ai_chat_header">
         <h3 
             class="<?php echo esc_attr($label_classnames) ?>"
@@ -100,12 +109,17 @@ $button_inline_styles = implode(";", array_map(
 
     <div style="<?php echo esc_attr($input_container_inline_styles) ?>" class="<?php echo esc_attr($input_container_classnames) ?>">
         <input type="text" style="<?php echo esc_attr($input_inline_styles) ?>" class="<?php echo esc_attr($input_classnames) ?>" placeholder="<?php echo esc_attr( $attributes['placeholder'] ) ?>">
-        <button style="<?php echo esc_attr($button_inline_styles) ?>" class="<?php echo esc_attr($button_classnames) ?>">Send</button>
+        <button
+            style="<?php echo esc_attr($button_inline_styles) ?>"
+            class="<?php echo esc_attr($button_classnames) ?>"
+        >
+            Send
+        </button>
     </div>
 </div>
 
-<!-- <pre>
-    <?php //print_r($attributes); ?>
+<pre>
+    <?php print_r(get_rest_url());//print_r($attributes); ?>
     <hr>
     <?php //print_r(contentoracle_ai_chat_block_get_label_attrs($attributes)); ?>
     <hr>
@@ -114,4 +128,4 @@ $button_inline_styles = implode(";", array_map(
     <?php //print_r($root_classnames); ?>
     <hr>
     <?php //print_r(get_block_wrapper_attributes()); ?>
-</pre> -->
+</pre>
