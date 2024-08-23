@@ -29,8 +29,11 @@
 
 console.log(window.wp.api);
 document.addEventListener('DOMContentLoaded', function () {
+  //get parts of the chat block by class
+  const root = document.querySelector('.contentoracle-ai-block');
+
   //get the rest api base url from the wp global
-  const restBaseUrl = window.wp.api.settings.root;
+
   console.log(restBaseUrl);
 
   //get the &contentoracle_ai_search parameter
