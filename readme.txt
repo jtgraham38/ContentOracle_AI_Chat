@@ -1,7 +1,7 @@
 === Plugin Name ===
 Contributors: Jacob Graham
 Tags: wordpress, ai, search, content, rag
-Requires at least: 5.0
+Requires at least: 6.5
 Tested up to: 5.8
 Stable tag: 1.0.0
 License: GPLv3 or later

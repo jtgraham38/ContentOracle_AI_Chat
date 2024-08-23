@@ -4,7 +4,7 @@
  * Plugin URI:        https://jacob-t-graham.com/contentoracle-ai-search-a-website-add-on-that-uses-ai-to-boost-the-power-of-your-web-content/
  * Description:       ContentOracle AI Search seamlessly blends the power of generative AI with your website’s search feature.
  * Version:           1.0.0
- * Requires at least: 5.2
+ * Requires at least: 6.5
  * Requires PHP:      7.2
  * Author:            Jacob Graham
  * Author URI:        https://jacob-t-graham.com

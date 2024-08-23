@@ -18,7 +18,6 @@
 		"answer",
 		"question"
 	],
-	"textdomain": "contentoracle-ai-block",
 	"attributes": {
 		"header": {
             "type": "string",
@@ -82,11 +81,13 @@
 			"margin": true,
 			"padding": true
 		},
-		"html": false
+		"html": false,
+		"interactivity": true
 	},
+	"textdomain": "contentoracle-ai-chat-block",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
-	"viewScript": "file:./view.js",
 	"style": "file:./style-index.css",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"viewScriptModule": "file:./view.js"
 }
