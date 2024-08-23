@@ -1,0 +1,21 @@
+/**
+ * The following styles get applied inside the editor only.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+/* panelbody styles */
+.contentoracle-ai_panelbody_root{
+	.contentoracle-ai_panelbody_group{
+		display: flex;
+		flex-direction: column;
+		padding: 0.5rem;
+		align-items: center;
+	}
+	.contentoracle-ai_panelbody_input_container{
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		padding: 0.2rem;
+	}
+}

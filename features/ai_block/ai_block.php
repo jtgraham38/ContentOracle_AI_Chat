@@ -27,7 +27,7 @@ class ContentOracleAiBlock extends PluginFeature{
         require_once $this->get_base_dir() . 'features/ai_block/util.php';
 
         //register chat block
-        register_block_type($this->get_base_dir() . '/features/ai_block/contentoracle-ai-block/build');
+        register_block_type($this->get_base_dir() . '/features/ai_block/contentoracle-ai-chat-block/build');
     }
 
 }
