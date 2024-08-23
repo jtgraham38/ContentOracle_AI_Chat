@@ -54,7 +54,9 @@
     "input_container": ".contentoracle-ai_chat_input_container",
     "input": ".contentoracle-ai_chat_input",
     "button": ".contentoracle-ai_chat_button",
-    "conversation": ".contentoracle-ai_chat_conversation"
+    "conversation": ".contentoracle-ai_chat_conversation",
+    "label": ".contentoracle-ai_chat_label",
+    "header": ".contentoracle-ai_chat_header"
   },
   "supports": {
     "color": {

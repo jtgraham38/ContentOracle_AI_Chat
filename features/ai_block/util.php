@@ -62,6 +62,108 @@ function contentoracle_ai_chat_block_get_label_attrs($attributes){
     ];
 }
 
+/* function that assembles the style and class attributes for the chat body element of the block */
+function contentoracle_ai_chat_block_get_chat_body_attrs($attributes){
+    $classnames = [];
+    $inline_styles = [];
+
+    //get and apply border attributes
+    $border_attrs = contentoracle_ai_chat_block_get_border_attrs($attributes);
+    $classnames = array_merge($classnames, $border_attrs['classnames']);
+    $inline_styles = array_merge($inline_styles, $border_attrs['inline_styles']);
+
+    //return the classnames and inline styles
+    return [
+        'classnames' => $classnames,
+        'inline_styles' => $inline_styles
+    ];
+}
+
+/* function that assembles the style and class attributes for the input container element of the block */
+function contentoracle_ai_chat_block_get_input_container_attrs($attributes){
+    $classnames = [];
+    $inline_styles = [];
+
+    //get and apply border attributes
+    $border_attrs = contentoracle_ai_chat_block_get_border_attrs($attributes);
+    $classnames = array_merge($classnames, $border_attrs['classnames']);
+    $inline_styles = array_merge($inline_styles, $border_attrs['inline_styles']);
+
+    //return the classnames and inline styles
+    return [
+        'classnames' => $classnames,
+        'inline_styles' => $inline_styles
+    ];
+}
+
+/* function that assembles the style and class attributes for the input element of the block */
+function contentoracle_ai_chat_block_get_input_attrs($attributes){
+    $classnames = [];
+    $inline_styles = [];
+
+    //get border attributes
+    $border_attrs = contentoracle_ai_chat_block_get_border_attrs($attributes);
+
+    //only apply the border radius
+    if (array_key_exists('border-radius', $border_attrs['inline_styles'])) {
+        $inline_styles['border-radius'] = $border_attrs['inline_styles']['border-radius'];
+    }
+
+    //return the classnames and inline styles
+    return [
+        'classnames' => $classnames,
+        'inline_styles' => $inline_styles
+    ];
+}
+
+/* function that assembles the style and class attributes for the button element of the block */
+function contentoracle_ai_chat_block_get_button_attrs($attributes){
+    $classnames = [];
+    $inline_styles = [];
+
+    //get border attributes
+    $border_attrs = contentoracle_ai_chat_block_get_border_attrs($attributes);
+    
+    //only apply the border radius
+    if (array_key_exists('border-radius', $border_attrs['inline_styles'])) {
+        $inline_styles['border-radius'] = $border_attrs['inline_styles']['border-radius'];
+    }
+
+    //apply the border color as the button bg color
+    //check for inline style first
+    if (array_key_exists('border-color', $border_attrs['inline_styles'])) {
+        $inline_styles['background-color'] = $border_attrs['inline_styles']['border-color'];
+    }
+    //otherwise, check for classnames
+    else if (in_array('has-border-color', $border_attrs['classnames'])) {
+        $classnames[] = 'has-background';
+
+        foreach ($border_attrs['classnames'] as $classname) {
+            if (preg_match('/has-((?!border-color)[a-z]+|[a-z]+-\d+)-border-color/', $classname, $matches)) {
+                $classnames[] = 'has-' . $matches[1] . '-background-color';
+            }
+        }
+    }
+
+    //get the color attributes
+    $color_attrs = contentoracle_ai_chat_block_get_color_attrs($attributes);
+
+    //apply only the text color
+    if (in_array('has-text-color', $color_attrs['classnames'])) {
+        $classnames[] = 'has-text-color';
+        $classnames[] = preg_grep('/has-((?!text-color)[a-z]+|[a-z]+-\d+)-color/', $color_attrs['classnames'])[1];
+
+    } else if (array_key_exists('color', $color_attrs['inline_styles'])) {
+        $inline_styles['color'] = $color_attrs['inline_styles']['color'];
+    }
+
+    //return the classnames and inline styles
+    return [
+        'classnames' => $classnames,
+        'inline_styles' => $inline_styles
+    ];
+}
+
 /* Gets the classname and inline style attribute values based on the padding attributes of a block. */
 function contentoracle_ai_chat_block_get_padding_attrs($attributes) {
     $classnames = [];
