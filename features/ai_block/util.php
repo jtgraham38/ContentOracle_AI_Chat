@@ -170,8 +170,8 @@ function contentoracle_ai_chat_block_get_padding_attrs($attributes) {
     $inline_styles = [];
 
     //get padding classes or inline styles
-    $padding = $attributes['style']['spacing']['padding'];
-    if (!empty($padding)) {
+    if (!empty($attributes['style']['spacing']['padding'])) {
+        $padding = $attributes['style']['spacing']['padding'];
         //do top padding
         if (!empty($padding['top'])) {
             //translate any preset values

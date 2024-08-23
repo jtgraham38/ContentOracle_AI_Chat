@@ -49,3 +49,10 @@
   margin-right: 0.25rem;
   border: none;
 }
+.contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_button:hover {
+  cursor: pointer;
+  scale: 1.05;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_button:active {
+  scale: 0.95;
+}

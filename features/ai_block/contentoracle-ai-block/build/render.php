@@ -100,18 +100,18 @@ $button_inline_styles = implode(";", array_map(
 
     <div style="<?php echo esc_attr($input_container_inline_styles) ?>" class="<?php echo esc_attr($input_container_classnames) ?>">
         <input type="text" style="<?php echo esc_attr($input_inline_styles) ?>" class="<?php echo esc_attr($input_classnames) ?>" placeholder="<?php echo esc_attr( $attributes['placeholder'] ) ?>">
-        <button style="<?php echo esc_attr($button_inline_styles) ?>" class="<?php echo esc_attr($button_classnames) ?>">Go</button>
+        <button style="<?php echo esc_attr($button_inline_styles) ?>" class="<?php echo esc_attr($button_classnames) ?>">Send</button>
     </div>
 </div>
 
-<pre>
-    <?php print_r($attributes); ?>
+<!-- <pre>
+    <?php //print_r($attributes); ?>
     <hr>
-    <?php print_r(contentoracle_ai_chat_block_get_label_attrs($attributes)); ?>
+    <?php //print_r(contentoracle_ai_chat_block_get_label_attrs($attributes)); ?>
     <hr>
-    <?php print_r($root_inline_styles); ?>
+    <?php //print_r($root_inline_styles); ?>
     <hr>
-    <?php print_r($root_classnames); ?>
+    <?php //print_r($root_classnames); ?>
     <hr>
-    <?php print_r(get_block_wrapper_attributes()); ?>
-</pre>
+    <?php //print_r(get_block_wrapper_attributes()); ?>
+</pre> -->
