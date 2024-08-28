@@ -84,6 +84,8 @@ class ContentOracleApi extends PluginFeature{
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir());
         $response = $api->ai_search($query, $p);
 
+
+
         //return the response
         return new WP_REST_Response(array(
             'query' => $query,

@@ -112,6 +112,27 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
             </div>
         </template>
 
+        <template x-if="loading">
+            <div
+                class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_bot contentoracle-ai_chat_bubble_typing"
+            >
+                    <span>•</span>
+                    <span>•</span>
+                    <span>•</span>
+            </div>
+        </template>
+
+        <template x-if="error">
+            <div
+                class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_bot contentoracle-ai_chat_bubble_error"
+            >
+                <p>
+                    <span style="font-size: larger;">:(</span>
+                    Sorry, something went wrong.  Please try again later.
+                </p>
+            </div>
+        </template>
+
 
     </div>
 
@@ -124,6 +145,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                 placeholder="<?php echo esc_attr( $attributes['placeholder'] ) ?>"
                 x-model:value="userMsg"
                 x-ref="chatInput"
+                x-bind:disabled="loading || error != ''"
                 required
                 maxlength="255"
             >
@@ -168,9 +190,5 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     .contentoracle-ai_chat_bubble_bot{
         background-color: <?php echo $bot_bg; ?>;
         color: <?php echo $bot_text; ?>;
-    }
-
-    .is-typing{
-        background-color: pink;
     }
 </style>

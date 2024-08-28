@@ -3484,6 +3484,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
   //will be filled in by the block via php
   conversation: [],
   loading: false,
+  error: "",
   init() {
     //load the rest url into the apiBaseUrl from the data-contentoracle_rest_url attribute
     this.apiBaseUrl = this.$el.getAttribute('data-contentoracle_rest_url');
@@ -3517,6 +3518,11 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
       return;
     }
 
+    //ensure error is not set
+    if (this.error) {
+      return;
+    }
+
     //send the message
     await this.send(this.userMsg, event);
   },
@@ -3524,7 +3530,6 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
   async send(msg) {
     //set loading state
     this.loading = true;
-    this.$refs.chatInput.disabled = true;
 
     //add message to conversation
     this.conversation.push({
@@ -3549,17 +3554,23 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
     //send the request
     const request = await fetch(url, options);
     const json = await request.json();
+    console.log(json);
     //const json = { response: {it: "worked"} }
 
-    //push the response to the conversation
-    this.conversation.push({
-      role: 'assistant',
-      message: json.response.it //NOTE: .it is temporary for now, will grab actual message later
-    });
+    //handle the response
+    if (json.response.error) {
+      //push the error to the conversation
+      this.error = json.response.error;
+    } else {
+      //push the response to the conversation
+      this.conversation.push({
+        role: 'assistant',
+        message: json.response.it //NOTE: .it is temporary for now, will grab actual message later
+      });
+    }
 
     //set loading state
     this.loading = false;
-    this.$refs.chatInput.disabled = false;
 
     //clear out input
     this.userMsg = '';
