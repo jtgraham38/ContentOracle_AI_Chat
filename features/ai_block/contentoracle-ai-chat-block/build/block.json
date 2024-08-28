@@ -27,6 +27,10 @@
       "type": "string",
       "default": "Ask me anything..."
     },
+    "buttonText": {
+      "type": "string",
+      "default": "Send"
+    },
     "height": {
       "type": "string",
       "default": "20rem"

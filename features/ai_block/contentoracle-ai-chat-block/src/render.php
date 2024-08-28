@@ -156,7 +156,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
             class="<?php echo esc_attr($button_classnames) ?>"
 			x-on:click="sendMessage"
         >
-            Send
+            <?php echo esc_html($attributes['buttonText']); ?>
         </button>
     </form>
 

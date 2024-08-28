@@ -249,7 +249,16 @@ export default function Edit({
 					/>
 
 					</span>
-					<div { ...buttonProps } >Send</div>
+					<div  { ...buttonProps }>
+						<RichText
+							tagName="buttonText"
+							placeholder="Search text here..."
+							value={ attributes.buttonText }
+							onChange={ ( newValue ) => {
+								setAttributes( { buttonText: newValue } );
+							} }
+						></RichText>
+					</div>
 				</div>
 			</div>
 		</>

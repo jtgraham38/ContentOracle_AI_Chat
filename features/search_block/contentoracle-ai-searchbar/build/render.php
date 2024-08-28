@@ -73,39 +73,40 @@ if ( ! empty( $attributes['width'] ) ) {
 
 // echo "</pre>";
 ?>
-
-<div
-    class="contentoracle-ai_search_root"
-    <?php echo $root_styles ?>
->
-    <label 
-        class="<?php echo esc_attr( $label_classes ) ?>" 
-        <?php echo $label_styles ?>
-        for="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>"
+<div style="display:flex; justify-content:center;">
+    <div
+        class="contentoracle-ai_search_root"
+        <?php echo $root_styles ?>
     >
-        <?php echo esc_html( $attributes['label'] ) ?>
-    </label>
-    <form 
-        action="<?php echo esc_url( home_url( '/' ) ) ?>" 
-        method="GET" 
-        role="search" 
-        class="<?php echo esc_attr( $container_classes ) ?>" 
-        <?php echo $container_styles ?>
-    >
-        <input 
-            class="<?php echo esc_attr( $input_classes ) ?>" 
-            <?php echo $input_styles ?> type="search" 
-            id="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>" 
-            name="contentoracle_ai_search"
-            required
-            placeholder="<?php echo $attributes['placeholder'] ?>"
+        <label 
+            class="<?php echo esc_attr( $label_classes ) ?>" 
+            <?php echo $label_styles ?>
+            for="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>"
         >
-        <input type="hidden" name="contentoracle_ai_search_should_redirect" value="1">
-        <input 
-            type="submit" 
-            class="<?php echo esc_attr( $button_classes ) ?>"
-             <?php echo $button_styles ?>
-             value="Search"
+            <?php echo esc_html( $attributes['label'] ) ?>
+        </label>
+        <form 
+            action="<?php echo esc_url( home_url( '/' ) ) ?>" 
+            method="GET" 
+            role="search" 
+            class="<?php echo esc_attr( $container_classes ) ?>" 
+            <?php echo $container_styles ?>
         >
-    </form>
+            <input 
+                class="<?php echo esc_attr( $input_classes ) ?>" 
+                <?php echo $input_styles ?> type="search" 
+                id="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>" 
+                name="contentoracle_ai_search"
+                required
+                placeholder="<?php echo $attributes['placeholder'] ?>"
+            >
+            <input type="hidden" name="contentoracle_ai_search_should_redirect" value="1">
+            <input 
+                type="submit" 
+                class="<?php echo esc_attr( $button_classes ) ?>"
+                 <?php echo $button_styles ?>
+                 value="Search"
+            >
+        </form>
+    </div>
 </div>
