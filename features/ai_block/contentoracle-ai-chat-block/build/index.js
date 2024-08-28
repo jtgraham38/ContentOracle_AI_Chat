@@ -244,6 +244,8 @@ function Edit({
     ...botMsgProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Tomato plants grow best in full sun, in soil that is rich in organic matter, and well-drained. They need a lot of water, but not too much. They also need a lot of nutrients, so you should fertilize them regularly. You should also prune them regularly to keep them healthy and productive. If you follow these tips, you should have a healthy and productive tomato plant."))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...inputContainerProps
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    class: "contentoracle-ai_chat_input_wrapper"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
     type: "text",
     ...inputProps,
@@ -255,7 +257,7 @@ function Edit({
         placeholder: event.target.value
       });
     }
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...buttonProps
   }, "Send"))));
 }

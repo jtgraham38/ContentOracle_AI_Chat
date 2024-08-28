@@ -137,7 +137,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     </div>
 
     <form style="<?php echo esc_attr($input_container_inline_styles) ?>" class="<?php echo esc_attr($input_container_classnames) ?>">
-        <span class="contentoracle-ai_chat_input_wrapper" style="flex-grow: 1;	/* grow to fill the space */">
+        <span class="contentoracle-ai_chat_input_wrapper">
             <input 
                 type="text" 
                 style="<?php echo esc_attr($input_inline_styles) ?>" 

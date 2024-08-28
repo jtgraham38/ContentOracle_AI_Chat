@@ -236,6 +236,7 @@ export default function Edit({
 
 				</div>
 				<div { ...inputContainerProps }>
+					<span class="contentoracle-ai_chat_input_wrapper">	
 					<input 
 						type="text" 
 						{ ...inputProps }  
@@ -247,6 +248,7 @@ export default function Edit({
 						} }
 					/>
 
+					</span>
 					<div { ...buttonProps } >Send</div>
 				</div>
 			</div>

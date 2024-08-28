@@ -35,7 +35,8 @@
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_error {
   float: left;
-  background-color: rgba(255, 0, 0, 0.5);
+  background-color: rgb(201, 16, 16);
+  color: white;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_typing {
   float: left;
