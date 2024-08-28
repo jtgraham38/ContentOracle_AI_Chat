@@ -24,9 +24,11 @@
 			word-break: break-all;
 			&.contentoracle-ai_chat_bubble_user{
 				float: right;
+				animation: fadeIn 1s ease-in-out;
 			}
 			&.contentoracle-ai_chat_bubble_bot{
 				float: left;
+				animation: fadeIn 1s ease-in-out;
 			}
 			&.contentoracle-ai_chat_bubble_error{
 				float: left;
@@ -51,18 +53,6 @@
 					}
 
 					animation: pulse 1s infinite;
-	
-					@keyframes pulse {
-						0% {
-							opacity: 0;
-						}
-						50% {
-							opacity: 1;
-						}
-						100% {
-							opacity: 0;
-						}
-					}
 				}
 
 			}
@@ -108,3 +98,26 @@
 	}
 }
 
+/* animations */
+@keyframes pulse {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-3rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -27,9 +27,11 @@
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_user {
   float: left;
+  animation: fadeIn 1s ease-in-out;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_bot {
   float: right;
+  animation: fadeIn 1s ease-in-out;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_error {
   float: right;
@@ -53,17 +55,6 @@
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_typing span:nth-child(3) {
   animation-delay: 0.3s;
-}
-@keyframes pulse {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_input_container {
   display: flex;
@@ -96,4 +87,27 @@
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_button:active {
   scale: 0.95;
+}
+
+/* animations */
+@keyframes pulse {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
