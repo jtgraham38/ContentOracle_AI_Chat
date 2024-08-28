@@ -184,11 +184,29 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
         $bot_text = $attributes['botMsgTextColor'];
     ?>
     .contentoracle-ai_chat_bubble_user{
-        background-color: <?php echo $user_bg; ?>;
-        color: <?php echo $user_text; ?>;
+        background-color: <?php echo esc_html( $user_bg ); ?>;
+        color: <?php echo esc_html( $user_text ); ?>;
     }
     .contentoracle-ai_chat_bubble_bot{
-        background-color: <?php echo $bot_bg; ?>;
-        color: <?php echo $bot_text; ?>;
+        background-color: <?php echo esc_html( $bot_bg ); ?>;
+        color: <?php echo esc_html( $bot_text ); ?>;
     }
+
+    <?php 
+    //scrollbar styling
+    //if a preset border color is set, use that
+    $scrollbar_color = "";
+    if (!empty($attributes['borderColor'])) {
+        $scrollbar_color = 'var(--wp--preset--color--' . $attributes['borderColor'] . ')';
+    } 
+    //otherwise, if a custom border color is set, use that
+    else if (!empty($attributes['style']['border']['color'])){
+        $scrollbar_color = $attributes['style']['border']['color'];
+    }
+    
+    ?>
+    .contentoracle-ai_chat_conversation{
+        overflow-y: auto;
+        scrollbar-color: <?php echo esc_html( $scrollbar_color ) ?> rgba(0, 0, 0, 0.01);
+    }'
 </style>
