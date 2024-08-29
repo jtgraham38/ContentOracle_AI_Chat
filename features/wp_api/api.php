@@ -46,6 +46,7 @@ class ContentOracleApi extends PluginFeature{
 
         //find all posts of the types specified by the user that are relavent to the query
         $post_types = get_option($this->get_prefix() . 'post_types');
+        if (!$post_types) $post_types = array('post', 'page');
         $relavent_posts = [];
         foreach ($post_types as $post_type){
             //build a query for relavent posts
@@ -70,6 +71,7 @@ class ContentOracleApi extends PluginFeature{
                 }
             }
         }
+
 
         //locate the 5 most relavent posts, prioritizing the user's goals
         //NOTE: this is a placeholder for now, will be replaced with a call to the ai
