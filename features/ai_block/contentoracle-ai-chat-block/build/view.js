@@ -3562,11 +3562,18 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
       //push the error to the conversation
       this.error = json.response.error;
     } else {
+      //check for unauthenticated
+      if (json.response.message == "Unauthenticated.") {
+        //push the error to the conversation
+        this.error = "Unauthenticated. Site admin should check api token.";
+      }
       //push the response to the conversation
-      this.conversation.push({
-        role: 'assistant',
-        message: json.response.it //NOTE: .it is temporary for now, will grab actual message later
-      });
+      else {
+        this.conversation.push({
+          role: 'assistant',
+          message: json.response.it //NOTE: .it is temporary for now, will grab actual message later
+        });
+      }
     }
 
     //set loading state

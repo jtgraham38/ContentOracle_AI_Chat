@@ -132,8 +132,6 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                 </p>
             </div>
         </template>
-
-
     </div>
 
     <form style="<?php echo esc_attr($input_container_inline_styles) ?>" class="<?php echo esc_attr($input_container_classnames) ?>">
