@@ -15,39 +15,72 @@
   overflow-y: auto;
   margin: 0.5rem 0;
   padding: 0.25rem 0.75rem;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble {
   margin: 0.25rem 0;
   padding: 0.25rem;
   border-radius: 0.5rem;
-  display: inline-block;
   max-width: 80%;
+  clear: both;
+  word-break: break-all;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_user {
-  background-color: #f0f0f0;
   float: left;
+  animation: fadeIn 1s ease-in-out;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_bot {
-  background-color: #f0f0f0;
   float: right;
+  animation: fadeIn 1s ease-in-out;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_error {
+  float: right;
+  background-color: rgb(201, 16, 16);
+  color: white;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_typing {
+  float: right;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_typing span {
+  font-size: 2rem;
+  animation: pulse 1s infinite;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_typing span:nth-child(1) {
+  animation-delay: 0s;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_typing span:nth-child(3) {
+  animation-delay: 0.3s;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_input_container {
   display: flex;
   align-items: center;
   padding: 2px;
 }
-.contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_input {
-  flex-grow: 1; /* grow to fill the space */
+.contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_input_wrapper {
+  flex-grow: 1; /* grow to fill the remaining space */
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_input_wrapper .contentoracle-ai_chat_input {
+  width: 100%;
   padding: 1rem 0.4rem;
   font-size: var(--wp--preset--font-size--medium);
   border-width: 0;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_input_wrapper .contentoracle-ai_chat_input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_button {
   padding: 1rem;
   font-size: var(--wp--preset--font-size--medium);
   margin-right: 0.25rem;
   border: none;
+  z-index: 1;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_button:hover {
   cursor: pointer;
@@ -55,4 +88,27 @@
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_input_container .contentoracle-ai_chat_button:active {
   scale: 0.95;
+}
+
+/* animations */
+@keyframes pulse {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

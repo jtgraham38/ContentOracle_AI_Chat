@@ -78,19 +78,16 @@ $button_inline_styles = implode(";", array_map(
 
 //generate unique id for the chat
 $chat_id = wp_unique_id('contentoracle-ai_chat_');
-
 ?>
+
+
 
 <div 
     id="<?php echo esc_attr( $chat_id ) ?>" 
     style="<?php echo esc_attr($root_inline_styles) ?>" 
     class="<?php echo esc_attr($root_classnames) ?>"
-    data-wp-interactive="contentoracle-ai-chat"
-	<?php echo wp_interactivity_data_wp_context( array( 
-		'userMsg' => "",
-		'botMsg' => "",
-		'apiBaseUrl' => get_rest_url(),
-	) ); ?>
+    x-data="contentoracle_ai_chat"
+    data-contentoracle_rest_url="<?php echo get_rest_url() ?>"
 >
     <div class="contentoracle-ai_chat_header">
         <h3 
@@ -104,36 +101,70 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     <div 
 		class="<?php echo esc_attr( $chat_body_classnames ) ?>"
 		style="<?php echo esc_attr( $chat_body_inline_styles ) ?>"
+        x-ref="chatBody"
 	>
-        <div class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_user" style="<?php echo esc_attr('background-color:' . $attributes['userMsgBgColor'] .';color:' . $attributes['userMsgTextColor'] . ';') ?>">
-            <p>How do I grow a tomato plant?</p>
-        </div>
+        <template x-for="( chat, i ) in conversation" >
+            <div
+                class="contentoracle-ai_chat_bubble"
+                x-bind:class="chat.role == 'user' ? 'contentoracle-ai_chat_bubble_user' : 'contentoracle-ai_chat_bubble_bot'"
+            >
+                <p x-text="chat.message"></p>
+            </div>
+        </template>
 
-        <div class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_bot" style="<?php echo esc_attr('background-color:' . $attributes['botMsgBgColor'] .';color:' . $attributes['botMsgTextColor'] . ';') ?>">
-            <p>Tomato plants grow best in full sun, in soil that is rich in organic matter, and well-drained. They need a lot of water, but not too much. They also need a lot of nutrients, so you should fertilize them regularly. You should also prune them regularly to keep them healthy and productive. If you follow these tips, you should have a healthy and productive tomato plant.</p>
-        </div>
+        <template x-if="loading">
+            <div
+                class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_bot contentoracle-ai_chat_bubble_typing"
+            >
+                    <span>•</span>
+                    <span>•</span>
+                    <span>•</span>
+            </div>
+        </template>
+
+        <template x-if="error">
+            <div
+                class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_bot contentoracle-ai_chat_bubble_error"
+            >
+                <p>
+                    <span style="font-size: larger;">:(</span>
+                    Sorry, something went wrong.  Please try again later.
+                </p>
+            </div>
+        </template>
+
+
     </div>
 
-    <div style="<?php echo esc_attr($input_container_inline_styles) ?>" class="<?php echo esc_attr($input_container_classnames) ?>">
-        <input 
-			type="text" 
-			style="<?php echo esc_attr($input_inline_styles) ?>" 
-			class="<?php echo esc_attr($input_classnames) ?>" 
-			placeholder="<?php echo esc_attr( $attributes['placeholder'] ) ?>"
-			data-wp-on--input="actions.updateUserMsg"
-		>
+    <form style="<?php echo esc_attr($input_container_inline_styles) ?>" class="<?php echo esc_attr($input_container_classnames) ?>">
+        <span class="contentoracle-ai_chat_input_wrapper">
+            <input 
+                type="text" 
+                style="<?php echo esc_attr($input_inline_styles) ?>" 
+                class="<?php echo esc_attr($input_classnames) ?>" 
+                placeholder="<?php echo esc_attr( $attributes['placeholder'] ) ?>"
+                x-model:value="userMsg"
+                x-ref="chatInput"
+                x-bind:disabled="loading || error != ''"
+                required
+                maxlength="255"
+            >
+            <div class="contentoracle-ai_chat_loader" x-show="loading"></div>
+        </span>
         <button
             style="<?php echo esc_attr($button_inline_styles) ?>"
             class="<?php echo esc_attr($button_classnames) ?>"
-			data-wp-on--click="actions.sendMessage"
+			x-on:click="sendMessage"
         >
-            Send
+            <?php echo esc_html($attributes['buttonText']); ?>
         </button>
-    </div>
+    </form>
+
+
 </div>
 
-<pre>
-    <?php print_r(get_rest_url());//print_r($attributes); ?>
+<!-- <pre>
+    <?php //print_r(get_rest_url());//print_r($attributes); ?>
     <hr>
     <?php //print_r(contentoracle_ai_chat_block_get_label_attrs($attributes)); ?>
     <hr>
@@ -142,4 +173,40 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     <?php //print_r($root_classnames); ?>
     <hr>
     <?php //print_r(get_block_wrapper_attributes()); ?>
-</pre>
+</pre> -->
+
+<style>
+    <?php 
+        //temporarily style the speech bubbles using php echoed styles
+        $user_bg = $attributes['userMsgBgColor'];
+        $user_text = $attributes['userMsgTextColor'];
+        $bot_bg = $attributes['botMsgBgColor'];
+        $bot_text = $attributes['botMsgTextColor'];
+    ?>
+    .contentoracle-ai_chat_bubble_user{
+        background-color: <?php echo esc_html( $user_bg ); ?>;
+        color: <?php echo esc_html( $user_text ); ?>;
+    }
+    .contentoracle-ai_chat_bubble_bot{
+        background-color: <?php echo esc_html( $bot_bg ); ?>;
+        color: <?php echo esc_html( $bot_text ); ?>;
+    }
+
+    <?php 
+    //scrollbar styling
+    //if a preset border color is set, use that
+    $scrollbar_color = "";
+    if (!empty($attributes['borderColor'])) {
+        $scrollbar_color = 'var(--wp--preset--color--' . $attributes['borderColor'] . ')';
+    } 
+    //otherwise, if a custom border color is set, use that
+    else if (!empty($attributes['style']['border']['color'])){
+        $scrollbar_color = $attributes['style']['border']['color'];
+    }
+    
+    ?>
+    .contentoracle-ai_chat_conversation{
+        overflow-y: auto;
+        scrollbar-color: <?php echo esc_html( $scrollbar_color ) ?> rgba(0, 0, 0, 0.01);
+    }'
+</style>

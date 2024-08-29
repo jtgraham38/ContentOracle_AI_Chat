@@ -25,14 +25,14 @@ class ContentOracleApi extends PluginFeature{
     //register the search route
     public function register_search_rest_route(){
         register_rest_route('contentoracle/v1', '/search', array(
-            'methods' => 'GET',
+            'methods' => 'POST',
             'permission_callback' => '__return_true', // this line was added to allow any site visitor to make an ai search request
             'callback' => array($this, 'ai_search'),
             'args' => array(
                 'query' => array(
                     'required' => true,
                     'validate_callback' => function($param, $request, $key){
-                        return is_string($param);
+                        return is_string($param) && strlen($param) < 256;
                     }
                 )
             )
@@ -85,6 +85,8 @@ class ContentOracleApi extends PluginFeature{
         //send a request to the ai to generate a response
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir());
         $response = $api->ai_search($query, $p);
+
+
 
         //return the response
         return new WP_REST_Response(array(

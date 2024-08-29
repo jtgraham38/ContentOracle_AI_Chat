@@ -236,6 +236,7 @@ export default function Edit({
 
 				</div>
 				<div { ...inputContainerProps }>
+					<span class="contentoracle-ai_chat_input_wrapper">	
 					<input 
 						type="text" 
 						{ ...inputProps }  
@@ -247,7 +248,17 @@ export default function Edit({
 						} }
 					/>
 
-					<div { ...buttonProps } >Send</div>
+					</span>
+					<div  { ...buttonProps }>
+						<RichText
+							tagName="buttonText"
+							placeholder="Search text here..."
+							value={ attributes.buttonText }
+							onChange={ ( newValue ) => {
+								setAttributes( { buttonText: newValue } );
+							} }
+						></RichText>
+					</div>
 				</div>
 			</div>
 		</>
