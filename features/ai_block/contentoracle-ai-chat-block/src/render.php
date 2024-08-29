@@ -82,7 +82,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
 ?>
 
 <div 
-    id="<?php echo esc_attr( $unique_id ) ?>" 
+    id="<?php echo esc_attr( $chat_id ) ?>" 
     style="<?php echo esc_attr($root_inline_styles) ?>" 
     class="<?php echo esc_attr($root_classnames) ?>"
     data-wp-interactive="contentoracle-ai-chat"
