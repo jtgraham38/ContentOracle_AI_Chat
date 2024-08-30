@@ -3531,18 +3531,13 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
     //set loading state
     this.loading = true;
 
-    //add message to conversation
-    this.conversation.push({
-      role: 'user',
-      message: msg
-    });
-    console.log(this.conversation);
-
-    //prepare the request
+    //prepare the request body
     const url = this.apiBaseUrl + 'contentoracle/v1/search';
     const data = {
-      query: msg
+      message: msg,
+      conversation: this.conversation
     };
+    //build the request
     const options = {
       method: 'POST',
       headers: {
@@ -3550,6 +3545,13 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
       },
       body: JSON.stringify(data)
     };
+
+    //add user's message to conversation
+    this.conversation.push({
+      role: 'user',
+      content: msg
+    });
+    console.log(this.conversation);
 
     //send the request
     const request = await fetch(url, options);

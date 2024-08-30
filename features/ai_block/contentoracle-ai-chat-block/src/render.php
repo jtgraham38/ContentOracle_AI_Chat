@@ -108,7 +108,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                 class="contentoracle-ai_chat_bubble"
                 x-bind:class="chat.role == 'user' ? 'contentoracle-ai_chat_bubble_user' : 'contentoracle-ai_chat_bubble_bot'"
             >
-                <p x-text="chat.message"></p>
+                <p x-text="chat.content"></p>
             </div>
         </template>
 
@@ -132,8 +132,6 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                 </p>
             </div>
         </template>
-
-
     </div>
 
     <form style="<?php echo esc_attr($input_container_inline_styles) ?>" class="<?php echo esc_attr($input_container_classnames) ?>">

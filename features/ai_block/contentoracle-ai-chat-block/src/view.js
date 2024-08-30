@@ -58,18 +58,14 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		//set loading state
 		this.loading = true;
 
-		//add message to conversation
-		this.conversation.push( {
-			role: 'user',
-			message: msg,
-		} );
-		console.log( this.conversation );
-
-		//prepare the request
+		
+		//prepare the request body
 		const url = this.apiBaseUrl + 'contentoracle/v1/search';
 		const data = {
-			query: msg,
+			message: msg,
+			conversation: this.conversation,
 		};
+		//build the request
 		const options = {
 			method: 'POST',
 			headers: {
@@ -77,6 +73,13 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			},
 			body: JSON.stringify( data ),
 		};
+
+		//add user's message to conversation
+		this.conversation.push( {
+			role: 'user',
+			content: msg,
+		} );
+		console.log( this.conversation );
 
 		//send the request
 		const request = await fetch( url, options )
@@ -90,16 +93,24 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			//push the error to the conversation
 			this.error = json.response.error;
 		} else {
-			try{
-				//push the response to the conversation
-				this.conversation.push( {
-					role: 'assistant',
-					message: json.response.content[0].text,	//NOTE: .it is temporary for now, will grab actual message later
-				} );
+			//check for unauthenticated
+			if (json.response.message == "Unauthenticated.")
+			{
+				//push the error to the conversation
+				this.error = "Unauthenticated. Site admin should check api token.";
 			}
-			catch(e){
-				this.error = "An error occurred while processing the response";
-				console.error(e);
+			else{
+				try{
+					//push the response to the conversation
+						this.conversation.push( {
+							role: 'assistant',
+							content: json.response.content[0].text,
+						} );
+				}
+				catch(e){
+					this.error = "An error occurred while processing the response";
+					console.error(e);
+				}
 			}
 		}
 
