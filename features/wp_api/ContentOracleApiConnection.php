@@ -19,7 +19,7 @@ class ContentOracleApiConnection{
         $this->base_dir = $base_dir;
     }
 
-    public function ai_search(string $query, array $content){
+    public function ai_search(string $query, array $content, array $conversation){
         //build the request
         $url = self::API_BASE_URL . '/v1/ai/search';
         
@@ -30,7 +30,8 @@ class ContentOracleApiConnection{
                 'Content-Type' => 'application/json'
             ),
             'body' => json_encode(array(
-                'query' => $query,
+                'message' => $query,
+                'conversation' => $conversation,
                 'content' => $content,
                 'modifiers' => array(
                     'general' => array(

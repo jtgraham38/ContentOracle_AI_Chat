@@ -29,10 +29,17 @@ class ContentOracleApi extends PluginFeature{
             'permission_callback' => '__return_true', // this line was added to allow any site visitor to make an ai search request
             'callback' => array($this, 'ai_search'),
             'args' => array(
-                'query' => array(
+                'message' => array(
                     'required' => true,
                     'validate_callback' => function($param, $request, $key){
                         return is_string($param) && strlen($param) < 256;
+                    }
+                ),
+                'conversation' => array(
+                    'required' => true,
+                    'validate_callback' => function($param, $request, $key){
+                        return is_array($param);
+                        //todo: enhance this validation for role and content checks
                     }
                 )
             )
@@ -41,8 +48,13 @@ class ContentOracleApi extends PluginFeature{
 
     //search callback
     public function ai_search($request){
+        // echo '<pre>';
+        // print_r($request);
+        // echo '</pre>';
+        // die;
+
         //get the query
-        $query = $request->get_param('query');
+        $message = $request->get_param('message');
 
         //find all posts of the types specified by the user that are relavent to the query
         $post_types = get_option($this->get_prefix() . 'post_types');
@@ -63,6 +75,7 @@ class ContentOracleApi extends PluginFeature{
                 while ($wp_query->have_posts()){
                     $wp_query->the_post();
                     $relavent_posts[$post_type][] = array(
+                        'id' => get_the_ID(),
                         'title' => get_the_title(),
                         'body' => get_the_content(),
                         'url' => get_permalink(),
@@ -75,23 +88,24 @@ class ContentOracleApi extends PluginFeature{
 
         //locate the 5 most relavent posts, prioritizing the user's goals
         //NOTE: this is a placeholder for now, will be replaced with a call to the ai
-        $p = [];
+        $content = [];
         foreach ($relavent_posts as $post_type => $posts){
             foreach ($posts as $post){
-                $p[] = $post;
+                $content[] = $post;
             }
         }
 
+        //get the conversation from the request
+        $conversation = $request->get_param('conversation');
+
         //send a request to the ai to generate a response
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir());
-        $response = $api->ai_search($query, $p);
-
-
+        $response = $api->ai_search($message, $content, $conversation);
 
         //return the response
         return new WP_REST_Response(array(
-            'query' => $query,
-            'context' => $p,
+            'message' => $message,
+            'context' => $content,
             'response' => $response
         ));
     }
