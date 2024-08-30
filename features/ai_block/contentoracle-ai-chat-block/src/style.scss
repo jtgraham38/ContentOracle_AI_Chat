@@ -17,11 +17,10 @@
 
 		.contentoracle-ai_chat_bubble{
 			margin: 0.25rem 0;
-			padding: 0.25rem;
+			padding: 0.5rem;
 			border-radius: 0.5rem;
 			max-width: 80%;
 			clear: both;
-			word-break: break-all;
 			&.contentoracle-ai_chat_bubble_user{
 				float: right;
 				animation: fadeIn 1s ease-in-out;

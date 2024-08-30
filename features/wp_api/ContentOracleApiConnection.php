@@ -42,9 +42,9 @@ class ContentOracleApiConnection{
                         'goals' => get_option($this->prefix . 'ai_goals')
                     )
                 )
-            ))
+            )),
+            'timeout' => 30,
         );
-
 
         //var_dump(json_decode($args['body']));
 
@@ -55,6 +55,9 @@ class ContentOracleApiConnection{
         if (is_wp_error($response)){
             return $response->get_error_message();
         }
+
+        //convert newlines to html
+        $response['body'] = nl2br($response['body']);
         
         //parse the response
         $body = wp_remote_retrieve_body($response);

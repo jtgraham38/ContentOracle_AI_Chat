@@ -160,7 +160,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
         </button>
     </form>
 
-
+    |<span style="color: red;" x-text="error"></span>|
 </div>
 
 <!-- <pre>

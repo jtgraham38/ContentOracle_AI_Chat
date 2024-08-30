@@ -81,7 +81,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		//send the request
 		const request = await fetch( url, options )
 		const json = await request.json();
-		console.log(json);
+		console.log("json:", json);
 		//const json = { response: {it: "worked"} }
 
 
@@ -90,11 +90,17 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			//push the error to the conversation
 			this.error = json.response.error;
 		} else {
-			//push the response to the conversation
-			this.conversation.push( {
-				role: 'assistant',
-				message: json.response.it,	//NOTE: .it is temporary for now, will grab actual message later
-			} );
+			try{
+				//push the response to the conversation
+				this.conversation.push( {
+					role: 'assistant',
+					message: json.response.content[0].text,	//NOTE: .it is temporary for now, will grab actual message later
+				} );
+			}
+			catch(e){
+				this.error = "An error occurred while processing the response";
+				console.error(e);
+			}
 		}
 
 		//set loading state
