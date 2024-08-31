@@ -55,15 +55,18 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	},
 	//sends a message to the server and gets an ai response back
 	async send( msg ) {
-		//set loading state
-		this.loading = true;
+		//set loading state, after a slight delat
+		setTimeout( 
+			() => { this.loading = true; }, 1000 
+		);
+		//this.loading = true;
 
 		
 		//prepare the request body
 		const url = this.apiBaseUrl + 'contentoracle/v1/search';
 		const data = {
 			message: msg,
-			conversation: this.conversation,
+			conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice( this.conversation.length - 10 ),
 		};
 		//build the request
 		const options = {
@@ -74,7 +77,6 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			body: JSON.stringify( data ),
 		};
 
-		//add user's message to conversation
 		this.conversation.push( {
 			role: 'user',
 			content: msg,
@@ -89,10 +91,16 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 
 		//handle the response
-		if ( json.response.error ) {
+		if ( json.error ){
+			//this is an error that might be set in the wp api, because it is not a part of the response
+			this.error = json.error
+		}
+		else if ( json.response.error ) {
 			//push the error to the conversation
+			//this is an error that might be set in contentoracle api, because it is a part of the response
 			this.error = json.response.error;
-		} else {
+		} 
+		else {
 			//check for unauthenticated
 			if (json.response.message == "Unauthenticated.")
 			{

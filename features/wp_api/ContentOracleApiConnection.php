@@ -54,11 +54,8 @@ class ContentOracleApiConnection{
 
         //handle wordpress errors
         if (is_wp_error($response)){
-            return $response->get_error_message();
+            return [ 'error' => $response->get_error_message() ];
         }
-
-        //convert newlines to html
-        $response['body'] = nl2br($response['body']);
         
         //parse the response
         $body = wp_remote_retrieve_body($response);

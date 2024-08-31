@@ -21,6 +21,7 @@
 			border-radius: 0.5rem;
 			max-width: 80%;
 			clear: both;
+
 			&.contentoracle-ai_chat_bubble_user{
 				float: right;
 				animation: fadeIn 1s ease-in-out;
@@ -55,6 +56,10 @@
 					animation: pulse 1s infinite;
 				}
 
+			}
+
+			.contentoracle-ai_chat_bubble_bot_main_idea{
+				text-decoration: underline;
 			}
 		}
 

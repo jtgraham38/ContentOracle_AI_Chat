@@ -48,10 +48,7 @@ class ContentOracleApi extends PluginFeature{
 
     //search callback
     public function ai_search($request){
-        // echo '<pre>';
-        // print_r($request);
-        // echo '</pre>';
-        // die;
+        
 
         //get the query
         $message = $request->get_param('message');
@@ -64,8 +61,8 @@ class ContentOracleApi extends PluginFeature{
             //build a query for relavent posts
             $wp_query = new WP_Query(array(
                 'post_type' => $post_type,
-                's' => $query,
-                'posts_per_page' => 5,   //NOTE: magic number, make it configurable later!
+                's' => $message,
+                'posts_per_page' => 10,   //NOTE: magic number, make it configurable later!
                 'post_status' => 'publish'
             ));
 
@@ -94,6 +91,7 @@ class ContentOracleApi extends PluginFeature{
                 $content[] = $post;
             }
         }
+        $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
 
         //get the conversation from the request
         $conversation = $request->get_param('conversation');
@@ -102,11 +100,54 @@ class ContentOracleApi extends PluginFeature{
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir());
         $response = $api->ai_search($message, $content, $conversation);
 
+        //handle error in response
+        if ( isset( $response['error'] ) ){
+            return new WP_REST_Response(
+                array(
+                    'error' => $response['error']
+                )
+            );
+        }
+
+        //apply post processing to the ai_response
+        $ai_connection = $response['ai_connection'];
+        $ai_response = $response['response'];
+        switch ($ai_connection) {
+            case 'anthropic':
+                //escape html entities
+                $ai_response['content'][0]['text']= htmlspecialchars($ai_response['content'][0]['text']);
+                //replace newlines with html breaks
+                $ai_response['content'][0]['text'] = nl2br($ai_response['content'][0]['text']);
+                //wrap the main idea of the response (returned wrapped in asterisks) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
+                //TODO
+                $ai_response['content'][0]['text'] = preg_replace('/\*([^*]+)\*/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response['content'][0]['text']);
+
+                //apply a hyperlink to the cited posts in the ai response, and put the in text citation in a sub tag
+                //NOTE: I want to replace the think in the parentheses, of strings meeting this form: `lorem ipsum`(580)
+
+                $ai_response['content'][0]['text'] = preg_replace_callback(
+                    '/`([^`]+)`\s*\(([^)]+)\)/',
+                    function ($matches) {
+                        $text = $matches[1];
+                        $post_id = $matches[2];
+                        $url = get_post_permalink($post_id);
+                        return "$text <a href=\"$url\"><sub>[$post_id]</sub></a>";
+                    },
+                    $ai_response['content'][0]['text']
+                );          
+                break;
+            default:
+                //return 501 not implemented error
+                return new WP_REST_Response(array(
+                    'error' => 'AI connection "' . $ai_connection . '" not implemented!',
+                ), 501);
+        }
+
         //return the response
         return new WP_REST_Response(array(
             'message' => $message,
             'context' => $content,
-            'response' => $response
+            'response' => $ai_response
         ));
     }
 
