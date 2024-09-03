@@ -86,7 +86,7 @@ class ContentOracleApi extends PluginFeature{
         }
 
 
-        //locate the 5 most relavent posts, prioritizing the user's goals
+        //locate the 10 most relavent posts, prioritizing the user's goals
         //NOTE: this is a placeholder for now, will be replaced with a call to the ai
         $content = [];
         foreach ($relavent_posts as $post_type => $posts){
@@ -94,6 +94,7 @@ class ContentOracleApi extends PluginFeature{
                 $content[] = $post;
             }
         }
+        $content = array_slice($content, 0, 10);
 
         //get the conversation from the request
         $conversation = $request->get_param('conversation');
