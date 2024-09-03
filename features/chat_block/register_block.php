@@ -15,19 +15,19 @@ class ContentOracleAiBlock extends PluginFeature{
     }
 
     public function add_actions(){
-        add_action('init', array($this, 'register_ai_blocks'));
+        add_action('init', array($this, 'register_chat_blocks'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
 
     //register the custom search block
-    public function register_ai_blocks(){
+    public function register_chat_blocks(){
         //include chat block utils
         //include seach block utils
-        require_once $this->get_base_dir() . 'features/ai_block/util.php';
+        require_once $this->get_base_dir() . 'features/chat_block/util.php';
 
         //register chat block
-        register_block_type($this->get_base_dir() . '/features/ai_block/contentoracle-ai-chat-block/build');
+        register_block_type($this->get_base_dir() . '/features/chat_block/block/build');
     }
 
 }

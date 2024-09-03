@@ -27,7 +27,7 @@ class ContentOracleSearchBlock extends PluginFeature{
         require_once $this->get_base_dir() . 'features/search_block/util.php';
 
         //register search block
-        register_block_type($this->get_base_dir() . '/features/search_block/contentoracle-ai-searchbar/build');
+        register_block_type($this->get_base_dir() . '/features/search_block/block/build');
     }
 
     //handle a search request

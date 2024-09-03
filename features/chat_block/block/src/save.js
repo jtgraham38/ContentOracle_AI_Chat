@@ -18,7 +18,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 export default function save() {
 	return (
 		<p { ...useBlockProps.save() }>
-			{ 'Contentoracle Ai Searchbar – hello from the saved content!' }
+			{ 'The ContentOracle AI Chat will be rendered here!' }
 		</p>
 	);
 }

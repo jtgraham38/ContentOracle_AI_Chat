@@ -249,7 +249,7 @@ __webpack_require__.r(__webpack_exports__);
 function save() {
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
     ..._wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.useBlockProps.save()
-  }, 'Contentoracle Ai Searchbar – hello from the saved content!');
+  }, 'The ContentOracle AI Searchbar will be rendered here!');
 }
 
 /***/ }),

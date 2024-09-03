@@ -40,12 +40,12 @@ $feature = new ContentOracleApi();
 $plugin->register_feature($feature);
 
 //register searchbar blocks feature
-require_once plugin_dir_path(__FILE__) . 'features/search_block/search_block.php';
+require_once plugin_dir_path(__FILE__) . 'features/search_block/register_block.php';
 $feature = new ContentOracleSearchBlock();
 $plugin->register_feature($feature);
 
 //register main ai chat block
-require_once plugin_dir_path(__FILE__) . 'features/ai_block/ai_block.php';
+require_once plugin_dir_path(__FILE__) . 'features/chat_block/register_block.php';
 $feature = new ContentOracleAiBlock();
 $plugin->register_feature($feature);
 
