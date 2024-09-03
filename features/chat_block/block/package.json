@@ -18,7 +18,6 @@
 		"[^.]*"
 	],
 	"dependencies": {
-		"@wordpress/interactivity": "^6.6.0",
 		"alpinejs": "^3.14.1"
 	},
 	"devDependencies": {
