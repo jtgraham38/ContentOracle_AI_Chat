@@ -15,15 +15,22 @@ class ContentOracleSettings extends PluginFeature{
     }
 
     public function add_actions(){
-        add_action('admin_menu', array($this, 'add_settings_page'));
-        add_action('admin_init', array($this, 'init_settings'));
+        //ai settings
+        add_action('admin_menu', array($this, 'add_ai_settings_page'));
+        add_action('admin_init', array($this, 'register_ai_settings'));
+
+        //plugin settings
+        add_action('admin_menu', array($this, 'add_plugin_settings_page'), 20);
+        add_action('admin_init', array($this, 'init_plugin_settings'));
         add_action('init', array($this, 'create_results_page'));
+
+
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
 
-    //register settings
-    public function init_settings(){
+    //register plugin settings
+    public function init_plugin_settings(){
         // create section for settings
         add_settings_section(
             'contentoracle_plugin_settings', // id
@@ -34,74 +41,25 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings'  // page (matches menu slug)
         );
 
-        add_settings_section(
-            'contentoracle_ai_settings', // id
-            '', // title
-            function(){ // callback
-                echo 'Manage your AI search settings here.';
-            },
-            'contentoracle-ai-settings'  // page (matches menu slug)
-        );
-
         // create the settings fields
         add_settings_field(
             $this->get_prefix() . "api_token",    // id of the field
             'ContentOracle API Token',   // title
             function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/api_token_input.php';
+                require_once plugin_dir_path(__FILE__) . 'elements/plugin/api_token_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
             'contentoracle_plugin_settings'  // section
-        );
-
-        add_settings_field(
-            $this->get_prefix() . "post_types",    // id of the field
-            'ContentOracle Post Types to Use',   // title
-            function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/post_types_input.php';
-            },
-            'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_plugin_settings'  // section
-        );
-
-        add_settings_field(
-            $this->get_prefix() . "ai_tone",    // id of the field
-            'ContentOracle AI Tone',   // title
-            function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/ai_tone_input.php';
-            },
-            'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_ai_settings'  // section
-        );
-
-        add_settings_field(
-            $this->get_prefix() . "ai_jargon",    // id of the field
-            'ContentOracle AI Jargon',   // title
-            function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/ai_jargon_input.php';
-            },
-            'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_ai_settings'  // section
-        );
-
-        add_settings_field(
-            $this->get_prefix() . "ai_goals",    // id of the field
-            'ContentOracle AI Goals',   // title
-            function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/ai_goals_input.php';
-            },
-            'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_ai_settings'  // section
         );
 
         add_settings_field(
             $this->get_prefix() . "ai_results_page",    // id of the field
             'ContentOracle AI Search Results Page',   // title
             function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/ai_search_results_page_input.php';
+                require_once plugin_dir_path(__FILE__) . 'elements/plugin/ai_search_results_page_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_ai_settings'  // section
+            'contentoracle_plugin_settings'  // section
         );
 
 
@@ -116,6 +74,122 @@ class ContentOracleSettings extends PluginFeature{
             )
         );
 
+        register_setting(
+            'contentoracle_plugin_settings', // option group
+            $this->get_prefix() . 'ai_results_page',    // option name
+            array(  // args
+                'type' => 'string',
+                'default' => 'none'
+            )
+        );
+    }
+
+    //add plugin settings page
+    public function add_plugin_settings_page(){
+
+
+        //add a settings submenu
+        add_submenu_page(
+            'contentoracle-ai', // $parent_slug
+            'Settings', // $page_title
+            'Settings', // $menu_title
+            'manage_options', // $capability
+            'contentoracle-settings', // $menu_slug
+            function(){
+                require_once plugin_dir_path(__FILE__) . 'elements/plugin/_inputs.php';
+            } // $function
+        );
+    }
+
+    //create the results page for the ai search if it does not exist
+    public function create_results_page(){
+        $results_page_id = get_option($this->get_prefix() . 'ai_results_page', null);
+        $results_page = get_post($results_page_id);
+
+        //if no results page is set...
+        if (!$results_page || $results_page->post_type != 'page'){
+            //create the page
+            $page = array(
+                'post_title' => 'ContentOracle AI Search Results',
+                'post_content' => '<p>ai search results!</p>',//file_get_contents($this->get_base_dir() . 'elements/storagepress_default_listing_page.php'),
+                'post_status' => 'publish',
+                'post_type' => 'page',
+            );
+            $page_id = wp_insert_post($page);
+
+            //update the option to create the page
+            if ($page_id && !is_wp_error($page_id)) {
+                // Update the option with the ID of the new page
+                update_option($this->get_prefix() . 'ai_results_page', $page_id);
+            }
+        }
+    }
+
+    //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
+
+    //register ai settings
+    public function register_ai_settings(){
+        add_settings_section(
+            'contentoracle_ai_settings', // id
+            '', // title
+            function(){ // callback
+                echo 'Manage your AI search settings here.';
+            },
+            'contentoracle-ai-settings'  // page (matches menu slug)
+        );
+
+        // create the settings fields
+        add_settings_field(
+            $this->get_prefix() . "post_types",    // id of the field
+            'ContentOracle Post Types to Use',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/ai/post_types_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_ai_settings'  // section
+        );
+
+        add_settings_field(
+            $this->get_prefix() . "ai_tone",    // id of the field
+            'ContentOracle AI Tone',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_tone_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_ai_settings'  // section
+        );
+
+        add_settings_field(
+            $this->get_prefix() . "ai_jargon",    // id of the field
+            'ContentOracle AI Jargon',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_jargon_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_ai_settings'  // section
+        );
+
+        add_settings_field(
+            $this->get_prefix() . "ai_goal_prompt",    // id of the field
+            'ContentOracle AI Goals',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_goal_prompt_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_ai_settings'  // section
+        );
+
+        add_settings_field(
+            $this->get_prefix() . "ai_extra_info",    // id of the field
+            'ContentOracle AI Extra Info',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_extra_info_prompt_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_ai_settings'  // section
+        );
+
+        // create the settings themselves
         register_setting(
             'contentoracle_plugin_settings', // option group
             $this->get_prefix() . 'post_types',    // option name
@@ -146,62 +220,41 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'contentoracle_ai_settings', // option group
-            $this->get_prefix() . 'ai_goals',    // option name
+            $this->get_prefix() . 'ai_goal_prompt',    // option name
             array(  // args
-                'type' => 'array',
-                'default' => array('none'),
-                'sanitize_callback' => 'wp_parse_args'
+                'type' => 'string',
+                'default' => ''
             )
         );
 
         register_setting(
             'contentoracle_ai_settings', // option group
-            $this->get_prefix() . 'ai_results_page',    // option name
+            $this->get_prefix() . 'ai_extra_info_prompt',    // option name
             array(  // args
                 'type' => 'string',
-                'default' => 'none'
+                'default' => ''
             )
         );
     }
 
-    //add settings page
-    public function add_settings_page(){
-
-
+    //add ai settings page
+    public function add_ai_settings_page(){
         //add a settings submenu
         add_submenu_page(
             'contentoracle-ai', // $parent_slug
-            'Settings', // $page_title
-            'Settings', // $menu_title
+            'Prompt', // $page_title
+            'Prompt', // $menu_title
             'manage_options', // $capability
-            'contentoracle-ai-settings', // $menu_slug
+            'contentoracle-prompt', // $menu_slug
             function(){
-                require_once plugin_dir_path(__FILE__) . 'elements/contentoracle_settings.php';
+                require_once plugin_dir_path(__FILE__) . 'elements/ai/_inputs.php';
             } // $function
         );
     }
 
-    //create the results page for the ai search if it does not exist
-    public function create_results_page(){
-        $results_page_id = get_option($this->get_prefix() . 'ai_results_page', null);
-        $results_page = get_post($results_page_id);
+    //NOTE: embeddings have been registered in their own feature, "embeddings"
 
-        //if no results page is set...
-        if (!$results_page || $results_page->post_type != 'page'){
-            //create the page
-            $page = array(
-                'post_title' => 'ContentOracle AI Search Results',
-                'post_content' => '<p>ai search results!</p>',//file_get_contents($this->get_base_dir() . 'elements/storagepress_default_listing_page.php'),
-                'post_status' => 'publish',
-                'post_type' => 'page',
-            );
-            $page_id = wp_insert_post($page);
+    //NOTE: analytics have been registered in their own feature, "analytics"
+    
 
-            //update the option to create the page
-            if ($page_id && !is_wp_error($page_id)) {
-                // Update the option with the ID of the new page
-                update_option($this->get_prefix() . 'ai_results_page', $page_id);
-            }
-        }
-    }
 }
