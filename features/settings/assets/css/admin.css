@@ -1,0 +1,20 @@
+
+/* padding */
+.p-1 {
+    padding: 1rem;
+}
+
+.p-2 {
+    padding: 1.5rem;
+}
+
+/* input styles */
+label{
+    display: block;
+    margin-bottom: 0.25rem;
+    margin-top: 0.75rem;
+}
+input{
+    padding: 0.25rem;
+}
+

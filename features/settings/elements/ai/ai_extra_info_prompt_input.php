@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
     <textarea 
         type="text" 
         name="<?php echo $this->get_prefix() ?>ai_extra_info_prompt" 
+        id="<?php echo $this->get_prefix() ?>ai_extra_info_prompt_input"
         title="Enter any extra information about your organization that the chat assistant might need during its conversation.  Ex. 'We are a small business and can only ship to the US.'"
         maxlength="255"
         rows="4"

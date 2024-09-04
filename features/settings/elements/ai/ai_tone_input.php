@@ -17,7 +17,7 @@ $options = [
 <div>
 
     <select
-        id="<?php echo $this->get_prefix() ?>ai_tone" 
+        id="<?php echo $this->get_prefix() ?>ai_tone_input" 
         name="<?php echo $this->get_prefix() ?>ai_tone" 
         title="Select the tone of the AI's responses.  Formal tones are more professional, casual tones are more friendly, and neutral tones are more... neutral."
     >

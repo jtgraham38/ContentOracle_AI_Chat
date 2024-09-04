@@ -24,6 +24,8 @@ class ContentOracleSettings extends PluginFeature{
         add_action('admin_init', array($this, 'init_plugin_settings'));
         add_action('init', array($this, 'create_results_page'));
 
+        //register styles
+        add_action('admin_enqueue_scripts', array($this, 'register_styles'));
 
     }
 
@@ -49,7 +51,10 @@ class ContentOracleSettings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/plugin/api_token_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_plugin_settings'  // section
+            'contentoracle_plugin_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'api_token_input'
+            )
         );
 
         add_settings_field(
@@ -59,7 +64,11 @@ class ContentOracleSettings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/plugin/ai_search_results_page_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_plugin_settings'  // section
+            'contentoracle_plugin_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'ai_results_page_input',
+                'class' => 'contentoracle-ai-results-page-input'
+            )
         );
 
 
@@ -146,7 +155,10 @@ class ContentOracleSettings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/post_types_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_ai_settings'  // section
+            'contentoracle_ai_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'post_types_input'
+            )
         );
 
         add_settings_field(
@@ -156,7 +168,10 @@ class ContentOracleSettings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_tone_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_ai_settings'  // section
+            'contentoracle_ai_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'ai_tone_input'
+            )
         );
 
         add_settings_field(
@@ -166,7 +181,10 @@ class ContentOracleSettings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_jargon_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_ai_settings'  // section
+            'contentoracle_ai_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'ai_jargon_input'
+            )
         );
 
         add_settings_field(
@@ -176,7 +194,10 @@ class ContentOracleSettings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_goal_prompt_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_ai_settings'  // section
+            'contentoracle_ai_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'ai_goal_prompt_input'
+            )
         );
 
         add_settings_field(
@@ -186,7 +207,10 @@ class ContentOracleSettings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_extra_info_prompt_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_ai_settings'  // section
+            'contentoracle_ai_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'ai_extra_info_prompt_input'
+            )
         );
 
         // create the settings themselves
@@ -256,5 +280,12 @@ class ContentOracleSettings extends PluginFeature{
 
     //NOTE: analytics have been registered in their own feature, "analytics"
     
-
+    //register styles for the settings admin
+    public function register_styles(){
+        //only register this on pages related to the plugin
+        if (strpos($_SERVER['REQUEST_URI'], 'contentoracle') === false){
+            return;
+        }
+        wp_enqueue_style('contentoracle-settings', plugin_dir_url(__FILE__) . 'assets/css/admin.css');
+    }
 }

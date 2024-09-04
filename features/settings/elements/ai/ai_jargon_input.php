@@ -21,7 +21,7 @@ $options = [
 <div>
 
     <select
-        id="<?php echo $this->get_prefix() ?>ai_jargon" 
+        id="<?php echo $this->get_prefix() ?>ai_jargon_input" 
         name="<?php echo $this->get_prefix() ?>ai_jargon" 
         title="Select the jargon of the AI's responses.  Healthcare jargon is more medical, legal jargon is more legal, finance jargon is more financial, tech jargon is more technical, education jargon is more educational, general jargon is more general, and none is no jargon."
     >
