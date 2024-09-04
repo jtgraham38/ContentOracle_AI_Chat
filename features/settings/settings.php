@@ -71,6 +71,18 @@ class ContentOracleSettings extends PluginFeature{
             )
         );
 
+        add_settings_field(
+            $this->get_prefix() . "show_searchbar_popup",    // id of the field
+            'Show AI Search Popup',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/plugin/ai_search_popup_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_plugin_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'show_searchbar_popup_input'
+            )
+        );
 
 
         // create the settings themselves
@@ -89,6 +101,18 @@ class ContentOracleSettings extends PluginFeature{
             array(  // args
                 'type' => 'string',
                 'default' => 'none'
+            )
+        );
+
+        register_setting(
+            'contentoracle_plugin_settings', // option group
+            $this->get_prefix() . 'show_searchbar_popup',    // option name
+            array(  // args
+                'type' => 'boolean',
+                'default' => true,
+                'sanitize_callback' => function($value){
+                    return $value ? true : false;
+                }
             )
         );
     }
