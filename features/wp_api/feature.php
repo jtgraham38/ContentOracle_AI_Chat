@@ -91,7 +91,6 @@ class ContentOracleApi extends PluginFeature{
             }
         }
 
-
         //locate the 10 most relavent posts, prioritizing the user's goals
         //NOTE: this is a placeholder for now, will be replaced with a call to the ai
         $content = [];
@@ -125,6 +124,9 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
+        //create array holding ids of posts used in the response
+        $used_post_ids = [];
+
         //apply post processing to the ai_response
         $ai_connection = $response['ai_connection'];
         $ai_response = $response['response'];
@@ -143,10 +145,11 @@ class ContentOracleApi extends PluginFeature{
 
                 $ai_response['content'][0]['text'] = preg_replace_callback(
                     '/`([^`]+)`\s*\(([^)]+)\)/',
-                    function ($matches) {
+                    function ($matches) use (&$used_post_ids) { //& = pass by reference
                         $text = $matches[1];
                         $post_id = $matches[2];
                         $url = get_post_permalink($post_id);
+                        $used_post_ids[] = $post_id;
                         return "$text <a href=\"$url\"><sub>[$post_id]</sub></a>";
                     },
                     $ai_response['content'][0]['text']
@@ -158,6 +161,11 @@ class ContentOracleApi extends PluginFeature{
                     'error' => 'AI connection "' . $ai_connection . '" not implemented!',
                 ), 501);
         }
+
+        //filter the content to remove any posts that were not used in the response
+        $content = array_filter($content, function($post) use ($used_post_ids){
+            return in_array($post['id'], $used_post_ids);
+        });
 
         //return the response
         return new WP_REST_Response(array(
