@@ -126,6 +126,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 						this.conversation.push( {
 							role: 'assistant',
 							content: json.response.content[0].text,
+							context: json.context,
 						} );
 				}
 				catch(e){

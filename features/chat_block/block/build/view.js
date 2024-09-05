@@ -3590,7 +3590,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
           //push the response to the conversation
           this.conversation.push({
             role: 'assistant',
-            content: json.response.content[0].text
+            content: json.response.content[0].text,
+            context: json.context
           });
         } catch (e) {
           this.error = "An error occurred while processing the response";

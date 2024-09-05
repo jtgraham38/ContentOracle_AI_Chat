@@ -109,6 +109,20 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                 x-bind:class="chat.role == 'user' ? 'contentoracle-ai_chat_bubble_user' : 'contentoracle-ai_chat_bubble_bot'"
             >
                 <p x-html="chat.content"></p>
+
+                <template x-if="chat.context">
+                    <div style="border: 1px solid white; padding: 0.25rem; display: flex; flex-direction: column; max-width: 90%;">
+                        <ul style="list-style-type: none;padding-left: 0;">
+                            <template x-for="source in chat.context">
+                                <li>
+                                    <div style="padding: 0.25rem 0.125rem">
+                                        <a x-bind:href="source.url" target="_blank" x-text="source.title + ' ' + source.id"></a>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
             </div>
         </template>
 
