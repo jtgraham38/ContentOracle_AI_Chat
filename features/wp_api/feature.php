@@ -38,6 +38,16 @@ class ContentOracleApi extends PluginFeature{
                 'conversation' => array(
                     'required' => true,
                     'validate_callback' => function($param, $request, $key){
+                        if (!is_array($param)) return false;
+
+                        //validate each element of the conversation array
+                        foreach ($param as $msg){
+                            if (!is_array($msg)) return false;
+                            if (!isset($msg['role']) || !is_string($msg['role'])) return false;
+                            if (!in_array($msg['role'], ['user', 'assistant', 'tool', 'system'])) return false;
+                            if (!isset($msg['content']) || !is_string($msg['content'])) return false;
+                        }
+
                         return is_array($param);
                         //todo: enhance this validation for role and content checks
                     }
