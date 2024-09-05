@@ -61,6 +61,14 @@
 			.contentoracle-ai_chat_bubble_bot_main_idea{
 				text-decoration: underline;
 			}
+
+			.contentoracle-inline_citation{
+				vertical-align: super;	/*mimic the <sup> tag*/
+				font-size: smaller;
+				padding: 0.05rem;
+				background-color: rgba(0, 0, 0, 0.05);
+				text-decoration: none;
+			}
 		}
 
 	}

@@ -125,7 +125,7 @@ class ContentOracleApi extends PluginFeature{
         }
 
         //create array holding ids of posts used in the response
-        $used_post_ids = [];
+        $label_num = 1;
 
         //apply post processing to the ai_response
         $ai_connection = $response['ai_connection'];
@@ -145,12 +145,28 @@ class ContentOracleApi extends PluginFeature{
 
                 $ai_response['content'][0]['text'] = preg_replace_callback(
                     '/`([^`]+)`\s*\(([^)]+)\)/',
-                    function ($matches) use (&$used_post_ids) { //& = pass by reference
+                    function ($matches) use (&$label_num, &$content) { //& = pass by reference
+                        //get the text and post_id from the matches
                         $text = $matches[1];
                         $post_id = $matches[2];
+                        //get the post url
                         $url = get_post_permalink($post_id);
-                        $used_post_ids[] = $post_id;
-                        return "$text <a href=\"$url\"><sub>[$post_id]</sub></a>";
+
+                        //find the post in the content array, and give it a label
+                        $label = "";
+                        foreach ($content as &$post){   //& = pass by reference
+                            if ( $post['id'] == $post_id ){
+                                //account for the case where the post has already been cited
+                                if ( !isset( $post['label'] ) ){
+                                    $post['label'] = $label_num;
+                                }
+                                $label = $post['label'];
+                                $label_num++;
+                                break;
+                            }
+                        }
+
+                        return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\">$label</a>";
                     },
                     $ai_response['content'][0]['text']
                 );          
@@ -162,9 +178,10 @@ class ContentOracleApi extends PluginFeature{
                 ), 501);
         }
 
+
         //filter the content to remove any posts that were not used in the response
-        $content = array_filter($content, function($post) use ($used_post_ids){
-            return in_array($post['id'], $used_post_ids);
+        $content = array_filter($content, function($post){
+            return isset($post['label']);
         });
 
         //return the response

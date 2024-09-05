@@ -116,7 +116,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                             <template x-for="source in chat.context">
                                 <li>
                                     <div style="padding: 0.25rem 0.125rem">
-                                        <a x-bind:href="source.url" target="_blank" x-text="source.title + ' ' + source.id"></a>
+                                        <a x-bind:href="source.url" target="_blank" x-text="source.label + ') ' + source.title"></a>
                                     </div>
                                 </li>
                             </template>
