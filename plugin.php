@@ -30,12 +30,12 @@ $plugin = new Plugin("contentoracle_", plugin_dir_path( __FILE__ ), plugin_dir_u
 //register features with the plugin manager here...
 
 //settings feature
-require_once plugin_dir_path(__FILE__) . 'features/settings/settings.php';
+require_once plugin_dir_path(__FILE__) . 'features/settings/feature.php';
 $feature = new ContentOracleSettings();
 $plugin->register_feature($feature); 
 
 //api feature
-require_once plugin_dir_path(__FILE__) . 'features/wp_api/api.php';
+require_once plugin_dir_path(__FILE__) . 'features/wp_api/feature.php';
 $feature = new ContentOracleApi();
 $plugin->register_feature($feature);
 
@@ -49,6 +49,15 @@ require_once plugin_dir_path(__FILE__) . 'features/chat_block/register_block.php
 $feature = new ContentOracleAiBlock();
 $plugin->register_feature($feature);
 
+//register embeddings feature
+require_once plugin_dir_path(__FILE__) . 'features/embeddings/feature.php';
+$feature = new ContentOracleEmbeddings();
+$plugin->register_feature($feature);
+
+//register the analytics feature
+require_once plugin_dir_path(__FILE__) . 'features/analytics/feature.php';
+$feature = new ContentOracleAnalytics();
+$plugin->register_feature($feature);
 
 //NOTE: this will be moved, here for now
 add_action('admin_menu', function(){
