@@ -40,12 +40,15 @@ class ContentOracleApiConnection{
                     'ai' => array(
                         'tone' => get_option($this->prefix . 'ai_tone'),
                         'jargon' => get_option($this->prefix . 'ai_jargon'),
-                        'goals' => get_option($this->prefix . 'ai_goals')
+                        'goal_prompt' => get_option($this->prefix . 'ai_goal_prompt', ''),
+                        'extra_info_prompt' => get_option($this->prefix . 'ai_extra_info_prompt', '')
+                    
                     )
                 )
             )),
             'timeout' => 30,
         );
+        //make the request
 
         //var_dump(json_decode($args['body']));
 
