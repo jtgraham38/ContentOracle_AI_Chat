@@ -49,7 +49,6 @@ class ContentOracleApi extends PluginFeature{
                         }
 
                         return is_array($param);
-                        //todo: enhance this validation for role and content checks
                     }
                 )
             )
