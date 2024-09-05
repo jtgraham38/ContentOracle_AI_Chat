@@ -35,7 +35,8 @@ class ContentOracleApiConnection{
                 'content' => $content,
                 'modifiers' => array(
                     'general' => array(
-                        'post_types' => get_option($this->prefix . 'post_types')
+                        'post_types' => get_option($this->prefix . 'post_types'),
+                        'organization_name' => get_option($this->prefix . 'organization_name', get_bloginfo('name') ?? 'No Name Provided')
                     ),
                     'ai' => array(
                         'tone' => get_option($this->prefix . 'ai_tone'),
@@ -48,9 +49,7 @@ class ContentOracleApiConnection{
             )),
             'timeout' => 30,
         );
-        //make the request
 
-        //var_dump(json_decode($args['body']));
 
         //make the request
         $response = wp_remote_post($url, $args);

@@ -45,6 +45,19 @@ class ContentOracleSettings extends PluginFeature{
 
         // create the settings fields
         add_settings_field(
+            $this->get_prefix() . "organization_name",    // id of the field
+            'Organization Name',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/plugin/organization_name_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_plugin_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'organization_name_input'
+            )
+        );
+
+        add_settings_field(
             $this->get_prefix() . "api_token",    // id of the field
             'ContentOracle API Token',   // title
             function(){ // callback
@@ -84,8 +97,17 @@ class ContentOracleSettings extends PluginFeature{
             )
         );
 
-
         // create the settings themselves
+
+        register_setting(
+            'contentoracle_plugin_settings', // option group
+            $this->get_prefix() . 'organization_name',    // option name
+            array(  // args
+                'type' => 'string',
+                'default' => get_bloginfo('name') ?? 'Organization Name'
+            )
+        );
+
         register_setting(
             'contentoracle_plugin_settings', // option group
             $this->get_prefix() . 'api_token',    // option name
@@ -239,7 +261,7 @@ class ContentOracleSettings extends PluginFeature{
 
         // create the settings themselves
         register_setting(
-            'contentoracle_plugin_settings', // option group
+            'contentoracle_ai_settings', // option group
             $this->get_prefix() . 'post_types',    // option name
             array(  // args
                 'type' => 'array',

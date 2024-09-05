@@ -3564,15 +3564,27 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
     if (json.error) {
       //this is an error that might be set in the wp api, because it is not a part of the response
       this.error = json.error;
+      console.error(json.error);
+    }
+    if (json.errors) {
+      //combine the errors into a single string, and push to the conversation
+      let error_msgs = [];
+      Object.entries(json.errors).map(([key, value]) => {
+        error_msgs.push(key + ": " + value);
+      });
+      this.error = error_msgs.join(", ");
+      console.error(json.errors);
     } else if (json.response.error) {
       //push the error to the conversation
       //this is an error that might be set in contentoracle api, because it is a part of the response
       this.error = json.response.error;
+      console.error(json.response.error);
     } else {
       //check for unauthenticated
       if (json.response.message == "Unauthenticated.") {
         //push the error to the conversation
         this.error = "Unauthenticated. Site admin should check api token.";
+        console.error("Unauthenticated. Site admin should check api token.");
       } else {
         try {
           //push the response to the conversation

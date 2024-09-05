@@ -13,5 +13,6 @@ if (!defined('ABSPATH')) {
         name="<?php echo $this->get_prefix() ?>api_token" 
         value="<?php echo esc_attr(get_option($this->get_prefix() . 'api_token')); ?>"
         title="Enter your ContentOracle API token.  This token identifies requests from your website, ensuring only you can make requests for your users."
+        required    
     />
 </div>

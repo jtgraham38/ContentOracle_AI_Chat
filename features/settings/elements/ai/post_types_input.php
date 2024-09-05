@@ -24,6 +24,7 @@ $post_types_setting = get_option($this->get_prefix() . 'post_types');
         name="<?php echo esc_attr($this->get_prefix()) ?>post_types[]"
         multiple
         title="Select which post types our AI should use to generate its search response.  It will use the title, contents, links, media, and more to generate a response."
+        required    
     >
         <?php foreach ($post_types as $label=>$post_type): ?>
             <option value="<?php echo esc_attr($label); ?>" <?php echo in_array($post_type->name, $post_types_setting) ? 'selected' : ''; ?>>

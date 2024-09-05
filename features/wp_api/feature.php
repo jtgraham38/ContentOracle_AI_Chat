@@ -108,6 +108,13 @@ class ContentOracleApi extends PluginFeature{
                 )
             );
         }
+        if (isset($response['errors'])){
+            return new WP_REST_Response(
+                array(
+                    'errors' => $response['errors']
+                )
+            );
+        }
 
         //apply post processing to the ai_response
         $ai_connection = $response['ai_connection'];
