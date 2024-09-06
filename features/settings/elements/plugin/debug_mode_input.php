@@ -13,6 +13,6 @@ $debug_mode = get_option($this->get_prefix() . 'debug_mode');
         id="<?php echo $this->get_prefix() ?>debug_mode_input" 
         name="<?php echo $this->get_prefix() ?>debug_mode" 
         <?php checked($debug_mode); ?>
-        title="Toggles whether the block should show detailed error messages in the site frontend.  Useful for troubleshooting."
+        title="Toggles whether the chat block should show detailed error messages in the site frontend.  Useful for troubleshooting."
     />
 </div>
