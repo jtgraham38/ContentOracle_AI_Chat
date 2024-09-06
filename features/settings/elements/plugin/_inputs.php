@@ -17,8 +17,6 @@ if (!defined('ABSPATH')) {
             do_settings_fields('contentoracle-ai-settings', 'contentoracle_plugin_settings');
         ?>
         <br>
-        <strong>            TODO: add setting for showing a popup to draw attention to the ai searchbar to new users here
-        </strong>
         <?php submit_button(); ?>
     </form>
 </div>

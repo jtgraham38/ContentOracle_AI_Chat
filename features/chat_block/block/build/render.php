@@ -185,8 +185,10 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
             <?php echo esc_html($attributes['buttonText']); ?>
         </button>
     </form>
-
-    |<span style="color: red;" x-text="error"></span>|
+    <?php if ( get_option('contentoracle_debug_mode', false) ){ ?>
+        <span style="color: red;" x-text="error"></span>
+        <span style="color: red;">See the console for more debugging info!</span>
+    <?php } ?>
 </div>
 
 <pre>
