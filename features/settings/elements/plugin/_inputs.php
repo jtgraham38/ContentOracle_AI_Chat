@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 ?>
 
 
-<div class="wrap postbox p-1">
+<div class="wrap p-1">
 
     <h1>ContentOracle AI Search</h1>
 
