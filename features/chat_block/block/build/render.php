@@ -76,6 +76,19 @@ $button_inline_styles = implode(";", array_map(
     array_keys($button_attrs['inline_styles'])
 ));
 
+//source box border attributes
+$sources_border_attrs = contentoracle_ai_chat_block_get_border_attrs($attributes);
+$sources_border_inline_styles = implode(";", array_map(
+    function ($v, $k) {
+        return sprintf("%s:%s", $k, $v);
+    },
+    $sources_border_attrs['inline_styles'],
+    array_keys($sources_border_attrs['inline_styles'])
+));
+$sources_border_classnames = $sources_border_attrs['classnames'];
+$sources_border_classnames[] = "contentoracle-source_list";
+$sources_border_classnames = implode(" ", $sources_border_classnames);
+
 //generate unique id for the chat
 $chat_id = wp_unique_id('contentoracle-ai_chat_');
 ?>
@@ -110,17 +123,18 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
             >
                 <p x-html="chat.content"></p>
 
-                <template x-if="chat.context">
-                    <div style="border: 1px solid white; padding: 0.25rem; display: flex; flex-direction: column; max-width: 90%;">
-                        <ul style="list-style-type: none;padding-left: 0;">
+                <template x-if="chat?.context && chat?.context?.length">
+                    <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
+
+                        <span style="text-size: larger; width: 100%;">Sources</span>
+                        <ol class="<?php echo esc_attr($sources_border_classnames) ?>" style="<?php echo esc_attr($sources_border_inline_styles) ?>">
                             <template x-for="source in chat.context">
-                                <li>
-                                    <div style="padding: 0.25rem 0.125rem">
-                                        <a x-bind:href="source.url" target="_blank" x-text="source.label + ') ' + source.title"></a>
-                                    </div>
+                                <li class="contentoracle-footer_citation">
+                                    <span x-text="source.title"></span>
+                                    <a x-bind:href="source.url" target="_blank" class="contentoracle-footer_citation_link">→</a>
                                 </li>
                             </template>
-                        </ul>
+                        </ol>
                     </div>
                 </template>
             </div>
@@ -175,7 +189,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     |<span style="color: red;" x-text="error"></span>|
 </div>
 
-<!-- <pre>
+<pre>
     <?php //print_r(get_rest_url());//print_r($attributes); ?>
     <hr>
     <?php //print_r(contentoracle_ai_chat_block_get_label_attrs($attributes)); ?>
@@ -185,10 +199,13 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     <?php //print_r($root_classnames); ?>
     <hr>
     <?php //print_r(get_block_wrapper_attributes()); ?>
-</pre> -->
+    <hr>
+    <?php print_r( contentoracle_ai_chat_block_get_border_attrs($attributes) ); ?>
+</pre>
 
 <style>
     <?php 
+        //speech bubble styling
         //temporarily style the speech bubbles using php echoed styles
         $user_bg = $attributes['userMsgBgColor'];
         $user_text = $attributes['userMsgTextColor'];
@@ -204,21 +221,42 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
         color: <?php echo esc_html( $bot_text ); ?>;
     }
 
+    <?php
+        //link styling
+        //if a preset border color is set, use that
+        $link_color = "";
+        if (!empty($attributes['borderColor'])) {
+            $link_color = 'var( --wp--preset--color--' . $attributes['borderColor'] . ')';
+        } 
+        //otherwise, if a custom border color is set, use that
+        else if (!empty($attributes['style']['border']['color'])){
+            $link_color = $attributes['style']['border']['color'];
+        }
+    ?>
+
+    a.contentoracle-inline_citation{
+        color: <?php echo esc_html( $link_color ) ?>;
+    }
+
+    a.contentoracle-footer_citation_link{
+        color: <?php echo esc_html( $link_color ) ?>;
+    }
+
     <?php 
     //scrollbar styling
     //if a preset border color is set, use that
-    $scrollbar_color = "";
-    if (!empty($attributes['borderColor'])) {
-        $scrollbar_color = 'var(--wp--preset--color--' . $attributes['borderColor'] . ')';
-    } 
-    //otherwise, if a custom border color is set, use that
-    else if (!empty($attributes['style']['border']['color'])){
-        $scrollbar_color = $attributes['style']['border']['color'];
-    }
+    $scrollbar_color = $link_color;//"";
+    // if (!empty($attributes['borderColor'])) {
+    //     $scrollbar_color = 'var(--wp--preset--color--' . $attributes['borderColor'] . ')';
+    // } 
+    // //otherwise, if a custom border color is set, use that
+    // else if (!empty($attributes['style']['border']['color'])){
+    //     $scrollbar_color = $attributes['style']['border']['color'];
+    // }
     
     ?>
     .contentoracle-ai_chat_conversation{
         overflow-y: auto;
-        scrollbar-color: <?php echo esc_html( $scrollbar_color ) ?> rgba(0, 0, 0, 0.01);
+        scrollbar-color: <?php echo esc_html( $scrollbar_color ) ?>  rgba(0, 0, 0, 0.01);
     }'
 </style>

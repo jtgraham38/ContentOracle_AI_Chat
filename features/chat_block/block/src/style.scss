@@ -19,8 +19,12 @@
 			margin: 0.25rem 0;
 			padding: 0.5rem;
 			border-radius: 0.5rem;
-			max-width: 80%;
+			max-width: 85%;
 			clear: both;
+			/* responsive design on narrow screens*/
+			@media(max-width: 768px){
+				max-width: 100%;
+			}
 
 			&.contentoracle-ai_chat_bubble_user{
 				float: right;
@@ -65,10 +69,26 @@
 			.contentoracle-inline_citation{
 				vertical-align: super;	/*mimic the <sup> tag*/
 				font-size: smaller;
-				padding: 0.05rem;
-				background-color: rgba(0, 0, 0, 0.05);
 				text-decoration: none;
 			}
+
+			.contentoracle-source_list{
+				width: 90%;
+				margin-top: 0.25rem;
+				padding: 0.5rem 0.5rem 0.5rem 2rem;
+				.contentoracle-footer_citation{
+					margin: 0.75rem 0;
+					font-size: 1.125em;
+
+					.contentoracle-footer_citation_link{
+						text-decoration: none;
+						float: right;
+					}
+				}
+
+			}
+
+			
 		}
 
 	}

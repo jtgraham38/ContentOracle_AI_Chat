@@ -21,8 +21,14 @@
   margin: 0.25rem 0;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  max-width: 80%;
+  max-width: 85%;
   clear: both;
+  /* responsive design on narrow screens*/
+}
+@media (max-width: 768px) {
+  .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble {
+    max-width: 100%;
+  }
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble.contentoracle-ai_chat_bubble_user {
   float: left;
@@ -62,9 +68,20 @@
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-inline_citation {
   vertical-align: super; /*mimic the <sup> tag*/
   font-size: smaller;
-  padding: 0.05rem;
-  background-color: rgba(0, 0, 0, 0.05);
   text-decoration: none;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-source_list {
+  width: 90%;
+  margin-top: 0.25rem;
+  padding: 0.5rem 2rem 0.5rem 0.5rem;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-source_list .contentoracle-footer_citation {
+  margin: 0.75rem 0;
+  font-size: 1.125em;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-source_list .contentoracle-footer_citation .contentoracle-footer_citation_link {
+  text-decoration: none;
+  float: left;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_input_container {
   display: flex;

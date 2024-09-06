@@ -60,7 +60,10 @@
     "conversation": ".contentoracle-ai_chat_conversation",
     "label": ".contentoracle-ai_chat_label",
     "header": ".contentoracle-ai_chat_header",
-    "inline_citation": ".contentoracle-inline_citation"
+    "inline_citation": ".contentoracle-inline_citation",
+    "source_list": ".contentoracle-source_list",
+    "footer_citation": ".contentoracle-footer_citation",
+    "footer_citation_link": ".contentoracle-footer_citation_link"
   },
   "supports": {
     "color": {

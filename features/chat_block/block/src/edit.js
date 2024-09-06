@@ -138,6 +138,31 @@ export default function Edit({
 		}
 	}
 
+	//make citation link styles
+	const inlineCitationLinkProps = {
+		className: 'contentoracle-inline_citation',
+		style: {
+			color: borderProps?.style?.borderColor
+		}
+	}
+	const footerCitationLinkProps = {
+		className: 'contentoracle-footer_citation_link',
+		style: {
+			color: borderProps?.style?.borderColor
+		}
+	}
+
+	//make footer citation border styles
+	const footerCitationListProps = {
+		className: 'contentoracle-source_list',
+		style: {
+			borderRadius: borderProps?.style?.borderRadius,
+			borderColor: borderProps?.style?.borderColor,
+			borderWidth: borderProps?.style?.borderWidth,
+			width: "100%"	//need this for some reason for WYSIWYG
+		}
+	}
+
 	//return the editor markup
 	return (
 		<>
@@ -231,12 +256,25 @@ export default function Edit({
 					</div>
 
 					<div { ...botMsgProps }>
-						<p>Tomato plants grow best in full sun, in soil that is rich in organic matter, and well-drained. They need a lot of water, but not too much. They also need a lot of nutrients, so you should fertilize them regularly. You should also prune them regularly to keep them healthy and productive. If you follow these tips, you should have a healthy and productive tomato plant.</p>
+						<p>Tomato plants grow best in full sun, in soil that is rich in organic matter, and well-drained.<sup {...inlineCitationLinkProps } >1</sup>  They need a lot of water, but not too much. They also need a lot of nutrients, so you should fertilize them regularly. You should also prune them regularly to keep them healthy and productive. If you follow these tips, you should have a healthy and productive tomato plant.</p>
+						
+						
+						<div style={{padding: '0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+							<span style={{fontSize: 'larger', width: '100%'}}>Sources</span>
+							<ol { ...footerCitationListProps }>
+								<li className="contentoracle-footer_citation">
+									<span>The Best Soil for Growing Tomatos</span>
+									<a href="#" { ...footerCitationLinkProps } >→</a>
+								</li>
+							</ol>
+						</div>
+
+
 					</div>
 
 				</div>
 				<div { ...inputContainerProps }>
-					<span class="contentoracle-ai_chat_input_wrapper">	
+					<span className="contentoracle-ai_chat_input_wrapper">	
 					<input 
 						type="text" 
 						{ ...inputProps }  
