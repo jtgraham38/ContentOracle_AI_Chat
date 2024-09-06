@@ -24,6 +24,8 @@
   max-width: 85%;
   clear: both;
   /* responsive design on narrow screens*/
+  /* citations */
+  /* action */
 }
 @media (max-width: 768px) {
   .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble {
@@ -82,6 +84,27 @@
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-source_list .contentoracle-footer_citation .contentoracle-footer_citation_link {
   text-decoration: none;
   float: left;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-action_container {
+  display: grid;
+  place-items: center;
+  min-height: 4rem;
+  padding: 1rem;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-action_container .contentoracle-action_button {
+  margin: 1.25rem 0;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-action_container .contentoracle-action_button.contentoracle-ai_chat_button {
+  padding: 1rem;
+  font-size: var(--wp--preset--font-size--medium);
+  border: none;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-action_container .contentoracle-action_button.contentoracle-ai_chat_button:hover {
+  cursor: pointer;
+  scale: 1.05;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-action_container .contentoracle-action_button.contentoracle-ai_chat_button:active {
+  scale: 0.95;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_input_container {
   display: flex;

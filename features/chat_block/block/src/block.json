@@ -63,7 +63,10 @@
 		"inline_citation": ".contentoracle-inline_citation",
 		"source_list": ".contentoracle-source_list",
 		"footer_citation": ".contentoracle-footer_citation",
-		"footer_citation_link": ".contentoracle-footer_citation_link"
+		"footer_citation_link": ".contentoracle-footer_citation_link",
+		"action_container": ".contentoracle-action_container",
+		"action_label": ".contentoracle-action_label",
+		"action_button": ".contentoracle-action_button"
 	},
 	"supports": {
 		"color": {

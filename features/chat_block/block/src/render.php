@@ -89,6 +89,24 @@ $sources_border_classnames = $sources_border_attrs['classnames'];
 $sources_border_classnames[] = "contentoracle-source_list";
 $sources_border_classnames = implode(" ", $sources_border_classnames);
 
+//action box border attributes
+$action_border_attrs = contentoracle_ai_chat_block_get_border_attrs($attributes);
+$action_border_inline_styles = implode(";", array_map(
+    function ($v, $k) {
+        return sprintf("%s:%s", $k, $v);
+    },
+    $action_border_attrs['inline_styles'],
+    array_keys($action_border_attrs['inline_styles'])
+));
+$action_border_classnames = $action_border_attrs['classnames'];
+$action_border_classnames[] = "contentoracle-action_container";
+$action_border_classnames = implode(" ", $action_border_classnames);
+
+//action button attributes
+ $action_btn_inline_styles = $button_inline_styles;
+$action_btn_classnames = $button_classnames;
+$action_btn_classnames .= " contentoracle-action_button";
+
 //generate unique id for the chat
 $chat_id = wp_unique_id('contentoracle-ai_chat_');
 ?>
@@ -123,6 +141,22 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
             >
                 <p x-html="chat.content"></p>
 
+                <template x-if="chat.role == 'assistant'">
+                    <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
+                        <span style="text-size: larger; width: 100%;">Take Action!</span>
+                        <div class="<?php echo esc_attr( $action_border_classnames ) ?>" style="<?php echo esc_attr( $action_border_inline_styles ) ?>">
+                            <label :for="'<?php echo esc_attr($chat_id) ?>_action_' + i" class="contentoracle-action_label">Lorem ipsum dolor sit amet consectetur adipisicing elit.</label>
+                            <button
+                                :id="'<?php echo esc_attr($chat_id) ?>_action_' + i"
+                                style="<?php echo esc_attr($action_btn_inline_styles) ?>"
+                                class="<?php echo esc_attr($action_btn_classnames) ?>"
+                            >
+                                Action Button
+                            </button>
+                        </div>
+                    </div>
+                </template>
+
                 <template x-if="chat?.context && chat?.context?.length">
                     <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
 
@@ -155,7 +189,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                 class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_bot contentoracle-ai_chat_bubble_error"
             >
                 <p>
-                    <span style="font-size: larger;">:(</span>
+                    <span>乁( ⁰͡ Ĺ̯ ⁰͡ ) ㄏ</span>
                     Sorry, something went wrong.  Please try again later.
                 </p>
             </div>
