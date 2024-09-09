@@ -66,7 +66,9 @@
     "footer_citation_link": ".contentoracle-footer_citation_link",
     "action_container": ".contentoracle-action_container",
     "action_label": ".contentoracle-action_label",
-    "action_button": ".contentoracle-action_button"
+    "action_button": ".contentoracle-action_button",
+    "action_excerpt": ".contentoracle-action_excerpt",
+    "action_image": ".contentoracle-action_image"
   },
   "supports": {
     "color": {

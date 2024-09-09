@@ -145,14 +145,40 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                     <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
                         <span style="text-size: larger; width: 100%;">Take Action!</span>
                         <div class="<?php echo esc_attr( $action_border_classnames ) ?>" style="<?php echo esc_attr( $action_border_inline_styles ) ?>">
-                            <label :for="'<?php echo esc_attr($chat_id) ?>_action_' + i" class="contentoracle-action_label">Lorem ipsum dolor sit amet consectetur adipisicing elit.</label>
-                            <button
+                            <label
+                                x-text="chat?.action?.prompt ?? 'Learn more today!'" 
+                                :for="'<?php echo esc_attr($chat_id) ?>_action_' + i" 
+                                class="contentoracle-action_label"
+                            >
+                                Action Prompt
+                            </label>
+
+                            <template x-if="chat?.action?.content_featured_image">
+                                <img 
+                                    :src="chat?.action?.content_featured_image ?? ''"
+                                    :alt="chat?.action?.content_title ?? 'Action Image'"
+                                    class="contentoracle-action_image"
+                                >
+                            </template>
+
+                            <template x-if="chat?.action?.content_excerpt">
+                                <p 
+                                    x-text="chat?.action?.content_excerpt"
+                                    class="contentoracle-action_excerpt"    
+                                ></p>
+                            </template>
+
+
+                            <a
+                                x-text="chat?.action?.button_text ?? 'Learn more'"
+                                :href="chat?.action?.content_url ?? '#'"
                                 :id="'<?php echo esc_attr($chat_id) ?>_action_' + i"
+                                target="_blank"
                                 style="<?php echo esc_attr($action_btn_inline_styles) ?>"
                                 class="<?php echo esc_attr($action_btn_classnames) ?>"
                             >
                                 Action Button
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </template>
@@ -162,6 +188,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
 
                         <span style="text-size: larger; width: 100%;">Sources</span>
                         <ol class="<?php echo esc_attr($sources_border_classnames) ?>" style="<?php echo esc_attr($sources_border_inline_styles) ?>">
+
                             <template x-for="source in chat.context">
                                 <li class="contentoracle-footer_citation">
                                     <span x-text="source.title"></span>

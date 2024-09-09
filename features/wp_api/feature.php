@@ -129,7 +129,16 @@ class ContentOracleApi extends PluginFeature{
 
         //apply post processing to the ai_response
         $ai_connection = $response['ai_connection'];
-        $ai_response = $response['response'];
+        $ai_response = $response['response']['message'];
+        $ai_action = $response['response']['action'];
+
+        //add the post link, excerpt, and featured image to the action
+        if ( isset( $ai_action['content_id'] ) ){
+            $ai_action['content_url'] = get_post_permalink($ai_action['post_id']);
+            $ai_action['content_excerpt'] = get_the_excerpt($ai_action['post_id']);
+            $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['post_id']);
+        }
+
         switch ($ai_connection) {
             case 'anthropic':
                 //escape html entities
@@ -169,7 +178,8 @@ class ContentOracleApi extends PluginFeature{
                         return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\">$label</a>";
                     },
                     $ai_response['content'][0]['text']
-                );          
+                );     
+
                 break;
             default:
                 //return 501 not implemented error
@@ -188,7 +198,8 @@ class ContentOracleApi extends PluginFeature{
         return new WP_REST_Response(array(
             'message' => $message,
             'context' => $content,
-            'response' => $ai_response
+            'response' => $ai_response,
+            'action' => $ai_action
         ));
     }
 

@@ -95,18 +95,32 @@
 				place-items: center;
 				min-height: 4rem;
 				padding: 1rem;
+				width: 100%;
+				box-sizing: border-box;
 
 				.contentoracle-action_label{
+					font-size: larger;
+				}
 
+				.contentoracle-action_image{
+					width: 100%;
+					max-width: 100%;
+					height: auto;
+					margin: 0.5rem 0;
+				}
+
+				.contentoracle-action_text{
+					margin: 0.5rem 0;
+					padding: 0 1rem;
 				}
 
 				.contentoracle-action_button{
-					margin: 1.25rem 0;
+					margin: 1.5rem 0;
 					&.contentoracle-ai_chat_button{
 						padding: 1rem;
-						font-size: var(--wp--preset--font-size--medium);
+						font-size: larger;
 						border: none;
-					
+						
 						&:hover {
 							cursor: pointer;
 							scale: 1.05;

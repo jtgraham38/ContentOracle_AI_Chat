@@ -3574,7 +3574,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
       });
       this.error = error_msgs.join(", ");
       console.error(json.errors);
-    } else if (json.response.error) {
+    } else if (json?.response?.error) {
       //push the error to the conversation
       //this is an error that might be set in contentoracle api, because it is a part of the response
       this.error = json.response.error;
@@ -3591,7 +3591,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
           this.conversation.push({
             role: 'assistant',
             content: json.response.content[0].text,
-            context: json.context
+            context: json.context,
+            action: json.action
           });
         } catch (e) {
           this.error = "An error occurred while processing the response";
