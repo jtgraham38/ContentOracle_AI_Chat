@@ -272,9 +272,8 @@ class ContentOracleApi extends PluginFeature{
             'orderby' => 'relevance'
         ));
 
-        //NOTE SOMETHING STRANGE IS GOING ON ABOVE, SOME QUERIES WORK AND SOME DONT
-        //THIS ONE WORKS: "GROW TOMATO"
-        //THIS ONE DOESNT: "TOMATO GROWTH"
+        //NOTE: currently, the api only returns content used in the response.  I plan to change this to flag used content when I revamp the api
+        //NOTE: to return an ai-generated json object.  FOr now, some content that is supplied to the ai is not returned in the response.
 
         //locate the 10 most relavent posts, prioritizing the user's goals
         //NOTE: this is a placeholder for now, will be replaced with a call to the ai
