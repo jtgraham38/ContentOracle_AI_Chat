@@ -186,6 +186,42 @@ function Edit({
     }
   };
 
+  //make action container styles
+  const actionContainerProps = {
+    className: 'contentoracle-action_container',
+    style: {
+      borderRadius: borderProps?.style?.borderRadius,
+      borderColor: borderProps?.style?.borderColor,
+      borderWidth: borderProps?.style?.borderWidth,
+      width: "100%" //need this for some reason for WYSIWYG
+    }
+  };
+
+  //make action label styles
+  const actionLabelProps = {
+    className: 'contentoracle-action_label'
+  };
+
+  //make action image styles
+  const actionImageProps = {
+    className: 'contentoracle-action_image'
+  };
+
+  //make action text styles
+  const actionTextProps = {
+    className: 'contentoracle-action_text'
+  };
+
+  //make action button styles
+  const actionButtonProps = {
+    className: 'contentoracle-action_button contentoracle-ai_chat_button',
+    style: {
+      borderRadius: borderProps?.style?.borderRadius,
+      backgroundColor: borderProps?.style?.borderColor,
+      color: blockProps?.style?.textColor
+    }
+  };
+
   //return the editor markup
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "contentoracle-ai_panelbody_root"
@@ -270,6 +306,30 @@ function Edit({
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Tomato plants grow best in full sun, in soil that is rich in organic matter, and well-drained.", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("sup", {
     ...inlineCitationLinkProps
   }, "1"), "  They need a lot of water, but not too much. They also need a lot of nutrients, so you should fertilize them regularly. You should also prune them regularly to keep them healthy and productive. If you follow these tips, you should have a healthy and productive tomato plant."), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    style: {
+      padding: '0.25rem',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
+    style: {
+      textSize: 'larger',
+      width: '100%'
+    }
+  }, " Take Action! "), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    ...actionContainerProps
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    ...actionLabelProps
+  }, "Want to learn more about growing tomatos?  Read on!"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
+    ...actionImageProps,
+    src: window.location.origin + '/wp-content/plugins/contentoracle/features/chat_block/assets/images/tomatos.jpg',
+    alt: "tomatos"
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
+    ...actionTextProps
+  }, "Discover the secrets to cultivating thriving tomatoes with the perfect soil mix. From pH levels to nutrient-rich ingredients, learn how to create the ideal growing environment for juicy, flavorful tomatoes in your garden."), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    ...actionButtonProps
+  }, "Keep Reading"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     style: {
       padding: '0.25rem',
       display: 'flex',

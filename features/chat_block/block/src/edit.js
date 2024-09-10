@@ -163,6 +163,42 @@ export default function Edit({
 		}
 	}
 
+	//make action container styles
+	const actionContainerProps = {
+		className: 'contentoracle-action_container',
+		style: {
+			borderRadius: borderProps?.style?.borderRadius,
+			borderColor: borderProps?.style?.borderColor,
+			borderWidth: borderProps?.style?.borderWidth,
+			width: "100%"	//need this for some reason for WYSIWYG
+		}
+	}
+
+	//make action label styles
+	const actionLabelProps = {
+		className: 'contentoracle-action_label'
+	}
+
+	//make action image styles
+	const actionImageProps = {
+		className: 'contentoracle-action_image'
+	}
+
+	//make action text styles
+	const actionTextProps = {
+		className: 'contentoracle-action_text'
+	}
+
+	//make action button styles
+	const actionButtonProps = {
+		className: 'contentoracle-action_button contentoracle-ai_chat_button',
+		style: {
+			borderRadius: borderProps?.style?.borderRadius,
+			backgroundColor: borderProps?.style?.borderColor,
+			color: blockProps?.style?.textColor
+		}
+	}
+
 	//return the editor markup
 	return (
 		<>
@@ -258,6 +294,19 @@ export default function Edit({
 					<div { ...botMsgProps }>
 						<p>Tomato plants grow best in full sun, in soil that is rich in organic matter, and well-drained.<sup {...inlineCitationLinkProps } >1</sup>  They need a lot of water, but not too much. They also need a lot of nutrients, so you should fertilize them regularly. You should also prune them regularly to keep them healthy and productive. If you follow these tips, you should have a healthy and productive tomato plant.</p>
 						
+						<div style={{padding: '0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+							<span style={{textSize: 'larger', width: '100%'}}> Take Action! </span>
+							<div { ...actionContainerProps }>
+								<label { ...actionLabelProps }>Want to learn more about growing tomatos?  Read on!</label>
+
+								<img { ...actionImageProps } src={ window.location.origin + '/wp-content/plugins/contentoracle/features/chat_block/assets/images/tomatos.jpg'} alt="tomatos"></img>
+
+								<p { ...actionTextProps } >Discover the secrets to cultivating thriving tomatoes with the perfect soil mix. From pH levels to nutrient-rich ingredients, learn how to create the ideal growing environment for juicy, flavorful tomatoes in your garden.</p>
+
+								<button { ...actionButtonProps }>Keep Reading</button>
+
+							</div>
+						</div>
 						
 						<div style={{padding: '0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
 							<span style={{fontSize: 'larger', width: '100%'}}>Sources</span>
