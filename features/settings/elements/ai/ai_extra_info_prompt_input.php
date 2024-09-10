@@ -19,5 +19,4 @@ if (!defined('ABSPATH')) {
     >
 <?php echo esc_html( get_option($this->get_prefix() . 'ai_extra_info_prompt')) ?>
 </textarea>
-<strong>integrate ai extra info prompt into api feature</strong>
 </div>

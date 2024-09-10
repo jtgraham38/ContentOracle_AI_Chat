@@ -19,5 +19,4 @@ if (!defined('ABSPATH')) {
     >
 <?php echo esc_html( get_option($this->get_prefix() . 'ai_goal_prompt')) ?>
 </textarea>
-<strong>integrate ai goal prompt into api feature</strong>
 </div>
