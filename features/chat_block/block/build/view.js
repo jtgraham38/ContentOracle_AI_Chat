@@ -3581,7 +3581,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
       console.error(json.response.error);
     } else {
       //check for unauthenticated
-      if (json.response.message == "Unauthenticated.") {
+      if (json?.response?.message == "Unauthenticated.") {
         //push the error to the conversation
         this.error = "Unauthenticated. Site admin should check api token.";
         console.error("Unauthenticated. Site admin should check api token.");

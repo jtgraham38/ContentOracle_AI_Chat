@@ -12,7 +12,10 @@ use jtgraham38\jgwordpresskit\PluginFeature;
 
 class ContentOracleApi extends PluginFeature{
     public function add_filters(){
-        //todo: add filters here
+        //
+        ////NOTE: for now, this is sufficient, but we need to eventually sort the results by relevance
+        //
+        add_filter('posts_where', array($this, 'find_content'), 10, 2);
     }
 
     public function add_actions(){
@@ -62,43 +65,232 @@ class ContentOracleApi extends PluginFeature{
         //get the query
         $message = $request->get_param('message');
 
+        //process the message
+        $stop_words = [
+            'a',
+            'about',
+            'above',
+            'after',
+            'again',
+            'against',
+            'all',
+            'am',
+            'an',
+            'and',
+            'any',
+            'are',
+            "aren't",
+            'as',
+            'at',
+            'be',
+            'because',
+            'been',
+            'before',
+            'being',
+            'below',
+            'between',
+            'both',
+            'but',
+            'by',
+            "can't",
+            'cannot',
+            'could',
+            "couldn't",
+            'did',
+            "didn't",
+            'do',
+            'does',
+            "doesn't",
+            'doing',
+            "don't",
+            'down',
+            'during',
+            'each',
+            'few',
+            'for',
+            'from',
+            'further',
+            'had',
+            "hadn't",
+            'has',
+            "hasn't",
+            'have',
+            "haven't",
+            'having',
+            'he',
+            "he'd",
+            "he'll",
+            "he's",
+            'her',
+            'here',
+            "here's",
+            'hers',
+            'herself',
+            'him',
+            'himself',
+            'his',
+            'how',
+            "how's",
+            'i',
+            "i'd",
+            "i'll",
+            "i'm",
+            "i've",
+            'if',
+            'in',
+            'into',
+            'is',
+            "isn't",
+            'it',
+            "it's",
+            'its',
+            'itself',
+            "let's",
+            'me',
+            'more',
+            'most',
+            "mustn't",
+            'my',
+            'myself',
+            'no',
+            'nor',
+            'not',
+            'of',
+            'off',
+            'on',
+            'once',
+            'only',
+            'or',
+            'other',
+            'ought',
+            'our',
+            'ours',
+            'ourselves',
+            'out',
+            'over',
+            'own',
+            'same',
+            "shan't",
+            'she',
+            "she'd",
+            "she'll",
+            "she's",
+            'should',
+            "shouldn't",
+            'so',
+            'some',
+            'such',
+            'than',
+            'that',
+            "that's",
+            'the',
+            'their',
+            'theirs',
+            'them',
+            'themselves',
+            'then',
+            'there',
+            "there's",
+            'these',
+            'they',
+            "they'd",
+            "they'll",
+            "they're",
+            "they've",
+            'this',
+            'those',
+            'through',
+            'to',
+            'too',
+            'under',
+            'until',
+            'up',
+            'very',
+            'was',
+            "wasn't",
+            'we',
+            "we'd",
+            "we'll",
+            "we're",
+            "we've",
+            'were',
+            "weren't",
+            'what',
+            "what's",
+            'when',
+            "when's",
+            'where',
+            "where's",
+            'which',
+            'while',
+            'who',
+            "who's",
+            'whom',
+            'why',
+            "why's",
+            'with',
+            "won't",
+            'would',
+            "wouldn't",
+            'you',
+            "you'd",
+            "you'll",
+            "you're",
+            "you've",
+            'your',
+            'yours',
+            'yourself',
+            'yourselves'
+        ];
+
+        $message_words = explode(" ", strtolower($message));
+
+        $message_words = array_filter($message_words, function($word) use ($stop_words){
+            return !in_array($word, $stop_words);
+        });
+        $message_words = array_slice($message_words, 0, 32);
+        
+
+        //account for plurarls by adding a pluralized copy of each word
+        //TODO: this is a placeholder, replace with a more robust solution
+        $message_words = array_merge($message_words, array_map(function($word){
+            return $word . 's';
+        }, $message_words));
+
         //find all posts of the types specified by the user that are relavent to the query
         $post_types = get_option($this->get_prefix() . 'post_types');
         if (!$post_types) $post_types = array('post', 'page');
-        $relavent_posts = [];
-        foreach ($post_types as $post_type){
-            //build a query for relavent posts
-            $wp_query = new WP_Query(array(
-                'post_type' => $post_type,
-                's' => $message,
-                'posts_per_page' => 10,   //NOTE: magic number, make it configurable later!
-                'post_status' => 'publish'
-            ));
 
-            //add the posts to the relavent posts array, formatted for the api
-            $relavent_posts[$post_type] = [];
-            if ($wp_query->have_posts()){
-                while ($wp_query->have_posts()){
-                    $wp_query->the_post();
-                    $relavent_posts[$post_type][] = array(
-                        'id' => get_the_ID(),
-                        'title' => get_the_title(),
-                        'body' => get_the_content(),
-                        'url' => get_permalink(),
-                        'type' => $post_type
-                    );
-                }
-            }
-        }
+        $relavent_posts = [];
+        //by default, the wp_query s attribute needs all search terms to be in either the title, excerpt, or content of the post
+        //I need to change this to allow capture of posts that do not contain every search term in either the title, excerpt, or content
+        $wp_query = new WP_Query(array(
+            'post_type' => $post_types,
+            'coai_search' => $message_words,
+            'posts_per_page' => 10,   //NOTE: magic number, make it configurable later!
+            'post_status' => 'publish',
+            'orderby' => 'relevance'
+        ));
+
+        //NOTE SOMETHING STRANGE IS GOING ON ABOVE, SOME QUERIES WORK AND SOME DONT
+        //THIS ONE WORKS: "GROW TOMATO"
+        //THIS ONE DOESNT: "TOMATO GROWTH"
 
         //locate the 10 most relavent posts, prioritizing the user's goals
         //NOTE: this is a placeholder for now, will be replaced with a call to the ai
         $content = [];
-        foreach ($relavent_posts as $post_type => $posts){
-            foreach ($posts as $post){
-                $content[] = $post;
-            }
+        while ($wp_query->have_posts()){
+            $wp_query->the_post();
+            $entry = [
+                'id' => get_the_ID(),
+                'title' => get_the_title(),
+                'url' => get_the_permalink(),
+                'body' => get_the_content(),
+                'type' => get_post_type()
+            ];
+            $content[] = $entry;
         }
+
         $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
 
         //get the conversation from the request
@@ -134,9 +326,9 @@ class ContentOracleApi extends PluginFeature{
 
         //add the post link, excerpt, and featured image to the action
         if ( isset( $ai_action['content_id'] ) ){
-            $ai_action['content_url'] = get_post_permalink($ai_action['post_id']);
-            $ai_action['content_excerpt'] = get_the_excerpt($ai_action['post_id']);
-            $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['post_id']);
+            $ai_action['content_url'] = get_post_permalink($ai_action['content_id']);
+            $ai_action['content_excerpt'] = get_the_excerpt($ai_action['content_id']);
+            $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['content_id']);
         }
 
         switch ($ai_connection) {
@@ -191,7 +383,7 @@ class ContentOracleApi extends PluginFeature{
 
         //filter the content to remove any posts that were not used in the response
         $content = array_filter($content, function($post){
-            return isset($post['label']);
+            return isset($post['label']) || ( isset( $ai_action['content_id'] ) && $ai_action['content_id'] == $post['id'] );
         });
 
         //return the response
@@ -201,6 +393,42 @@ class ContentOracleApi extends PluginFeature{
             'response' => $ai_response,
             'action' => $ai_action
         ));
+    }
+
+
+    //query the content to use to generate a response
+    function find_content( $where, $wp_query ){
+
+        //
+        ////NOTE: for now, this is sufficient, but we need to eventually sort the results by relevance
+        //
+
+        //return if not the correct query
+        if ( !isset( $wp_query->query_vars['coai_search'] ) ) return $where;
+
+        global $wpdb;
+
+        //get search terms from the wp_query
+        $search_terms = $wp_query->query_vars['coai_search'];
+
+
+
+        //add to WHERE clause...
+        if ( !empty( $search_terms ) && is_array( $search_terms ) ){
+            //escape the search terms
+            $search_terms = array_map(function($term) use ($wpdb){
+                return esc_html($term);
+            }, $search_terms);
+
+            //build the where clause
+            $where .= " AND (";
+            $where .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' OR {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
+            $where .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' OR {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
+            $where .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' OR {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
+            $where .= ")";
+        }
+
+        return $where;
     }
 
 

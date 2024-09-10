@@ -180,7 +180,7 @@ export default function Edit({
 							<input 
 								type="range" 
 								min="10" 
-								max="40" 
+								max="80" 
 								step="1"
 								defaultValue={ parseInt(attributes.height.slice(0,-3)) }
 								id={`wp-block-chat_height_${iid}`}

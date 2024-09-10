@@ -141,7 +141,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
             >
                 <p x-html="chat.content"></p>
 
-                <template x-if="chat.role == 'assistant'">
+                <template x-if="chat.role == 'assistant' && chat?.action?.content_url">
                     <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
                         <span style="text-size: larger; width: 100%;">Take Action!</span>
                         <div class="<?php echo esc_attr( $action_border_classnames ) ?>" style="<?php echo esc_attr( $action_border_inline_styles ) ?>">
@@ -163,7 +163,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
 
                             <template x-if="chat?.action?.content_excerpt">
                                 <p 
-                                    x-text="chat?.action?.content_excerpt"
+                                    x-html="chat?.action?.content_excerpt"
                                     class="contentoracle-action_excerpt"    
                                 ></p>
                             </template>
@@ -171,7 +171,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
 
                             <a
                                 x-text="chat?.action?.button_text ?? 'Learn more'"
-                                :href="chat?.action?.content_url ?? '#'"
+                                :href="(chat?.action?.content_url) || '<?php echo esc_attr( get_permalink( get_option( 'page_for_posts' ) ) ) ?? '/' ?>'"
                                 :id="'<?php echo esc_attr($chat_id) ?>_action_' + i"
                                 target="_blank"
                                 style="<?php echo esc_attr($action_btn_inline_styles) ?>"
@@ -179,11 +179,12 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                             >
                                 Action Button
                             </a>
+
                         </div>
                     </div>
                 </template>
 
-                <template x-if="chat?.context && chat?.context?.length">
+                <template x-if="chat?.context && chat?.context?.length != 0">
                     <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
 
                         <span style="text-size: larger; width: 100%;">Sources</span>

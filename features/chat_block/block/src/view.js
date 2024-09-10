@@ -114,7 +114,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		} 
 		else {
 			//check for unauthenticated
-			if (json.response.message == "Unauthenticated.")
+			if (json?.response?.message == "Unauthenticated.")
 			{
 				//push the error to the conversation
 				this.error = "Unauthenticated. Site admin should check api token.";

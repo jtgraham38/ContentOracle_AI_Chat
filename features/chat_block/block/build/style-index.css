@@ -101,10 +101,11 @@
   max-width: 100%;
   height: auto;
   margin: 0.5rem 0;
+  box-sizing: border-box;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-action_container .contentoracle-action_text {
   margin: 0.5rem 0;
-  padding: 0 1rem;
+  padding: 1rem 0;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-action_container .contentoracle-action_button {
   margin: 1.5rem 0;

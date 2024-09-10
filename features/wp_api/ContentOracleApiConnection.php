@@ -50,6 +50,8 @@ class ContentOracleApiConnection{
             'timeout' => 30,
         );
 
+        
+
 
         //make the request
         $response = wp_remote_post($url, $args);

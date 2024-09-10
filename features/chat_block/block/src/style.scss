@@ -107,11 +107,12 @@
 					max-width: 100%;
 					height: auto;
 					margin: 0.5rem 0;
+					box-sizing: border-box;
 				}
 
 				.contentoracle-action_text{
 					margin: 0.5rem 0;
-					padding: 0 1rem;
+					padding: 1rem 0;
 				}
 
 				.contentoracle-action_button{
@@ -120,7 +121,7 @@
 						padding: 1rem;
 						font-size: larger;
 						border: none;
-						
+
 						&:hover {
 							cursor: pointer;
 							scale: 1.05;
