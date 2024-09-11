@@ -3591,7 +3591,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
           this.conversation.push({
             role: 'assistant',
             content: json.response.content[0].text,
-            context: json.context,
+            context_used: json.context_used,
+            context_supplied: json.context_supplied,
             action: json.action
           });
         } catch (e) {

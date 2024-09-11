@@ -15,7 +15,8 @@ class ContentOracleApi extends PluginFeature{
         //
         ////NOTE: for now, this is sufficient, but we need to eventually sort the results by relevance
         //
-        add_filter('posts_where', array($this, 'find_content'), 10, 2);
+        add_filter('posts_where', array($this, 'find_content_with_keywords'), 10, 2);
+        add_filter('posts_orderby', array($this, 'order_content_by_relevance_with_keywords'), 10, 2);
     }
 
     public function add_actions(){
@@ -96,8 +97,9 @@ class ContentOracleApi extends PluginFeature{
 
         //apply post processing to the ai_response
         $ai_connection = $response['ai_connection'];
-        $ai_response = $response['response']['message'];
-        $ai_action = $response['response']['action'];
+        $ai_response = $response['generated']['message'];
+        $ai_action = $response['generated']['action'];
+        $ai_content_ids_used = $response['generated']['content_used'];
 
         //add the post link, excerpt, and featured image to the action
         if ( isset( $ai_action['content_id'] ) ){
@@ -108,19 +110,22 @@ class ContentOracleApi extends PluginFeature{
 
         switch ($ai_connection) {
             case 'anthropic':
-                //escape html entities
+                //escape html entities, leaving <br> tags
                 $ai_response['content'][0]['text']= htmlspecialchars($ai_response['content'][0]['text']);
+
+                //revert br tags to html breaks
+                $ai_response['content'][0]['text'] = str_replace('&lt;br&gt;', '<br>', $ai_response['content'][0]['text']);
+
                 //replace newlines with html breaks
                 $ai_response['content'][0]['text'] = nl2br($ai_response['content'][0]['text']);
-                //wrap the main idea of the response (returned wrapped in asterisks) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
+                //wrap the main idea of the response (returned wrapped in |>#<|) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
                 //TODO
-                $ai_response['content'][0]['text'] = preg_replace('/\*([^*]+)\*/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response['content'][0]['text']);
+                $ai_response['content'][0]['text'] = preg_replace('/\|\[#\]\|([^*]+)\|\[#\]\|/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response['content'][0]['text']);
 
                 //apply a hyperlink to the cited posts in the ai response, and put the in text citation in a sub tag
-                //NOTE: I want to replace the think in the parentheses, of strings meeting this form: `lorem ipsum`(580)
-
+                //NOTE: I want to replace the thing in the parentheses, of strings meeting this form: |[$]|lorem ipsum|[$]||[@]|580|[@]|
                 $ai_response['content'][0]['text'] = preg_replace_callback(
-                    '/`([^`]+)`\s*\(([^)]+)\)/',
+                    '/\|\[\$\]\|([^|]+)\|\[\$\]\|\|\[@\]\|(\d+)\|\[@\]\|/',
                     function ($matches) use (&$label_num, &$content) { //& = pass by reference
                         //get the text and post_id from the matches
                         $text = $matches[1];
@@ -157,14 +162,15 @@ class ContentOracleApi extends PluginFeature{
 
 
         //filter the content to remove any posts that were not used in the response
-        $content = array_filter($content, function($post){
-            return isset($post['label']) || ( isset( $ai_action['content_id'] ) && $ai_action['content_id'] == $post['id'] );
+        $ai_content_used = array_filter($content, function($post) use ($ai_content_ids_used, $ai_action){
+            return in_array($post['id'], $ai_content_ids_used) || $post['id'] == $ai_action['content_id'];
         });
 
         //return the response
         return new WP_REST_Response(array(
             'message' => $message,
-            'context' => $content,
+            'context_supplied' => $content,
+            'context_used' => $ai_content_used,
             'response' => $ai_response,
             'action' => $ai_action
         ));
@@ -403,7 +409,7 @@ class ContentOracleApi extends PluginFeature{
 
 
     //query the content to use to generate a response
-    function find_content( $where, $wp_query ){
+    function find_content_with_keywords( $where, $wp_query ){
 
         //
         ////NOTE: for now, this is sufficient, but we need to eventually sort the results by relevance
@@ -435,6 +441,51 @@ class ContentOracleApi extends PluginFeature{
         }
 
         return $where;
+    }
+
+    //order the content in the keyword search
+    function order_content_by_relevance_with_keywords($orderby, $wp_query){
+        /*
+        Sort the posts by relevance.  
+        First include ones that include all the search terms in the title and content.
+        Then include ones that include all the search terms in the title or content or excerpt.
+        Then include ones that include some of the search terms in the title or content or excerpt.
+        */
+
+        //return if not the correct query
+        if ( !isset( $wp_query->query_vars['coai_search'] ) ) return $orderby;
+
+        global $wpdb;
+
+        //get search terms from the wp_query
+        $search_terms = $wp_query->query_vars['coai_search'];
+
+        //add to ORDER BY clause...
+        if ( !empty( $search_terms ) && is_array( $search_terms ) ){
+            
+            //escape the search terms
+            $search_terms = array_map(function($term) use ($wpdb){
+                return esc_html($term);
+            }, $search_terms);
+
+            //build the where clause
+            $orderby = "IF(";
+            $orderby .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' AND {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
+            $orderby .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' AND {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
+            $orderby .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' AND {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
+            $orderby .= ", 1, 0) DESC, ";
+            $orderby .= "IF(";
+            $orderby .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' OR {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
+            $orderby .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' OR {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
+            $orderby .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' OR {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
+            $orderby .= ", 1, 0) DESC, ";
+            $orderby .= "IF(";
+            $orderby .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' OR {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
+            $orderby .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' OR {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
+            $orderby .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' OR {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
+            $orderby .= ", 1, 0) DESC";
+        }
+
     }
 
 

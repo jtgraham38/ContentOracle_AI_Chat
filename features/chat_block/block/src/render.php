@@ -184,13 +184,13 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                     </div>
                 </template>
 
-                <template x-if="chat?.context && chat?.context?.length != 0">
+                <template x-if="chat?.context_used && chat?.context_used?.length != 0">
                     <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
 
                         <span style="text-size: larger; width: 100%;">Sources</span>
                         <ol class="<?php echo esc_attr($sources_border_classnames) ?>" style="<?php echo esc_attr($sources_border_inline_styles) ?>">
 
-                            <template x-for="source in chat.context">
+                            <template x-for="source in chat.context_used">
                                 <li class="contentoracle-footer_citation">
                                     <span x-text="source.title"></span>
                                     <a x-bind:href="source.url" target="_blank" class="contentoracle-footer_citation_link">→</a>
