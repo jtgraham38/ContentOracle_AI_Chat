@@ -61,9 +61,117 @@ class ContentOracleApi extends PluginFeature{
     //search callback
     public function ai_search($request){
         
-
         //get the query
         $message = $request->get_param('message');
+
+        //get the content to use in the response
+        $content = $this->keyword_content_search($message);
+        $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+
+        //get the conversation from the request
+        $conversation = $request->get_param('conversation');
+
+        //send a request to the ai to generate a response
+        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir());
+        $response = $api->ai_search($message, $content, $conversation);
+
+        //handle error in response
+        if ( isset( $response['error'] ) ){
+            return new WP_REST_Response(
+                array(
+                    'error' => $response['error']
+                )
+            );
+        }
+        if (isset($response['errors'])){
+            return new WP_REST_Response(
+                array(
+                    'errors' => $response['errors']
+                )
+            );
+        }
+
+        //create array holding ids of posts used in the response
+        $label_num = 1;
+
+        //apply post processing to the ai_response
+        $ai_connection = $response['ai_connection'];
+        $ai_response = $response['response']['message'];
+        $ai_action = $response['response']['action'];
+
+        //add the post link, excerpt, and featured image to the action
+        if ( isset( $ai_action['content_id'] ) ){
+            $ai_action['content_url'] = get_post_permalink($ai_action['content_id']);
+            $ai_action['content_excerpt'] = get_the_excerpt($ai_action['content_id']);
+            $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['content_id']);
+        }
+
+        switch ($ai_connection) {
+            case 'anthropic':
+                //escape html entities
+                $ai_response['content'][0]['text']= htmlspecialchars($ai_response['content'][0]['text']);
+                //replace newlines with html breaks
+                $ai_response['content'][0]['text'] = nl2br($ai_response['content'][0]['text']);
+                //wrap the main idea of the response (returned wrapped in asterisks) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
+                //TODO
+                $ai_response['content'][0]['text'] = preg_replace('/\*([^*]+)\*/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response['content'][0]['text']);
+
+                //apply a hyperlink to the cited posts in the ai response, and put the in text citation in a sub tag
+                //NOTE: I want to replace the think in the parentheses, of strings meeting this form: `lorem ipsum`(580)
+
+                $ai_response['content'][0]['text'] = preg_replace_callback(
+                    '/`([^`]+)`\s*\(([^)]+)\)/',
+                    function ($matches) use (&$label_num, &$content) { //& = pass by reference
+                        //get the text and post_id from the matches
+                        $text = $matches[1];
+                        $post_id = $matches[2];
+                        //get the post url
+                        $url = get_post_permalink($post_id);
+
+                        //find the post in the content array, and give it a label
+                        $label = "";
+                        foreach ($content as &$post){   //& = pass by reference
+                            if ( $post['id'] == $post_id ){
+                                //account for the case where the post has already been cited
+                                if ( !isset( $post['label'] ) ){
+                                    $post['label'] = $label_num;
+                                }
+                                $label = $post['label'];
+                                $label_num++;
+                                break;
+                            }
+                        }
+
+                        return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\">$label</a>";
+                    },
+                    $ai_response['content'][0]['text']
+                );     
+
+                break;
+            default:
+                //return 501 not implemented error
+                return new WP_REST_Response(array(
+                    'error' => 'AI connection "' . $ai_connection . '" not implemented!',
+                ), 501);
+        }
+
+
+        //filter the content to remove any posts that were not used in the response
+        $content = array_filter($content, function($post){
+            return isset($post['label']) || ( isset( $ai_action['content_id'] ) && $ai_action['content_id'] == $post['id'] );
+        });
+
+        //return the response
+        return new WP_REST_Response(array(
+            'message' => $message,
+            'context' => $content,
+            'response' => $ai_response,
+            'action' => $ai_action
+        ));
+    }
+
+    //simple keyword search to find relevant posts
+    function keyword_content_search($message){
 
         //process the message
         $stop_words = [
@@ -290,108 +398,7 @@ class ContentOracleApi extends PluginFeature{
             $content[] = $entry;
         }
 
-        $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
-
-        //get the conversation from the request
-        $conversation = $request->get_param('conversation');
-
-        //send a request to the ai to generate a response
-        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir());
-        $response = $api->ai_search($message, $content, $conversation);
-
-        //handle error in response
-        if ( isset( $response['error'] ) ){
-            return new WP_REST_Response(
-                array(
-                    'error' => $response['error']
-                )
-            );
-        }
-        if (isset($response['errors'])){
-            return new WP_REST_Response(
-                array(
-                    'errors' => $response['errors']
-                )
-            );
-        }
-
-        //create array holding ids of posts used in the response
-        $label_num = 1;
-
-        //apply post processing to the ai_response
-        $ai_connection = $response['ai_connection'];
-        $ai_response = $response['response']['message'];
-        $ai_action = $response['response']['action'];
-
-        //add the post link, excerpt, and featured image to the action
-        if ( isset( $ai_action['content_id'] ) ){
-            $ai_action['content_url'] = get_post_permalink($ai_action['content_id']);
-            $ai_action['content_excerpt'] = get_the_excerpt($ai_action['content_id']);
-            $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['content_id']);
-        }
-
-        switch ($ai_connection) {
-            case 'anthropic':
-                //escape html entities
-                $ai_response['content'][0]['text']= htmlspecialchars($ai_response['content'][0]['text']);
-                //replace newlines with html breaks
-                $ai_response['content'][0]['text'] = nl2br($ai_response['content'][0]['text']);
-                //wrap the main idea of the response (returned wrapped in asterisks) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
-                //TODO
-                $ai_response['content'][0]['text'] = preg_replace('/\*([^*]+)\*/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response['content'][0]['text']);
-
-                //apply a hyperlink to the cited posts in the ai response, and put the in text citation in a sub tag
-                //NOTE: I want to replace the think in the parentheses, of strings meeting this form: `lorem ipsum`(580)
-
-                $ai_response['content'][0]['text'] = preg_replace_callback(
-                    '/`([^`]+)`\s*\(([^)]+)\)/',
-                    function ($matches) use (&$label_num, &$content) { //& = pass by reference
-                        //get the text and post_id from the matches
-                        $text = $matches[1];
-                        $post_id = $matches[2];
-                        //get the post url
-                        $url = get_post_permalink($post_id);
-
-                        //find the post in the content array, and give it a label
-                        $label = "";
-                        foreach ($content as &$post){   //& = pass by reference
-                            if ( $post['id'] == $post_id ){
-                                //account for the case where the post has already been cited
-                                if ( !isset( $post['label'] ) ){
-                                    $post['label'] = $label_num;
-                                }
-                                $label = $post['label'];
-                                $label_num++;
-                                break;
-                            }
-                        }
-
-                        return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\">$label</a>";
-                    },
-                    $ai_response['content'][0]['text']
-                );     
-
-                break;
-            default:
-                //return 501 not implemented error
-                return new WP_REST_Response(array(
-                    'error' => 'AI connection "' . $ai_connection . '" not implemented!',
-                ), 501);
-        }
-
-
-        //filter the content to remove any posts that were not used in the response
-        $content = array_filter($content, function($post){
-            return isset($post['label']) || ( isset( $ai_action['content_id'] ) && $ai_action['content_id'] == $post['id'] );
-        });
-
-        //return the response
-        return new WP_REST_Response(array(
-            'message' => $message,
-            'context' => $content,
-            'response' => $ai_response,
-            'action' => $ai_action
-        ));
+        return $content;
     }
 
 
