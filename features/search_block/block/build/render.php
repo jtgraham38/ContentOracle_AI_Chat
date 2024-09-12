@@ -187,9 +187,15 @@ echo "</pre>";
             >
         </form>
 
-        <div class="<?php echo esc_attr( $notice_classes )?>" style="<?php echo esc_attr( $notice_styles ) ?>">
-            Check out our new AI-powered search feature!
-            <div class="<?php echo esc_attr( $arrow_classes )?>" style="<?php echo esc_attr( $arrow_styles ) ?>"></div>
-        </div>
+        <?php if ( isset( $attributes['noticeText'] ) && $attributes['noticeText'] != "" ) : ?>
+            <div class="<?php echo esc_attr( $notice_classes )?>" style="<?php echo esc_attr( $notice_styles ) ?>">
+                
+                <span>
+                    <?php echo esc_html( $attributes['noticeText'] ) ?>
+                </span>
+                <div class="<?php echo esc_attr( $arrow_classes )?>" style="<?php echo esc_attr( $arrow_styles ) ?>"></div>
+                <span class="contentoracle-ai_search_notice_close">&times;</span>
+            </div>
+        <?php endif ?>
     </div>
 </div>

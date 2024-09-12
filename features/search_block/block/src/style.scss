@@ -20,6 +20,18 @@
 			height: 16px;
 			transform: rotate(45deg);
 		}
+		.contentoracle-ai_search_notice_close{
+			margin-left: 0.5rem;
+			float: right;
+
+			&:hover{
+				cursor: pointer;
+				scale: 1.1;
+			}
+			&:active {
+				scale: 0.9;
+			}
+		}
 	}
 
 

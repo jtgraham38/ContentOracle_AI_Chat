@@ -38,6 +38,10 @@
     "textColor": {
       "type": "string",
       "default": "base-2"
+    },
+    "noticeText": {
+      "type": "string",
+      "default": "Check out our new search, powered by AI!"
     }
   },
   "selectors": {
@@ -46,7 +50,9 @@
     "label": ".contentoracle-ai_search_label",
     "input": ".contentoracle-ai_search_input",
     "button": ".contentoracle-ai_search_button",
-    "notice": ".contentoracle-ai_search_notice"
+    "notice": ".contentoracle-ai_search_notice",
+    "notice_arrow": ".contentoracle-ai_search_notice_arrow",
+    "notice_close": ".contentoracle-ai_search_notice_close"
   },
   "supports": {
     "color": {

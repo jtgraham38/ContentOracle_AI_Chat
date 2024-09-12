@@ -117,12 +117,30 @@ function Edit({
     defaultValue: parseInt(attributes.width.slice(0, -1)),
     id: `wp-block-search_width_${iid}`,
     onChange: event => {
-      console.log(attributes);
+      //console.log(attributes)
       setAttributes({
         width: event.target.value + "%"
       });
     }
-  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, attributes?.width || "-", " "))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, attributes?.width || "-", " ")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "contentoracle-ai_panelbody_group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "contentoracle-ai_panelbody_input_container"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    className: "components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2",
+    htmlFor: `wp-block-search_notice_msg_${iid}`
+  }, "Notice Text (Leave blank for no notice)"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    type: "text",
+    maxLength: "255",
+    defaultValue: attributes?.noticeText || "",
+    id: `wp-block-search_notice_msg_${iid}`,
+    onChange: event => {
+      //console.log(attributes)
+      setAttributes({
+        noticeText: event.target.value
+      });
+    }
+  })))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...blockPropsNoStyle,
     style: rootStyles
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
@@ -334,7 +352,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-search","version":"0.1.0","title":"Contentoracle Ai Search","category":"contentoracle","description":"Help users find your content with the power of ContentOracle AI.","icon":"smiley","example":{},"keywords":["search","ai","contentoracle","searchbar","query","answer","question"],"textdomain":"contentoracle","attributes":{"width":{"type":"string","default":"100%"},"label":{"type":"string","default":"Ask AI"},"placeholder":{"type":"string","default":"Ask AI..."},"backgroundColor":{"type":"string","default":"contrast"},"textColor":{"type":"string","default":"base-2"}},"selectors":{"root":".contentoracle-ai_search_root","container":".contentoracle-ai_search_container","label":".contentoracle-ai_search_label","input":".contentoracle-ai_search_input","button":".contentoracle-ai_search_button","notice":".contentoracle-ai_search_notice"},"supports":{"color":{"background":true,"text":true,"button":false},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"typography":{"fontSize":true,"fontSizeUnit":["px","em","rem"],"fontStyle":true},"width":{"type":"string","default":"100%"},"align":true,"html":false},"editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScript":"file:./view.js"}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-search","version":"0.1.0","title":"Contentoracle Ai Search","category":"contentoracle","description":"Help users find your content with the power of ContentOracle AI.","icon":"smiley","example":{},"keywords":["search","ai","contentoracle","searchbar","query","answer","question"],"textdomain":"contentoracle","attributes":{"width":{"type":"string","default":"100%"},"label":{"type":"string","default":"Ask AI"},"placeholder":{"type":"string","default":"Ask AI..."},"backgroundColor":{"type":"string","default":"contrast"},"textColor":{"type":"string","default":"base-2"},"noticeText":{"type":"string","default":"Check out our new search, powered by AI!"}},"selectors":{"root":".contentoracle-ai_search_root","container":".contentoracle-ai_search_container","label":".contentoracle-ai_search_label","input":".contentoracle-ai_search_input","button":".contentoracle-ai_search_button","notice":".contentoracle-ai_search_notice","notice_arrow":".contentoracle-ai_search_notice_arrow","notice_close":".contentoracle-ai_search_notice_close"},"supports":{"color":{"background":true,"text":true,"button":false},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"typography":{"fontSize":true,"fontSizeUnit":["px","em","rem"],"fontStyle":true},"width":{"type":"string","default":"100%"},"align":true,"html":false},"editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScript":"file:./view.js"}');
 
 /***/ })
 

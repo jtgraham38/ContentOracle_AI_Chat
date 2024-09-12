@@ -24,6 +24,17 @@
   height: 16px;
   transform: rotate(-45deg);
 }
+.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_notice_close {
+  margin-right: 0.5rem;
+  float: left;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_notice_close:hover {
+  cursor: pointer;
+  scale: 1.1;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_notice_close:active {
+  scale: 0.9;
+}
 .contentoracle-ai_search_root .contentoracle-ai_search_label {
   display: block;
 }

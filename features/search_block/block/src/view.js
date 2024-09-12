@@ -37,7 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		console.log(cleanUp);
 
 		//add event listener to remove notice and clean up
-		//TODO
+		const closeEl = searchbarEl.querySelector('.contentoracle-ai_search_notice_close');
+		closeEl.addEventListener('click', () => {
+			//remove the notice element
+			noticeEl.remove();
+			//clean up the auto update
+			cleanUp();
+		});
 	});
 		
 		
@@ -55,7 +61,7 @@ function updateNoticePosition(searchbarEl) {
 		middleware: [
 			flip(),	//flip if against a border
 			shift({ padding: 5 }),	//padding when against a border
-			offset(4),	//pixel distance from the searchbar
+			offset(2),	//pixel distance from the searchbar
 			arrow({ element: arrowEl })	//arrow element
 		]
 	}).then(({ x, y, placement, middlewareData }) => {

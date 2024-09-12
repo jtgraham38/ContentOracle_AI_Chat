@@ -2248,7 +2248,13 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(cleanUp);
 
     //add event listener to remove notice and clean up
-    //TODO
+    const closeEl = searchbarEl.querySelector('.contentoracle-ai_search_notice_close');
+    closeEl.addEventListener('click', () => {
+      //remove the notice element
+      noticeEl.remove();
+      //clean up the auto update
+      cleanUp();
+    });
   });
 });
 function updateNoticePosition(searchbarEl) {
@@ -2265,7 +2271,7 @@ function updateNoticePosition(searchbarEl) {
       padding: 5
     }),
     //padding when against a border
-    (0,_floating_ui_dom__WEBPACK_IMPORTED_MODULE_0__.offset)(4),
+    (0,_floating_ui_dom__WEBPACK_IMPORTED_MODULE_0__.offset)(2),
     //pixel distance from the searchbar
     (0,_floating_ui_dom__WEBPACK_IMPORTED_MODULE_0__.arrow)({
       element: arrowEl

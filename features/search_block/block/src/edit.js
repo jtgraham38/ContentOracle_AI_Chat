@@ -101,13 +101,33 @@ export default function Edit({
 								defaultValue={ parseInt(attributes.width.slice(0,-1)) }
 								id={`wp-block-search_width_${iid}`}
 								onChange={ ( event ) => {
-									console.log(attributes)
+									//console.log(attributes)
 									setAttributes( { width: event.target.value + "%" } );
 								} }
 							></input>
 						</div>
 						<p>{ attributes?.width || "-" } </p>
 					</div>
+						
+					<div className="contentoracle-ai_panelbody_group">
+						<div className="contentoracle-ai_panelbody_input_container">
+							<label 
+								className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2" 
+								htmlFor={`wp-block-search_notice_msg_${iid}`}>
+								Notice Text (Leave blank for no notice)
+							</label>
+							<input 
+								type="text"
+								maxLength="255"
+								defaultValue={ attributes?.noticeText || "" }
+								id={`wp-block-search_notice_msg_${iid}`}
+								onChange={ ( event ) => {
+									//console.log(attributes)
+									setAttributes( { noticeText: event.target.value } );
+								} }
+							></input>
+						</div>
+					</div>	
 
 				</div>
 			</PanelBody>
