@@ -277,7 +277,6 @@ export default function Edit({
 				<div className='contentoracle-ai_chat_header'>
 					<h3 { ...labelProps }>
 					<RichText
-						tagName="header"
 						placeholder="AI Chat header here..."
 						value={ attributes.header }
 						onChange={ ( newValue ) => {
@@ -338,7 +337,6 @@ export default function Edit({
 					</span>
 					<div  { ...buttonProps }>
 						<RichText
-							tagName="buttonText"
 							placeholder="Search text here..."
 							value={ attributes.buttonText }
 							onChange={ ( newValue ) => {

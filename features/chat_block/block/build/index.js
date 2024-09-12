@@ -289,7 +289,6 @@ function Edit({
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h3", {
     ...labelProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
-    tagName: "header",
     placeholder: "AI Chat header here...",
     value: attributes.header,
     onChange: newValue => {
@@ -366,7 +365,6 @@ function Edit({
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...buttonProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
-    tagName: "buttonText",
     placeholder: "Search text here...",
     value: attributes.buttonText,
     onChange: newValue => {
