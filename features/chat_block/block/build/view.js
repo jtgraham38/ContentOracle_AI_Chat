@@ -3493,6 +3493,9 @@ alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('contentoracle_ai_chat', (
     this.$watch('conversation', () => {
       this.scrollToBottom(); // Call the function when conversation updates
     });
+    this.$watch('loading', () => {
+      this.scrollToBottom(); // Call the function when loading updates
+    });
 
     //preemptively add the search query to the conversation, if it exists
     const urlParams = new URLSearchParams(window.location.search);

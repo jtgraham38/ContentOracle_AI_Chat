@@ -19,9 +19,9 @@ class ContentOracleApiConnection{
         $this->base_dir = $base_dir;
     }
 
-    public function ai_search(string $query, array $content, array $conversation){
+    public function ai_chat(string $query, array $content, array $conversation){
         //build the request
-        $url = self::API_BASE_URL . '/v1/ai/search';
+        $url = self::API_BASE_URL . '/v1/ai/chat';
         
         $args = array(
             'headers' => array(

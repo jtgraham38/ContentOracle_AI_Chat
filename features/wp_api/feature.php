@@ -74,7 +74,8 @@ class ContentOracleApi extends PluginFeature{
 
         //send a request to the ai to generate a response
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir());
-        $response = $api->ai_search($message, $content, $conversation);
+        $response = $api->ai_chat($message, $content, $conversation);
+
 
         //handle error in response
         if ( isset( $response['error'] ) ){
@@ -99,7 +100,7 @@ class ContentOracleApi extends PluginFeature{
         $ai_connection = $response['ai_connection'];
         $ai_response = $response['generated']['message'];
         $ai_action = $response['generated']['action'];
-        $ai_content_ids_used = $response['generated']['content_used'];
+        $ai_content_ids_used = $response['generated']['content_used'] ?? [];
 
         //add the post link, excerpt, and featured image to the action
         if ( isset( $ai_action['content_id'] ) ){
