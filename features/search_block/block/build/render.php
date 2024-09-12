@@ -184,15 +184,16 @@ echo "</pre>";
                 class="<?php echo esc_attr( $button_classes ) ?>"
                  <?php echo $button_styles ?>
                  value="Search"
+                 id=
             >
         </form>
 
         <?php if ( isset( $attributes['noticeText'] ) && $attributes['noticeText'] != "" ) : ?>
             <div class="<?php echo esc_attr( $notice_classes )?>" style="<?php echo esc_attr( $notice_styles ) ?>">
                 
-                <span>
+                <label for="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>">
                     <?php echo esc_html( $attributes['noticeText'] ) ?>
-                </span>
+                </label>
                 <div class="<?php echo esc_attr( $arrow_classes )?>" style="<?php echo esc_attr( $arrow_styles ) ?>"></div>
                 <span class="contentoracle-ai_search_notice_close">&times;</span>
             </div>
