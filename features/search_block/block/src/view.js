@@ -23,7 +23,6 @@ import { computePosition, flip, shift, offset, arrow, autoUpdate } from '@floati
 
 
 document.addEventListener('DOMContentLoaded', () => {
-
 	//get refs to floating element and search bar
 	const searchbars = Array.from(document.querySelectorAll('.contentoracle-ai_search_root'));
 
@@ -31,6 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	searchbars.map((searchbarEl) => {
 		//find notice element
 		const noticeEl = searchbarEl.querySelector('.contentoracle-ai_search_notice');
+
+		//check the cookei to determine if we have shown this vistor the ai notice recently
+		if (document.cookie.includes('contentoracle_ai_notice')) {
+			noticeEl.remove();
+			return;
+		}
 
 		//find the floating notice element and arrow
 		const cleanUp = autoUpdate(searchbarEl, noticeEl, () => { updateNoticePosition(searchbarEl) } )
@@ -43,6 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			noticeEl.remove();
 			//clean up the auto update
 			cleanUp();
+
+			//set the cookie to not show the visiotr the notice again for 3 months
+			const date = new Date();
+			date.setMonth(date.getMonth() + 3);
+			document.cookie = `contentoracle_ai_notice=1; expires=${date.toUTCString()}; path=/`;
 		});
 	});
 		

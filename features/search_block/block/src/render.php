@@ -89,7 +89,7 @@ else {
     }
 }
 //create classes and styles
-$notice_styles['border-radius'] = $attributes['style']['border']['radius'];
+$notice_styles['border-radius'] = $attributes['style']['border']['radius'] ?? '0px';
 
 $notice_styles = implode( ';', array_map(
     function ( $value, $key ) {
@@ -129,11 +129,11 @@ $arrow_styles = implode( ';', array_map(
     
 
 //echoes for debugging
-echo "<pre>";
-// echo "Attrs<br>";
-print_r($attributes);
-echo "<hr>";
-print_r($typography_classes);
+// echo "<pre>";
+// // echo "Attrs<br>";
+// print_r($attributes);
+// echo "<hr>";
+// print_r($typography_classes);
 // // echo "classnames<br>";
 // // print_r($classnames);
 // // echo "<hr>";
