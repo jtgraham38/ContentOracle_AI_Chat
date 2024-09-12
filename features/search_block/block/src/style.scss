@@ -8,6 +8,20 @@
  .contentoracle-ai_search_root {
 	padding: 0.75rem;
 
+	.contentoracle-ai_search_notice{
+		padding: 1rem;
+		width: max-content;
+		position: absolute;
+		top: 0;
+		left: 0;
+		.contentoracle-ai_search_arrow{
+			position: absolute;
+			width: 16px;
+			height: 16px;
+			transform: rotate(45deg);
+		}
+	}
+
 
 	.contentoracle-ai_search_label{
 		display: block;

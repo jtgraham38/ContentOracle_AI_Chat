@@ -19,9 +19,69 @@
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#view-script
  */
+import { computePosition, flip, shift, offset, arrow, autoUpdate } from '@floating-ui/dom'
 
-/* eslint-disable no-console */
-console.log(
-	'Hello World! (from create-block-contentoracle-ai-searchbar block)'
-);
-/* eslint-enable no-console */
+
+document.addEventListener('DOMContentLoaded', () => {
+
+	//get refs to floating element and search bar
+	const searchbars = Array.from(document.querySelectorAll('.contentoracle-ai_search_root'));
+
+	//update location of each notice to stay with searchbar
+	searchbars.map((searchbarEl) => {
+		//find notice element
+		const noticeEl = searchbarEl.querySelector('.contentoracle-ai_search_notice');
+
+		//find the floating notice element and arrow
+		const cleanUp = autoUpdate(searchbarEl, noticeEl, () => { updateNoticePosition(searchbarEl) } )
+		console.log(cleanUp);
+
+		//add event listener to remove notice and clean up
+		//TODO
+	});
+		
+		
+
+});
+
+function updateNoticePosition(searchbarEl) {
+	//find notice and arrow elements
+	const noticeEl = searchbarEl.querySelector('.contentoracle-ai_search_notice');
+	const arrowEl = noticeEl.querySelector('.contentoracle-ai_search_arrow');
+
+	//compute position the floating element should occupy
+	computePosition(searchbarEl, noticeEl, {
+		placement: "bottom",
+		middleware: [
+			flip(),	//flip if against a border
+			shift({ padding: 5 }),	//padding when against a border
+			offset(4),	//pixel distance from the searchbar
+			arrow({ element: arrowEl })	//arrow element
+		]
+	}).then(({ x, y, placement, middlewareData }) => {
+		//update the notice element's position
+		Object.assign(noticeEl.style, {
+			left: `${x}px`,
+			top: `${y}px`,
+		});
+
+		//get arrow location
+		const { x: arrowX, y: arrowY } = middlewareData.arrow;
+		
+		//update the arrow's position
+		const staticSide = {
+			top: 'bottom',
+			right: 'left',
+			bottom: 'top',
+			left: 'right',
+		}[placement.split('-')[0]];
+		
+		Object.assign(arrowEl.style, {
+			left: arrowX != null ? `${arrowX}px` : '',
+			top: arrowY != null ? `${arrowY}px` : '',
+			right: '',
+			bottom: '',
+			[staticSide]: '-4px',
+		});
+	});
+}

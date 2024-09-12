@@ -50,12 +50,90 @@ if ( ! empty( $attributes['width'] ) ) {
     $root_styles .= 'style="width: ' . $attributes['width'] . ';"';
 }
 
+//create styles for the notice element
+$notice_classes = 'contentoracle-ai_search_notice';
+$notice_styles = [];
+
+//apply the text color to the notice
+//apply the border color as the notice bg color
+if ( isset( $attributes['style']['color']['text'])){
+
+    //TODO: handle presets here!
+    $notice_styles['color'] = $attributes['style']['color']['text'];
+}
+else if ( isset( $attributes['textColor'])){
+    $notice_classes .= ' has-text-color has-' . $attributes['textColor'] . '-color';  
+}
+else {
+    $notice_styles['color'] = '#111111';
+}
+
+//apply the border color as the notice bg color
+if ( isset( $attributes['borderColor'])){
+    $notice_classes .= ' has-background has-' . $attributes['borderColor'] . '-background-color';  
+}
+else if ( isset( $attributes['style']['border']['color'])){
+
+    //TODO: handle presets here!
+    $notice_styles['background-color'] = $attributes['style']['border']['color'];
+}
+else {
+    //try to match the button's color if no border color is set
+    if (isset($attributes['backgroundColor'])){
+        $notice_classes .= ' has-background has-' . $attributes['backgroundColor'] . '-background-color';
+    } else if ( isset( $attributes['style']['color']['background'] ) ){
+        $notice_styles['background-color'] = $attributes['style']['color']['background'];
+    }
+    else{
+        $notice_styles['background-color'] = '#EEEEEE';
+    }
+}
+//create classes and styles
+$notice_styles['border-radius'] = $attributes['style']['border']['radius'];
+
+$notice_styles = implode( ';', array_map(
+    function ( $value, $key ) {
+        return $key . ':' . $value;
+    },
+    $notice_styles,
+    array_keys( $notice_styles )
+) );
+
+//create notice arrow style
+$arrow_classes = 'contentoracle-ai_search_arrow';
+$arrow_styles = [];
+if ( isset( $attributes['borderColor'])){
+    $arrow_classes .= ' has-background has-' . $attributes['borderColor'] . '-background-color';  
+}
+else if ( isset( $attributes['style']['border']['color'])){
+    $arrow_styles['background-color'] = $attributes['style']['border']['color'];
+}
+else {
+    //try to match the button's color if no border color is set
+    if (isset($attributes['backgroundColor'])){
+        $arrow_classes .= ' has-background has-' . $attributes['backgroundColor'] . '-background-color';
+    } else if ( isset( $attributes['style']['color']['background'] ) ){
+        $arrow_styles['background-color'] = $attributes['style']['color']['background'];
+    }
+    else{
+        $arrow_styles['background-color'] = '#EEEEEE';
+    }
+}
+$arrow_styles = implode( ';', array_map(
+    function ( $value, $key ) {
+        return $key . ':' . $value;
+    },
+    $arrow_styles,
+    array_keys( $arrow_styles )
+) );
+    
 
 //echoes for debugging
-// echo "<pre>";
+echo "<pre>";
 // echo "Attrs<br>";
-// print_r($attributes);
-// // echo "<hr>";
+print_r($attributes);
+echo "<hr>";
+print_r($typography_classes);
 // // echo "classnames<br>";
 // // print_r($classnames);
 // // echo "<hr>";
@@ -71,7 +149,7 @@ if ( ! empty( $attributes['width'] ) ) {
 // // echo "border_color_classes<br>";
 // // print_r($border_color_classes);
 
-// echo "</pre>";
+echo "</pre>";
 ?>
 <div style="display:flex; justify-content:center;">
     <div
@@ -108,5 +186,10 @@ if ( ! empty( $attributes['width'] ) ) {
                  value="Search"
             >
         </form>
+
+        <div class="<?php echo esc_attr( $notice_classes )?>" style="<?php echo esc_attr( $notice_styles ) ?>">
+            Check out our new AI-powered search feature!
+            <div class="<?php echo esc_attr( $arrow_classes )?>" style="<?php echo esc_attr( $arrow_styles ) ?>"></div>
+        </div>
     </div>
 </div>

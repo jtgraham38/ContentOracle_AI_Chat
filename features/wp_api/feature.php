@@ -147,7 +147,7 @@ class ContentOracleApi extends PluginFeature{
                             }
                         }
 
-                        return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\">$label</a>";
+                        return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\" target=\"_blank\">$label</a>";
                     },
                     $ai_response['content'][0]['text']
                 );     
