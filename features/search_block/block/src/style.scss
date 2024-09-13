@@ -44,24 +44,29 @@
 		padding: 2px;
 	}
 	.contentoracle-ai_search_input {
-		flex-grow: 1;	/* grow to fill the space */
+		flex: 1 1 auto;
+		max-width: 100%;
 		padding: 1rem 0.4rem;
 		font-size: var(--wp--preset--font-size--medium);
 		border-width: 0;
+		box-sizing: border-box; /* Include padding and border in the element's total width and height */
+
 	}
 	.contentoracle-ai_search_button {
+		flex: 0 0 auto;
 		padding: 1rem;
 		font-size: var(--wp--preset--font-size--medium);
 		margin-left: 0.25rem;
 		border: none;
+		box-sizing: border-box;/* Include padding and border in the element's total width and height */
 
 		&:hover{
 			cursor: pointer;
-			scale: 1.05;
+			transform: scale(1.05);
 		}
 
 		&:active{
-			scale: 0.95;
+			transform: scale(0.95);
 		}
 	}
 }

@@ -151,7 +151,7 @@ function contentoracle_ai_chat_block_get_button_attrs($attributes){
     //apply only the text color
     if (in_array('has-text-color', $color_attrs['classnames'])) {
         $classnames[] = 'has-text-color';
-        $classnames[] = preg_grep('/has-((?!text-color)[a-z]+|[a-z]+-\d+)-color/', $color_attrs['classnames'])[1];
+        $classnames[] = preg_grep('/has-((?!text-color)[a-z]+|[a-z]+-\d+)-color/', $color_attrs['classnames'])[1] ?? 'contrast';
 
     } else if (array_key_exists('color', $color_attrs['inline_styles'])) {
         $inline_styles['color'] = $color_attrs['inline_styles']['color'];
