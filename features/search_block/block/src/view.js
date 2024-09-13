@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			//set the cookie to not show the visiotr the notice again for 3 months
 			const date = new Date();
-			date.setMonth(date.getMonth() + 3);
+			date.setMonth(date.getMonth() + 1);
 			document.cookie = `contentoracle_ai_notice=1; expires=${date.toUTCString()}; path=/`;
 		});
 	});
