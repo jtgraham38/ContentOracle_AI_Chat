@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 
 <div class="wrap p-1">
 
-    <h1>ContentOracle AI Search</h1>
+    <h1>ContentOracle AI Chat</h1>
 
     <form method="post" action="options.php">
         <?php

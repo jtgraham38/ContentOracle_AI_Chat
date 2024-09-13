@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "contentoracle/ai-chat",
   "version": "0.1.0",
-  "title": "Contentoracle Ai Chat Block",
+  "title": "Contentoracle Ai Chat",
   "category": "contentoracle",
   "icon": "smiley",
   "description": "Let your users chat with ai, and show ai search results with your site's custom content.",
