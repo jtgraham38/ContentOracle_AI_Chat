@@ -252,7 +252,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
         <span style="color: red;">See the console for more debugging info!</span>
     <?php } ?>
 </div>
-
+<!-- 
 <pre>
     <?php //print_r(get_rest_url());//print_r($attributes); ?>
     <hr>
@@ -264,8 +264,8 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     <hr>
     <?php //print_r(get_block_wrapper_attributes()); ?>
     <hr>
-    <?php print_r( contentoracle_ai_chat_block_get_border_attrs($attributes) ); ?>
-</pre>
+    <?php //print_r( contentoracle_ai_chat_block_get_border_attrs($attributes) ); ?>
+</pre> -->
 
 <style>
     <?php 
