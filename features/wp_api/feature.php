@@ -412,10 +412,6 @@ class ContentOracleApi extends PluginFeature{
     //query the content to use to generate a response
     function find_content_with_keywords( $where, $wp_query ){
 
-        //
-        ////NOTE: for now, this is sufficient, but we need to eventually sort the results by relevance
-        //
-
         //return if not the correct query
         if ( !isset( $wp_query->query_vars['coai_search'] ) ) return $where;
 
@@ -438,6 +434,7 @@ class ContentOracleApi extends PluginFeature{
             $where .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' OR {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
             $where .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' OR {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
             $where .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' OR {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
+            $where .= " OR {$wpdb->posts}.post_type LIKE '%" . implode("%' OR {$wpdb->posts}.post_type LIKE '%", $search_terms) . "%'";
             $where .= ")";
         }
 
