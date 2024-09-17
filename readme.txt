@@ -12,6 +12,7 @@ The internet is changing. Experts and leaders of major businesses are quickly re
 
 That is where ContentOracle AI Chat comes in. ContentOracle AI Chat bridges the gap between the unique insights your organization offers in your blog content and the power of AI to clearly and concisely get site visitors the information they are looking for. What results is a user experience that doesn’t give vistors a generic answer, but rather an answer uniquely tailored based on your content. Add to this the fact that our AI can recommend relevant posts, products, events, and more based on a goal you set, semantic content anaysis, and a suite of analytic features, and you’ve got a game-changing addition to your user's experience on your website.
 
+Note: this plugin requires you to make a ContentOracle AI Chat account in order to make the plugin work.  More details below...
 
 == Installation ==
 1. Upload the plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
@@ -36,6 +37,11 @@ ContentOracle AI bills on a usage-based basis.  So, the more your users interact
 = What does the AI Search block do? =
 The AI Search block is designed to connect your users with your AI Chat block from anywhere on your website.  When the user searches something in the AI Search block, they will be redirected to your main AI search page, where your AI Chat block should reside.  Their search query will be preemptively sent to the AI to kick off the conversation.
 
+== 3rd-Party Libraries ==
+This plugin makes use of the following third-party libraries and services:
+- AlpineJS: a small javascript library for introducing reactive data to the ui. https://github.com/alpinejs/alpine
+- Floating UI: a small javascript library that handles dynamically creating and positioning tooltips. https://github.com/floating-ui/floating-ui
+
 == Screenshots ==
 1. This is the first screenshot.
 2. This is the second screenshot.
@@ -47,10 +53,6 @@ The AI Search block is designed to connect your users with your AI Chat block fr
 == Upgrade Notice ==
 = 1.0.0 =
 Upgrade notice for users of previous versions.
-
-== Frequently Asked Questions ==
-= Can I customize the plugin settings? =
-Yes, you can customize the plugin settings by navigating to the 'Settings' menu in the WordPress admin dashboard.
 
 == Screenshots ==
 1. This is the first screenshot.
