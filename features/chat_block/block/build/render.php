@@ -251,6 +251,14 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
         <span style="color: red;" x-text="error"></span>
         <span style="color: red;">See the console for more debugging info!</span>
     <?php } ?>
+    <?php if ( get_option('contentoracle_display_credit_link', false) ){ ?>
+        <small style="float: right; margin: 0.2rem 0.1rem;">
+            Powered by 
+            <a href="https://contentoracle.jacob-t-graham.com" target="_blank" class="contentoracle-footer_citation_link">
+                ContentOracle AI
+            </a>
+        </small>
+    <?php } ?>
 </div>
 <!-- 
 <pre>

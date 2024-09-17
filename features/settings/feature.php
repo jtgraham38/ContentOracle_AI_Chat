@@ -110,6 +110,19 @@ class ContentOracleSettings extends PluginFeature{
             )
         );
 
+        add_settings_field(
+            $this->get_prefix() . "display_credit_link",    // id of the field
+            'Display Credit Link',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/plugin/display_credit_link_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_plugin_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'display_credit_link_input'
+            )
+        );
+
         // create the settings themselves
 
         register_setting(
@@ -154,6 +167,18 @@ class ContentOracleSettings extends PluginFeature{
         register_setting(
             'contentoracle_plugin_settings', // option group
             $this->get_prefix() . 'debug_mode',    // option name
+            array(  // args
+                'type' => 'boolean',
+                'default' => false,
+                'sanitize_callback' => function($value){
+                    return $value ? true : false;
+                }
+            )
+        );
+
+        register_setting(
+            'contentoracle_plugin_settings', // option group
+            $this->get_prefix() . 'display_credit_link',    // option name
             array(  // args
                 'type' => 'boolean',
                 'default' => false,
