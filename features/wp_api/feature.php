@@ -72,8 +72,11 @@ class ContentOracleApi extends PluginFeature{
         //get the conversation from the request
         $conversation = $request->get_param('conversation');
 
+        //get the ip address of the client for COAI rate limiting
+        $client_ip = $this->get_client_ip();
+
         //send a request to the ai to generate a response
-        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir());
+        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
         $response = $api->ai_chat($message, $content, $conversation);
 
 
@@ -486,6 +489,36 @@ class ContentOracleApi extends PluginFeature{
 
     }
 
+    //get the ip address of the client
+    function get_client_ip(){
+        $ip = '';
+
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            // Check for IP from shared internet
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            // Check for IP passed from proxy
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED'];
+        } elseif (!empty($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_X_CLUSTER_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_FORWARDED_FOR'];
+        } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
+            $ip = $_SERVER['HTTP_FORWARDED'];
+        } else {
+            // Default fallback to REMOTE_ADDR
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+
+        // Handle multiple IPs (e.g., "client IP, proxy IP")
+        if (strpos($ip, ',') !== false)
+            $ip = explode(',', $ip)[0];
+
+        // Sanitize IP address
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'UNKNOWN';
+    }
 
     //register a contentoracle healthcheck route
     public function register_healthcheck_rest_route(){
@@ -499,5 +532,6 @@ class ContentOracleApi extends PluginFeature{
             }
         ));
     }
+
 
 }

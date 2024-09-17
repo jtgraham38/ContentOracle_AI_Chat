@@ -13,10 +13,11 @@ class ContentOracleApiConnection{
     private $base_url;
     private $base_dir;
 
-    public function __construct($prefix, $base_url, $base_dir){
+    public function __construct($prefix, $base_url, $base_dir, $client_ip){
         $this->prefix = $prefix;
         $this->base_url = $base_url;
         $this->base_dir = $base_dir;
+        $this->client_ip = $client_ip;
     }
 
     public function ai_chat(string $query, array $content, array $conversation){
@@ -45,7 +46,9 @@ class ContentOracleApiConnection{
                         'extra_info_prompt' => get_option($this->prefix . 'ai_extra_info_prompt', '')
                     
                     )
-                )
+                ),
+                'client_ip' => $this->client_ip
+                
             )),
             'timeout' => 30,
         );
