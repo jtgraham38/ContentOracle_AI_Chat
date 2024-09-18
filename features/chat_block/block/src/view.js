@@ -11,9 +11,11 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	conversation: [],
 	loading: false,
 	error: "",
+	chatNonce: "",	//will be filled in by the block via php
 	init() {
 		//load the rest url into the apiBaseUrl from the data-contentoracle_rest_url attribute
 		this.apiBaseUrl = this.$el.getAttribute('data-contentoracle_rest_url');
+		this.chatNonce = this.$el.getAttribute('data-contentoracle_chat_nonce');
 
 		//scroll to the bottom of the chat when the conversation updates
 		this.$watch('conversation', () => {
@@ -69,7 +71,8 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		const url = this.apiBaseUrl + 'contentoracle/v1/search';
 		const data = {
 			message: msg,
-			conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice( this.conversation.length - 10 ),
+			conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10),
+			contentoracle_chat_nonce: this.chatNonce
 		};
 		//build the request
 		const options = {
@@ -87,11 +90,15 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		console.log( this.conversation );
 
 		//send the request
-		const request = await fetch( url, options )
-		const json = await request.json();
-		console.log("json:", json);
-		//const json = { response: {it: "worked"} }
-
+		try {
+			const request = await fetch(url, options)
+			const json = await request.json();
+			console.log("json:", json);
+		}
+		catch (e) {
+			this.error = e;
+			console.error(e);
+		}
 
 		//handle the response
 		if ( json.error ){
@@ -132,7 +139,10 @@ Alpine.data('contentoracle_ai_chat', () => ({
 							context_used: json.context_used,
 							context_supplied: json.context_supplied,
 							action: json.action
-						} );
+						});
+				
+					// set the new nonce
+					this.chatNonce = json.contentoracle_chat_nonce;
 				}
 				catch(e){
 					this.error = "An error occurred while processing the response";

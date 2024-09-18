@@ -61,6 +61,12 @@ class ContentOracleApi extends PluginFeature{
 
     //search callback
     public function ai_search($request){
+        //verify the nonce of the request
+        if (!isset($request[$this->get_prefix() . 'chat_nonce']) || !wp_verify_nonce($request[$this->get_prefix() . 'chat_nonce'], $this->get_prefix() . 'chat_nonce')){
+            return new WP_REST_Response(array(
+                'error' => 'Invalid nonce'
+            ), 403);
+        }
         
         //get the query
         $message = $request->get_param('message');
@@ -176,7 +182,8 @@ class ContentOracleApi extends PluginFeature{
             'context_supplied' => $content,
             'context_used' => $ai_content_used,
             'response' => $ai_response,
-            'action' => $ai_action
+            'action' => $ai_action,
+            'new_nonce' => wp_create_nonce($this->get_prefix() . 'chat_nonce')
         ));
     }
 

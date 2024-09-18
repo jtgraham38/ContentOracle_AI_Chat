@@ -119,6 +119,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     class="<?php echo esc_attr($root_classnames) ?>"
     x-data="contentoracle_ai_chat"
     data-contentoracle_rest_url="<?php echo get_rest_url() ?>"
+    data-contentoracle_chat_nonce="<?php echo wp_create_nonce('contentoracle_chat_nonce') ?>"
 >
     <div class="contentoracle-ai_chat_header">
         <h3 
@@ -226,6 +227,8 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
 
     <form style="<?php echo esc_attr($input_container_inline_styles) ?>" class="<?php echo esc_attr($input_container_classnames) ?>">
         <span class="contentoracle-ai_chat_input_wrapper">
+
+            <input type="hidden" name="contentoracle_chat_nonce" :value="chatNonce">
             <input 
                 type="text" 
                 style="<?php echo esc_attr($input_inline_styles) ?>" 
