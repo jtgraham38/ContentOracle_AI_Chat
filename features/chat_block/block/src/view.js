@@ -123,27 +123,20 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				console.error("Unauthenticated. Site admin should check api token.");
 			}
 			else{
-				try {
-					//ensure the response field is not empty
-					if (json.response.content.length[0].text == 0) {
-						this.error = "No response was returned";
-						console.error("No response was returned");
-					}
-					else {
-						//push the response to the conversation
-							console.log(json);
-							this.conversation.push( {
-								role: 'assistant',
-								content: json.response.content[0].text,
-								context_used: json.context_used,
-								context_supplied: json.context_supplied,
-								action: json.action
-							});
-					
-						// set the new nonce
-						if (json?.new_nonce)
-							this.chatNonce = json.new_nonce;
-					}
+				try{
+					//push the response to the conversation
+						console.log(json);
+						this.conversation.push( {
+							role: 'assistant',
+							content: json.response.content[0].text,
+							context_used: json.context_used,
+							context_supplied: json.context_supplied,
+							action: json.action
+						});
+				
+					// set the new nonce
+					if (json?.new_nonce)
+						this.chatNonce = json.new_nonce;
 				}
 				catch(e){
 					this.error = "An error occurred while processing the response";
