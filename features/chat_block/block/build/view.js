@@ -3579,18 +3579,24 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         console.error("Unauthenticated. Site admin should check api token.");
       } else {
         try {
-          var _json$response$conten;
-          //push the response to the conversation
-          this.conversation.push({
-            role: 'assistant',
-            content: (_json$response$conten = json.response.content[0].text) !== null && _json$response$conten !== void 0 ? _json$response$conten : "Sorry, I can't think of a response right now.",
-            context_used: json.context_used,
-            context_supplied: json.context_supplied,
-            action: json.action
-          });
+          //ensure the response field is not empty
+          if (json.response.content.length == 0) {
+            this.error = "No response was returned";
+            console.error("No response was returned");
+          } else {
+            //push the response to the conversation
+            console.log(json);
+            this.conversation.push({
+              role: 'assistant',
+              content: json.response.content[0].text,
+              context_used: json.context_used,
+              context_supplied: json.context_supplied,
+              action: json.action
+            });
 
-          // set the new nonce
-          if (json?.new_nonce) this.chatNonce = json.new_nonce;
+            // set the new nonce
+            if (json?.new_nonce) this.chatNonce = json.new_nonce;
+          }
         } catch (e) {
           this.error = "An error occurred while processing the response";
           console.error(e);
