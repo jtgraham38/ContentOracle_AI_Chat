@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { store, getContext } from '@wordpress/interactivity';
 import Alpine from 'alpinejs';
 
 //initialize alpinejs
@@ -90,15 +89,8 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		console.log( this.conversation );
 
 		//send the request
-		try {
-			const request = await fetch(url, options)
-			const json = await request.json();
-			console.log("json:", json);
-		}
-		catch (e) {
-			this.error = e;
-			console.error(e);
-		}
+		const request = await fetch(url, options)
+		const json = await request.json();
 
 		//handle the response
 		if ( json.error ){
@@ -142,7 +134,8 @@ Alpine.data('contentoracle_ai_chat', () => ({
 						});
 				
 					// set the new nonce
-					this.chatNonce = json.contentoracle_chat_nonce;
+					if (json?.new_nonce)
+						this.chatNonce = json.new_nonce;
 				}
 				catch(e){
 					this.error = "An error occurred while processing the response";

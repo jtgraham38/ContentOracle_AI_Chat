@@ -94,8 +94,7 @@
 			"margin": true,
 			"padding": true
 		},
-		"html": false,
-		"interactivity": true
+		"html": false
 	},
 	"textdomain": "contentoracle-ai-chat-block",
 	"editorScript": "file:./index.js",

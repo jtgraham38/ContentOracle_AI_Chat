@@ -31,7 +31,7 @@ class ContentOracleApi extends PluginFeature{
         register_rest_route('contentoracle/v1', '/search', array(
             'methods' => 'POST',
             'permission_callback' => '__return_true', // this line was added to allow any site visitor to make an ai search request
-            'callback' => array($this, 'ai_search'),
+            'callback' => array($this, 'ai_chat'),
             'args' => array(
                 'message' => array(
                     'required' => true,
@@ -60,8 +60,11 @@ class ContentOracleApi extends PluginFeature{
     }
 
     //search callback
-    public function ai_search($request){
-        //verify the nonce of the request
+    public function ai_chat($request){
+        //verify the referrer of the request (to prevent CSRF attacks)
+
+
+        //verify the nonce of the request (to prevent CSRF attacks)
         if (!isset($request[$this->get_prefix() . 'chat_nonce']) || !wp_verify_nonce($request[$this->get_prefix() . 'chat_nonce'], $this->get_prefix() . 'chat_nonce')){
             return new WP_REST_Response(array(
                 'error' => 'Invalid nonce'
