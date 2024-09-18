@@ -127,7 +127,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					//push the response to the conversation
 						this.conversation.push( {
 							role: 'assistant',
-							content: json.response.content[0].text,
+							content: json.response.content[0].text ?? "Sorry, I can't think of a response right now.",
 							context_used: json.context_used,
 							context_supplied: json.context_supplied,
 							action: json.action
