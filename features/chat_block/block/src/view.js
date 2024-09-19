@@ -3,6 +3,8 @@
  */
 import Alpine from 'alpinejs';
 
+window.Alpine = Alpine;
+
 //initialize alpinejs
 Alpine.data('contentoracle_ai_chat', () => ({
 	userMsg: "",

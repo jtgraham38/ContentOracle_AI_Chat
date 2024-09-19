@@ -3463,6 +3463,7 @@ __webpack_require__.r(__webpack_exports__);
  * WordPress dependencies
  */
 
+window.Alpine = alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"];
 
 //initialize alpinejs
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', () => ({
