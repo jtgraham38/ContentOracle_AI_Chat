@@ -15,7 +15,8 @@ class ContentOracleMenu extends PluginFeature{
     }
 
     public function add_actions(){
-        add_action('admin_menu', array($this, 'create_menu'));
+        add_action('admin_menu', array($this, 'create_menu'));  //create the admin menu
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_icon_style')); //enqueue scripts
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -29,7 +30,11 @@ class ContentOracleMenu extends PluginFeature{
             function(){ // callback function
                 require_once plugin_dir_path(__FILE__) . 'assets/main_page.php';
             },
-            'dashicons-smiley'    // icon
+            $this->get_base_url() . "features/admin_menu/assets/images/coai_icon_light.png"    // icon
         );
-        }
+    }
+
+    public function enqueue_icon_style(){
+        wp_enqueue_style('contentoracle-icon', $this->get_base_url() . 'features/admin_menu/assets/css/icon.css');
+    }
 }
