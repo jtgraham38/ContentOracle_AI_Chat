@@ -3476,7 +3476,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
   chatNonce: "",
   //will be filled in by the block via php
   init() {
-    console.log('init chat');
+    console.log('init chat!!!');
     //load the rest url into the apiBaseUrl from the data-contentoracle_rest_url attribute
     this.apiBaseUrl = this.$el.getAttribute('data-contentoracle_rest_url');
     this.chatNonce = this.$el.getAttribute('data-contentoracle_chat_nonce');
