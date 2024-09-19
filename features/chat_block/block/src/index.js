@@ -21,13 +21,21 @@ import './editor.scss';
  */
 import Edit from './edit';
 import metadata from './block.json';
+import coaiIcon from './coai_icon.png';
 
 /**
  * Every block starts by registering a new block type definition.
  *
  * @see https://developer.wordpress.org/block-editor/developers/block-api/#registering-a-block
  */
-registerBlockType( metadata.name, {
+registerBlockType(metadata.name, {
+	icon: (
+		<img 
+			src={coaiIcon}
+			alt="ContentOracle AI Chat" 
+			style={{ width: '24px', height: '24px' }} 
+		/>
+	),
 	/**
 	 * @see ./edit.js
 	 */
