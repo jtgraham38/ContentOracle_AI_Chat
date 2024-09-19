@@ -28,7 +28,7 @@ class ContentOracleMenu extends PluginFeature{
             'manage_options',   // capability
             'contentoracle-ai', // menu slug
             function(){ // callback function
-                require_once plugin_dir_path(__FILE__) . 'assets/main_page.php';
+                require_once plugin_dir_path(__FILE__) . 'elements/main_page.php';
             },
             $this->get_base_url() . "features/admin_menu/assets/images/coai_icon_light.png"    // icon
         );
