@@ -111,6 +111,8 @@ $action_btn_classnames .= " contentoracle-action_button";
 $chat_id = wp_unique_id('contentoracle-ai_chat_');
 ?>
 
+<script src="//unpkg.com/alpinejs" defer></script>
+
 
 
 <div 
