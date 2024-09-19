@@ -63,7 +63,6 @@ class ContentOracleApi extends PluginFeature{
     public function ai_chat($request){
         //verify the referrer of the request (to prevent CSRF attacks)
 
-
         //verify the nonce of the request (to prevent CSRF attacks)
         if (!isset($request[$this->get_prefix() . 'chat_nonce']) || !wp_verify_nonce($request[$this->get_prefix() . 'chat_nonce'], $this->get_prefix() . 'chat_nonce')){
             return new WP_REST_Response(array(
@@ -88,7 +87,6 @@ class ContentOracleApi extends PluginFeature{
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
         $response = $api->ai_chat($message, $content, $conversation);
 
-
         //handle error in response
         if ( isset( $response['error'] ) ){
             return new WP_REST_Response(
@@ -101,6 +99,14 @@ class ContentOracleApi extends PluginFeature{
             return new WP_REST_Response(
                 array(
                     'errors' => $response['errors']
+                )
+            );
+        }
+        //TODO: temporary handler for unauthenticated error, it should return a 401 unauthorized error
+        if ( (isset($response['message']) && $response['message'] == 'Unauthenticated.') ){
+            return new WP_REST_Response(
+                array(
+                    'response' => $response['message']
                 )
             );
         }

@@ -3573,7 +3573,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       console.error(json.response.error);
     } else {
       //check for unauthenticated
-      if (json?.response?.message == "Unauthenticated.") {
+      //TODO: change structure of handler when coai response changes
+      if (json?.response == "Unauthenticated.") {
         //push the error to the conversation
         this.error = "Unauthenticated. Site admin should check api token.";
         console.error("Unauthenticated. Site admin should check api token.");
