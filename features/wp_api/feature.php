@@ -61,14 +61,15 @@ class ContentOracleApi extends PluginFeature{
 
     //search callback
     public function ai_chat($request){
-        //verify the referrer of the request (to prevent CSRF attacks)
+        //TODO: verify the referrer of the request (to prevent CSRF attacks)
 
-        //verify the nonce of the request (to prevent CSRF attacks)
-        if (!isset($request[$this->get_prefix() . 'chat_nonce']) || !wp_verify_nonce($request[$this->get_prefix() . 'chat_nonce'], $this->get_prefix() . 'chat_nonce')){
-            return new WP_REST_Response(array(
-                'error' => 'Invalid nonce'
-            ), 403);
-        }
+        //NOTE: temporary deactivatiom , but consider moving up into the args array!
+        //TODO: verify the nonce of the request (to prevent CSRF attacks)
+        // if (!isset($request[$this->get_prefix() . 'chat_nonce']) || !wp_verify_nonce($request[$this->get_prefix() . 'chat_nonce'], $this->get_prefix() . 'chat_nonce')){
+        //     return new WP_REST_Response(array(
+        //         'error' => 'Invalid nonce'
+        //     ), 403);
+        // }
         
         //get the query
         $message = $request->get_param('message');
