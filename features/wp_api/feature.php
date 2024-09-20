@@ -388,9 +388,9 @@ class ContentOracleApi extends PluginFeature{
 
         //account for plurarls by adding a pluralized copy of each word
         //TODO: this is a placeholder, replace with a more robust solution
-        $message_words = array_merge($message_words, array_map(function($word){
-            return $word . 's';
-        }, $message_words));
+        // $message_words = array_merge($message_words, array_map(function($word){
+        //     return $word . 's';
+        // }, $message_words));
 
         //find all posts of the types specified by the user that are relavent to the query
         $post_types = get_option($this->get_prefix() . 'post_types');
