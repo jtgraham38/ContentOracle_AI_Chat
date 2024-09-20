@@ -15,8 +15,8 @@ class ContentOracleApi extends PluginFeature{
         //
         ////NOTE: for now, this is sufficient, but we need to eventually sort the results by relevance
         //
-        add_filter('posts_where', array($this, 'find_content_with_keywords'), 10, 2);
-        add_filter('posts_orderby', array($this, 'order_content_by_relevance_with_keywords'), 10, 2);
+        //add_filter('posts_where', array($this, 'find_content_with_keywords'), 10, 2);
+        //add_filter('posts_orderby', array($this, 'order_content_by_relevance_with_keywords'), 10, 2);
     }
 
     public function add_actions(){
@@ -401,7 +401,8 @@ class ContentOracleApi extends PluginFeature{
         //I need to change this to allow capture of posts that do not contain every search term in either the title, excerpt, or content
         $wp_query = new WP_Query(array(
             'post_type' => $post_types,
-            'coai_search' => $message_words,
+            's' => implode(' ', $message_words),
+            //'coai_search' => $message_words,
             'posts_per_page' => 10,   //NOTE: magic number, make it configurable later!
             'post_status' => 'publish',
             'orderby' => 'relevance'
