@@ -116,7 +116,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     id="<?php echo esc_attr( $chat_id ) ?>" 
     style="<?php echo esc_attr($root_inline_styles) ?>" 
     class="<?php echo esc_attr($root_classnames) ?>"
-    x-data="contentoracle_ai_chat"
+    coai-x-data="contentoracle_ai_chat"
     data-contentoracle_rest_url="<?php echo get_rest_url() ?>"
     data-contentoracle_chat_nonce="<?php echo wp_create_nonce('contentoracle_chat_nonce') ?>"
 >
@@ -132,47 +132,47 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     <div 
 		class="<?php echo esc_attr( $chat_body_classnames ) ?>"
 		style="<?php echo esc_attr( $chat_body_inline_styles ) ?>"
-        x-ref="chatBody"
+        coai-x-ref="chatBody"
 	>
-        <template x-for="( chat, i ) in conversation" >
+        <template coai-x-for="( chat, i ) in conversation" >
             <div
                 class="contentoracle-ai_chat_bubble"
-                x-bind:class="chat.role == 'user' ? 'contentoracle-ai_chat_bubble_user' : 'contentoracle-ai_chat_bubble_bot'"
+                coai-x-bind:class="chat.role == 'user' ? 'contentoracle-ai_chat_bubble_user' : 'contentoracle-ai_chat_bubble_bot'"
             >
-                <p x-html="chat.content"></p>
+                <p coai-x-html="chat.content"></p>
 
-                <template x-if="chat.role == 'assistant' && chat?.action?.content_url">
+                <template coai-x-if="chat.role == 'assistant' && chat?.action?.content_url">
                     <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
                         <span style="text-size: larger; width: 100%;">Take Action!</span>
                         <div class="<?php echo esc_attr( $action_border_classnames ) ?>" style="<?php echo esc_attr( $action_border_inline_styles ) ?>">
                             <label
-                                x-text="chat?.action?.prompt ?? 'Learn more today!'" 
-                                :for="'<?php echo esc_attr($chat_id) ?>_action_' + i" 
+                                coai-x-text="chat?.action?.prompt ?? 'Learn more today!'" 
+                                coai-x-bind:for="'<?php echo esc_attr($chat_id) ?>_action_' + i" 
                                 class="contentoracle-action_label"
                             >
                                 Action Prompt
                             </label>
 
-                            <template x-if="chat?.action?.content_featured_image">
+                            <template coai-x-if="chat?.action?.content_featured_image">
                                 <img 
-                                    :src="chat?.action?.content_featured_image ?? ''"
-                                    :alt="chat?.action?.content_title ?? 'Action Image'"
+                                    coai-x-bind:src="chat?.action?.content_featured_image ?? ''"
+                                    coai-x-bind:alt="chat?.action?.content_title ?? 'Action Image'"
                                     class="contentoracle-action_image"
                                 >
                             </template>
 
-                            <template x-if="chat?.action?.content_excerpt">
+                            <template coai-x-if="chat?.action?.content_excerpt">
                                 <p 
-                                    x-html="chat?.action?.content_excerpt"
+                                    coai-x-html="chat?.action?.content_excerpt"
                                     class="contentoracle-action_excerpt"    
                                 ></p>
                             </template>
 
 
                             <a
-                                x-text="chat?.action?.button_text ?? 'Learn more'"
-                                :href="(chat?.action?.content_url) || '<?php echo esc_attr( get_permalink( get_option( 'page_for_posts' ) ) ) ?? '/' ?>'"
-                                :id="'<?php echo esc_attr($chat_id) ?>_action_' + i"
+                                coai-x-text="chat?.action?.button_text ?? 'Learn more'"
+                                coai-x-bind:href="(chat?.action?.content_url) || '<?php echo esc_attr( get_permalink( get_option( 'page_for_posts' ) ) ) ?? '/' ?>'"
+                                coasi-x-bind:id="'<?php echo esc_attr($chat_id) ?>_action_' + i"
                                 target="_blank"
                                 style="<?php echo esc_attr($action_btn_inline_styles) ?>"
                                 class="<?php echo esc_attr($action_btn_classnames) ?>"
@@ -184,25 +184,27 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                     </div>
                 </template>
 
-                <template x-if="chat?.context_used && chat?.context_used?.length != 0">
+                <template coai-x-if="chat?.context_used && chat?.context_used?.length != 0">
                     <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
 
                         <span style="text-size: larger; width: 100%;">Sources</span>
+                        
                         <ol class="<?php echo esc_attr($sources_border_classnames) ?>" style="<?php echo esc_attr($sources_border_inline_styles) ?>">
 
-                            <template x-for="source in chat.context_used">
+                            <template coai-x-for="source in chat.context_used">
                                 <li class="contentoracle-footer_citation">
-                                    <span x-text="source.title"></span>
-                                    <a x-bind:href="source.url" target="_blank" class="contentoracle-footer_citation_link">→</a>
+                                    <span coai-x-text="source.title"></span>
+                                    <a coai-x-bind:href="source.url" target="_blank" class="contentoracle-footer_citation_link">→</a>
                                 </li>
                             </template>
                         </ol>
+
                     </div>
                 </template>
             </div>
         </template>
 
-        <template x-if="loading">
+        <template coai-x-if="loading">
             <div
                 class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_bot contentoracle-ai_chat_bubble_typing"
             >
@@ -212,7 +214,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
             </div>
         </template>
 
-        <template x-if="error">
+        <template coai-x-if="error">
             <div
                 class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_bot contentoracle-ai_chat_bubble_error"
             >
@@ -227,30 +229,30 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     <form style="<?php echo esc_attr($input_container_inline_styles) ?>" class="<?php echo esc_attr($input_container_classnames) ?>">
         <span class="contentoracle-ai_chat_input_wrapper">
 
-            <input type="hidden" name="contentoracle_chat_nonce" :value="chatNonce">
+            <input type="hidden" name="contentoracle_chat_nonce" coai-x-bind:value="chatNonce">
             <input 
                 type="text" 
                 style="<?php echo esc_attr($input_inline_styles) ?>" 
                 class="<?php echo esc_attr($input_classnames) ?>" 
                 placeholder="<?php echo esc_attr( $attributes['placeholder'] ) ?>"
-                x-model:value="userMsg"
-                x-ref="chatInput"
-                x-bind:disabled="loading || error != ''"
+                coai-x-model:value="userMsg"
+                coai-x-ref="chatInput"
+                coai-x-bind:disabled="loading || error != ''"
                 required
                 maxlength="255"
             >
-            <div class="contentoracle-ai_chat_loader" x-show="loading"></div>
+            <div class="contentoracle-ai_chat_loader" coai-x-show="loading"></div>
         </span>
         <button
             style="<?php echo esc_attr($button_inline_styles) ?>"
             class="<?php echo esc_attr($button_classnames) ?>"
-			x-on:click="sendMessage"
+			coai-x-on:click="sendMessage"
         >
             <?php echo esc_html($attributes['buttonText']); ?>
         </button>
     </form>
     <?php if ( get_option('contentoracle_debug_mode', false) ){ ?>
-        <span style="color: red;" x-text="error"></span>
+        <span style="color: red;" coai-x-text="error"></span>
         <span style="color: red;">See the console for more debugging info!</span>
     <?php } ?>
     <?php if ( get_option('contentoracle_display_credit_link', false) ){ ?>

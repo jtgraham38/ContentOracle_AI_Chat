@@ -3,6 +3,9 @@
  */
 import Alpine from 'alpinejs';
 
+//set the alpine prefix (default is x-)
+Alpine.prefix('coai-x-')
+
 //initialize alpinejs
 Alpine.data('contentoracle_ai_chat', () => ({
 	userMsg: "",
