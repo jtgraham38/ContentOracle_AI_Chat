@@ -41,6 +41,7 @@ The AI Search block is designed to connect your users with your AI Chat block fr
 This plugin makes use of the following third-party libraries and services:
 - AlpineJS: a small javascript library for introducing reactive data to the ui. https://github.com/alpinejs/alpine
 - Floating UI: a small javascript library that handles dynamically creating and positioning tooltips. https://github.com/floating-ui/floating-ui
+- PHP NLP Tools: a php library for natural language processing, used to help find the most relevant content to a message. https://github.com/angeloskath/php-nlp-tools
 
 == Screenshots ==
 1. This is the first screenshot.

@@ -1,5 +1,11 @@
 <?php
 
+//include autoloader
+
+use NlpTools\Stemmers\PorterStemmer;
+use NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
+use NlpTools\Utils\StopWords;
+
 //exit if accessed directly
 if (!defined('ABSPATH')) {
     exit;
@@ -12,11 +18,7 @@ use jtgraham38\jgwordpresskit\PluginFeature;
 
 class ContentOracleApi extends PluginFeature{
     public function add_filters(){
-        //
-        ////NOTE: for now, this is sufficient, but we need to eventually sort the results by relevance
-        //
-        //add_filter('posts_where', array($this, 'find_content_with_keywords'), 10, 2);
-        //add_filter('posts_orderby', array($this, 'order_content_by_relevance_with_keywords'), 10, 2);
+        add_filter('posts_clauses', array($this, 'find_relevant_content_by_score'), 10, 2);
     }
 
     public function add_actions(){
@@ -37,6 +39,9 @@ class ContentOracleApi extends PluginFeature{
                     'required' => true,
                     'validate_callback' => function($param, $request, $key){
                         return is_string($param) && strlen($param) < 256;
+                    },
+                    'sanitize_callback' => function($param, $request, $key){
+                        return sanitize_text_field($param);
                     }
                 ),
                 'conversation' => array(
@@ -53,6 +58,14 @@ class ContentOracleApi extends PluginFeature{
                         }
 
                         return is_array($param);
+                    },
+                    'sanitize_callback' => function($param, $request, $key){
+                        return array_map(function($msg){
+                            return array(
+                                'role' => sanitize_text_field($msg['role']),
+                                'content' => sanitize_text_field($msg['content'])
+                            );
+                        }, $param);
                     }
                 )
             )
@@ -76,6 +89,7 @@ class ContentOracleApi extends PluginFeature{
 
         //get the content to use in the response
         $content = $this->keyword_content_search($message);
+
         $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
 
         //get the conversation from the request
@@ -199,198 +213,38 @@ class ContentOracleApi extends PluginFeature{
 
     //simple keyword search to find relevant posts
     function keyword_content_search($message){
+        //tokenize the message
+        $tok = new WhitespaceAndPunctuationTokenizer();
+        $message_tokens = $tok->tokenize($message);
 
-        //process the message
-        $stop_words = [
-            'a',
-            'about',
-            'above',
-            'after',
-            'again',
-            'against',
-            'all',
-            'am',
-            'an',
-            'and',
-            'any',
-            'are',
-            "aren't",
-            'as',
-            'at',
-            'be',
-            'because',
-            'been',
-            'before',
-            'being',
-            'below',
-            'between',
-            'both',
-            'but',
-            'by',
-            "can't",
-            'cannot',
-            'could',
-            "couldn't",
-            'did',
-            "didn't",
-            'do',
-            'does',
-            "doesn't",
-            'doing',
-            "don't",
-            'down',
-            'during',
-            'each',
-            'few',
-            'for',
-            'from',
-            'further',
-            'had',
-            "hadn't",
-            'has',
-            "hasn't",
-            'have',
-            "haven't",
-            'having',
-            'he',
-            "he'd",
-            "he'll",
-            "he's",
-            'her',
-            'here',
-            "here's",
-            'hers',
-            'herself',
-            'him',
-            'himself',
-            'his',
-            'how',
-            "how's",
-            'i',
-            "i'd",
-            "i'll",
-            "i'm",
-            "i've",
-            'if',
-            'in',
-            'into',
-            'is',
-            "isn't",
-            'it',
-            "it's",
-            'its',
-            'itself',
-            "let's",
-            'me',
-            'more',
-            'most',
-            "mustn't",
-            'my',
-            'myself',
-            'no',
-            'nor',
-            'not',
-            'of',
-            'off',
-            'on',
-            'once',
-            'only',
-            'or',
-            'other',
-            'ought',
-            'our',
-            'ours',
-            'ourselves',
-            'out',
-            'over',
-            'own',
-            'same',
-            "shan't",
-            'she',
-            "she'd",
-            "she'll",
-            "she's",
-            'should',
-            "shouldn't",
-            'so',
-            'some',
-            'such',
-            'than',
-            'that',
-            "that's",
-            'the',
-            'their',
-            'theirs',
-            'them',
-            'themselves',
-            'then',
-            'there',
-            "there's",
-            'these',
-            'they',
-            "they'd",
-            "they'll",
-            "they're",
-            "they've",
-            'this',
-            'those',
-            'through',
-            'to',
-            'too',
-            'under',
-            'until',
-            'up',
-            'very',
-            'was',
-            "wasn't",
-            'we',
-            "we'd",
-            "we'll",
-            "we're",
-            "we've",
-            'were',
-            "weren't",
-            'what',
-            "what's",
-            'when',
-            "when's",
-            'where',
-            "where's",
-            'which',
-            'while',
-            'who',
-            "who's",
-            'whom',
-            'why',
-            "why's",
-            'with',
-            "won't",
-            'would',
-            "wouldn't",
-            'you',
-            "you'd",
-            "you'll",
-            "you're",
-            "you've",
-            'your',
-            'yours',
-            'yourself',
-            'yourselves'
-        ];
-
-        $message_words = explode(" ", strtolower($message));
-
-        $message_words = array_filter($message_words, function($word) use ($stop_words){
-            return !in_array($word, $stop_words);
+        //remove punctuation-only tokens
+        $message_tokens = array_filter($message_tokens, function($token){
+            return preg_match('/[a-zA-Z0-9]/', $token);
         });
-        $message_words = array_slice($message_words, 0, 32);
-        
 
-        //account for plurarls by adding a pluralized copy of each word
-        //TODO: this is a placeholder, replace with a more robust solution
-        // $message_words = array_merge($message_words, array_map(function($word){
-        //     return $word . 's';
-        // }, $message_words));
+        //only use the first 16 tokens
+        $message_tokens = array_slice($message_tokens, 0, 16);
+
+        //convert to lowercase
+        $message_tokens = array_map('strtolower', $message_tokens);
+
+        //get the stopwords from the file
+        //these are official nltk stopwords
+        $file = plugin_dir_path(__FILE__) . 'stopwords.txt';
+        $file_content = file_get_contents($file);
+        $stop_words = explode("\n", $file_content);
+        $sw_filter = new StopWords($stop_words);
+
+        //apply stopwords to search
+        $search_terms = [];
+        foreach ($message_tokens as $word) {
+            $search_terms[] = $sw_filter->transform($word);
+        }
+        $search_terms = array_values(array_filter($search_terms));
+
+        //stem the search terms
+        $stemmer = new PorterStemmer();
+        $stems = $stemmer->stemAll($search_terms);
 
         //find all posts of the types specified by the user that are relavent to the query
         $post_types = get_option($this->get_prefix() . 'post_types');
@@ -401,8 +255,8 @@ class ContentOracleApi extends PluginFeature{
         //I need to change this to allow capture of posts that do not contain every search term in either the title, excerpt, or content
         $wp_query = new WP_Query(array(
             'post_type' => $post_types,
-            's' => implode(' ', $message_words),
-            //'coai_search' => $message_words,
+            //'s' => implode(' ', $message_words),
+            'coai_search' => $stems,
             'posts_per_page' => 10,   //NOTE: magic number, make it configurable later!
             'post_status' => 'publish',
             'orderby' => 'relevance'
@@ -429,82 +283,63 @@ class ContentOracleApi extends PluginFeature{
         return $content;
     }
 
+    /*
+        modify the query to find the most relevant posts, using the following criteria:
 
-    //query the content to use to generate a response
-    function find_content_with_keywords( $where, $wp_query ){
-
-        //return if not the correct query
-        if ( !isset( $wp_query->query_vars['coai_search'] ) ) return $where;
-
-        global $wpdb;
-
-        //get search terms from the wp_query
-        $search_terms = $wp_query->query_vars['coai_search'];
-
-
-
-        //add to WHERE clause...
-        if ( !empty( $search_terms ) && is_array( $search_terms ) ){
-            //escape the search terms
-            $search_terms = array_map(function($term) use ($wpdb){
-                return esc_html($term);
-            }, $search_terms);
-
-            //build the where clause
-            $where .= " AND (";
-            $where .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' OR {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
-            $where .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' OR {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
-            $where .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' OR {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
-            $where .= " OR {$wpdb->posts}.post_type LIKE '%" . implode("%' OR {$wpdb->posts}.post_type LIKE '%", $search_terms) . "%'";
-            $where .= ")";
-        }
-
-        return $where;
-    }
-
-    //order the content in the keyword search
-    function order_content_by_relevance_with_keywords($orderby, $wp_query){
-        /*
-        Sort the posts by relevance.  
-        First include ones that include all the search terms in the title and content.
-        Then include ones that include all the search terms in the title or content or excerpt.
-        Then include ones that include some of the search terms in the title or content or excerpt.
-        */
-
-        //return if not the correct query
-        if ( !isset( $wp_query->query_vars['coai_search'] ) ) return $orderby;
+            A score based system, where we apply each search term to the title, excerpt, type, and body of a post.
+            Score will be added as a custom field, called coai_score.
+            These search terms have already been stemmed and had stopwords removed.
+                +8 for a post if a search term is found in the type
+                +5 for a post if a search term is found in the title
+                +3 for a post if a search term is found in the excerpt
+                +1 for a post if a search term is found in the body
+            These rules will be applied for every instance of a search term found in a field.  We will then order the 
+            Query by the coai_score in descending order.
+    */
+    function find_relevant_content_by_score( $clauses, $wp_query ){
+         //return if not the correct query
+        if ( !isset( $wp_query->query_vars['coai_search'] ) ) return $clauses;
 
         global $wpdb;
 
-        //get search terms from the wp_query
+        //get search terms from the wp_query, and escape them
         $search_terms = $wp_query->query_vars['coai_search'];
+        array_map(function($term) use ($wpdb){
+             return $wpdb->esc_like($term);
+        }, $search_terms);
 
-        //add to ORDER BY clause...
+        //create the scoring system
         if ( !empty( $search_terms ) && is_array( $search_terms ) ){
-            
-            //escape the search terms
-            $search_terms = array_map(function($term) use ($wpdb){
-                return esc_html($term);
-            }, $search_terms);
+            //create an extra select field to generate a score for each post
+            $score_clauses = [];
+            foreach($search_terms as $term){
+                //subtract the length of the string with the search term removed from the length of the string to determine if it is present,
+                //and divide by search term length to determine how many times it is present
+                //divide each score by the overall length of the filed to avoid favoring longer 
+                //TODO: add some kind of normalization to avoid heavily favoring longer posts
+                $score_clauses[] = "((LENGTH({$wpdb->posts}.post_type) - LENGTH(REPLACE(LOWER({$wpdb->posts}.post_type), LOWER('{$term}'), ''))) / LENGTH('{$term}') * 8)";
+                $score_clauses[] = "((LENGTH({$wpdb->posts}.post_title) - LENGTH(REPLACE(LOWER({$wpdb->posts}.post_title), LOWER('{$term}'), ''))) / LENGTH('{$term}') * 5)";
+                $score_clauses[] = "((LENGTH({$wpdb->posts}.post_excerpt) - LENGTH(REPLACE(LOWER({$wpdb->posts}.post_excerpt), LOWER('{$term}'), ''))) / LENGTH('{$term}') * 3)";
+                $score_clauses[] = "((LENGTH({$wpdb->posts}.post_content) - LENGTH(REPLACE(LOWER({$wpdb->posts}.post_content), LOWER('{$term}'), ''))) / LENGTH('{$term}') * 1)";
+            }
+            $score_clause = implode(' + ', $score_clauses);
 
-            //build the where clause
-            $orderby = "IF(";
-            $orderby .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' AND {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
-            $orderby .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' AND {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
-            $orderby .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' AND {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
-            $orderby .= ", 1, 0) DESC, ";
-            $orderby .= "IF(";
-            $orderby .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' OR {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
-            $orderby .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' OR {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
-            $orderby .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' OR {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
-            $orderby .= ", 1, 0) DESC, ";
-            $orderby .= "IF(";
-            $orderby .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' OR {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
-            $orderby .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' OR {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
-            $orderby .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' OR {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
-            $orderby .= ", 1, 0) DESC";
+            //add the score clause to the select statement
+            $clauses['fields'] .= ", ({$score_clause}) as coai_score";
+
+            //add where clauses to reduce the amount of posts we need to score by only getting posts with search terms that can be scored
+            $clauses['where'] .= " AND (";
+            $clauses['where'] .= " {$wpdb->posts}.post_title LIKE '%" . implode("%' OR {$wpdb->posts}.post_title LIKE '%", $search_terms) . "%'";
+            $clauses['where'] .= " OR {$wpdb->posts}.post_excerpt LIKE '%" . implode("%' OR {$wpdb->posts}.post_excerpt LIKE '%", $search_terms) . "%'";
+            $clauses['where'] .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' OR {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
+            $clauses['where'] .= " OR {$wpdb->posts}.post_type LIKE '%" . implode("%' OR {$wpdb->posts}.post_type LIKE '%", $search_terms) . "%'";
+            $clauses['where'] .= ")";
+
+            //add an order_by clause for the coai_score
+            $clauses['orderby'] = "coai_score DESC";
         }
 
+        return $clauses;
     }
 
     //get the ip address of the client
