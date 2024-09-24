@@ -30,7 +30,7 @@ class ContentOracleApi extends PluginFeature{
 
     //register the search route
     public function register_search_rest_route(){
-        register_rest_route('contentoracle/v1', '/search', array(
+        register_rest_route('contentoracle/v1', '/chat', array(
             'methods' => 'POST',
             'permission_callback' => '__return_true', // this line was added to allow any site visitor to make an ai search request
             'callback' => array($this, 'ai_chat'),

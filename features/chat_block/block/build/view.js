@@ -3532,7 +3532,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     //this.loading = true;
 
     //prepare the request body
-    const url = this.apiBaseUrl + 'contentoracle/v1/search';
+    const url = this.apiBaseUrl + 'contentoracle/v1/chat';
     const data = {
       message: msg,
       conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10),
