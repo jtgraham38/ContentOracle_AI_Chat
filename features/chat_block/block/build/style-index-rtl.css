@@ -77,6 +77,7 @@
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-source_list .contentoracle-footer_citation {
   margin: 0.75rem 0;
+  padding: 0 0.5rem;
   font-size: 1.125em;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-source_list .contentoracle-footer_citation .contentoracle-footer_citation_link {

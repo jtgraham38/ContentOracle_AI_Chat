@@ -189,13 +189,14 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
 
                         <span style="text-size: larger; width: 100%;">Sources</span>
                         
-                        <ol class="<?php echo esc_attr($sources_border_classnames) ?>" style="<?php echo esc_attr($sources_border_inline_styles) ?>">
+                        <div class="<?php echo esc_attr($sources_border_classnames) ?>" style="<?php echo esc_attr($sources_border_inline_styles) ?>">
 
-                            <template coai-x-for="source in chat.context_used">
-                                <li class="contentoracle-footer_citation">
+                            <template coai-x-for="(source, index) in chat.context_used">
+                                <div class="contentoracle-footer_citation">
+                                    <span coai-x-text="(index + 1) + '.'"></span>
                                     <span coai-x-text="source.title"></span>
                                     <a coai-x-bind:href="source.url" target="_blank" class="contentoracle-footer_citation_link">→</a>
-                                </li>
+                                </div>
                             </template>
                         </ol>
 
