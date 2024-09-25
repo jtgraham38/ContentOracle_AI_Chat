@@ -143,10 +143,16 @@ class ContentOracleApi extends PluginFeature{
         }
 
         //escape html entities, leaving <br> tags
-        $ai_response= htmlspecialchars($ai_response);
+        $ai_response = wp_kses( $ai_response, array(
+            'br' => array(),
+            'a' => array(
+                'href' => array(),
+                'target' => array()
+            )
+        ));
 
-        //revert br tags to html breaks
-        $ai_response = str_replace('&lt;br \/&gt;', '<br>', $ai_response);
+        //revert escaped br tags to normal br tags
+        $ai_response = str_replace('&lt;br&gt;', '<br>', $ai_response);
 
         //replace newlines with html breaks
         $ai_response = nl2br($ai_response);
