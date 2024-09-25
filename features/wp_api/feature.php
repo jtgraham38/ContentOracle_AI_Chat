@@ -136,68 +136,95 @@ class ContentOracleApi extends PluginFeature{
         $ai_content_ids_used = $response['generated']['content_used'] ?? [];
 
         //add the post link, excerpt, and featured image to the action
-        if ( isset( $ai_action['content_id'] ) ){
+        if ( isset( $ai_action['content_id'] ) && get_post($ai_action['content_id']) ){
             $ai_action['content_url'] = get_post_permalink($ai_action['content_id']);
             $ai_action['content_excerpt'] = get_the_excerpt($ai_action['content_id']);
             $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['content_id']);
         }
 
-        switch ($ai_connection) {
-            case 'anthropic':
-                //escape html entities, leaving <br> tags
-                $ai_response['content'][0]['text']= htmlspecialchars($ai_response['content'][0]['text']);
+        //escape html entities, leaving <br> tags
+        $ai_response= htmlspecialchars($ai_response);
 
-                //revert br tags to html breaks
-                $ai_response['content'][0]['text'] = str_replace('&lt;br&gt;', '<br>', $ai_response['content'][0]['text']);
+        //revert br tags to html breaks
+        $ai_response = str_replace('&lt;br&gt;', '<br>', $ai_response);
 
-                //replace newlines with html breaks
-                $ai_response['content'][0]['text'] = nl2br($ai_response['content'][0]['text']);
-                //wrap the main idea of the response (returned wrapped in |>#<|) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
-                //TODO
-                $ai_response['content'][0]['text'] = preg_replace('/\|\[#\]\|([^*]+)\|\[#\]\|/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response['content'][0]['text']);
+        //replace newlines with html breaks
+        $ai_response = nl2br($ai_response);
+        //wrap the main idea of the response (returned wrapped in |>#<|) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
+        //TODO
+        $ai_response = preg_replace('/\|\[#\]\|([^*]+)\|\[#\]\|/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response);
 
-                //apply a hyperlink to the cited posts in the ai response, and put the in text citation in a sub tag
-                //NOTE: I want to replace the thing in the parentheses, of strings meeting this form: |[$]|lorem ipsum|[$]||[@]|580|[@]|
-                $ai_response['content'][0]['text'] = preg_replace_callback(
-                    '/\|\[\$\]\|([^|]+)\|\[\$\]\|\|\[@\]\|(\d+)\|\[@\]\|/',
-                    function ($matches) use (&$label_num, &$content) { //& = pass by reference
-                        //get the text and post_id from the matches
-                        $text = $matches[1];
-                        $post_id = $matches[2];
-                        //get the post url
-                        $url = get_post_permalink($post_id);
+        //find citations fitting the form |[$]|lorem ipsum|[$]||[@]|580|[@]|, and place an in-text citation there
+        //NOTE: I want to replace the thing in the parentheses, of strings meeting this form: |[$]|lorem ipsum|[$]||[@]|580|[@]|
+        $ai_response = preg_replace_callback(
+            '/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/',
+            function ($matches) use (&$label_num, &$content) { //& = pass by reference
+                //get the text and post_id from the matches
+                $text = $matches[1];
+                $post_id = $matches[2];
+                //get the post url
+                $url = get_post_permalink($post_id);
 
-                        //find the post in the content array, and give it a label
-                        $label = "";
-                        foreach ($content as &$post){   //& = pass by reference
-                            if ( $post['id'] == $post_id ){
-                                //account for the case where the post has already been cited
-                                if ( !isset( $post['label'] ) ){
-                                    $post['label'] = $label_num;
-                                }
-                                $label = $post['label'];
-                                $label_num++;
-                                break;
-                            }
+                //find the post in the content array, and give it a label
+                $label = "";
+                foreach ($content as &$post){   //& = pass by reference
+                    if ( $post['id'] == $post_id ){
+                        //account for the case where the post has already been cited
+                        if ( !isset( $post['label'] ) ){
+                            $post['label'] = $label_num;
                         }
+                        $label = $post['label'];
+                        $label_num++;
+                        break;
+                    }
+                }
 
-                        return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\" target=\"_blank\">$label</a>";
-                    },
-                    $ai_response['content'][0]['text']
-                );     
+                return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\" target=\"_blank\">$label</a>";
+            },
+            $ai_response
+        );     
 
-                break;
-            default:
-                //return 501 not implemented error
-                return new WP_REST_Response(array(
-                    'error' => 'AI connection "' . $ai_connection . '" not implemented!',
-                ), 501);
-        }
+        //find citations fitting the form |[@]|580|[@]| (broken |[$]| wrapper), and place an in-text citation there
+        $ai_response = preg_replace_callback(
+            '/\|\[@\]\|(\d+)\|\[@\]\|/',
+            function ($matches) use (&$label_num, &$content) { //& = pass by reference
+                //get the post_id from the matches
+                $post_id = $matches[1];
+                //get the post url
+                $url = get_post_permalink($post_id);
+
+                //find the post in the content array, and give it a label
+                $label = "";
+                foreach ($content as &$post){   //& = pass by reference
+                    if ( $post['id'] == $post_id ){
+                        //account for the case where the post has already been cited
+                        if ( !isset( $post['label'] ) ){
+                            $post['label'] = $label_num;
+                        }
+                        $label = $post['label'];
+                        $label_num++;
+                        break;
+                    }
+                }
+
+                return "<a href=\"$url\" class=\"contentoracle-inline_citation\" target=\"_blank\">$label</a>";
+            },
+            $ai_response
+        );
+
+        //find |[@]| with other content inside, and delete them
+        $ai_response = preg_replace('/\|\[@\]\|[^|]+\|\[@\]\|/', '', $ai_response);
+
+        //find other |[@]| wrappers and remove them
+        $ai_response = preg_replace('/\|\[@\]\|/', '', $ai_response);
+
+        //find |[$]| (broken wrappers) and delete them
+        $ai_response = preg_replace('/\|\[\$\]\|/', '', $ai_response);
 
 
         //filter the content to remove any posts that were not used in the response
         $ai_content_used = array_filter($content, function($post) use ($ai_content_ids_used, $ai_action){
-            return in_array($post['id'], $ai_content_ids_used) || $post['id'] == $ai_action['content_id'];
+            return in_array($post['id'], $ai_content_ids_used) || $post['id'] == $ai_action['content_id'] ?? false;
         });
 
         //return the response
