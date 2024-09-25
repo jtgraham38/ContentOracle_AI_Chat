@@ -143,7 +143,9 @@ class ContentOracleApi extends PluginFeature{
         }
 
         //escape html entities, leaving <br> tags
+        $ai_response = str_replace('<br>', '[[BR]]', $ai_response); // Step 1
         $ai_response= htmlspecialchars($ai_response);
+        $ai_response = str_replace('[[BR]]', '<br>', $ai_response); // Step 2
 
         //revert br tags to html breaks
         $ai_response = str_replace('&lt;br&gt;', '<br>', $ai_response);
