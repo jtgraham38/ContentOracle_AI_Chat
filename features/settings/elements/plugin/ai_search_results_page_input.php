@@ -16,7 +16,8 @@ $pages = get_pages();
         class="<?php echo $this->get_prefix() . 'ai_results_page' ?>" 
         id="<?php echo $this->get_prefix() . 'ai_results_page_input' ?>" 
         title="Please select the page you want your users to be redirected to after an ai search.  Ensure that page contains the AI search results block!">
-        <option value="">Create New Page (None selected)</option>
+        <option value="none" <?php echo $current_page_id == "none" ? "selected" : "" ?>  >None</option>
+        <option value="">Create New Page</option>
         <?php
         foreach ($pages as $page) {
             $selected = $current_page_id == $page->ID ? 'selected' : '';

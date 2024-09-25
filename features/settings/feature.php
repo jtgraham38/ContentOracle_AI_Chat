@@ -209,14 +209,18 @@ class ContentOracleSettings extends PluginFeature{
     //create the results page for the ai search if it does not exist
     public function create_results_page(){
         $results_page_id = get_option($this->get_prefix() . 'ai_results_page', null);
+        if ($results_page_id == 'none'){
+            return;
+        }
+
         $results_page = get_post($results_page_id);
 
         //if no results page is set...
-        if (!$results_page || $results_page->post_type != 'page'){
+        if ( !$results_page || $results_page->post_type != 'page'){
             //create the page
             $page = array(
                 'post_title' => 'ContentOracle AI Chat Results',
-                'post_content' => '<!-- wp:contentoracle/ai-chat {"height":"36rem","userMsgBgColor":"#111111","style":{"elements":{"link":{"color":{"text":"var:preset|color|base-2"}}},"border":{"radius":"4px","width":"1px"}},"textColor":"base-2","borderColor":"contrast"} /-->',//file_get_contents($this->get_base_dir() . 'elements/storagepress_default_listing_page.php'),
+                'post_content' => '<!-- wp:contentoracle/ai-chat {"height":"36rem","userMsgBgColor":"#3232FD","style":{"elements":{"link":{"color":{"text":"var:preset|color|base-2"}}},"border":{"radius":"4px","width":"1px"}},"textColor":"base-2","borderColor":"contrast"} /-->',//file_get_contents($this->get_base_dir() . 'elements/storagepress_default_listing_page.php'),
                 'post_status' => 'publish',
                 'post_type' => 'page',
             );
