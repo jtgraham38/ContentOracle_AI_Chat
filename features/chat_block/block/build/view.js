@@ -7716,6 +7716,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         try {
           //render and sanitize the markdown
           let rendered = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(json.response));
+          console.log(rendered);
 
           //push the response to the conversation
           console.log(json);

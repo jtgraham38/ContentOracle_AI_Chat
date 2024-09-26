@@ -140,6 +140,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				try {
 					//render and sanitize the markdown
 					let rendered = DOMPurify.sanitize(marked.parse(json.response));
+					console.log(rendered);
 
 					//push the response to the conversation
 						console.log(json);
