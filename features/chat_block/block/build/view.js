@@ -7714,11 +7714,17 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         console.error("Unauthenticated. Site admin should check api token.");
       } else {
         try {
+          //create markdown string
+          let md = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize((0,marked__WEBPACK_IMPORTED_MODULE_1__.marked)(json.response));
+
+          //replace the &lt; and &gt; with < and >, because the markdown parser is not parsing them
+          md = md.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
           //push the response to the conversation
           console.log(json);
           this.conversation.push({
             role: 'assistant',
-            content: dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize((0,marked__WEBPACK_IMPORTED_MODULE_1__.marked)(json.response)),
+            content: md,
             context_used: json.context_used,
             context_supplied: json.context_supplied,
             action: json.action

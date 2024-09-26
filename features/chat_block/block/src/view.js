@@ -137,12 +137,18 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				console.error("Unauthenticated. Site admin should check api token.");
 			}
 			else{
-				try{
+				try {
+					//create markdown string
+					let md = DOMPurify.sanitize(marked(json.response));
+					
+					//replace the &lt; and &gt; with < and >, because the markdown parser is not parsing them
+					md = md.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
 					//push the response to the conversation
 						console.log(json);
 						this.conversation.push( {
 							role: 'assistant',
-							content: DOMPurify.sanitize( marked( json.response ) ),
+							content: md,
 							context_used: json.context_used,
 							context_supplied: json.context_supplied,
 							action: json.action
