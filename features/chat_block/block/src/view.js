@@ -2,6 +2,8 @@
  * WordPress dependencies
  */
 import Alpine from 'alpinejs';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 //set the alpine prefix (default is x-)
 Alpine.prefix('coai-x-')
@@ -140,7 +142,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 						console.log(json);
 						this.conversation.push( {
 							role: 'assistant',
-							content: json.response,
+							content: DOMPurify.sanitize( marked( json.response ) ),
 							context_used: json.context_used,
 							context_supplied: json.context_supplied,
 							action: json.action

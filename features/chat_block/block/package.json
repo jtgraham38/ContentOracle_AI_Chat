@@ -18,7 +18,9 @@
 		"[^.]*"
 	],
 	"dependencies": {
-		"alpinejs": "^3.14.1"
+		"alpinejs": "^3.14.1",
+		"dompurify": "^3.1.7",
+		"marked": "^14.1.2"
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "^27.9.0"
