@@ -145,7 +145,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 						console.log(json);
 						this.conversation.push( {
 							role: 'assistant',
-							content: md,
+							content: json.response,
 							context_used: json.context_used,
 							context_supplied: json.context_supplied,
 							action: json.action
