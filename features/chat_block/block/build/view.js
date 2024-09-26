@@ -7720,6 +7720,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
           //replace escaped <> charcters with actual ones
           rendered.replace(/&amp;gt;/g, '&gt;').replace(/&amp;lt;/g, '&lt;');
+          console.log(rendered);
 
           //push the response to the conversation
           console.log(json);
