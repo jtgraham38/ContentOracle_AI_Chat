@@ -225,6 +225,11 @@ class ContentOracleApi extends PluginFeature{
             return in_array($post['id'], $ai_content_ids_used) || $post['id'] == $ai_action['content_id'] ?? false;
         });
 
+        echo '<pre>';
+        print_r($ai_content_used);
+        echo '</pre>';
+        die;
+
         //return the response
         return new WP_REST_Response(array(
             'message' => $message,
