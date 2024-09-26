@@ -3531,26 +3531,30 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     }, 1000);
     //this.loading = true;
 
-    //prepare the request body
+    //prepare the request headers and body
     const url = this.apiBaseUrl + 'contentoracle/v1/chat';
+    const headers = {
+      'Content-Type': 'application/json',
+      'COAI-X-WP-Nonce': this.chatNonce
+    };
     const data = {
       message: msg,
-      conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10),
-      contentoracle_chat_nonce: this.chatNonce
+      conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10)
     };
     //build the request
     const options = {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: headers,
       body: JSON.stringify(data)
     };
+
+    //add the user's message to conversation 
+    //this is done here so that the message is not already in the conversation when the message is sent to the
+    //coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
     this.conversation.push({
       role: 'user',
       content: msg
     });
-    console.log(this.conversation);
 
     //send the request
     const request = await fetch(url, options);
@@ -3575,6 +3579,10 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       //this is an error that might be set in contentoracle api, because it is a part of the response
       this.error = json.response.error;
       console.error(json.response.error);
+    } else if (json?.code) {
+      //handle error from the wp api validators, like nonce error, etc.
+      this.error = json?.message;
+      console.error(json);
     } else {
       //check for unauthenticated
       //TODO: change structure of handler when coai response changes

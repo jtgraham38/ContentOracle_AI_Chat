@@ -32,7 +32,13 @@ class ContentOracleApi extends PluginFeature{
     public function register_search_rest_route(){
         register_rest_route('contentoracle/v1', '/chat', array(
             'methods' => 'POST',
-            'permission_callback' => '__return_true', // this line was added to allow any site visitor to make an ai search request
+            'permission_callback' => function($request){    //nonce validations
+                $nonce = $request->get_header('COAI-X-WP-Nonce');
+                if (!wp_verify_nonce($nonce, 'contentoracle_chat_nonce')) {
+                    return new WP_Error('rest_invalid_nonce', __('Invalid nonce: contentoracle_chat_nonce'), array('status' => 403));
+                }
+                return true;
+            },
             'callback' => array($this, 'ai_chat'),
             'args' => array(
                 'message' => array(
@@ -74,16 +80,6 @@ class ContentOracleApi extends PluginFeature{
 
     //search callback
     public function ai_chat($request){
-        //TODO: verify the referrer of the request (to prevent CSRF attacks)
-
-        //NOTE: temporary deactivatiom , but consider moving up into the args array!
-        //TODO: verify the nonce of the request (to prevent CSRF attacks)
-        // if (!isset($request[$this->get_prefix() . 'chat_nonce']) || !wp_verify_nonce($request[$this->get_prefix() . 'chat_nonce'], $this->get_prefix() . 'chat_nonce')){
-        //     return new WP_REST_Response(array(
-        //         'error' => 'Invalid nonce'
-        //     ), 403);
-        // }
-        
         //get the query
         $message = $request->get_param('message');
 
