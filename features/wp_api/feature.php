@@ -149,7 +149,7 @@ class ContentOracleApi extends PluginFeature{
         ));
 
         //revert escaped br tags to normal br tags
-        $ai_response = str_replace('&lt;br&gt;', '<br>', $ai_response);
+        //$ai_response = str_replace('&lt;br&gt;', '<br>', $ai_response);
 
         //replace newlines with html breaks
         //$ai_response = nl2br($ai_response);
