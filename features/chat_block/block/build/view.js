@@ -7715,13 +7715,23 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       } else {
         try {
           //create markdown string
-          let md = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize((0,marked__WEBPACK_IMPORTED_MODULE_1__.marked)(json.response));
+          const tokens = marked__WEBPACK_IMPORTED_MODULE_1__.marked.lexer(json.response);
+
+          //ensure characters in code blocks are not transformed into entities
+          tokens.forEach(token => {
+            if (token.type === 'code') {
+              token.escaped = true;
+            }
+          });
+
+          //render and sanitize the markdown
+          let rendered = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parser(tokens));
 
           //push the response to the conversation
           console.log(json);
           this.conversation.push({
             role: 'assistant',
-            content: json.response,
+            content: rendered,
             context_used: json.context_used,
             context_supplied: json.context_supplied,
             action: json.action
