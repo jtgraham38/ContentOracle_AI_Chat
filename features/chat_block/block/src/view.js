@@ -143,7 +143,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					console.log(rendered);
 
 					//replace escaped <> charcters with actual ones
-					rendered.replace(/&amp;gt;/g, '&gt;').replace(/&amp;lt;/g, '&lt;');
+					rendered.replace(/&amp;gt;/g, '>').replace(/&amp;lt;/g, '<');
 					console.log(rendered);
 
 					//push the response to the conversation
