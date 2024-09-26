@@ -224,6 +224,8 @@ class ContentOracleApi extends PluginFeature{
         $ai_content_used = array_filter($content, function($post) use ($ai_content_ids_used, $ai_action){
             return in_array($post['id'], $ai_content_ids_used) || $post['id'] == $ai_action['content_id'] ?? false;
         });
+        //ensure the array keys are starting at 0, incrementing by 1
+        $ai_content_used = array_values($ai_content_used);
 
         echo '<pre>';
         print_r($ai_content_used);
