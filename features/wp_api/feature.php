@@ -148,11 +148,6 @@ class ContentOracleApi extends PluginFeature{
             )
         ));
 
-        //revert escaped br tags to normal br tags
-        //$ai_response = str_replace('&lt;br&gt;', '<br>', $ai_response);
-
-        //replace newlines with html breaks
-        //$ai_response = nl2br($ai_response);
         //wrap the main idea of the response (returned wrapped in |>#<|) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
         //TODO
         $ai_response = preg_replace('/\|\[#\]\|([^*]+)\|\[#\]\|/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response);
