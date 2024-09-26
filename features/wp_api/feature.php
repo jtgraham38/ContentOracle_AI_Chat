@@ -134,6 +134,7 @@ class ContentOracleApi extends PluginFeature{
 
         //add the post link, excerpt, and featured image to the action
         if ( isset( $ai_action['content_id'] ) && get_post($ai_action['content_id']) ){
+            $ai_action['content_type'] = get_post_type($ai_action['content_id']);
             $ai_action['content_url'] = get_post_permalink($ai_action['content_id']);
             $ai_action['content_excerpt'] = get_the_excerpt($ai_action['content_id']);
             $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['content_id']);
