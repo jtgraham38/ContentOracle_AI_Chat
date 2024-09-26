@@ -7714,18 +7714,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         console.error("Unauthenticated. Site admin should check api token.");
       } else {
         try {
-          //create markdown string
-          const tokens = marked__WEBPACK_IMPORTED_MODULE_1__.marked.lexer(json.response);
-
-          //ensure characters in code blocks are not transformed into entities
-          tokens.forEach(token => {
-            if (token.type === 'code') {
-              token.escaped = true;
-            }
-          });
-
           //render and sanitize the markdown
-          let rendered = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parser(tokens));
+          let rendered = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(json.response));
 
           //push the response to the conversation
           console.log(json);

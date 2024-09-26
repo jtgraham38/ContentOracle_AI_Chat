@@ -138,18 +138,8 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			}
 			else{
 				try {
-					//create markdown string
-					const tokens = marked.lexer(json.response);
-
-					//ensure characters in code blocks are not transformed into entities
-					tokens.forEach((token) => {
-						if (token.type === 'code') {
-							token.escaped = true;
-						}
-					})
-
 					//render and sanitize the markdown
-					let rendered = DOMPurify.sanitize(marked.parser(tokens));
+					let rendered = DOMPurify.sanitize(marked.parse(json.response));
 
 					//push the response to the conversation
 						console.log(json);
