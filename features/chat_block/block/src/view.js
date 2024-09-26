@@ -140,9 +140,6 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				try {
 					//create markdown string
 					let md = DOMPurify.sanitize(marked(json.response));
-					
-					//replace the &lt; and &gt; with < and >, because the markdown parser is not parsing them
-					md = md.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
 					//push the response to the conversation
 						console.log(json);

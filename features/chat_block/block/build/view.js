@@ -7717,9 +7717,6 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           //create markdown string
           let md = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize((0,marked__WEBPACK_IMPORTED_MODULE_1__.marked)(json.response));
 
-          //replace the &lt; and &gt; with < and >, because the markdown parser is not parsing them
-          md = md.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-
           //push the response to the conversation
           console.log(json);
           this.conversation.push({
