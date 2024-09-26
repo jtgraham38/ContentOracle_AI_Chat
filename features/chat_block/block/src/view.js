@@ -138,12 +138,10 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			}
 			else{
 				try {
+
+					console.log(json.response);
 					//render and sanitize the markdown
 					let rendered = DOMPurify.sanitize(marked.parse(json.response));
-					console.log(rendered);
-
-					//replace escaped <> charcters with actual ones
-					rendered.replace(/&amp;gt;/g, '>').replace(/&amp;lt;/g, '<');
 					console.log(rendered);
 
 					//push the response to the conversation

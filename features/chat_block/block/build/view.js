@@ -7714,12 +7714,9 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         console.error("Unauthenticated. Site admin should check api token.");
       } else {
         try {
+          console.log(json.response);
           //render and sanitize the markdown
           let rendered = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(json.response));
-          console.log(rendered);
-
-          //replace escaped <> charcters with actual ones
-          rendered.replace(/&amp;gt;/g, '>').replace(/&amp;lt;/g, '<');
           console.log(rendered);
 
           //push the response to the conversation
