@@ -348,7 +348,7 @@ class ContentOracleApi extends PluginFeature{
                 $score_clauses[] = "((LENGTH({$wpdb->posts}.post_content) - LENGTH(REPLACE(LOWER({$wpdb->posts}.post_content), LOWER('{$term}'), ''))) / LENGTH('{$term}') * 1)";
             }
             //create the score clause, including the division by the total length of the post for normalization
-            $score_clause = '(' . implode(' + ', $score_clauses) . ') / (LENGTH({$wpdb->posts}.post_title) + LENGTH({$wpdb->posts}.post_excerpt) + LENGTH({$wpdb->posts}.post_content) + 1)';
+            $score_clause = "(" . implode(' + ', $score_clauses) . ") / (LENGTH({$wpdb->posts}.post_title) + LENGTH({$wpdb->posts}.post_excerpt) + LENGTH({$wpdb->posts}.post_content) + 1)";
 
             //add the score clause to the select statement
             $clauses['fields'] .= ", ({$score_clause}) as coai_score";
