@@ -145,10 +145,6 @@ Alpine.data('contentoracle_ai_chat', () => ({
 							context_supplied: json.context_supplied,
 							action: json.action
 						});
-				
-					// set the new nonce
-					if (json?.new_nonce)
-						this.chatNonce = json.new_nonce;
 				}
 				catch(e){
 					this.error = "An error occurred while processing the response";

@@ -235,8 +235,7 @@ class ContentOracleApi extends PluginFeature{
             'context_supplied' => $content,
             'context_used' => $ai_content_used,
             'response' => $ai_response,
-            'action' => $ai_action,
-            'new_nonce' => wp_create_nonce($this->get_prefix() . 'chat_nonce')
+            'action' => $ai_action
         ));
     }
 
