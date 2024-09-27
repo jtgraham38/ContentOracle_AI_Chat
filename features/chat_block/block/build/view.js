@@ -7725,8 +7725,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           console.log(json);
           this.conversation.push({
             role: 'assistant',
-            content: json.response,
-            //rendered,
+            content: rendered,
             context_used: json.context_used,
             context_supplied: json.context_supplied,
             action: json.action
