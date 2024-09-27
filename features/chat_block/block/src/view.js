@@ -139,10 +139,6 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			else{
 				try {
 
-					//TODO: i dont love this solution, but it works for now
-					//replace &gt; and &lt; with > and <, because the markdown parser will escape them
-					//json.response = json.response.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
-
 					//render and sanitize the markdown
 					let rendered = DOMPurify.sanitize(marked.parse(json.response));
 
