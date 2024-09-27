@@ -144,7 +144,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					json.response = json.response.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
 
 					//render and sanitize the markdown
-					let rendered = DOMPurify.sanitize(marked.parse(json.response));
+					let rendered = marked.parse(json.response);
 
 					//push the response to the conversation
 						console.log(json);
