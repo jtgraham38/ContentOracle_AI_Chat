@@ -50,7 +50,7 @@ class ContentOracleApiConnection{
                 'client_ip' => $this->client_ip
                 
             )),
-            'timeout' => 2500,
+            'timeout' => 250,
         );
 
         
