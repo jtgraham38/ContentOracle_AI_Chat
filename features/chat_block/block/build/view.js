@@ -7716,7 +7716,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         try {
           //TODO: i dont love this solution, but it works for now
           //replace &gt; and &lt; with > and <, because the markdown parser will escape them
-          json.response = json.response.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+          //json.response = json.response.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
 
           //render and sanitize the markdown
           let rendered = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(json.response));
