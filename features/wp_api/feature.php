@@ -145,15 +145,6 @@ class ContentOracleApi extends PluginFeature{
             $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['content_id']);
         }
 
-        //escape html entities, leaving <br> tags
-        $ai_response = wp_kses( $ai_response, array(
-            'br' => array(),
-            'a' => array(
-                'href' => array(),
-                'target' => array()
-            )
-        ));
-
         //wrap the main idea of the response (returned wrapped in |>#<|) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
         //TODO
         $ai_response = preg_replace('/\|\[#\]\|([^*]+)\|\[#\]\|/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response);
