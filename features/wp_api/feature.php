@@ -99,6 +99,11 @@ class ContentOracleApi extends PluginFeature{
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
         $response = $api->ai_chat($message, $content, $conversation);
 
+        echo "<pre>";
+        print_r($response);
+        echo "</pre>";
+        die;
+
         //handle error in response
         if ( isset( $response['error'] ) ){
             return new WP_REST_Response(
