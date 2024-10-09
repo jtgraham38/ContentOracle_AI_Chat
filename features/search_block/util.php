@@ -31,7 +31,7 @@ if (!defined('ABSPATH')) {
  *
  * @return string The classnames used in the block.
  */
-function classnames_for_block_contentoracle_ai_search( $attributes ) {
+function contentoracle_ai_search_classnames_for_block( $attributes ) {
     $classnames = array();
 
 	if ( ! empty( $attributes['buttonPosition'] ) ) {
@@ -80,7 +80,7 @@ function classnames_for_block_contentoracle_ai_search( $attributes ) {
  * @param array  $button_styles  Current collection of button styles.
  * @param array  $input_styles   Current collection of input styles.
  */
-function apply_block_contentoracle_ai_search_border_style( $attributes, $property, $side, &$wrapper_styles, &$button_styles, &$input_styles ) {
+function contentoracle_ai_search_apply_block_border_style( $attributes, $property, $side, &$wrapper_styles, &$button_styles, &$input_styles ) {
     $is_button_inside = isset( $attributes['buttonPosition'] ) && 'button-inside' === $attributes['buttonPosition'];
     
 	$path = array( 'style', 'border', $property );
@@ -128,12 +128,12 @@ function apply_block_contentoracle_ai_search_border_style( $attributes, $propert
  * @param array  $button_styles  Current collection of button styles.
  * @param array  $input_styles   Current collection of input styles.
  */
-function apply_block_contentoracle_ai_search_border_styles( $attributes, $property, &$wrapper_styles, &$button_styles, &$input_styles ) {
-    apply_block_contentoracle_ai_search_border_style( $attributes, $property, null, $wrapper_styles, $button_styles, $input_styles );
-	apply_block_contentoracle_ai_search_border_style( $attributes, $property, 'top', $wrapper_styles, $button_styles, $input_styles );
-	apply_block_contentoracle_ai_search_border_style( $attributes, $property, 'right', $wrapper_styles, $button_styles, $input_styles );
-	apply_block_contentoracle_ai_search_border_style( $attributes, $property, 'bottom', $wrapper_styles, $button_styles, $input_styles );
-	apply_block_contentoracle_ai_search_border_style( $attributes, $property, 'left', $wrapper_styles, $button_styles, $input_styles );
+function contentoracle_ai_search_apply_block_border_styles( $attributes, $property, &$wrapper_styles, &$button_styles, &$input_styles ) {
+    contentoracle_ai_search_apply_block_border_style( $attributes, $property, null, $wrapper_styles, $button_styles, $input_styles );
+	contentoracle_ai_search_apply_block_border_style( $attributes, $property, 'top', $wrapper_styles, $button_styles, $input_styles );
+	contentoracle_ai_search_apply_block_border_style( $attributes, $property, 'right', $wrapper_styles, $button_styles, $input_styles );
+	contentoracle_ai_search_apply_block_border_style( $attributes, $property, 'bottom', $wrapper_styles, $button_styles, $input_styles );
+	contentoracle_ai_search_apply_block_border_style( $attributes, $property, 'left', $wrapper_styles, $button_styles, $input_styles );
 }
 
 /**
@@ -149,7 +149,7 @@ function apply_block_contentoracle_ai_search_border_styles( $attributes, $proper
  *
  * @return array Style HTML attribute.
  */
-function styles_for_block_contentoracle_ai_search( $attributes ) {
+function contentoracle_ai_search_styles_for_block( $attributes ) {
     $wrapper_styles   = array();
 	$button_styles    = array();
 	$input_styles     = array();
@@ -170,9 +170,9 @@ function styles_for_block_contentoracle_ai_search( $attributes ) {
 	}
     
 	// Add border width and color styles.
-	apply_block_contentoracle_ai_search_border_styles( $attributes, 'width', $wrapper_styles, $button_styles, $input_styles );
-	apply_block_contentoracle_ai_search_border_styles( $attributes, 'color', $wrapper_styles, $button_styles, $input_styles );
-	apply_block_contentoracle_ai_search_border_styles( $attributes, 'style', $wrapper_styles, $button_styles, $input_styles );
+	contentoracle_ai_search_apply_block_border_styles( $attributes, 'width', $wrapper_styles, $button_styles, $input_styles );
+	contentoracle_ai_search_apply_block_border_styles( $attributes, 'color', $wrapper_styles, $button_styles, $input_styles );
+	contentoracle_ai_search_apply_block_border_styles( $attributes, 'style', $wrapper_styles, $button_styles, $input_styles );
     
 	// Add border radius styles.
 	$has_border_radius = ! empty( $attributes['style']['border']['radius'] );
@@ -248,7 +248,7 @@ function styles_for_block_contentoracle_ai_search( $attributes ) {
 	}
     
 	// Get typography styles to be shared across inner elements.
-	$typography_styles = esc_attr( get_typography_styles_for_block_contentoracle_ai_search( $attributes ) );
+	$typography_styles = esc_attr( contentoracle_ai_search_get_typography_styles_for_block( $attributes ) );
 	if ( ! empty( $typography_styles ) ) {
         $label_styles [] = $typography_styles;
 		$button_styles[] = $typography_styles;
@@ -266,10 +266,10 @@ function styles_for_block_contentoracle_ai_search( $attributes ) {
 	}
     
 	return array(
-        'input'   => ! empty( $input_styles ) ? sprintf( ' style="%s"', esc_attr( safecss_filter_attr( implode( ' ', $input_styles ) ) ) ) : '',
-		'button'  => ! empty( $button_styles ) ? sprintf( ' style="%s"', esc_attr( safecss_filter_attr( implode( ' ', $button_styles ) ) ) ) : '',
-		'wrapper' => ! empty( $wrapper_styles ) ? sprintf( ' style="%s"', esc_attr( safecss_filter_attr( implode( ' ', $wrapper_styles ) ) ) ) : '',
-		'label'   => ! empty( $label_styles ) ? sprintf( ' style="%s"', esc_attr( safecss_filter_attr( implode( ' ', $label_styles ) ) ) ) : '',
+        'input'   => ! empty( $input_styles ) ? sprintf( '%s', esc_attr( safecss_filter_attr( implode( ' ', $input_styles ) ) ) ) : '',
+		'button'  => ! empty( $button_styles ) ? sprintf( '%s', esc_attr( safecss_filter_attr( implode( ' ', $button_styles ) ) ) ) : '',
+		'wrapper' => ! empty( $wrapper_styles ) ? sprintf( '%s', esc_attr( safecss_filter_attr( implode( ' ', $wrapper_styles ) ) ) ) : '',
+		'label'   => ! empty( $label_styles ) ? sprintf( '%s', esc_attr( safecss_filter_attr( implode( ' ', $label_styles ) ) ) ) : '',
 	);
 }
 
@@ -282,7 +282,7 @@ function styles_for_block_contentoracle_ai_search( $attributes ) {
  *
  * @return string The typography color classnames to be applied to the block elements.
  */
-function get_typography_classes_for_block_contentoracle_ai_search( $attributes ) {
+function contentoracle_ai_search_get_typography_classes_for_block( $attributes ) {
     $typography_classes    = array();
 	$has_named_font_family = ! empty( $attributes['fontFamily'] );
 	$has_named_font_size   = ! empty( $attributes['fontSize'] );
@@ -308,7 +308,7 @@ function get_typography_classes_for_block_contentoracle_ai_search( $attributes )
  *
  * @return string A string of typography CSS declarations.
  */
-function get_typography_styles_for_block_contentoracle_ai_search( $attributes ) {
+function contentoracle_ai_search_get_typography_styles_for_block( $attributes ) {
 	$typography_styles = array();
     
 	// Add typography styles.
@@ -385,7 +385,7 @@ function get_typography_styles_for_block_contentoracle_ai_search( $attributes ) 
  *
  * @return string The color classnames to be applied to the block elements.
  */
-function get_color_classes_for_block_contentoracle_ai_search( $attributes ) {
+function contentoracle_ai_search_get_color_classes_for_block( $attributes ) {
 	$classnames = array();
     
 	// Text color.
@@ -447,7 +447,7 @@ function get_color_classes_for_block_contentoracle_ai_search( $attributes ) {
 // 	);
 
 // 	$input_id            = wp_unique_id( 'wp-block-search__input-' );
-// 	$classnames          = classnames_for_block_contentoracle_ai_search( $attributes );
+// 	$classnames          = contentoracle_ai_search_classnames_for_block( $attributes );
 // 	$show_label          = ( ! empty( $attributes['showLabel'] ) ) ? true : false;
 // 	$use_icon_button     = ( ! empty( $attributes['buttonUseIcon'] ) ) ? true : false;
 // 	$show_button         = ( ! empty( $attributes['buttonPosition'] ) && 'no-button' === $attributes['buttonPosition'] ) ? false : true;
@@ -455,9 +455,9 @@ function get_color_classes_for_block_contentoracle_ai_search( $attributes ) {
 // 	$query_params        = ( ! empty( $attributes['query'] ) ) ? $attributes['query'] : array();
 // 	$button              = '';
 // 	$query_params_markup = '';
-// 	$inline_styles       = styles_for_block_contentoracle_ai_search( $attributes );
-// 	$color_classes       = get_color_classes_for_block_contentoracle_ai_search( $attributes );
-// 	$typography_classes  = get_typography_classes_for_block_contentoracle_ai_search( $attributes );
+// 	$inline_styles       = contentoracle_ai_search_styles_for_block( $attributes );
+// 	$color_classes       = contentoracle_ai_search_get_color_classes_for_block( $attributes );
+// 	$typography_classes  = contentoracle_ai_search_get_typography_classes_for_block( $attributes );
 // 	$is_button_inside    = ! empty( $attributes['buttonPosition'] ) &&
 // 		'button-inside' === $attributes['buttonPosition'];
 // 	// Border color classes need to be applied to the elements that have a border color.

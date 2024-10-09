@@ -2,7 +2,7 @@
 Contributors: Jacob Graham
 Tags: wordpress, ai, search, content, rag
 Requires at least: 6.5
-Tested up to: 5.8
+Tested up to: 6.6.2
 Stable tag: 1.0.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -36,6 +36,9 @@ ContentOracle AI bills on a usage-based basis.  So, the more your users interact
 
 = What does the AI Search block do? =
 The AI Search block is designed to connect your users with your AI Chat block from anywhere on your website.  When the user searches something in the AI Search block, they will be redirected to your main AI search page, where your AI Chat block should reside.  Their search query will be preemptively sent to the AI to kick off the conversation.
+
+== 3rd-Party Services ==
+This app makes use of the ContentOracle AI api to process user messages, index website content, and generate chat responses.  The url of the api is: https://contentoracle.jacob-t-graham.com.  Data sent to the api includes messages the user enters into chat blocks, content from the website (posts, pages, products, etc.), server and client domains and ips (to prevent abuse), and analytic data to enhance the performance of the application.  Messages and site content may be stored and indexed for debugging and feature development purposes. ContentOracle AI is an api that is used on a pay-as-you-go by enrolled sites.  The API is required to make the blocks supplied by this plugin work, and allows site visitors to use an ai chat feature to interact witht he information in your content in a more intuitive and lively way.
 
 == 3rd-Party Libraries ==
 This plugin makes use of the following third-party libraries and services:

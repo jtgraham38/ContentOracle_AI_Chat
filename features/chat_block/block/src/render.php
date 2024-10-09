@@ -320,14 +320,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     <?php 
     //scrollbar styling
     //if a preset border color is set, use that
-    $scrollbar_color = $link_color;//"";
-    // if (!empty($attributes['borderColor'])) {
-    //     $scrollbar_color = 'var(--wp--preset--color--' . $attributes['borderColor'] . ')';
-    // } 
-    // //otherwise, if a custom border color is set, use that
-    // else if (!empty($attributes['style']['border']['color'])){
-    //     $scrollbar_color = $attributes['style']['border']['color'];
-    // }
+    $scrollbar_color = $link_color;
     
     ?>
     .contentoracle-ai_chat_conversation{

@@ -9,10 +9,10 @@ if (!defined('ABSPATH')) {
 $instance_id = uniqid();
 
 //get all the attributes
-$classnames          = classnames_for_block_contentoracle_ai_search( $attributes );
-$inline_styles       = styles_for_block_contentoracle_ai_search( $attributes );
-$color_classes       = get_color_classes_for_block_contentoracle_ai_search( $attributes );
-$typography_classes  = get_typography_classes_for_block_contentoracle_ai_search( $attributes );
+$classnames          = contentoracle_ai_search_classnames_for_block( $attributes );
+$inline_styles       = contentoracle_ai_search_styles_for_block( $attributes );
+$color_classes       = contentoracle_ai_search_get_color_classes_for_block( $attributes );
+$typography_classes  = contentoracle_ai_search_get_typography_classes_for_block( $attributes );
 $border_color_classes = get_border_color_classes_for_block_contentoracle_ai_search( $attributes );
 
 //format the attributes for each element
@@ -158,7 +158,7 @@ echo "</pre>";
     >
         <label 
             class="<?php echo esc_attr( $label_classes ) ?>" 
-            <?php echo $label_styles ?>
+            style="<?php echo $label_styles ?>"
             for="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>"
         >
             <?php echo esc_html( $attributes['label'] ) ?>
@@ -168,21 +168,21 @@ echo "</pre>";
             method="GET" 
             role="search" 
             class="<?php echo esc_attr( $container_classes ) ?>" 
-            <?php echo $container_styles ?>
+            style="<?php echo esc_attr($container_styles) ?>"
         >
             <input 
                 class="<?php echo esc_attr( $input_classes ) ?>" 
-                <?php echo $input_styles ?> type="search" 
+                style="<?php echo $input_styles ?>" type="search" 
                 id="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>" 
                 name="contentoracle_ai_search"
                 required
-                placeholder="<?php echo $attributes['placeholder'] ?>"
+                placeholder="<?php echo esc_attr($attributes['placeholder']) ?>"
             >
             <input type="hidden" name="contentoracle_ai_search_should_redirect" value="1">
             <input 
                 type="submit" 
                 class="<?php echo esc_attr( $button_classes ) ?>"
-                 <?php echo $button_styles ?>
+                 style="<?php echo $button_styles ?>"
                  value="Search"
                  id=
             >
