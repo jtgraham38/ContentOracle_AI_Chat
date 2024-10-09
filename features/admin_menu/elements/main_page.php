@@ -62,23 +62,3 @@ $support_url = 'https://jacob-t-graham.com/contact';
         </div>
     </div>
 </div>
-
-<style>
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 columns of equal width */
-    grid-template-rows: repeat(2, auto);  /* 2 rows with automatic height */
-    gap: 1rem; /* Space between grid items */
-    margin: 0 4rem; /* Space on the sides */
-}
-
-.grid-item {
-    padding: 1rem;
-}
-
-.button-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 1rem;
-}
-</style>
