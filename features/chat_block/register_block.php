@@ -72,12 +72,24 @@ class ContentOracleAiBlock extends PluginFeature{
             $attributes = $block['attrs'];
 
             // Generate dynamic styles
-            $user_bg = isset($attributes['userMsgBgColor']) ? $attributes['userMsgBgColor'] : '#ffffff';
-            $user_text = isset($attributes['userMsgTextColor']) ? $attributes['userMsgTextColor'] : '#000000';
-            $bot_bg = isset($attributes['botMsgBgColor']) ? $attributes['botMsgBgColor'] : '#ffffff';
-            $bot_text = isset($attributes['botMsgTextColor']) ? $attributes['botMsgTextColor'] : '#000000';
-            $link_color = isset($attributes['linkColor']) ? $attributes['linkColor'] : '#0000ff';
-            $scrollbar_color = isset($attributes['scrollbarColor']) ? $attributes['scrollbarColor'] : '#cccccc';
+            //determine the link color
+            //if a preset border color is set, use that
+            $link_color = "";
+            if (!empty($attributes['borderColor'])) {
+                $link_color = 'var( --wp--preset--color--' . $attributes['borderColor'] . ')';
+            } 
+            //otherwise, if a custom border color is set, use that
+            else if (!empty($attributes['style']['border']['color'])){
+                $link_color = $attributes['style']['border']['color'];
+            }
+
+            $scrollbar_color = $link_color;
+
+            //generate the styles for the chat block
+            $user_bg = $attributes['userMsgBgColor'];
+            $user_text = $attributes['userMsgTextColor'];
+            $bot_bg = $attributes['botMsgBgColor'];
+            $bot_text = $attributes['botMsgTextColor'];
 
             $style_string = <<<EOT
             .contentoracle-ai_chat_bubble_user {
@@ -89,10 +101,10 @@ class ContentOracleAiBlock extends PluginFeature{
                 color: $bot_text;
             }
             a.contentoracle-inline_citation {
-                color: $link_color;
+                color: $link_color !important;
             }
             a.contentoracle-footer_citation_link {
-                color: $link_color;
+                color: $link_color !important;
             }
             .contentoracle-ai_chat_conversation {
                 overflow-y: auto;

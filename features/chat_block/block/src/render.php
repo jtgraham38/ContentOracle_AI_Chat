@@ -321,5 +321,5 @@ a.contentoracle-footer_citation_link{
 }
 EOT;
 
-wp_add_inline_style( 'contentoracle-ai-chat-block-styles', wp_strip_all_tags($style_string) );
+
 ?>
