@@ -47,7 +47,7 @@ $label_styles = $inline_styles['label'];
 //create width style for the container
 $root_styles = '';
 if ( ! empty( $attributes['width'] ) ) {
-    $root_styles .= 'style="width: ' . $attributes['width'] . ';"';
+    $root_styles .= 'width:' . $attributes['width'] . ';';
 }
 
 //create styles for the notice element
@@ -154,7 +154,7 @@ echo "</pre>";
 <div style="display:flex; justify-content:center;">
     <div
         class="contentoracle-ai_search_root"
-        <?php echo $root_styles ?>
+        style="<?php echo esc_attr( $root_styles ) ?>"
     >
         <label 
             class="<?php echo esc_attr( $label_classes ) ?>" 
@@ -182,7 +182,7 @@ echo "</pre>";
             <input 
                 type="submit" 
                 class="<?php echo esc_attr( $button_classes ) ?>"
-                 style="<?php echo $button_styles ?>"
+                 style="<?php echo esc_attr( $button_styles ) ?>"
                  value="Search"
                  id=
             >

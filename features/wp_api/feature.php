@@ -36,7 +36,7 @@ class ContentOracleApi extends PluginFeature{
                 return true; //TODO: fix this one day!
                 $nonce = $request->get_header('COAI-X-WP-Nonce');
                 if (!wp_verify_nonce($nonce, 'contentoracle_chat_nonce')) {
-                    return new WP_Error('rest_invalid_nonce', __('Invalid nonce: contentoracle_chat_nonce'), array('status' => 403));
+                    return new WP_Error('rest_invalid_nonce', 'Invalid nonce: contentoracle_chat_nonce', array('status' => 403));
                 }
                 return true;
             },
