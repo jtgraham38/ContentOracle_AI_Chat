@@ -1,1 +1,68 @@
-.contentoracle-ai_search_root{padding:.75rem}.contentoracle-ai_search_root .contentoracle-ai_search_notice{right:0;padding:1rem;position:absolute;top:0;width:-moz-max-content;width:max-content}.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_arrow{height:16px;position:absolute;transform:rotate(-45deg);width:16px}.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_notice_close{float:left;margin-right:.5rem}.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_notice_close:hover{cursor:pointer;scale:1.1}.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_notice_close:active{scale:.9}.contentoracle-ai_search_root .contentoracle-ai_search_label{display:block}.contentoracle-ai_search_root .contentoracle-ai_search_container{align-items:center;display:flex;padding:2px}.contentoracle-ai_search_root .contentoracle-ai_search_input{border-width:0;box-sizing:border-box;flex:1 1 auto;font-size:var(--wp--preset--font-size--medium);max-width:100%;padding:1rem .4rem}.contentoracle-ai_search_root .contentoracle-ai_search_button{border:none;box-sizing:border-box;flex:0 0 auto;font-size:var(--wp--preset--font-size--medium);margin-right:.25rem;padding:1rem}.contentoracle-ai_search_root .contentoracle-ai_search_button:hover{cursor:pointer;transform:scale(1.05)}.contentoracle-ai_search_root .contentoracle-ai_search_button:active{transform:scale(.95)}
+/*!***************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[4].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].use[3]!./src/style.scss ***!
+  \***************************************************************************************************************************************************************************************************************************************/
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+.contentoracle-ai_search_root {
+  padding: 0.75rem;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_notice {
+  padding: 1rem;
+  width: -moz-max-content;
+  width: max-content;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_arrow {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  transform: rotate(-45deg);
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_notice_close {
+  margin-right: 0.5rem;
+  float: left;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_notice_close:hover {
+  cursor: pointer;
+  scale: 1.1;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_notice .contentoracle-ai_search_notice_close:active {
+  scale: 0.9;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_label {
+  display: block;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_container {
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_input {
+  flex: 1 1 auto;
+  max-width: 100%;
+  padding: 1rem 0.4rem;
+  font-size: var(--wp--preset--font-size--medium);
+  border-width: 0;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_button {
+  flex: 0 0 auto;
+  padding: 1rem;
+  font-size: var(--wp--preset--font-size--medium);
+  margin-right: 0.25rem;
+  border: none;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_button:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+}
+.contentoracle-ai_search_root .contentoracle-ai_search_button:active {
+  transform: scale(0.95);
+}
