@@ -91,26 +91,26 @@ class ContentOracleAiBlock extends PluginFeature{
             $bot_bg = $attributes['botMsgBgColor'];
             $bot_text = $attributes['botMsgTextColor'];
 
-            $style_string = <<<EOT
-            .contentoracle-ai_chat_bubble_user {
-                background-color: $user_bg;
-                color: $user_text;
-            }
-            .contentoracle-ai_chat_bubble_bot {
-                background-color: $bot_bg;
-                color: $bot_text;
-            }
-            a.contentoracle-inline_citation {
-                color: $link_color !important;
-            }
-            a.contentoracle-footer_citation_link {
-                color: $link_color !important;
-            }
-            .contentoracle-ai_chat_conversation {
-                overflow-y: auto;
-                scrollbar-color: $scrollbar_color rgba(0, 0, 0, 0.01);
-            }
-            EOT;
+            $style_string = sprintf('
+                .contentoracle-ai_chat_bubble_user {
+                    background-color: %s;
+                    color: %s;
+                }
+                .contentoracle-ai_chat_bubble_bot {
+                    background-color: %s;
+                    color: %s;
+                }
+                a.contentoracle-inline_citation {
+                    color: %s !important;
+                }
+                a.contentoracle-footer_citation_link {
+                    color: %s !important;
+                }
+                .contentoracle-ai_chat_conversation {
+                    overflow-y: auto;
+                    scrollbar-color: %s rgba(0, 0, 0, 0.01);
+                }
+            ', $user_bg, $user_text, $bot_bg, $bot_text, $link_color, $link_color, $scrollbar_color);
 
             // Sanitize the CSS string
             $allowed_css = array(
