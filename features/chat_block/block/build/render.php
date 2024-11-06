@@ -117,7 +117,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     style="<?php echo esc_attr($root_inline_styles) ?>" 
     class="<?php echo esc_attr($root_classnames) ?>"
     coai-x-data="contentoracle_ai_chat"
-    data-contentoracle_rest_url="<?php echo get_rest_url() ?>"
+    data-contentoracle_rest_url="<?php echo esc_attr( get_rest_url() ) ?>"
     data-contentoracle_chat_nonce="<?php echo wp_create_nonce('contentoracle_chat_nonce') ?>"
 >
     <div class="contentoracle-ai_chat_header">
@@ -257,7 +257,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     <?php if ( get_option('contentoracle_display_credit_link', false) ){ ?>
         <small style="float: right; margin: 0.2rem 0.1rem;">
             Powered by 
-            <a href="https://contentoracle.jacob-t-graham.com" target="_blank" class="contentoracle-footer_citation_link">
+            <a href="https://contentoracleai.com" target="_blank" class="contentoracle-footer_citation_link">
                 ContentOracle AI
             </a>
         </small>

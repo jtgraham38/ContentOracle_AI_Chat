@@ -257,7 +257,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     <?php if ( get_option('contentoracle_display_credit_link', false) ){ ?>
         <small style="float: right; margin: 0.2rem 0.1rem;">
             Powered by 
-            <a href="https://contentoracle.jacob-t-graham.com" target="_blank" class="contentoracle-footer_citation_link">
+            <a href="https://contentoracleai.com" target="_blank" class="contentoracle-footer_citation_link">
                 ContentOracle AI
             </a>
         </small>

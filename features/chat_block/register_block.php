@@ -124,9 +124,6 @@ class ContentOracleAiBlock extends PluginFeature{
 
             // save the inline styles for adding to the stylesheet in the enqueue_block_assets action
             $this->style_string = $sanitized_css;
-
-            // Optionally, you can append the styles to the block content
-            //$block_content .= '<style>' . $sanitized_css . '</style>';
         }
         
 
