@@ -263,17 +263,4 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
         </small>
     <?php } ?>
 </div>
-<!-- 
-<pre>
-    <?php //print_r(get_rest_url());//print_r($attributes); ?>
-    <hr>
-    <?php //print_r(contentoracle_ai_chat_block_get_label_attrs($attributes)); ?>
-    <hr>
-    <?php //print_r($root_inline_styles); ?>
-    <hr>
-    <?php //print_r($root_classnames); ?>
-    <hr>
-    <?php //print_r(get_block_wrapper_attributes()); ?>
-    <hr>
-    <?php //print_r( contentoracle_ai_chat_block_get_border_attrs($attributes) ); ?>
-</pre> -->
+

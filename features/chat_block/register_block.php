@@ -35,7 +35,6 @@ class ContentOracleAiBlock extends PluginFeature{
 
     public function add_actions(){
         add_action('init', array($this, 'register_chat_blocks'));
-        add_action('enqueue_block_assets', array($this, 'register_chat_block_styles'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -48,20 +47,6 @@ class ContentOracleAiBlock extends PluginFeature{
 
         //register chat block
         register_block_type($this->get_base_dir() . '/features/chat_block/block/build');
-    }
-
-    //register the stylesheet for applying attributes like bubble color to the block
-    public function register_chat_block_styles($attributes){
-        //register the stylesheet
-        if ( !empty( $this->style_string ) ){
-            //register and enqueue a blank stylsheet to attach inline styles to
-            wp_register_style('contentoracle-ai-chat-block-styles', $this->get_base_url() . 'features/chat_block/block/assets/css/extra.css');
-            wp_enqueue_style('contentoracle-ai-chat-block-styles');
-
-            //attach the inline styles from the render_block filter to the stylesheet
-            wp_add_inline_style( 'contentoracle-ai-chat-block-styles', $this->style_string );
-        }
-        
     }
 
     //use the render block filter to add the styles
@@ -122,8 +107,15 @@ class ContentOracleAiBlock extends PluginFeature{
 
             $sanitized_css = wp_kses($style_string, array(), $allowed_css);
 
-            // save the inline styles for adding to the stylesheet in the enqueue_block_assets action
-            $this->style_string = $sanitized_css;
+            //register the stylesheet
+            if ( !empty( $sanitized_css ) ){
+                //register and enqueue a blank stylsheet to attach inline styles to
+                wp_register_style('contentoracle-ai-chat-block-styles', $this->get_base_url() . 'features/chat_block/block/assets/css/extra.css');
+                wp_enqueue_style('contentoracle-ai-chat-block-styles');
+
+                //attach the inline styles from the render_block filter to the stylesheet
+                wp_add_inline_style( 'contentoracle-ai-chat-block-styles', $sanitized_css );
+            }
         }
         
 
