@@ -1,5 +1,5 @@
 === ContentOracle AI Chat ===
-Contributors: Jacob Graham
+Contributors: ContentOracle AI
 Tags: wordpress, ai, search, content, rag
 Requires at least: 6.5
 Tested up to: 6.6.2

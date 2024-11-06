@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 
 class ContentOracleApiConnection{
 
-    const API_BASE_URL = 'https://contentoracle.jacob-t-graham.com/api';
+    const API_BASE_URL = 'https://app.contentoracleai.com/api';
 
     private $prefix;
     private $base_url;

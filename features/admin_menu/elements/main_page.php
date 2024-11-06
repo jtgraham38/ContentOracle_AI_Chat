@@ -10,8 +10,8 @@ $prompt_url = admin_url('admin.php?page=contentoracle-prompt');
 $embeddings_url = '#';//admin_url('admin.php?page=contentoracle-embeddings');
 $analytics_url = '#';//admin_url('admin.php?page=contentoracle-analytics');
 $settings_url = admin_url('admin.php?page=contentoracle-settings');
-$learn_more_url = "https://jacob-t-graham.com/contentoracle-ai-search-a-website-add-on-that-uses-ai-to-boost-the-power-of-your-web-content";
-$support_url = 'https://jacob-t-graham.com/contact';
+$learn_more_url = "https://contentoracleai.com/contentoracle-ai-chat";
+$support_url = 'https://contentoracleai.com/contact';
 
 ?>
 

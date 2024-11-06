@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:       ContentOracle AI Chat
- * Plugin URI:        https://jacob-t-graham.com/contentoracle-ai-search-a-website-add-on-that-uses-ai-to-boost-the-power-of-your-web-content/
+ * Plugin URI:        https://contentoracleai.com
  * Description:       ContentOracle AI Search seamlessly blends the power of generative AI with your website’s search feature.
  * Version:           1.0.0
  * Requires at least: 6.5
  * Requires PHP:      7.2
- * Author:            Jacob Graham
- * Author URI:        https://jacob-t-graham.com
+ * Author:            ContentOracle AI
+ * Author URI:        https://contentoracleai.com
  * License:           GPL v3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  */
