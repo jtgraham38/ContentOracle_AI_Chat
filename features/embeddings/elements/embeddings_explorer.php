@@ -4,38 +4,48 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once plugin_dir_path(__FILE__) . '../../../vendor/autoload.php';
+
+use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
+
 //this file shows an input, and uses it to display the raw embeddings values for a given post
 
-//set the post_id to the default value
+//set default values
 $post_id = null;
+$embeddings = [];
 
-//handle GET
-if (isset( $_GET['post_id'] )){
-    //set the post_id to the value from the GET request
-    $post_id = $_GET['post_id'];
-    //handle a request for getting the embeddings
-    if (isset($_GET['get_embeddings'])) {
-        $embeddings = get_post_meta($post_id, $this->get_prefix().'embeddings', true);
-        echo '<pre>';
-        print_r($embeddings);
-        echo '</pre>';
+//get the post id of the selected post
+if (isset($_REQUEST['post_id'])) {
+    $post_id = $_REQUEST['post_id'];
+    $selected_post = get_post($post_id);
+
+    //handle an embedding generation request
+    if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'generate_embeddings') {
+
+        //un comment to allow manual embedding editing
+        // //get the embeddings from the request
+        // $embeddings = $_REQUEST['embeddings'];
+
+        // //update the embeddings for the post
+        // update_post_meta($post_id, $this->get_prefix() . 'embeddings', $embeddings);
+
+        //trigger new embeddings generation, by loading the post, and saving it with a flag
+        
+        wp_update_post(array(
+            'ID' => $post_id,
+            'post_content' => $selected_post->post_content . $this->get_update_tag()
+        ));
     }
-}
-//handle POST
-else if (isset($_POST['post_id'])) {
-    //set the post_id to the value from the POST request
-    $post_id = $_POST['post_id'];
 
-    //handler for updating embeddings for a particular post
-    if (isset($_POST['update_embeddings'])){
-        $embeddings = $_POST['embeddings'];
 
-        //update the embeddings for the post
-        update_post_meta($post_id, $this->get_prefix().'embeddings', $embeddings);
-    
-    }
+    //get the embeddings of the post
+    $embeddings = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
 }
 
+//ensure the embeddings are an array
+if (!is_array($embeddings)) {
+    $embeddings = [];
+}
 
 //get the types of posts that are indexed by the AI
 $post_types = get_option('contentoracle_post_types');
@@ -47,6 +57,30 @@ $posts = get_posts(array(
     'orderby' => 'post_type',
     'order' => 'ASC'
 ));
+
+//get chunk size for embedddings
+$chunk_size = $this->get_chunk_size();
+
+//function to get the section of the post body that an embedding is for
+//0-indexed
+$getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size){
+    //strip tags and tokenize content
+    $tokenizer = new WhitespaceAndPunctuationTokenizer();
+    $tokens = $tokenizer->tokenize(strip_tags($content));
+
+    //get start and end indices of section
+    $start = $embedding_number * $chunk_size;
+    $end = ($embedding_number + 1) * $chunk_size;
+
+    //get the section from the post content
+    $section = array_slice($tokens, $start, $end - $start);
+    $section = implode(' ', $section);
+
+    //return the section
+    return $section;
+};
+
+
 ?>
 <div id="<?php echo esc_attr( $this->get_prefix() ) ?>embeddings_explorer">
     <form method="GET" action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>">
@@ -55,17 +89,16 @@ $posts = get_posts(array(
             <select name="post_id" id="post_id" required>
                 <option value="" selected>Select a post...</option>
                 <?php foreach ($posts as $post) { ?>
-                    <option value="<?php echo esc_attr( $post->ID ); ?>" <?php selected( $post_id, $post->ID ); ?>><?php echo esc_html( $post->post_title ); ?> (<?php echo esc_html( $post->post_type ) ?>)</option>
+                    <option value="<?php echo esc_attr( $post->ID ); ?>" <?php selected( $post_id, $post->ID ); ?>><?php echo esc_html( $post->post_title ); ?> (<?php echo esc_attr( $post->post_type ) ?>)</option>
                 <?php } ?>
             </select>
-            <input type="hidden" name="get_embeddings" value="1">
             <input type="submit" value="Get Embeddings" >
         </div>
         <input type="hidden" name="page" value="contentoracle-embeddings">
     </form>
     <br>
     <div>
-        <form method="POST" action="<?php echo esc_url($_SERVER['PHP_SELF'] . '?page=contentoracle-embeddings'); ?>">
+        <form method="POST" action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings&post_id=<?php echo esc_url($post_id) ?>">
             <table>
                 <thead>
                     <tr>
@@ -75,26 +108,34 @@ $posts = get_posts(array(
                 </thead>
                 <tbody>
                     
-                    <?php if (isset($embeddings) && is_array($embeddings)) { ?>
-                        <?php foreach ($embeddings as $key => $value) { ?>
+                    <?php if (isset($embeddings) && count($embeddings) > 0) { ?>
+                        <?php foreach ($embeddings as $i => $embedding) { ?>
                             <tr>
-                                <td title="<?php echo esc_attr($key); ?>">
-                                    <?php echo esc_html($key); ?>
+
+                                <?php 
+                                    $section = $getSectionForEmbedding($selected_post->post_content, $i);
+                                ?>
+
+                                <td title="<?php echo esc_attr($section); ?>">
+                                    <?php 
+                                        $tokens = explode(' ', $section);
+                                        $display_section = implode(' ', array_slice($tokens, 0, 3)) . ' ... ' . implode(' ', array_slice($tokens, -3));
+                                        echo esc_html($display_section);
+                                    ?>
                                 </td>
-                                <td contenteditableinput name="embeddings[]"><?php echo esc_html($value); ?></td>
+                                <td contenteditableinput name="embeddings[]"><?php echo esc_html($embedding); ?></td>
                             </tr>
                         <?php } ?>
                     <?php } else { ?>
                         <tr>
-                            <td colspan="2">No embeddings available.</td>
+                            <td colspan="2">No embeddings found.</td>
                         </tr>
                     <?php } ?>
                 </tbody>
             </table>
             <input type="hidden" name="post_id" value="<?php echo esc_attr( $post_id ) ?>">
-            <input type="hidden" name="update_embeddings" value="1">
-            <input type="hidden" name="page">
-            <input type="submit" value="Update Embeddings" class="button-primary">
+            <input type="hidden" name="action" value="generate_embeddings">
+            <input type="submit" value="<?php echo count($embeddings) > 0 ? "Re-Generate Embeddings" : "Generate Embeddings"  ?>" class="button-primary">
         </form>
     </div>
 
