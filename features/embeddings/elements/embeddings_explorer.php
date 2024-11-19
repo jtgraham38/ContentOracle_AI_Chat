@@ -30,11 +30,12 @@ if (isset($_REQUEST['post_id'])) {
         // update_post_meta($post_id, $this->get_prefix() . 'embeddings', $embeddings);
 
         //trigger new embeddings generation, by loading the post, and saving it with a flag
+        update_post_meta($post_id, $this->get_prefix() . 'should_generate_embeddings', true);
         
-        wp_update_post(array(
-            'ID' => $post_id,
-            'post_content' => $selected_post->post_content . $this->get_update_tag()
-        ));
+        // wp_update_post(array(
+        //     'ID' => $post_id,
+        //     'post_content' => $selected_post->post_content . $this->get_update_tag()
+        // ));
     }
 
 
@@ -83,19 +84,23 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
 
 ?>
 <div id="<?php echo esc_attr( $this->get_prefix() ) ?>embeddings_explorer">
-    <form method="GET" action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>">
-        <label for="post_id">Post ID</label>
-        <div style="display: flex; align-items: center;">
-            <select name="post_id" id="post_id" required>
-                <option value="" selected>Select a post...</option>
-                <?php foreach ($posts as $post) { ?>
-                    <option value="<?php echo esc_attr( $post->ID ); ?>" <?php selected( $post_id, $post->ID ); ?>><?php echo esc_html( $post->post_title ); ?> (<?php echo esc_attr( $post->post_type ) ?>)</option>
-                <?php } ?>
-            </select>
-            <input type="submit" value="Get Embeddings" >
-        </div>
-        <input type="hidden" name="page" value="contentoracle-embeddings">
-    </form>
+        <label for="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector">Post</label>
+        <select name="post_id" required id="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector">
+            <option value="" selected>Select a post...</option>
+            <?php foreach ($posts as $post) { ?>
+                <option value="<?php echo esc_attr( $post->ID ); ?>" <?php selected( $post_id, $post->ID ); ?>><?php echo esc_html( $post->post_title ); ?> (<?php echo esc_attr( $post->post_type ) ?>)</option>
+            <?php } ?>
+        </select>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                let selector = document.getElementById('<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector');
+                console.log(selector, "selector");
+                selector.addEventListener('change', function(){
+                    window.location.href = '<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings&post_id=' + selector.value;
+                });
+            });
+        </script>
     <br>
     <div>
         <form method="POST" action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings&post_id=<?php echo esc_url($post_id) ?>">

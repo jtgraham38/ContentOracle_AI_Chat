@@ -16,8 +16,8 @@ class ContentOracleEmbeddings extends PluginFeature{
     private int $CHUNK_SIZE = 256;
 
     public function add_filters(){
-        //add filter to generate embeddings for a post
-        add_action('wp_insert_post', array($this, 'generate_embeddings_for_post'), 10, 3);
+        //add filter to generate embeddings for a post (this is triggered when the embedding explorer is used)
+        //add_action('wp_insert_post', array($this, 'generate_embeddings_for_post'), 10, 3);
     }
     
     public function add_actions(){
@@ -30,10 +30,27 @@ class ContentOracleEmbeddings extends PluginFeature{
         //register styles
         add_action('admin_enqueue_scripts', array($this, 'register_styles'));
         
+        //add meta box
+        add_action('add_meta_boxes', array($this, 'add_embedding_meta_box'));
+
+        
+        //register these only for the post types that are indexed by the AI
+        $post_types = get_option($this->get_prefix() . 'post_types', []);
+        foreach ($post_types as $post_type) {
+            //generate new embeddings for a saved post
+            //TODO: make this hook only register on the specific post types that are indexed by the AI
+            add_action('save_post_' . $post_type, array($this, 'generate_embeddings_for_post'), 20, 3);
+    
+            //mark the post as needing new embeddings
+            add_action('save_post_' . $post_type, array($this, 'flag_post_for_embedding_generation'), 10, 3);
+        }
+
+
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
     public function generate_embeddings_for_post($post_ID, $post, $update){
+
         // check if this is an autosave. If it is, our form has not been submitted, so we don't want to do anything.
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return;
@@ -44,13 +61,10 @@ class ContentOracleEmbeddings extends PluginFeature{
             return;
         }
 
-        //check if we should generate embeddings for this post
-        // check if the update tag exists in the post content
-        if (strpos($post->post_content, $this->get_update_tag()) === false) {
+        //check if we should generate embeddings for this post by checking the prefix_should_generate_embeddings flag
+        if (get_post_meta($post->ID, $this->get_prefix() . 'should_generate_embeddings', true ) != true) {
             return;
         }
-        // remove the update tag from the post content
-        $post->post_content = str_replace($this->get_update_tag(), '', $post->post_content);
 
         //begin the process of generating embeddings for the post
         $title = $post->post_title;
@@ -73,11 +87,52 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //save the generated embeddings
         update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embeddings);
+        update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
 
         //return the content
         return $post;
     }
 
+    public function add_embedding_meta_box(){
+        add_meta_box(
+            'contentoracle-embeddings',
+            'ContentOracle AI Embeddings',
+            function(){
+                require_once plugin_dir_path(__FILE__) . 'elements/_meta_box.php';
+            },
+            get_option($this->get_prefix().'_post_types') ?? [],
+            'side',
+            'high'
+        );
+    }
+
+    public function flag_post_for_embedding_generation($post_ID, $post, $update){
+        // check if this is an autosave. If it is, our form has not been submitted, so we don't want to do anything.
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+
+        // check the user's permissions.
+        if (!current_user_can('edit_post', $post_ID)) {
+            return;
+        }
+
+        //nonce verification
+        if (!isset($_POST[$this->get_prefix() . 'generate_embeddings_nonce']) 
+            || 
+            !wp_verify_nonce($_POST[$this->get_prefix() . 'generate_embeddings_nonce'], $this->get_prefix() . 'save_generate_embeddings')
+        ) {
+            return;
+        }
+        
+        //update flag post meta for embedding generation if the checkbox is checked
+        if (isset($_POST[$this->get_prefix() . 'generate_embeddings'])) {
+            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', true);
+        }
+        else {
+            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
+        }
+    }
 
     public function add_menu(){
         add_submenu_page(
