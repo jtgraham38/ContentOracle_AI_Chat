@@ -32,10 +32,10 @@ if (isset($_REQUEST['post_id'])) {
         //trigger new embeddings generation, by loading the post, and saving it with a flag
         update_post_meta($post_id, $this->get_prefix() . 'should_generate_embeddings', true);
         
-        // wp_update_post(array(
-        //     'ID' => $post_id,
-        //     'post_content' => $selected_post->post_content . $this->get_update_tag()
-        // ));
+        wp_update_post(array(
+            'ID' => $post_id,
+            'post_content' => $selected_post->post_content . $this->get_update_tag()
+        ));
     }
 
 

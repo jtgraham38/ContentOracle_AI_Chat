@@ -66,6 +66,9 @@ class ContentOracleEmbeddings extends PluginFeature{
             return;
         }
 
+        //remove the update tag from the post content
+        $post->post_content = str_replace($this->get_update_tag(), '', $post->post_content);
+
         //begin the process of generating embeddings for the post
         $title = $post->post_title;
         $body = strip_tags($post->post_content);
