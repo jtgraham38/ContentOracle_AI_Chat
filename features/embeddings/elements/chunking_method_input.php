@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 
 //get all post types
 $options = [
-    'token' => "Token (". $this->get_chunk_size() ." tokens/chunk)",
+    'token:256' => "Token (". $this->get_chunk_size() ." tokens/chunk)",
 ];
 
 $value =  get_option($this->get_prefix() . 'chunking_method', null);

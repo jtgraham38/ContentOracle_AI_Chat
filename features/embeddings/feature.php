@@ -214,11 +214,67 @@ class ContentOracleEmbeddings extends PluginFeature{
         return $post;
     }
 
+    //this function makes the call to COAI to generate embeddings for a batch of posts
+    public function coai_api_generate_embeddings($posts){
+        //create a collection of the post bodies, types, and titles, and the chunking method
+        $payload = [
+            'chunking_method' => get_option($this->get_prefix() . 'chunking_method', 'none'),
+            'client_ip' => $this->get_client_ip(),
+            'content' => []
+        ];
+        foreach ($posts as $post) {
+            $payload['content'][] = [
+                'id' => $post->ID,
+                'url' => get_permalink($post->ID),
+                'title' => $post->post_title,
+                'body' => $post->post_content,   //tags should be stripped outside
+                'type' => get_post_type($post->ID),
+            ];
+        }
+
+        //post to the coai api route
+
+        //format the response
+
+        //return the embeddings
+    }
+
     public function get_update_tag(){
         return $this->UPDATE_TAG;
     }
 
     public function get_chunk_size(){
         return $this->CHUNK_SIZE;
+    }
+
+    //get the ip address of the client
+    function get_client_ip(){
+        $ip = '';
+
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            // Check for IP from shared internet
+            $ip = filter_var($_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            // Check for IP passed from proxy
+            $ip = filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
+            $ip = filter_var($_SERVER['HTTP_X_FORWARDED'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])) {
+            $ip = filter_var($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
+            $ip = filter_var($_SERVER['HTTP_FORWARDED_FOR'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
+            $ip = filter_var($_SERVER['HTTP_FORWARDED'], FILTER_VALIDATE_IP);
+        } else {
+            // Default fallback to REMOTE_ADDR
+            $ip = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
+        }
+
+        // Handle multiple IPs (e.g., "client IP, proxy IP")
+        if (strpos($ip, ',') !== false)
+            $ip = explode(',', $ip)[0];
+
+        // Sanitize IP address
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'UNKNOWN';
     }
 }
