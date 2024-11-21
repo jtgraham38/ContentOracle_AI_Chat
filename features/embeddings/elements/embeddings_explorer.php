@@ -59,9 +59,16 @@ if (isset($_REQUEST['action'])) {
             }
             break;
         case 'bulk_generate_embeddings':
+
+            //ensure embeddings are enabled
+            $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+            if ($chunking_method == 'none' || $chunking_method == '') {
+                break;
+            }
+
             //get the option from the bulk selector
             if (!isset($_REQUEST['bulk_generate_embeddings_option']) || $_REQUEST['bulk_generate_embeddings_option'] == '') {
-                exit;
+                break;
             }
             $bulk_option = $_REQUEST['bulk_generate_embeddings_option'];
 
@@ -143,6 +150,9 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
 
 
 ?>
+<strong>Note: Embeddings will only be generated for posts of the types set in the "Prompt" settings.  They will also only be generated if a chunking method is set.</strong>
+<br>
+<br>
 <details>
     <summary>Tips</summary>
     <ul>
@@ -169,7 +179,12 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
         <p>Use the form below to explore the embeddings for a given post.</p>
 
         <label for="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector">Post</label>
-        <select name="post_id" required id="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector">
+        <select 
+            name="post_id" 
+            required 
+            id="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector"
+            title="The embeddings shown in the table below are for the selected post.  Embeddings will be generated for this post if the button is pressed."
+        >
             <option value="" selected>Select a post...</option>
             <?php foreach ($posts as $post) { ?>
                 <option value="<?php echo esc_attr( $post->ID ); ?>" <?php selected( $post_id, $post->ID ); ?>><?php echo esc_html( $post->post_title ); ?> (<?php echo esc_attr( $post->post_type ) ?>)</option>
@@ -292,7 +307,12 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
         >
         <label for="bulk_generate_embeddings_select">Bulk Options</label>
             <div style="display: flex;">
-                <select name="bulk_generate_embeddings_option" id="bulk_generate_embeddings_select" required>
+                <select 
+                    name="bulk_generate_embeddings_option" 
+                    id="bulk_generate_embeddings_select" 
+                    required
+                    title="Select an option to generate embeddings for many posts at once.  This will only generate embeddings for posts of the types selected in the prompt settings, and only if a chunking method is set."    
+                >
                     <option value="" selected>Select an option...</option>
                     <option value="unembedded">All Posts Without Embeddings</option>
                     <option value="all">All Posts</option>

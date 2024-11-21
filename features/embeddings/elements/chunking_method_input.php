@@ -16,7 +16,7 @@ $value =  get_option($this->get_prefix() . 'chunking_method', null);
     <select
         id="<?php echo esc_attr($this->get_prefix()) ?>chunking_method"
         name="<?php echo esc_attr($this->get_prefix()) ?>chunking_method"
-        title="Select the chunking method that should be used when generating embeddings of your post content."
+        title="Select the chunking method that should be used when generating embeddings of your post content.  This will determine how the content is broken up into smaller pieces for embedding generation.  If no chunking method is set, embeddings will not be generated."
     >
         <option value="" selected>None (Do not generate embeddings).</option>
         <?php foreach ($options as $key => $value) { ?>

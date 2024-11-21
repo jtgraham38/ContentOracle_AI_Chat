@@ -66,11 +66,12 @@ class ContentOracleEmbeddings extends PluginFeature{
             return;
         }
 
+
         //check the chunking method setting (TODO: integrate this into the embedding generation process)
-        // $chunking_method = get_option($this->get_prefix() . 'chunking_method');
-        // if ($chunking_method == 'none' || $chunking_method == '') {
-        //     return;
-        // }
+        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        if ($chunking_method == 'none' || $chunking_method == '') {
+            return;
+        }
 
         //generate the embeddings for the post
         $post = $this->generate_embeddings($post);
