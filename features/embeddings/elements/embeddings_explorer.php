@@ -14,33 +14,93 @@ use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 $post_id = null;
 $embeddings = [];
 
+//get the selected post, if one is selected
 //get the post id of the selected post
 if (isset($_REQUEST['post_id'])) {
     $post_id = $_REQUEST['post_id'];
     $selected_post = get_post($post_id);
 
-    //handle an embedding generation request
-    if (isset($_REQUEST['action']) && $_REQUEST['action'] == 'generate_embeddings') {
-
-        //un comment to allow manual embedding editing
-        // //get the embeddings from the request
-        // $embeddings = $_REQUEST['embeddings'];
-
-        // //update the embeddings for the post
-        // update_post_meta($post_id, $this->get_prefix() . 'embeddings', $embeddings);
-
-        //trigger new embeddings generation, by loading the post, and saving it with a flag
-        update_post_meta($post_id, $this->get_prefix() . 'should_generate_embeddings', true);
-        
-        wp_update_post(array(
-            'ID' => $post_id,
-            'post_content' => $selected_post->post_content . $this->get_update_tag()
-        ));
-    }
-
-
     //get the embeddings of the post
     $embeddings = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
+}
+
+//handle an embedding generation request
+//handle the action from the admin page
+if (isset($_REQUEST['action'])) {
+
+    switch ($_REQUEST['action']){
+        case 'generate_embeddings':
+            //get the post id of the selected post
+            if (isset($_REQUEST['post_id'])) {
+                //un comment to allow manual embedding editing
+                // //get the embeddings from the request
+                // $embeddings = $_REQUEST['embeddings'];
+
+                // //update the embeddings for the post
+                // update_post_meta($post_id, $this->get_prefix() . 'embeddings', $embeddings);
+
+                //ensure the post is of a type that the ai indexes
+                $post_types = get_option('contentoracle_post_types');
+                if (!in_array($selected_post->post_type, $post_types)) {
+                    return;
+                }
+
+                //trigger new embeddings generation, by loading the post, and saving it with a flag
+                update_post_meta($post_id, $this->get_prefix() . 'should_generate_embeddings', true);
+                
+                //this triggers the save_post hook, which will generate the embeddings
+                wp_update_post(array(
+                    'ID' => $post_id,
+                    'post_content' => $selected_post->post_content . $this->get_update_tag()
+                ));
+
+                //get the updated embeddings of the post
+                $embeddings = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
+            }
+            break;
+        case 'bulk_generate_embeddings':
+            //get the option from the bulk selector
+            if (!isset($_REQUEST['bulk_generate_embeddings_option']) || $_REQUEST['bulk_generate_embeddings_option'] == '') {
+                exit;
+            }
+            $bulk_option = $_REQUEST['bulk_generate_embeddings_option'];
+
+            //get all the posts, based on the selected bulk option and post types to index
+            $post_types = get_option('contentoracle_post_types') ?? [];
+            switch ($bulk_option) {
+                case 'unembedded':
+                    $posts = get_posts(array(
+                        'post_type' => $post_types,
+                        'numberposts' => -1,
+                        'orderby' => 'post_type',
+                        'order' => 'ASC',
+                        'meta_query' => array(
+                            array(
+                                'key' => $this->get_prefix() . 'embeddings',
+                                'compare' => 'NOT EXISTS'
+                            )
+                        )
+                    ));
+                    break;
+                case 'all':
+                    $posts = get_posts(array(
+                        'post_type' => $post_types,
+                        'numberposts' => -1,
+                        'orderby' => 'post_type',
+                        'order' => 'ASC'
+                    ));
+                    break;
+                default:
+                    return;
+            }
+            
+            //call $this->generate_embeddings for each post
+            //TODO: I should make a mass batch submission to my api eventually
+            foreach ($posts as $post){
+                $this->generate_embeddings($post);
+            }
+    }
+    //end switch action
 }
 
 //ensure the embeddings are an array
@@ -83,7 +143,31 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
 
 
 ?>
-<div id="<?php echo esc_attr( $this->get_prefix() ) ?>embeddings_explorer">
+<details>
+    <summary>Tips</summary>
+    <ul>
+        <li>
+            Select a post from the dropdown to view its embeddings.
+        </li>
+        <li>
+            Click "Generate Embeddings" to generate embeddings for the selected post.
+        </li>
+        <li>
+            Click "Re-Generate Embeddings" to re-generate embeddings for the selected post.
+        </li>
+        <li>
+            Click "Bulk Generate Embeddings" to generate embeddings for many posts at once.
+        </li>
+        <li>
+            Note that embeddings will only be generated and shown for posts of the types selected in the prompt settings.
+        </li>
+    </ul>
+</details>
+<div id="<?php echo esc_attr( $this->get_prefix() ) ?>embeddings_explorer" style="display: flex;">
+    <div>
+        <h3>Embeddings Explorer</h3>
+        <p>Use the form below to explore the embeddings for a given post.</p>
+
         <label for="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector">Post</label>
         <select name="post_id" required id="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector">
             <option value="" selected>Select a post...</option>
@@ -101,88 +185,124 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
                 });
             });
         </script>
-    <br>
-    <div>
-        <form method="POST" action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings&post_id=<?php echo esc_url($post_id) ?>">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Content</th>
-                        <th>Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                    <?php if (isset($embeddings) && count($embeddings) > 0) { ?>
-                        <?php foreach ($embeddings as $i => $embedding) { ?>
-                            <tr>
 
-                                <?php 
-                                    $section = $getSectionForEmbedding($selected_post->post_content, $i);
-                                ?>
+        <br>
+        <br>
 
-                                <td title="<?php echo esc_attr($section); ?>">
+            <?php 
+            $generated_at = get_post_meta($post_id, $this->get_prefix() . 'embeddings_generated_at', true); 
+            if ($generated_at) {
+                ?>
+                    Embeddings last generated at: <?php echo esc_html(get_post_meta($post_id, $this->get_prefix() . 'embeddings_generated_at', true)); ?>
+                <?php
+            }
+            ?>
+
+        <div>
+            <form method="POST" action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings&post_id=<?php echo esc_url($post_id) ?>">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Content</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <?php if (isset($embeddings) && count($embeddings) > 0) { ?>
+                            <?php foreach ($embeddings as $i => $embedding) { ?>
+                                <tr>
+
                                     <?php 
-                                        $tokens = explode(' ', $section);
-                                        $display_section = implode(' ', array_slice($tokens, 0, 3)) . ' ... ' . implode(' ', array_slice($tokens, -3));
-                                        echo esc_html($display_section);
+                                        $section = $getSectionForEmbedding($selected_post->post_content, $i);
                                     ?>
-                                </td>
-                                <td contenteditableinput name="embeddings[]"><?php echo esc_html($embedding); ?></td>
+
+                                    <td title="<?php echo esc_attr($section); ?>">
+                                        <?php 
+                                            $tokens = explode(' ', $section);
+                                            $display_section = implode(' ', array_slice($tokens, 0, 3)) . ' ... ' . implode(' ', array_slice($tokens, -3));
+                                            echo esc_html($display_section);
+                                        ?>
+                                    </td>
+                                    <td contenteditableinput name="embeddings[]"><?php echo esc_html($embedding); ?></td>
+                                </tr>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <tr>
+                                <td colspan="2">No embeddings found.</td>
                             </tr>
                         <?php } ?>
-                    <?php } else { ?>
-                        <tr>
-                            <td colspan="2">No embeddings found.</td>
-                        </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-            <input type="hidden" name="post_id" value="<?php echo esc_attr( $post_id ) ?>">
-            <input type="hidden" name="action" value="generate_embeddings">
-            <input type="submit" value="<?php echo count($embeddings) > 0 ? "Re-Generate Embeddings" : "Generate Embeddings"  ?>" class="button-primary">
+                    </tbody>
+                </table>
+                <input type="hidden" name="post_id" value="<?php echo esc_attr( $post_id ) ?>">
+                <input type="hidden" name="action" value="generate_embeddings">
+                <input type="submit" value="<?php echo count($embeddings) > 0 ? "Re-Generate Embeddings" : "Generate Embeddings"  ?>" class="button-primary">
+            </form>
+        </div>
+
+        <script>
+            class ContentEditableInput{
+                //this class binds the innertext of a contenteditable element to the value of an input
+                constructor(el){
+                    this.init(el);
+                }
+
+                //initialize the class, creating the hidden input and binding the events
+                init(el){
+                    //link this instance to the element
+                    this.el = el;
+                    this.el.setAttribute('contenteditable', 'true');
+
+                    //create the hidden input
+                    this.input = document.createElement('input');
+                    this.input.type = 'hidden';
+                    this.input.name = this.el.getAttribute('name');
+                    this.el.appendChild(this.input);
+
+                    //add event listener to this.el to update the input
+                    this.el.addEventListener('input', ()=>{this.bind(this)});   //pass in the context, due to event listener
+                    this.bind();
+                }
+
+                //update the input value based on the element's innerText
+                bind(context){
+                    //bind the input to the element
+                    if (!context) context = this;
+                    this.input.value = context.el.innerText;
+                }
+            }
+
+            //attach a form element to elements with the contenteditableinput attribute
+            document.addEventListener('DOMContentLoaded', function(){
+                let elements = document.querySelectorAll('[contenteditableinput]');
+                elements.forEach(el => {
+                    let cei = new ContentEditableInput(el);
+                });
+            });
+        </script>
+    </div>
+    <div style="width: 2rem;"></div>
+    <div>
+        <h3>Bulk Generate Embeddings</h3>
+        <p>Generate embeddings for many posts at once!</p>
+
+        <form 
+            method="POST" 
+            action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings" 
+        >
+        <label for="bulk_generate_embeddings_select">Bulk Options</label>
+            <div style="display: flex;">
+                <select name="bulk_generate_embeddings_option" id="bulk_generate_embeddings_select" required>
+                    <option value="" selected>Select an option...</option>
+                    <option value="unembedded">All Posts Without Embeddings</option>
+                    <option value="all">All Posts</option>
+                </select>
+                <input type="submit" value="Generate Embeddings" class="button-primary">
+            </div>
+            <input type="hidden" name="action" value="bulk_generate_embeddings">
         </form>
     </div>
-
-    <script>
-        class ContentEditableInput{
-            //this class binds the innertext of a contenteditable element to the value of an input
-            constructor(el){
-                this.init(el);
-            }
-
-            //initialize the class, creating the hidden input and binding the events
-            init(el){
-                //link this instance to the element
-                this.el = el;
-                this.el.setAttribute('contenteditable', 'true');
-
-                //create the hidden input
-                this.input = document.createElement('input');
-                this.input.type = 'hidden';
-                this.input.name = this.el.getAttribute('name');
-                this.el.appendChild(this.input);
-
-                //add event listener to this.el to update the input
-                this.el.addEventListener('input', ()=>{this.bind(this)});   //pass in the context, due to event listener
-                this.bind();
-            }
-
-            //update the input value based on the element's innerText
-            bind(context){
-                //bind the input to the element
-                if (!context) context = this;
-                this.input.value = context.el.innerText;
-            }
-        }
-
-        //attach a form element to elements with the contenteditableinput attribute
-        document.addEventListener('DOMContentLoaded', function(){
-            let elements = document.querySelectorAll('[contenteditableinput]');
-            elements.forEach(el => {
-                let cei = new ContentEditableInput(el);
-            });
-        });
-    </script>
-
 </div>
+<br>
+<br>
+<small>Note: Generating embeddings may result in charges to your account.</small>

@@ -39,7 +39,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         foreach ($post_types as $post_type) {
             //generate new embeddings for a saved post
             //TODO: make this hook only register on the specific post types that are indexed by the AI
-            add_action('save_post_' . $post_type, array($this, 'generate_embeddings_for_post'), 20, 3);
+            add_action('save_post_' . $post_type, array($this, 'generate_embeddings_on_save'), 20, 3);
     
             //mark the post as needing new embeddings
             add_action('save_post_' . $post_type, array($this, 'flag_post_for_embedding_generation'), 10, 3);
@@ -49,7 +49,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
-    public function generate_embeddings_for_post($post_ID, $post, $update){
+    public function generate_embeddings_on_save($post_ID, $post, $update){
 
         // check if this is an autosave. If it is, our form has not been submitted, so we don't want to do anything.
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
@@ -66,47 +66,15 @@ class ContentOracleEmbeddings extends PluginFeature{
             return;
         }
 
-        //remove the update tag from the post content
-        $post->post_content = str_replace($this->get_update_tag(), '', $post->post_content);
+        //check the chunking method setting (TODO: integrate this into the embedding generation process)
+        // $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        // if ($chunking_method == 'none' || $chunking_method == '') {
+        //     return;
+        // }
 
-        //begin the process of generating embeddings for the post
-        $title = $post->post_title;
-        $body = strip_tags($post->post_content);
-
-        //split the body into tokens
-        $tokenizer = new WhitespaceAndPunctuationTokenizer();
-        $tokens = $tokenizer->tokenize($body);
-
-        //group the tokens into chunks
-        $chunks = array_chunk($tokens, $this->CHUNK_SIZE);
-
-        //send an embeddings request to ContentOracle AI
-        $embeddings = [
-            'em_1234',
-            'em_5678',
-            'em_91011',
-            'em_121314'
-        ];   //TODO: make the request to the coai here
-
-        //save the generated embeddings
-        update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embeddings);
-        update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
-
-        //return the content
+        //generate the embeddings for the post
+        $post = $this->generate_embeddings($post);
         return $post;
-    }
-
-    public function add_embedding_meta_box(){
-        add_meta_box(
-            'contentoracle-embeddings',
-            'ContentOracle AI Embeddings',
-            function(){
-                require_once plugin_dir_path(__FILE__) . 'elements/_meta_box.php';
-            },
-            get_option($this->get_prefix().'_post_types') ?? [],
-            'side',
-            'high'
-        );
     }
 
     public function flag_post_for_embedding_generation($post_ID, $post, $update){
@@ -135,6 +103,19 @@ class ContentOracleEmbeddings extends PluginFeature{
         else {
             update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
         }
+    }
+
+    public function add_embedding_meta_box(){
+        add_meta_box(
+            'contentoracle-embeddings',
+            'ContentOracle AI Embeddings',
+            function(){
+                require_once plugin_dir_path(__FILE__) . 'elements/_meta_box.php';
+            },
+            get_option($this->get_prefix().'_post_types') ?? [],
+            'side',
+            'high'
+        );
     }
 
     public function add_menu(){
@@ -193,6 +174,43 @@ class ContentOracleEmbeddings extends PluginFeature{
             return;
         }
         wp_enqueue_style('contentoracle-embeddings', plugin_dir_url(__FILE__) . 'assets/css/explorer.css');
+    }
+
+    //this is the function that is called in various places to generate embeddings for a post
+    //note that it does not perform all permission and semantic checks, as it is called in various places
+    public function generate_embeddings($post){
+        //get the post id
+        $post_ID = $post->ID;
+
+        //remove the update tag from the post content
+        $post->post_content = str_replace($this->get_update_tag(), '', $post->post_content);
+
+        //begin the process of generating embeddings for the post
+        $title = $post->post_title;
+        $body = strip_tags($post->post_content);
+
+        //split the body into tokens
+        $tokenizer = new WhitespaceAndPunctuationTokenizer();
+        $tokens = $tokenizer->tokenize($body);
+
+        //group the tokens into chunks
+        $chunks = array_chunk($tokens, $this->CHUNK_SIZE);
+
+        //send an embeddings request to ContentOracle AI
+        $embeddings = [
+            'em_1234',
+            'em_5678',
+            'em_91011',
+            'em_121314'
+        ];   //TODO: make the request to the coai here
+
+        //save the generated embeddings
+        update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embeddings);
+        update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
+        update_post_meta($post_ID, $this->get_prefix() . 'embeddings_generated_at', date('Y-m-d H:i:s'));
+
+        //return the content
+        return $post;
     }
 
     public function get_update_tag(){

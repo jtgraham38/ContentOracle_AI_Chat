@@ -21,7 +21,5 @@ if (!defined('ABSPATH')) {
 
     <hr>
 
-    <h3>Embeddings Explorer</h3>
-    <p>Use the form below to explore the embeddings for a given post.</p>
     <?php require_once plugin_dir_path(__FILE__) . 'embeddings_explorer.php'; ?>
 </div>
