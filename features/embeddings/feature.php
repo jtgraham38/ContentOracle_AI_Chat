@@ -49,6 +49,37 @@ class ContentOracleEmbeddings extends PluginFeature{
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
+
+    //callback that flags a post for embedding generation when the checkbox is checked
+    public function flag_post_for_embedding_generation($post_ID, $post, $update){
+        // check if this is an autosave. If it is, our form has not been submitted, so we don't want to do anything.
+        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+            return;
+        }
+
+        // check the user's permissions.
+        if (!current_user_can('edit_post', $post_ID)) {
+            return;
+        }
+
+        //nonce verification
+        if (!isset($_POST[$this->get_prefix() . 'generate_embeddings_nonce']) 
+            || 
+            !wp_verify_nonce($_POST[$this->get_prefix() . 'generate_embeddings_nonce'], $this->get_prefix() . 'save_generate_embeddings')
+        ) {
+            return;
+        }
+        
+        //update flag post meta for embedding generation if the checkbox is checked
+        if (isset($_POST[$this->get_prefix() . 'generate_embeddings'])) {
+            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', true);
+        }
+        else {
+            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
+        }
+    }
+
+    // callback that generates embeddings for a post when it is saved, if the should_generate_embeddings flag is set
     public function generate_embeddings_on_save($post_ID, $post, $update){
 
         // check if this is an autosave. If it is, our form has not been submitted, so we don't want to do anything.
@@ -78,34 +109,154 @@ class ContentOracleEmbeddings extends PluginFeature{
         return $post;
     }
 
-    public function flag_post_for_embedding_generation($post_ID, $post, $update){
-        // check if this is an autosave. If it is, our form has not been submitted, so we don't want to do anything.
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
-        }
+    //this is the function that is called in various places to generate embeddings for a post
+    //note that it does not perform all permission and semantic checks, as it is called in various places
+    public function generate_embeddings($post){
+        //get the post id
+        $post_ID = $post->ID;
 
-        // check the user's permissions.
-        if (!current_user_can('edit_post', $post_ID)) {
-            return;
-        }
+        //group the tokens into chunks
+        $chunks = $this->chunk_post($post);
 
-        //nonce verification
-        if (!isset($_POST[$this->get_prefix() . 'generate_embeddings_nonce']) 
-            || 
-            !wp_verify_nonce($_POST[$this->get_prefix() . 'generate_embeddings_nonce'], $this->get_prefix() . 'save_generate_embeddings')
-        ) {
-            return;
-        }
-        
-        //update flag post meta for embedding generation if the checkbox is checked
-        if (isset($_POST[$this->get_prefix() . 'generate_embeddings'])) {
-            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', true);
-        }
-        else {
-            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
-        }
+        //send an embeddings request to ContentOracle AI
+        //$this->coai_api_generate_embeddings($chunks);
+        $embeddings = [
+            'em_1234',
+            'em_5678',
+            'em_91011',
+            'em_121314'
+        ];   //TODO: make the request to the coai here
+
+        //save the generated embeddings
+        update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embeddings);
+        update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
+        update_post_meta($post_ID, $this->get_prefix() . 'embeddings_generated_at', date('Y-m-d H:i:s'));
+
+        //return the content
+        return $post;
     }
 
+    //function that chunks a post into smaller pieces for embedding generation, based on the chunking method
+    public function chunk_post($post){
+        $post_id = $post->ID;
+        $chunking_method = get_option($this->get_prefix() . 'chunking_method', 'none');
+        switch ($chunking_method) {
+            case 'token:256':
+                //get the post content
+                $body = strip_tags($post->post_content);
+
+                //split the body into tokens
+                $tokenizer = new WhitespaceAndPunctuationTokenizer();
+                $tokens = $tokenizer->tokenize($body);
+
+                //group the tokens into chunks
+                $chunks = array_chunk($tokens, $this->CHUNK_SIZE);
+
+                //return the post id mapped to the chunks
+                $return = new ContentOracle_ChunksForPost($post_id, $chunks);
+                break;
+            case 'none':
+                //return the post id mapped to the entire post content
+                $return = new ContentOracle_ChunksForPost($post_id, [$post->post_content]);
+                break;
+            default:
+                throw new Exception('Invalid chunking method: ' . $chunking_method);
+                break;
+        }
+
+        //return the chunks
+        return $return;
+
+    }
+
+    /*
+    *  This function makes the call to COAI to generate embeddings for a batch of posts
+    *  $cps: an array of ContentOracle_ChunksForPost objects, which contain the post id and the chunks of the post
+    */
+    public function coai_api_generate_embeddings(array $cps){
+        //if cps is not an array, make it into a single-element array
+        if (!is_array($cps)) {
+            $cps = [$cps];
+        }
+
+        //create an array of content to send to the coai api
+        $payload = [
+            'chunking_method' => get_option($this->get_prefix() . 'chunking_method', 'none'),
+            'client_ip' => $this->get_client_ip(),
+            'content' => []
+        ];
+
+        //add each record to the payload
+        foreach ($cps as $cp) {
+            $payload['content'][] = [
+                'id' => $cp->post_id,
+                'url' => get_permalink($cp->post_id),
+                'title' => get_post_title($cp->post_id),
+                'chunks' => $cp->chunks,
+                'type' => get_post_type($cp->post_id),
+            ];
+        }
+
+        //post to the coai api route
+
+        //format the response
+
+        //return the embeddings
+    }
+
+    public function get_update_tag(){
+        return $this->UPDATE_TAG;
+    }
+
+    public function get_chunk_size(){
+        return $this->CHUNK_SIZE;
+    }
+
+    //  \\  //  \\  //  \\  //  \\ CALLBACKS NOT RELATED TO EMBEDDING GENERATION (DIRECTLY)  //  \\  //  \\  //  \\  // \\
+
+    //get the ip address of the client
+    function get_client_ip(){
+        $ip = '';
+
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            // Check for IP from shared internet
+            $ip = filter_var($_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            // Check for IP passed from proxy
+            $ip = filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
+            $ip = filter_var($_SERVER['HTTP_X_FORWARDED'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])) {
+            $ip = filter_var($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
+            $ip = filter_var($_SERVER['HTTP_FORWARDED_FOR'], FILTER_VALIDATE_IP);
+        } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
+            $ip = filter_var($_SERVER['HTTP_FORWARDED'], FILTER_VALIDATE_IP);
+        } else {
+            // Default fallback to REMOTE_ADDR
+            $ip = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
+        }
+
+        // Handle multiple IPs (e.g., "client IP, proxy IP")
+        if (strpos($ip, ',') !== false)
+            $ip = explode(',', $ip)[0];
+
+        // Sanitize IP address
+        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'UNKNOWN';
+    }
+
+    public function render_page(){
+        require_once plugin_dir_path(__FILE__) . 'elements/_inputs.php';
+    }
+
+    public function register_styles(){
+        if (strpos(get_current_screen()->base, 'contentoracle-embeddings') === false) {
+            return;
+        }
+        wp_enqueue_style('contentoracle-embeddings', plugin_dir_url(__FILE__) . 'assets/css/explorer.css');
+    }
+
+    
     public function add_embedding_meta_box(){
         add_meta_box(
             'contentoracle-embeddings',
@@ -166,115 +317,14 @@ class ContentOracleEmbeddings extends PluginFeature{
         );
     }
 
-    public function render_page(){
-        require_once plugin_dir_path(__FILE__) . 'elements/_inputs.php';
-    }
+}
 
-    public function register_styles(){
-        if (strpos(get_current_screen()->base, 'contentoracle-embeddings') === false) {
-            return;
-        }
-        wp_enqueue_style('contentoracle-embeddings', plugin_dir_url(__FILE__) . 'assets/css/explorer.css');
-    }
+class ContentOracle_ChunksForPost{
+    public int $post_id;
+    public array $chunks;
 
-    //this is the function that is called in various places to generate embeddings for a post
-    //note that it does not perform all permission and semantic checks, as it is called in various places
-    public function generate_embeddings($post){
-        //get the post id
-        $post_ID = $post->ID;
-
-        //remove the update tag from the post content
-        $post->post_content = str_replace($this->get_update_tag(), '', $post->post_content);
-
-        //begin the process of generating embeddings for the post
-        $title = $post->post_title;
-        $body = strip_tags($post->post_content);
-
-        //split the body into tokens
-        $tokenizer = new WhitespaceAndPunctuationTokenizer();
-        $tokens = $tokenizer->tokenize($body);
-
-        //group the tokens into chunks
-        $chunks = array_chunk($tokens, $this->CHUNK_SIZE);
-
-        //send an embeddings request to ContentOracle AI
-        $embeddings = [
-            'em_1234',
-            'em_5678',
-            'em_91011',
-            'em_121314'
-        ];   //TODO: make the request to the coai here
-
-        //save the generated embeddings
-        update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embeddings);
-        update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
-        update_post_meta($post_ID, $this->get_prefix() . 'embeddings_generated_at', date('Y-m-d H:i:s'));
-
-        //return the content
-        return $post;
-    }
-
-    //this function makes the call to COAI to generate embeddings for a batch of posts
-    public function coai_api_generate_embeddings($posts){
-        //create a collection of the post bodies, types, and titles, and the chunking method
-        $payload = [
-            'chunking_method' => get_option($this->get_prefix() . 'chunking_method', 'none'),
-            'client_ip' => $this->get_client_ip(),
-            'content' => []
-        ];
-        foreach ($posts as $post) {
-            $payload['content'][] = [
-                'id' => $post->ID,
-                'url' => get_permalink($post->ID),
-                'title' => $post->post_title,
-                'body' => $post->post_content,   //tags should be stripped outside
-                'type' => get_post_type($post->ID),
-            ];
-        }
-
-        //post to the coai api route
-
-        //format the response
-
-        //return the embeddings
-    }
-
-    public function get_update_tag(){
-        return $this->UPDATE_TAG;
-    }
-
-    public function get_chunk_size(){
-        return $this->CHUNK_SIZE;
-    }
-
-    //get the ip address of the client
-    function get_client_ip(){
-        $ip = '';
-
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            // Check for IP from shared internet
-            $ip = filter_var($_SERVER['HTTP_CLIENT_IP'], FILTER_VALIDATE_IP);
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            // Check for IP passed from proxy
-            $ip = filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_VALIDATE_IP);
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED'])) {
-            $ip = filter_var($_SERVER['HTTP_X_FORWARDED'], FILTER_VALIDATE_IP);
-        } elseif (!empty($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'])) {
-            $ip = filter_var($_SERVER['HTTP_X_CLUSTER_CLIENT_IP'], FILTER_VALIDATE_IP);
-        } elseif (!empty($_SERVER['HTTP_FORWARDED_FOR'])) {
-            $ip = filter_var($_SERVER['HTTP_FORWARDED_FOR'], FILTER_VALIDATE_IP);
-        } elseif (!empty($_SERVER['HTTP_FORWARDED'])) {
-            $ip = filter_var($_SERVER['HTTP_FORWARDED'], FILTER_VALIDATE_IP);
-        } else {
-            // Default fallback to REMOTE_ADDR
-            $ip = filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP);
-        }
-
-        // Handle multiple IPs (e.g., "client IP, proxy IP")
-        if (strpos($ip, ',') !== false)
-            $ip = explode(',', $ip)[0];
-
-        // Sanitize IP address
-        return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'UNKNOWN';
+    public function __construct(int $post_id, array $chunks){
+        $this->post_id = $post_id;
+        $this->chunks = $chunks;
     }
 }
