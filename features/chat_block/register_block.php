@@ -43,10 +43,10 @@ class ContentOracleAiBlock extends PluginFeature{
     public function register_chat_blocks(){
         //include chat block utils
         //include seach block utils
-        require_once $this->get_base_dir() . 'features/chat_block/util.php';
+        require_once plugin_dir_path( __FILE__ ) . '/util.php';
 
         //register chat block
-        register_block_type($this->get_base_dir() . '/features/chat_block/block/build');
+        register_block_type(plugin_dir_path( __FILE__ ) . '/block/build');
     }
 
     //use the render block filter to add the styles
@@ -110,7 +110,7 @@ class ContentOracleAiBlock extends PluginFeature{
             //register the stylesheet
             if ( !empty( $sanitized_css ) ){
                 //register and enqueue a blank stylsheet to attach inline styles to
-                wp_register_style('contentoracle-ai-chat-block-styles', $this->get_base_url() . 'features/chat_block/block/assets/css/extra.css');
+                wp_register_style('contentoracle-ai-chat-block-styles', plugin_dir_url( __FILE__ ) . '/block/assets/css/extra.css');
                 wp_enqueue_style('contentoracle-ai-chat-block-styles');
 
                 //attach the inline styles from the render_block filter to the stylesheet

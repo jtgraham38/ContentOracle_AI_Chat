@@ -220,7 +220,7 @@ class ContentOracleSettings extends PluginFeature{
             //create the page
             $page = array(
                 'post_title' => 'ContentOracle AI Chat Results',
-                'post_content' => '<!-- wp:contentoracle/ai-chat {"height":"36rem","userMsgBgColor":"#3232FD","style":{"elements":{"link":{"color":{"text":"var:preset|color|base-2"}}},"border":{"radius":"4px","width":"1px"}},"textColor":"base-2","borderColor":"contrast"} /-->',//file_get_contents($this->get_base_dir() . 'elements/storagepress_default_listing_page.php'),
+                'post_content' => '<!-- wp:contentoracle/ai-chat {"height":"36rem","userMsgBgColor":"#3232FD","style":{"elements":{"link":{"color":{"text":"var:preset|color|base-2"}}},"border":{"radius":"4px","width":"1px"}},"textColor":"base-2","borderColor":"contrast"} /-->',
                 'post_status' => 'publish',
                 'post_type' => 'page',
             );
