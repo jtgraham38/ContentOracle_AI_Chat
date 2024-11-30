@@ -38,7 +38,7 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle_plugin_settings', // id
             '', // title
             function(){ // callback
-                echo 'Manage your ContentOracle settings here.';
+                echo esc_html( 'Manage your ContentOracle settings here.' );
             },
             'contentoracle-ai-settings'  // page (matches menu slug)
         );
@@ -130,7 +130,8 @@ class ContentOracleSettings extends PluginFeature{
             $this->get_prefix() . 'organization_name',    // option name
             array(  // args
                 'type' => 'string',
-                'default' => get_bloginfo('name') ?? 'Organization Name'
+                'default' => get_bloginfo('name') ?? 'Organization Name',
+                'sanitize_callback' => 'sanitize_text_field'
             )
         );
 
@@ -139,7 +140,8 @@ class ContentOracleSettings extends PluginFeature{
             $this->get_prefix() . 'api_token',    // option name
             array(  // args
                 'type' => 'string',
-                'default' => ''
+                'default' => '',
+                'sanitize_callback' => 'sanitize_text_field'
             )
         );
 
@@ -148,7 +150,8 @@ class ContentOracleSettings extends PluginFeature{
             $this->get_prefix() . 'ai_results_page',    // option name
             array(  // args
                 'type' => 'string',
-                'default' => 'none'
+                'default' => 'none',
+                'sanitize_callback' => 'sanitize_text_field'
             )
         );
 
@@ -242,7 +245,7 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle_ai_settings', // id
             '', // title
             function(){ // callback
-                echo 'Manage your AI search settings here.';
+                echo esc_html( 'Manage your AI search settings here.' );
             },
             'contentoracle-ai-settings'  // page (matches menu slug)
         );
@@ -329,7 +332,8 @@ class ContentOracleSettings extends PluginFeature{
             $this->get_prefix() . 'ai_tone',    // option name
             array(  // args
                 'type' => 'string',
-                'default' => 'none'
+                'default' => 'none',
+                'sanitize_callback' => 'sanitize_text_field'
             )
         );
 
@@ -338,7 +342,8 @@ class ContentOracleSettings extends PluginFeature{
             $this->get_prefix() . 'ai_jargon',    // option name
             array(  // args
                 'type' => 'string',
-                'default' => 'none'
+                'default' => 'none',
+                'sanitize_callback' => 'sanitize_text_field'
             )
         );
 
@@ -347,7 +352,8 @@ class ContentOracleSettings extends PluginFeature{
             $this->get_prefix() . 'ai_goal_prompt',    // option name
             array(  // args
                 'type' => 'string',
-                'default' => ''
+                'default' => '',
+                'sanitize_callback' => 'sanitize_text_field'
             )
         );
 
@@ -356,7 +362,8 @@ class ContentOracleSettings extends PluginFeature{
             $this->get_prefix() . 'ai_extra_info_prompt',    // option name
             array(  // args
                 'type' => 'string',
-                'default' => ''
+                'default' => '',
+                'sanitize_callback' => 'sanitize_text_field'
             )
         );
     }
