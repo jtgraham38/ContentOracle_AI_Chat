@@ -17,7 +17,7 @@ Note: this plugin requires you to make a ContentOracle AI Chat account in order 
 == Installation ==
 1. Upload the plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Go to __URL_HERE__, and create an account by clicking register.  After registering, you should be redirected to the dashboard.
+3. Go to https://app.contentoracleai.com, and create an account by clicking register.  After registering, you should be redirected to the dashboard.
 4. Navigate to the tokens tab.  Click the plus button to create a new token.  Give the token a name (the name doesn't matter, it is a label for your own purposes).  Expiration date can be set or left empty.
 5. Copy the token to your clipboard.  We'll need it later.
 6. Navigate to the subscription tab next.  Enter your billing information.  This is required for the chat functionality to work on your site.
