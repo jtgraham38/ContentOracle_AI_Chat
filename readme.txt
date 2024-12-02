@@ -1,11 +1,12 @@
 === ContentOracle AI Chat ===
 Contributors: ContentOracle AI
-Tags: wordpress, ai, search, content, rag
+Tags: ai, search, content, rag
 Requires at least: 6.5
-Tested up to: 6.6.2
+Tested up to: 6.7
 Stable tag: 1.0.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
+Short Description: ContentOracle AI Search seamlessly blends the power of generative AI with your website’s search feature.
 
 == Description ==
 The internet is changing. Experts and leaders of major businesses are quickly recognizing the role that generative ai will play in the future of search. Millions of people every day ask artificial intelligence for recommendations, common facts, and how-to knowledge. This trend will continue to grow exponentially in the years to come. However, their are inherent limitations on what AI can and can’t do. It is very good at recalling information, and wording even very complex topics in a way that even a layman can understand. But, it does not possess the specialist knowledge that many online content creators and businesses put into the content they post on their website, nor does it know anything about the things that are going on at that business.

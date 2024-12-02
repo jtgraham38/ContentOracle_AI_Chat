@@ -182,7 +182,7 @@ $arrow_styles = implode( ';', array_map(
             <input 
                 type="submit" 
                 class="<?php echo esc_attr( $button_classes ) ?>"
-                 style="<?php echo $button_styles ?>"
+                 style="<?php echo esc_attr( $button_styles ) ?>"
                  value="Search"
                  id=
             >
