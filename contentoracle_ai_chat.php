@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       ContentOracle AI Chat
- * Plugin URI:        https://contentoracleai.com
+ * Plugin URI:        https://contentoracleai.com/contentoracle-ai-chat/
  * Description:       ContentOracle AI Search seamlessly blends the power of generative AI with your website’s search feature.
  * Version:           1.0.0
  * Requires at least: 6.5
