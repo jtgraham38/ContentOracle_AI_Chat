@@ -11,6 +11,7 @@ use jtgraham38\jgwordpresskit\PluginFeature;
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 
 require_once plugin_dir_path(__FILE__) . 'VectorTable.php';
+require_once plugin_dir_path(__FILE__) . '../wp_api/ContentOracleApiConnection.php';
 
 class ContentOracleEmbeddings extends PluginFeature{
 
@@ -117,23 +118,50 @@ class ContentOracleEmbeddings extends PluginFeature{
         //get the post id
         $post_ID = $post->ID;
 
+        //ensure the post is not empty
+        if (empty($post->post_content)) {
+            return $post;
+        }
+
         //group the tokens into chunks
         $chunks = $this->chunk_post($post);
 
         //send an embeddings request to ContentOracle AI
-        //$this->coai_api_generate_embeddings($chunks);
-        $embeddings = [
-            ['vector' => '0.1, 0.2, 0.3', 'vector_type' => get_option($this->get_prefix() . 'chunking_method', 'none')],
-            ['vector' => '0.4, 0.5, 0.6', 'vector_type' => get_option($this->get_prefix() . 'chunking_method', 'none')],
-        ];   //TODO: make the request to the coai here
+        try{
+            $embeddings = $this->coai_api_generate_embeddings($chunks);
+            if (!is_array($embeddings)) {
+                $embeddings = [];
+            }
+        }
+        catch (Exception $e){
+            //if there is an error (usually, no embeddings are returned), return the post
+            
+            //
+            ////NOTE: this error is usually triggered when the rate limit for the coai api is hit
+            ////NOTE: I need to fix this by making this function able to handle batches of posts in a single request
+            ////NOTE: the api can already handle this, but the plugin does not yet
+            //
+            echo "Error: " . $e->getMessage();
+            return $post;
+        }
 
         //save the embeddings to the embeddings table
         $vt = new ContentOracle_VectorTable($this->get_prefix());
-        $embedding_ids = $vt->insert_all($post_ID, $embeddings);
+        foreach ($embeddings as $post_id => $vectors){
+            $vectors = array_map(function($v){
+                return [
+                    'vector' => json_encode( $v['embedding'] ), 
+                    'vector_type' => get_option($this->get_prefix() . 'chunking_method')
+                ];
+            }, $vectors);
+            $embedding_ids = $vt->insert_all($post_id, $vectors);
+        }
 
         //save the generated embeddings
-        update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embedding_ids);
-        update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
+        if (count($embeddings) > 0) {
+            update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embedding_ids);
+            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
+        }
 
         //return the content
         return $post;
@@ -176,35 +204,67 @@ class ContentOracleEmbeddings extends PluginFeature{
     *  This function makes the call to COAI to generate embeddings for a batch of posts
     *  $cps: an array of ContentOracle_ChunksForPost objects, which contain the post id and the chunks of the post
     */
-    public function coai_api_generate_embeddings(array $cps){
+    public function coai_api_generate_embeddings($cps){
         //if cps is not an array, make it into a single-element array
         if (!is_array($cps)) {
             $cps = [$cps];
         }
 
-        //create an array of content to send to the coai api
-        $payload = [
-            'chunking_method' => get_option($this->get_prefix() . 'chunking_method', 'none'),
-            'client_ip' => $this->get_client_ip(),
-            'content' => []
-        ];
-
         //add each record to the payload
+        $content = [];
         foreach ($cps as $cp) {
-            $payload['content'][] = [
+            $content[] = [
                 'id' => $cp->post_id,
                 'url' => get_permalink($cp->post_id),
-                'title' => get_post_title($cp->post_id),
-                'chunks' => $cp->chunks,
+                'title' => get_the_title($cp->post_id),
+                'chunks' => array_map(
+                    function($chunk){
+                        return implode(' ', $chunk);
+                    },
+                    $cp->chunks
+                ),    //convert chunk from array of tokens to a string
                 'type' => get_post_type($cp->post_id),
             ];
         }
 
-        //post to the coai api route
+        //create an array of content to send to the coai api
+        $payload = [
+            'headers' => array(
+                'Authorization' => 'Bearer ' . get_option($this->get_prefix() . 'api_token'),
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ),
+            'body' => json_encode([
+                'chunking_method' => get_option($this->get_prefix() . 'chunking_method', 'none'),
+                'client_ip' => $this->get_client_ip(),
+                'content' => $content
+            ]),
+        ];
 
-        //format the response
+        //make the request
+        $url = ContentOracleApiConnection::API_BASE_URL . '/v1/ai/embed';
+        /*TODO delete this line*/$url = 'http://10.10.16.230:8088/api/v1/ai/embed';
+        $response = wp_remote_post($url, $payload);
 
-        //return the embeddings
+        //handle wordpress errors
+        if (is_wp_error($response)){
+            return [ 'error' => $response->get_error_message() ];
+        }
+        
+        //retrieve and format the response
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+
+        //ensure the response is valid
+        if (empty($data['embeddings'])) {
+            throw new Exception('Invalid response from ContentOracle AI: embeddings key not set');
+        }
+
+        
+
+
+        return $data['embeddings'];
     }
 
     public function get_update_tag(){

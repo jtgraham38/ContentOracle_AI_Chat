@@ -26,6 +26,9 @@ if (isset($_REQUEST['post_id'])) {
 
     //get the embeddings of the post
     $embedding_ids = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
+    if (!is_array($embedding_ids)) {    //ensure the embeddings are an array
+        $embedding_ids = [];
+    }
     $embeddings = $VT->ids($embedding_ids);
 }
 
@@ -61,6 +64,9 @@ if (isset($_REQUEST['action'])) {
 
                 //get the updated embeddings of the post
                 $embedding_ids = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
+                if (!is_array($embedding_ids)) {    //ensure the embeddings are an array
+                    $embedding_ids = [];
+                }
                 $embeddings = $VT->ids($embedding_ids);
             }
             break;
@@ -217,52 +223,62 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
         <br>
 
             <?php
-            //get the last time the embeddings were generated
-            $most_recent_embedding = $VT->get_latest_updated($post_id);
-
-            if (isset($most_recent_embedding->updated_at)) {
-                ?>
-                    Embeddings last generated at: <?php echo esc_html($most_recent_embedding->updated_at); ?>
-                <?php
-            }
+                if ($post_id && intval($post_id) > 0) {
+                    //get the last time the embeddings were generated
+                    $most_recent_embedding = $VT->get_latest_updated($post_id);
+        
+                    if (isset($most_recent_embedding->updated_at)) {
+                        ?>
+                            Embeddings last generated at: <?php echo esc_html($most_recent_embedding->updated_at); ?>
+                        <?php
+                    }
+                }
             ?>
 
-        <div>
-            <form method="POST" action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings&post_id=<?php echo esc_url($post_id) ?>">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Content</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                        <?php if (isset($embeddings) && count($embeddings) > 0) { ?>
-                            <?php foreach ($embeddings as $i => $embedding) { ?>
-                                <tr>
-
-                                    <?php 
-                                        $section = $getSectionForEmbedding($selected_post->post_content, $i);
-                                    ?>
-
-                                    <td title="<?php echo esc_attr($section); ?>">
+        <div
+        >
+            <form 
+                method="POST" 
+                action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings&post_id=<?php echo esc_url($post_id) ?>"
+            >
+                <div
+                    style="max-width: 48rem; overflow-x: auto;"
+                >
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Content</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            <?php if (isset($embeddings) && count($embeddings) > 0) { ?>
+                                <?php foreach ($embeddings as $i => $embedding) { ?>
+                                    <tr>
+    
                                         <?php 
-                                            $tokens = explode(' ', $section);
-                                            $display_section = implode(' ', array_slice($tokens, 0, 3)) . ' ... ' . implode(' ', array_slice($tokens, -3));
-                                            echo esc_html($display_section);
+                                            $section = $getSectionForEmbedding($selected_post->post_content, $i);
                                         ?>
-                                    </td>
-                                    <td contenteditableinput name="embeddings[]"><?php echo esc_html($embedding->vector); ?></td>
+    
+                                        <td title="<?php echo esc_attr($section); ?>">
+                                            <?php 
+                                                $tokens = explode(' ', $section);
+                                                $display_section = implode(' ', array_slice($tokens, 0, 3)) . ' ... ' . implode(' ', array_slice($tokens, -3));
+                                                echo esc_html($display_section);
+                                            ?>
+                                        </td>
+                                        <td contenteditableinput name="embeddings[]"><?php echo esc_html($embedding->vector); ?></td>
+                                    </tr>
+                                <?php } ?>
+                            <?php } else { ?>
+                                <tr>
+                                    <td colspan="2">No embeddings found.</td>
                                 </tr>
                             <?php } ?>
-                        <?php } else { ?>
-                            <tr>
-                                <td colspan="2">No embeddings found.</td>
-                            </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
                 <input type="hidden" name="post_id" value="<?php echo esc_attr( $post_id ) ?>">
                 <input type="hidden" name="action" value="generate_embeddings">
                 <input type="submit" value="<?php echo count($embeddings) > 0 ? "Re-Generate Embeddings" : "Generate Embeddings"  ?>" class="button-primary">

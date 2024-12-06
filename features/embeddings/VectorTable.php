@@ -55,6 +55,10 @@ class ContentOracle_VectorTable{
 
         $ids_str = implode(',', $ids);
 
+        if (empty($ids_str)){
+            return [];
+        }
+
         return $wpdb->get_results(
             "SELECT * FROM $this->table_name WHERE id IN ($ids_str)"
         );
