@@ -10,6 +10,8 @@ require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
 use jtgraham38\jgwordpresskit\PluginFeature;
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 
+require_once plugin_dir_path(__FILE__) . 'VectorTable.php';
+
 class ContentOracleEmbeddings extends PluginFeature{
 
     private string $UPDATE_TAG = '<!-- coai:generate embeddings -->';
@@ -121,16 +123,17 @@ class ContentOracleEmbeddings extends PluginFeature{
         //send an embeddings request to ContentOracle AI
         //$this->coai_api_generate_embeddings($chunks);
         $embeddings = [
-            'em_1234',
-            'em_5678',
-            'em_91011',
-            'em_121314'
+            ['vector' => '0.1, 0.2, 0.3', 'vector_type' => get_option($this->get_prefix() . 'chunking_method', 'none')],
+            ['vector' => '0.4, 0.5, 0.6', 'vector_type' => get_option($this->get_prefix() . 'chunking_method', 'none')],
         ];   //TODO: make the request to the coai here
 
+        //save the embeddings to the embeddings table
+        $vt = new ContentOracle_VectorTable($this->get_prefix());
+        $embedding_ids = $vt->insert_all($post_ID, $embeddings);
+
         //save the generated embeddings
-        update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embeddings);
+        update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embedding_ids);
         update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
-        update_post_meta($post_ID, $this->get_prefix() . 'embeddings_generated_at', date('Y-m-d H:i:s'));
 
         //return the content
         return $post;
