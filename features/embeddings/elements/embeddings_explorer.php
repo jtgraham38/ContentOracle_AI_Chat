@@ -5,8 +5,12 @@ if (!defined('ABSPATH')) {
 }
 
 require_once plugin_dir_path(__FILE__) . '../../../vendor/autoload.php';
+require_once plugin_dir_path(__FILE__) . '../VectorTable.php';
 
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
+
+//access to vector table
+$VT = new ContentOracle_VectorTable($this->get_prefix());
 
 //this file shows an input, and uses it to display the raw embeddings values for a given post
 
@@ -21,7 +25,8 @@ if (isset($_REQUEST['post_id'])) {
     $selected_post = get_post($post_id);
 
     //get the embeddings of the post
-    $embeddings = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
+    $embedding_ids = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
+    $embeddings = $VT->ids($embedding_ids);
 }
 
 //handle an embedding generation request
@@ -55,7 +60,8 @@ if (isset($_REQUEST['action'])) {
                 ));
 
                 //get the updated embeddings of the post
-                $embeddings = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
+                $embedding_ids = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
+                $embeddings = $VT->ids($embedding_ids);
             }
             break;
         case 'bulk_generate_embeddings':
@@ -82,9 +88,15 @@ if (isset($_REQUEST['action'])) {
                         'orderby' => 'post_type',
                         'order' => 'ASC',
                         'meta_query' => array(
+                            'relation' => 'OR',
                             array(
                                 'key' => $this->get_prefix() . 'embeddings',
                                 'compare' => 'NOT EXISTS'
+                            ),
+                            array(
+                                'key' => $this->get_prefix() . 'embeddings',
+                                'value' => 'false',
+                                'compare' => '='
                             )
                         )
                     ));
@@ -204,11 +216,13 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
         <br>
         <br>
 
-            <?php 
-            $generated_at = get_post_meta($post_id, $this->get_prefix() . 'embeddings_generated_at', true); 
-            if ($generated_at) {
+            <?php
+            //get the last time the embeddings were generated
+            $most_recent_embedding = $VT->get_latest_updated($post_id);
+
+            if (isset($most_recent_embedding->updated_at)) {
                 ?>
-                    Embeddings last generated at: <?php echo esc_html(get_post_meta($post_id, $this->get_prefix() . 'embeddings_generated_at', true)); ?>
+                    Embeddings last generated at: <?php echo esc_html($most_recent_embedding->updated_at); ?>
                 <?php
             }
             ?>
@@ -239,7 +253,7 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
                                             echo esc_html($display_section);
                                         ?>
                                     </td>
-                                    <td contenteditableinput name="embeddings[]"><?php echo esc_html($embedding); ?></td>
+                                    <td contenteditableinput name="embeddings[]"><?php echo esc_html($embedding->vector); ?></td>
                                 </tr>
                             <?php } ?>
                         <?php } else { ?>
