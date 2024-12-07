@@ -243,7 +243,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //make the request
         $url = ContentOracleApiConnection::API_BASE_URL . '/v1/ai/embed';
-        /*TODO delete this line*/$url = 'http://10.10.16.230:8088/api/v1/ai/embed';
+        /*TODO delete this line (wbclt)$url = 'http://10.10.16.230:8088/api/v1/ai/embed';*/
         $response = wp_remote_post($url, $payload);
 
         //handle wordpress errors
