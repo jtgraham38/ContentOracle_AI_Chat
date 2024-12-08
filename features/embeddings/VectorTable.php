@@ -201,7 +201,7 @@ class ContentOracle_VectorTable{
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             post_id mediumint(9) NOT NULL,
             sequence_no mediumint(9) NOT NULL,
-            vector text NOT NULL,
+            vector JSON NOT NULL,
             vector_type varchar(255) NOT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,

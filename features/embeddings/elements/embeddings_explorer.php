@@ -49,7 +49,7 @@ if (isset($_REQUEST['action'])) {
 
                 //ensure the post is of a type that the ai indexes
                 $post_types = get_option('contentoracle_post_types');
-                if (!in_array($selected_post->post_type, $post_types)) {
+                if (!isset($selected_post) || !in_array($selected_post->post_type, $post_types)) {
                     return;
                 }
 
@@ -86,6 +86,7 @@ if (isset($_REQUEST['action'])) {
 
             //get all the posts, based on the selected bulk option and post types to index
             $post_types = get_option('contentoracle_post_types') ?? [];
+            $posts = [];
             switch ($bulk_option) {
                 case 'unembedded':
                     $posts = get_posts(array(
@@ -121,9 +122,7 @@ if (isset($_REQUEST['action'])) {
             
             //call $this->generate_embeddings for each post
             //TODO: I should make a mass batch submission to my api eventually
-            foreach ($posts as $post){
-                $this->generate_embeddings($post);
-            }
+            $this->generate_embeddings($posts);
     }
     //end switch action
 }

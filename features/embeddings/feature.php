@@ -114,35 +114,48 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     //this is the function that is called in various places to generate embeddings for a post
     //note that it does not perform all permission and semantic checks, as it is called in various places
-    public function generate_embeddings($post){
-        //get the post id
-        $post_ID = $post->ID;
-
-        //ensure the post is not empty
-        if (empty($post->post_content)) {
-            return $post;
+    public function generate_embeddings($posts){
+        //ensure posts is an array
+        if (!is_array($posts)){
+            $posts = [$posts];
         }
+        
+        //prepare chunks for each post
+        $chunked_posts = [];
+        foreach ($posts as $post){
+            //get the post id
+            $post_ID = $post->ID;
+    
+            //ensure the post is not empty
+            if (empty($post->post_content)) {
+                echo "Post " . esc_html($post_ID) . "has no content, skipping embedding generation!<br>";
+                continue;
+            }
+    
+            //group the tokens into chunks
+            $chunks = $this->chunk_post($post);
 
-        //group the tokens into chunks
-        $chunks = $this->chunk_post($post);
+            //add the chunked post to the array
+            $chunked_posts[] = $chunks;
+        }
 
         //send an embeddings request to ContentOracle AI
         try{
-            $embeddings = $this->coai_api_generate_embeddings($chunks);
+            $embeddings = $this->coai_api_generate_embeddings($chunked_posts);
             if (!is_array($embeddings)) {
                 $embeddings = [];
             }
         }
         catch (Exception $e){
             //if there is an error (usually, no embeddings are returned), return the post
-            
             //
             ////NOTE: this error is usually triggered when the rate limit for the coai api is hit
             ////NOTE: I need to fix this by making this function able to handle batches of posts in a single request
             ////NOTE: the api can already handle this, but the plugin does not yet
             //
-            echo "Error: " . $e->getMessage();
-            return $post;
+            echo esc_html("Error: " . $e->getMessage());
+            echo "<br>";
+            return $posts;
         }
 
         //save the embeddings to the embeddings table
@@ -154,17 +167,18 @@ class ContentOracleEmbeddings extends PluginFeature{
                     'vector_type' => get_option($this->get_prefix() . 'chunking_method')
                 ];
             }, $vectors);
+            //inserts them with the sequence numbers inserted in order
             $embedding_ids = $vt->insert_all($post_id, $vectors);
-        }
 
-        //save the generated embeddings
-        if (count($embeddings) > 0) {
-            update_post_meta($post_ID, $this->get_prefix() . 'embeddings', $embedding_ids);
-            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
+            //save the ids of generated embeddings as post meta
+            if (count($embeddings) > 0) {
+                update_post_meta($post_id, $this->get_prefix() . 'embeddings', $embedding_ids);
+                update_post_meta($post_id, $this->get_prefix() . 'should_generate_embeddings', false);
+            }
         }
 
         //return the content
-        return $post;
+        return $posts;
     }
 
     //function that chunks a post into smaller pieces for embedding generation, based on the chunking method
@@ -186,6 +200,7 @@ class ContentOracleEmbeddings extends PluginFeature{
                 //return the post id mapped to the chunks
                 $return = new ContentOracle_ChunksForPost($post_id, $chunks);
                 break;
+            case '':
             case 'none':
                 //return the post id mapped to the entire post content
                 $return = new ContentOracle_ChunksForPost($post_id, [$post->post_content]);
@@ -213,19 +228,29 @@ class ContentOracleEmbeddings extends PluginFeature{
         //add each record to the payload
         $content = [];
         foreach ($cps as $cp) {
+            //create chunks
+            $_chunks = array_map(
+                function($chunk){
+                    return implode(' ', $chunk);
+                },
+                $cp->chunks
+            );
+
+            //skip generation if no chunks exist
+            if (empty($_chunks)) continue;
+
+            //add record to content
             $content[] = [
                 'id' => $cp->post_id,
                 'url' => get_permalink($cp->post_id),
                 'title' => get_the_title($cp->post_id),
-                'chunks' => array_map(
-                    function($chunk){
-                        return implode(' ', $chunk);
-                    },
-                    $cp->chunks
-                ),    //convert chunk from array of tokens to a string
+                'chunks' => $_chunks,   //convert chunk from array of tokens to a string
                 'type' => get_post_type($cp->post_id),
             ];
         }
+
+        //ensure content is not empty
+        if (empty($content)) return [];
 
         //create an array of content to send to the coai api
         $payload = [
@@ -248,7 +273,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //handle wordpress errors
         if (is_wp_error($response)){
-            return [ 'error' => $response->get_error_message() ];
+            throw new Exception($response->get_error_message());
         }
         
         //retrieve and format the response
@@ -258,11 +283,12 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //ensure the response is valid
         if (empty($data['embeddings'])) {
+            echo "<pre>";
+            print_r($data);
+            echo "</pre>";
+            die;
             throw new Exception('Invalid response from ContentOracle AI: embeddings key not set');
         }
-
-        
-
 
         return $data['embeddings'];
     }
