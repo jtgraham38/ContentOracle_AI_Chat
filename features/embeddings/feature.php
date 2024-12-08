@@ -128,7 +128,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     
             //ensure the post is not empty
             if (empty($post->post_content)) {
-                echo "Post " . esc_html($post_ID) . "has no content, skipping embedding generation!<br>";
+                echo "Post " . esc_html($post_ID) . " has no content, skipping embedding generation!<br>";
                 continue;
             }
     
@@ -237,7 +237,10 @@ class ContentOracleEmbeddings extends PluginFeature{
             );
 
             //skip generation if no chunks exist
-            if (empty($_chunks)) continue;
+            if (empty($_chunks)) {
+                echo "No chunks found for post " . esc_html($cp->post_id) . ", skipping! <br>";
+                continue;
+            }
 
             //add record to content
             $content[] = [
@@ -250,7 +253,10 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
 
         //ensure content is not empty
-        if (empty($content)) return [];
+        if (empty($content)){
+            echo "No posts viable for embedding generation found, no embeddings generated!<br>";
+            return [];
+        }
 
         //create an array of content to send to the coai api
         $payload = [
