@@ -41,6 +41,25 @@ class ContentOracle_VectorTable{
 
     //  \\  //  \\  //  \\ TABLE CRUD //  \\  //  \\  //  \\
 
+    //find the n most similar vectors to a given vector
+    public function search(string $vector, int $n=5){
+        global $wpdb;
+
+        echo "Searching for similar vectors...";
+        die;
+
+        //get the binary code
+        $binary_code = $this->get_binary_code($vector);
+
+        //find candidates by computing the hamming distance
+        //TODO
+
+        //using only the candidates found, compute the cosine similarity
+        //TODO
+
+        return $results;
+    }
+
     //get a vector by id
     public function id(int $id){
         global $wpdb;
@@ -197,7 +216,6 @@ class ContentOracle_VectorTable{
             )
         );
     }
-
 
     //  \\  //  \\  //  \\ MANAGE SQL TABLES/FUNCS //  \\  //  \\  //  \\
     //create the table
