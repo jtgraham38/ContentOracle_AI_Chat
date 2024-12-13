@@ -51,9 +51,25 @@ class ContentOracle_VectorTable{
         //find candidates by computing the hamming distance
         $candidates_query = "SELECT id, BIT_COUNT(binary_code ^ UNHEX(%s)) AS hamming_distance FROM $this->table_name ORDER BY hamming_distance LIMIT $n";
         $candidates = $wpdb->get_results($wpdb->prepare($candidates_query, $binary_code));
+        $candidate_ids = array_map(function($candidate){ return $candidate->id; }, $candidates);
 
         //using only the candidates found, rerank the candidates in the database
-        var_dump($candidates);
+        //NOTE: currently,this query computes the dot product of each embedded vector with the query vector
+        //TODO: implement cos_sim(A, B) = dot_product(A, B) / (|A| * |B|)
+        //where |A| is the magnitude of vector A, and |B| is the magnitude of vector B
+        $rerank_query = 
+        "SELECT v.id, SUM(q_json.element * db_json.element) AS dot_product
+            FROM $this->table_name v
+            JOIN JSON_TABLE(%s, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) q_json 
+                ON 1 = 1 
+            JOIN JSON_TABLE(v.vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
+                ON q_json.idx = db_json.idx 
+            GROUP BY v.id;
+        ";
+        $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query, json_encode($candidate_ids)));
+        echo "<pre>";
+        var_dump($reranked_candidates);
+        echo "</pre>";
         die;
 
         //TODO
