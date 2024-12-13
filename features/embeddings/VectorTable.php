@@ -16,13 +16,15 @@ class ContentOracle_VectorTable{
     private $table_name;
     private $db_version;
     private $plugin_prefix;
+    private $vector_length;
 
-    public function __construct($plugin_prefix){
+    public function __construct($plugin_prefix, int $vector_length=1024){
         global $wpdb;
 
         $this->plugin_prefix = $plugin_prefix;
         $this->table_name = $wpdb->prefix . $plugin_prefix . 'embeddings';
         $this->db_version = '1.0';
+        $this->vector_length = $vector_length;
 
         //call initialize function
         $this->init();
@@ -102,19 +104,24 @@ class ContentOracle_VectorTable{
         //check if the vector exists
         $vector_exists = $this->get($post_id, $sequence_no);
 
+        //get the binary code
+        $binary_code = $this->get_binary_code($vector);
+
         //if the vector exists, update it
         if ($vector_exists > 0){
             $wpdb->update(
                 $this->table_name,
                 array(
                     'vector' => $vector,
-                    'vector_type' => $vector_type
+                    'vector_type' => $vector_type,
+                    'binary_code' => $binary_code
                 ),
                 array(
                     'post_id' => $post_id,
                     'sequence_no' => $sequence_no
                 ),
                 array(
+                    '%s',
                     '%s',
                     '%s'
                 ),
@@ -132,11 +139,13 @@ class ContentOracle_VectorTable{
                     'post_id' => $post_id,
                     'sequence_no' => $sequence_no,
                     'vector' => $vector,
-                    'vector_type' => $vector_type
+                    'vector_type' => $vector_type,
+                    'binary_code' => $binary_code
                 ),
                 array(
                     '%d',
                     '%d',
+                    '%s',
                     '%s',
                     '%s'
                 )
@@ -197,16 +206,23 @@ class ContentOracle_VectorTable{
         $charset_collate = $wpdb->get_charset_collate();
 
         //NOTE: sequence_no is the index of the vector in the document
-        $sql = "CREATE TABLE $this->table_name (
+        $sql = sprintf("CREATE TABLE $this->table_name (
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             post_id mediumint(9) NOT NULL,
             sequence_no mediumint(9) NOT NULL,
             vector JSON NOT NULL,
             vector_type varchar(255) NOT NULL,
+            binary_code BINARY(%d) NOT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id)
-        ) $charset_collate;";
+        ) $charset_collate;", $this->vector_length/8);
+        //^ binary code is the binary representation of the vector, length is vector_length/8 for 8 bits per byte
+        //it is divided by 8 because 1 byte = 8 bits,
+        //and each character in the binary code is a hexadecimal character representing 4 bits
+        //each hexadecimal character represents the signs of 4 values in the vector
+        // 4 bits/char * 2 chars/byte = 8 bits/byte
+        //so divide the length of the binary code in bits by 8 to get the length in bytes
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
@@ -224,6 +240,36 @@ class ContentOracle_VectorTable{
     public function table_exists(){
         global $wpdb;
         return $wpdb->get_var("SHOW TABLES LIKE '$this->table_name'") == $this->table_name;
+    }
+
+    //  \\  //  \\  //  \\  BINARY CODES //  \\  //  \\  //  \\
+    //get the binary representation of a vector
+    public function get_binary_code( $vector ){
+        //convert the vecor to an array, if it is not one
+        if (!is_array($vector)){
+            $vector = json_decode($vector, true);
+        }
+
+        return $this->vector_to_binary($vector);
+    }
+
+    //convert a vector to binary
+    //each hexadecimal character represents the signs of 4 values in the vector
+    public function vector_to_binary(array $vector_arr){
+        $binary_code = '';
+
+        //1 if value is greater than 0, 0 otherwise
+        foreach ($vector_arr as $value){
+            $binary_code .= $value > 0 ? '1' : '0';
+        }
+
+        //convert binary to bytes
+        $binhexCode = "";
+        foreach (str_split($binary_code, 4) as $halfByte){
+            $binhexCode .= strtoupper(dechex(bindec($halfByte)));
+        }
+
+        return $binhexCode;
     }
 
     //  \\  //  \\  //  \\ UTILS //  \\  //  \\  //  \\
