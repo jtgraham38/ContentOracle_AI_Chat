@@ -138,7 +138,8 @@ class ContentOracle_VectorTable{
                 ),
                 array(
                     'post_id' => $post_id,
-                    'sequence_no' => $sequence_no
+                    'sequence_no' => $sequence_no,
+                    'magnitude' => $this->magnitude(json_decode($vector, true))
                 ),
                 array(
                     '%s',
@@ -147,7 +148,8 @@ class ContentOracle_VectorTable{
                 ),
                 array(
                     '%d',
-                    '%d'
+                    '%d',
+                    '%f'
                 )
             );
         }
@@ -160,14 +162,16 @@ class ContentOracle_VectorTable{
                     'sequence_no' => $sequence_no,
                     'vector' => $vector,
                     'vector_type' => $vector_type,
-                    'binary_code' => $binary_code
+                    'binary_code' => $binary_code,
+                    'magnitude' => $this->magnitude(json_decode($vector, true))
                 ),
                 array(
                     '%d',
                     '%d',
                     '%s',
                     '%s',
-                    '%s'
+                    '%s',
+                    '%f'
                 )
             );
         }
@@ -232,6 +236,7 @@ class ContentOracle_VectorTable{
             vector JSON NOT NULL,
             vector_type varchar(255) NOT NULL,
             binary_code BINARY(%d) NOT NULL,
+            magnitude float NOT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id)
@@ -305,5 +310,14 @@ class ContentOracle_VectorTable{
     //get the prefix
     public function get_prefix(){
         return $this->prefix;
+    }
+
+    //get vector magnitude
+    public function magnitude($vector){
+        $magnitude = 0;
+        foreach ($vector as $value){
+            $magnitude += $value * $value;
+        }
+        return sqrt($magnitude);
     }
 }
