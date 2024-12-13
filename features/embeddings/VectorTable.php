@@ -45,16 +45,17 @@ class ContentOracle_VectorTable{
     public function search(string $vector, int $n=5){
         global $wpdb;
 
-        echo "Searching for similar vectors...";
-        die;
-
         //get the binary code
         $binary_code = $this->get_binary_code($vector);
 
         //find candidates by computing the hamming distance
-        //TODO
+        $candidates_query = "SELECT id, BIT_COUNT(binary_code ^ UNHEX(%s)) AS hamming_distance FROM $this->table_name ORDER BY hamming_distance LIMIT $n";
+        $candidates = $wpdb->get_results($wpdb->prepare($candidates_query, $binary_code));
 
-        //using only the candidates found, compute the cosine similarity
+        //using only the candidates found, rerank the candidates in the database
+        var_dump($candidates);
+        die;
+
         //TODO
 
         return $results;
