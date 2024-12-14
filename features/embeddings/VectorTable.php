@@ -58,7 +58,7 @@ class ContentOracle_VectorTable{
         //TODO: implement cos_sim(A, B) = dot_product(A, B) / (|A| * |B|)
         //where |A| is the magnitude of vector A, and |B| is the magnitude of vector B
         $rerank_query = 
-        "SELECT v.id, SUM(q_json.element * db_json.element) AS dot_product
+        "SELECT v.id, (SUM(q_json.element * db_json.element) / (v.magnitude * %f)) AS cosine_similarity
             FROM $this->table_name v
             JOIN JSON_TABLE(%s, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) q_json 
                 ON 1 = 1 
@@ -66,11 +66,14 @@ class ContentOracle_VectorTable{
                 ON q_json.idx = db_json.idx 
             GROUP BY v.id;
         ";
-        $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query, json_encode($candidate_ids)));
+        $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query,
+            $this->magnitude(json_decode($vector, true)),   //enter magnitude of user query vector
+            json_encode($candidate_ids))                    //enter user query vector
+        );
         echo "<pre>";
         var_dump($reranked_candidates);
         echo "</pre>";
-        die;
+        //die;
 
         //TODO
 
