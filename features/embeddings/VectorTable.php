@@ -71,14 +71,9 @@ class ContentOracle_VectorTable{
             $this->magnitude(json_decode($vector, true)),   //enter magnitude of user query vector
             json_encode($candidate_ids))                    //enter user query vector
         );
-        echo "<pre>";
-        var_dump($reranked_candidates);
-        echo "</pre>";
-        //die;
+        $reranked_ids = array_map(function($candidate){ return $candidate->id; }, $reranked_candidates);
 
-        //TODO
-
-        return $results;
+        return $reranked_ids;
     }
 
     //get a vector by id

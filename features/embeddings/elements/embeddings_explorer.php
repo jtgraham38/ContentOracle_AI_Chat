@@ -13,6 +13,10 @@ $vector = [-0.0130157470703125,0.033660888671875,0.048431396484375,0.03662109375
 $VT = new ContentOracle_VectorTable($this->get_prefix());
 $result = $VT->search(json_encode( $vector ));
 
+echo "<pre>";
+print_r($result);
+echo "</pre>";
+die;
 
 //this file shows an input, and uses it to display the raw embeddings values for a given post
 
