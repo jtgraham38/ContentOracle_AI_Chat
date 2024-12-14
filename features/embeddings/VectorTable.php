@@ -64,7 +64,8 @@ class ContentOracle_VectorTable{
                 ON 1 = 1 
             JOIN JSON_TABLE(v.vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
                 ON q_json.idx = db_json.idx 
-            GROUP BY v.id;
+            GROUP BY v.id
+            ORDER BY cosine_similarity DESC;
         ";
         $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query,
             $this->magnitude(json_decode($vector, true)),   //enter magnitude of user query vector
