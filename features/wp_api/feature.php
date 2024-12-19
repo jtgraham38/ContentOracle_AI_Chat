@@ -403,6 +403,4 @@ class ContentOracleApi extends PluginFeature{
             }
         ));
     }
-
-
 }

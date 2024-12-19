@@ -274,7 +274,6 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //make the request
         $url = ContentOracleApiConnection::API_BASE_URL . '/v1/ai/embed';
-        /*TODO delete this line (wbclt)$url = 'http://10.10.16.230:8088/api/v1/ai/embed';*/
         $response = wp_remote_post($url, $payload);
 
         //handle wordpress errors
@@ -286,13 +285,8 @@ class ContentOracleEmbeddings extends PluginFeature{
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
 
-
         //ensure the response is valid
         if (empty($data['embeddings'])) {
-            echo "<pre>";
-            print_r($data);
-            echo "</pre>";
-            die;
             throw new Exception('Invalid response from ContentOracle AI: embeddings key not set');
         }
 
