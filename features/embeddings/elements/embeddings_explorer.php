@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
 
 require_once plugin_dir_path(__FILE__) . '../../../vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . '../VectorTable.php';
+require_once plugin_dir_path(__FILE__) . '../chunk_getters.php';
 
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 //access to vector table
@@ -141,30 +142,6 @@ $posts = get_posts(array(
     'orderby' => 'post_type',
     'order' => 'ASC'
 ));
-
-//get chunk size for embedddings
-$chunk_size = $this->get_chunk_size();
-
-//function to get the section of the post body that an embedding is for
-//0-indexed
-$getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size){
-    //strip tags and tokenize content
-    $tokenizer = new WhitespaceAndPunctuationTokenizer();
-    $tokens = $tokenizer->tokenize(strip_tags($content));
-
-    //get start and end indices of section
-    $start = $embedding_number * $chunk_size;
-    $end = ($embedding_number + 1) * $chunk_size;
-
-    //get the section from the post content
-    $section = array_slice($tokens, $start, $end - $start);
-    $section = implode(' ', $section);
-
-    //return the section
-    return $section;
-};
-
-
 ?>
 <strong>Note: Embeddings will only be generated for posts of the types set in the "Prompt" settings.  They will also only be generated if a chunking method is set.</strong>
 <br>
@@ -256,7 +233,7 @@ $getSectionForEmbedding = function($content, $embedding_number) use ($chunk_size
                                     <tr>
     
                                         <?php 
-                                            $section = $getSectionForEmbedding($selected_post->post_content, $i);
+                                            $section = token256_get_chunk($selected_post->post_content, $i);
                                         ?>
     
                                         <td title="<?php echo esc_attr($section); ?>">

@@ -42,8 +42,13 @@ class ContentOracle_VectorTable{
     //  \\  //  \\  //  \\ TABLE CRUD //  \\  //  \\  //  \\
 
     //find the n most similar vectors to a given vector
-    public function search(string $vector, int $n=5){
+    public function search($vector, int $n=5){
         global $wpdb;
+
+        //convert from array to string
+        if (is_array($vector)){
+            $vector = json_encode($vector);
+        }
 
         //get the binary code
         $binary_code = $this->get_binary_code($vector);
@@ -51,12 +56,14 @@ class ContentOracle_VectorTable{
         //find candidates by computing the hamming distance
         $candidates_query = "SELECT id, BIT_COUNT(binary_code ^ UNHEX(%s)) AS hamming_distance FROM $this->table_name ORDER BY hamming_distance LIMIT $n";
         $candidates = $wpdb->get_results($wpdb->prepare($candidates_query, $binary_code));
-        $candidate_ids = array_map(function($candidate){ return $candidate->id; }, $candidates);
+        $candidate_ids = [];
+        foreach ($candidates as $candidate){
+            $candidate_ids[] = $candidate->id;
+        }
+        $candidates_str = implode(',', $candidate_ids);
 
         //using only the candidates found, rerank the candidates in the database
-        //NOTE: currently,this query computes the dot product of each embedded vector with the query vector
-        //TODO: implement cos_sim(A, B) = dot_product(A, B) / (|A| * |B|)
-        //where |A| is the magnitude of vector A, and |B| is the magnitude of vector B
+        //NOTE: currently,this query computes the cosine similarity of each candidate with the user query vector
         $rerank_query = 
         "SELECT v.id, (SUM(q_json.element * db_json.element) / (v.magnitude * %f)) AS cosine_similarity
             FROM $this->table_name v
@@ -64,13 +71,18 @@ class ContentOracle_VectorTable{
                 ON 1 = 1 
             JOIN JSON_TABLE(v.vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
                 ON q_json.idx = db_json.idx 
+            WHERE v.id IN ($candidates_str)
             GROUP BY v.id
-            ORDER BY cosine_similarity DESC;
+            ORDER BY cosine_similarity DESC
         ";
         $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query,
             $this->magnitude(json_decode($vector, true)),   //enter magnitude of user query vector
-            json_encode($candidate_ids))                    //enter user query vector
-        );
+            $vector,                                         //enter user query vector
+        ));
+
+        if (empty($reranked_candidates)){
+            return [];
+        }
         $reranked_ids = array_map(function($candidate){ return $candidate->id; }, $reranked_candidates);
 
         return $reranked_ids;

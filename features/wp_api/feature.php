@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
 
 require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . 'ContentOracleApiConnection.php';
+require_once plugin_dir_path(__FILE__) . '../embeddings/VectorTable.php';
+require_once plugin_dir_path(__FILE__) . '../embeddings/chunk_getters.php';
 
 use jtgraham38\jgwordpresskit\PluginFeature;
 
@@ -85,9 +87,18 @@ class ContentOracleApi extends PluginFeature{
         $message = $request->get_param('message');
 
         //get the content to use in the response
-        $content = $this->keyword_content_search($message);
-
-        $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+        //switch based on the chunking method
+        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        switch ($chunking_method){
+            case 'token:256':
+                $content = $this->token256_content_search($message);
+                $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+                break;
+            default:
+                $content = $this->keyword_content_search($message);
+                $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                break;
+        }
 
         //get the conversation from the request
         $conversation = $request->get_param('conversation');
@@ -391,8 +402,70 @@ class ContentOracleApi extends PluginFeature{
         return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'UNKNOWN';
     }
 
+    //token:256 embedding search
+    function token256_content_search($message){
+        //begin by embedding the user's message
+        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+        $response = $api->query_vector($message);
+        if (empty($response['embeddings'])){
+            throw new Exception('No embeddings returned from the AI');
+        }
+
+        $embedding = $response['embeddings'][0]['embedding'];
+
+        
+        //then, find the most similar vectors in the database table
+        $vt = new ContentOracle_VectorTable( $this->get_prefix() );
+        $vec_ids = $vt->search( $embedding, 10 );
+        
+
+        //TODO
+        //TODO TODO: I am not certain that the order is preserved... I will need to test this
+        //TODO
+
+        //then, get the posts and sections each vector corresponds to
+        $vecs = $vt->ids( $vec_ids );
+
+        
+        $content_embedding_datas = [];
+        foreach ($vecs as &$vec){
+            $content_embedding_datas[] = [
+                'id' => $vec->id,
+                'post_id' => $vec->post_id,
+                'sequence_no' => $vec->sequence_no,
+            ];
+        }
+
+        //use the sequence numbers and post metas to retrieve the correct portions of the posts
+        $chunks = [];
+        foreach ($content_embedding_datas as $data){
+            $post_id = $data['post_id'];
+            $sequence_no = $data['sequence_no'];
+            
+            //get the post
+            $post = get_post($post_id);
+
+            //get the post content for the sequence number
+            $chunk = token256_get_chunk($post->post_content, $sequence_no);
+
+            //add the chunk to the chunks array
+            $chunks[] = [
+                'id' => $post_id,
+                'title' => $post->post_title,
+                'url' => get_the_permalink($post_id),
+                'body' => $chunk,
+                'type' => get_post_type($post_id)
+            ];
+        }
+
+        //return the post chunks
+        return $chunks;
+    }
+
+
+
     //register a contentoracle healthcheck route
-    public function register_healthcheck_rest_route(){
+    function register_healthcheck_rest_route(){
         register_rest_route('contentoracle/v1', '/healthcheck', array(
             'methods' => 'GET',
             'permission_callback' => '__return_true', // this line was added to allow any site visitor to make an ai healthcheck request
