@@ -48,6 +48,9 @@ class ContentOracleEmbeddings extends PluginFeature{
             add_action('save_post_' . $post_type, array($this, 'flag_post_for_embedding_generation'), 10, 3);
         }
 
+        //show a notice to generate embeddings
+        add_action('admin_notices', array($this, 'show_generate_embeddings_notice'));
+
 
     }
 
@@ -404,6 +407,36 @@ class ContentOracleEmbeddings extends PluginFeature{
                 'sanitize_callback' => 'sanitize_text_field'
             )
         );
+    }
+
+    //  \\  //  \\  //  \\  //  SHOW NOTICES TO PROMPT USER TO GENERATE EMBEDDINGS  //  \\  //  \\  //  \\  //  \\
+    public function show_generate_embeddings_notice(){
+        //check if the user has the capability to edit posts
+        if (!current_user_can('edit_posts')) {
+            return;
+        }
+
+        //check if we are on a coai admin page
+        if ( strpos(get_current_screen()->base, 'contentoracle' ) === false) {
+            return;
+        }
+
+        //show an admin notice to generate embeddings if the chunking method is set
+        if (get_option($this->get_prefix() . 'chunking_method') != 'none') {
+
+            //check if embeddings have been generated
+            $vt = new ContentOracle_VectorTable($this->get_prefix());
+            $embeddings = $vt->get_all();
+            if (!empty($embeddings)) {
+                return;
+            }
+
+            $generate_embeddings_url = admin_url('admin.php?page=contentoracle-embeddings');
+            echo '<div class="notice notice-info is-dismissible">';
+            echo '<h2>You must generate embeddings to use Semantic Search!</h2>';
+            echo '<p>Visit <a href="' . esc_url($generate_embeddings_url) . '" >this page </a> to generate embeddings for your posts, or set the embedding chunking method to none.</p>';
+            echo '</div>';
+        }
     }
 
 }
