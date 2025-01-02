@@ -416,17 +416,23 @@ class ContentOracleApi extends PluginFeature{
         
         //then, find the most similar vectors in the database table
         $vt = new ContentOracle_VectorTable( $this->get_prefix() );
-        $vec_ids = $vt->search( $embedding, 10 );
-        
+        $ordered_vec_ids = $vt->search( $embedding, 10 );
 
-        //TODO
-        //TODO TODO: I am not certain that the order is preserved... I will need to test this
-        //TODO
+
 
         //then, get the posts and sections each vector corresponds to
-        $vecs = $vt->ids( $vec_ids );
+        $vecs = $vt->ids( $ordered_vec_ids );
 
-        
+        //sort the vectors into the order returned by the search
+        $vecs = array_map(function($id) use ($vecs){
+            foreach ($vecs as $vec){
+                if ($vec->id == $id){
+                    return $vec;
+                }
+            }
+        }, $ordered_vec_ids);
+
+        //create an array of the content embedding data
         $content_embedding_datas = [];
         foreach ($vecs as &$vec){
             $content_embedding_datas[] = [
