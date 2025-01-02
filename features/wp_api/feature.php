@@ -135,7 +135,7 @@ class ContentOracleApi extends PluginFeature{
         }
 
         //create array holding ids of posts used in the response
-        $label_num = 1;
+        $label_num = 0;
 
         //apply post processing to the ai_response
         $ai_connection = $response['ai_connection'];
@@ -157,9 +157,10 @@ class ContentOracleApi extends PluginFeature{
 
         //find citations fitting the form |[$]|lorem ipsum|[$]||[@]|580|[@]|, and place an in-text citation there
         //NOTE: I want to replace the thing in the parentheses, of strings meeting this form: |[$]|lorem ipsum|[$]||[@]|580|[@]|
+        $cited_content_labels = [];    //this array tracks the ids of posts that have been cited
         $ai_response = preg_replace_callback(
             '/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$label_num, &$content) { //& = pass by reference
+            function ($matches) use (&$label_num, &$content, &$cited_content_labels) { //& = pass by reference
                 //get the text and post_id from the matches
                 $text = $matches[1];
                 $post_id = $matches[2];
@@ -170,12 +171,15 @@ class ContentOracleApi extends PluginFeature{
                 $label = "";
                 foreach ($content as &$post){   //& = pass by reference
                     if ( $post['id'] == $post_id ){
-                        //account for the case where the post has already been cited
-                        if ( !isset( $post['label'] ) ){
-                            $post['label'] = $label_num;
+
+                        //set the label for the source
+                        if ( !isset( $cited_content_labels[$post_id] ) ){
+                            $label_num++;
+                            $cited_content_labels[$post_id] = $label_num;
                         }
-                        $label = $post['label'];
-                        $label_num++;
+
+                        //get the label for the inline citation
+                        $label = $cited_content_labels[$post_id];
                         break;
                     }
                 }
@@ -188,7 +192,7 @@ class ContentOracleApi extends PluginFeature{
         //find citations fitting the form |[@]|580|[@]| (broken |[$]| wrapper), and place an in-text citation there
         $ai_response = preg_replace_callback(
             '/\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$label_num, &$content) { //& = pass by reference
+            function ($matches) use (&$label_num, &$content, &$cited_content_labels) { //& = pass by reference
                 //get the post_id from the matches
                 $post_id = $matches[1];
                 //get the post url
@@ -198,12 +202,15 @@ class ContentOracleApi extends PluginFeature{
                 $label = "";
                 foreach ($content as &$post){   //& = pass by reference
                     if ( $post['id'] == $post_id ){
-                        //account for the case where the post has already been cited
-                        if ( !isset( $post['label'] ) ){
-                            $post['label'] = $label_num;
+                        
+                        //set the label for the source
+                        if ( !isset( $cited_content_labels[$post_id] ) ){
+                            $label_num++;
+                            $cited_content_labels[$post_id] = $label_num;
                         }
-                        $label = $post['label'];
-                        $label_num++;
+
+                        //get the label for the inline citation
+                        $label = $cited_content_labels[$post_id];
                         break;
                     }
                 }
