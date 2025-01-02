@@ -134,9 +134,6 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
-        //create array holding ids of posts used in the response
-        $label_num = 0;
-
         //apply post processing to the ai_response
         $ai_connection = $response['ai_connection'];
         $ai_response = $response['generated']['message'];
@@ -157,10 +154,10 @@ class ContentOracleApi extends PluginFeature{
 
         //find citations fitting the form |[$]|lorem ipsum|[$]||[@]|580|[@]|, and place an in-text citation there
         //NOTE: I want to replace the thing in the parentheses, of strings meeting this form: |[$]|lorem ipsum|[$]||[@]|580|[@]|
-        $cited_content_labels = [];    //this array tracks the ids of posts that have been cited
+        $posts_cited = [];
         $ai_response = preg_replace_callback(
             '/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$label_num, &$content, &$cited_content_labels) { //& = pass by reference
+            function ($matches) use (&$content, &$posts_cited) { //& = pass by reference
                 //get the text and post_id from the matches
                 $text = $matches[1];
                 $post_id = $matches[2];
@@ -172,14 +169,13 @@ class ContentOracleApi extends PluginFeature{
                 foreach ($content as &$post){   //& = pass by reference
                     if ( $post['id'] == $post_id ){
 
-                        //set the label for the source
-                        if ( !isset( $cited_content_labels[$post_id] ) ){
-                            $label_num++;
-                            $cited_content_labels[$post_id] = $label_num;
+                        //check if the post has been used already
+                        if ( !in_array($post_id, $posts_cited) ){
+                            $posts_cited[] = $post_id;
                         }
 
                         //get the label for the inline citation
-                        $label = $cited_content_labels[$post_id];
+                        $label = array_search($post_id, $posts_cited) + 1;
                         break;
                     }
                 }
@@ -192,7 +188,7 @@ class ContentOracleApi extends PluginFeature{
         //find citations fitting the form |[@]|580|[@]| (broken |[$]| wrapper), and place an in-text citation there
         $ai_response = preg_replace_callback(
             '/\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$label_num, &$content, &$cited_content_labels) { //& = pass by reference
+            function ($matches) use (&$content, &$posts_cited) { //& = pass by reference
                 //get the post_id from the matches
                 $post_id = $matches[1];
                 //get the post url
@@ -202,15 +198,14 @@ class ContentOracleApi extends PluginFeature{
                 $label = "";
                 foreach ($content as &$post){   //& = pass by reference
                     if ( $post['id'] == $post_id ){
-                        
-                        //set the label for the source
-                        if ( !isset( $cited_content_labels[$post_id] ) ){
-                            $label_num++;
-                            $cited_content_labels[$post_id] = $label_num;
+                       
+                        //check if the post has been used already
+                        if ( !in_array($post_id, $posts_cited) ){
+                            $posts_cited[] = $post_id;
                         }
 
                         //get the label for the inline citation
-                        $label = $cited_content_labels[$post_id];
+                        $label = array_search($post_id, $posts_cited) + 1;
                         break;
                     }
                 }
@@ -236,11 +231,22 @@ class ContentOracleApi extends PluginFeature{
         });
         $ai_content_used = array_values($ai_content_used);  //ensure the array keys are starting at 0, incrementing by 1
 
+        //convert the posts to cite to an array of post objects
+        $posts_cited = array_map(function($id){
+            return [
+                'id' => $id,
+                'title' => get_the_title($id),
+                'url' => get_the_permalink($id),
+                'type' => get_post_type($id)
+            ];
+        }, $posts_cited);
+        
         //return the response
         return new WP_REST_Response(array(
             'message' => $message,
             'context_supplied' => $content,
-            'context_used' => $ai_content_used,
+            'context_used' => $ai_content_used,     //chunks used in the response
+            'citations' => $posts_cited,            //posts cited in the response
             'response' => $ai_response,
             'action' => $ai_action
         ));
