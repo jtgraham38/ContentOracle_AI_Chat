@@ -397,6 +397,32 @@ class ContentOracleEmbeddings extends PluginFeature{
             )
         );
 
+        add_settings_field(
+            $this->get_prefix() . "auto_generate_embeddings_interval",    // id of the field
+            'Auto-generate Embeddings Interval',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_embeddings_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_embeddings_settings',  // section
+            array(
+            'label_for' => $this->get_prefix() .'auto_generate_embeddings'
+            )
+        );
+
+        add_settings_field(
+            $this->get_prefix() . "auto_generate_only_new_embeddings",    // id of the field
+            'Auto-generate Only New Embeddings',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_only_new_embeddings_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'contentoracle_embeddings_settings',  // section
+            array(
+            'label_for' => $this->get_prefix() .'auto_generate_only_new_embeddings'
+            )
+        );
+
         // create the settings themselves
         register_setting(
             'contentoracle_embeddings_settings', // option group
@@ -407,6 +433,32 @@ class ContentOracleEmbeddings extends PluginFeature{
                 'sanitize_callback' => 'sanitize_text_field'
             )
         );
+
+        register_setting(
+            'contentoracle_embeddings_settings', // option group
+            $this->get_prefix() . 'auto_generate_embeddings',    // option name
+            array(  // args
+                'type' => 'boolean',
+                'default' => false,
+                'sanitize_callback' => function($value){
+                    return $value ? true : false;
+                }
+            )
+        );
+
+        register_setting(
+            'contentoracle_embeddings_settings', // option group
+            $this->get_prefix() . 'auto_generate_only_new_embeddings',    // option name
+            array(  // args
+                'type' => 'boolean',
+                'default' => false,
+                'sanitize_callback' => function($value){
+                    return $value ? true : false;
+                }
+            )
+        );
+
+
     }
 
     //  \\  //  \\  //  \\  //  SHOW NOTICES TO PROMPT USER TO GENERATE EMBEDDINGS  //  \\  //  \\  //  \\  //  \\
