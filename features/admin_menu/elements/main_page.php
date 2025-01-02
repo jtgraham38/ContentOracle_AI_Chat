@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 
 //get urls
 $prompt_url = admin_url('admin.php?page=contentoracle-prompt');
-$embeddings_url = '#';//admin_url('admin.php?page=contentoracle-embeddings');
+$embeddings_url = admin_url('admin.php?page=contentoracle-embeddings');
 $analytics_url = '#';//admin_url('admin.php?page=contentoracle-analytics');
 $settings_url = admin_url('admin.php?page=contentoracle-settings');
 $learn_more_url = "https://contentoracleai.com/contentoracle-ai-chat";
@@ -30,7 +30,7 @@ $support_url = 'https://contentoracleai.com/contact';
         <h2>Embeddings</h2>
         <i>Manage embeddings to let your ai better index your content.</i>
         <div class="button-container">
-            <a href="<?php echo esc_url($embeddings_url) ?>" class="button" disabled>Go to Embeddings</a>
+            <a href="<?php echo esc_url($embeddings_url) ?>" class="button">Go to Embeddings</a>
         </div>
     </div>
     <div class="grid-item postbox">
