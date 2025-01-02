@@ -51,6 +51,15 @@ class ContentOracleEmbeddings extends PluginFeature{
         //show a notice to generate embeddings
         add_action('admin_notices', array($this, 'show_generate_embeddings_notice'));
 
+        //add a cron hook to hook into 
+        //check if the task is scheduled already (to prevent duplicate scheduling)
+        if (! wp_next_scheduled($this->get_prefix() . 'auto_generate_embeddings')) {            
+            //schedule the task
+            wp_schedule_event(time(), 'weekly', $this->get_prefix() . 'auto_generate_embeddings');
+        }
+
+        //auto generate embeddings
+        add_action($this->get_prefix() . 'auto_generate_embeddings', array($this, 'auto_generate_embeddings'));
 
     }
 
@@ -439,7 +448,7 @@ class ContentOracleEmbeddings extends PluginFeature{
             $this->get_prefix() . 'auto_generate_embeddings',    // option name
             array(  // args
                 'type' => 'boolean',
-                'default' => false,
+                'default' => true,
                 'sanitize_callback' => function($value){
                     return $value ? true : false;
                 }
@@ -451,7 +460,7 @@ class ContentOracleEmbeddings extends PluginFeature{
             $this->get_prefix() . 'auto_generate_only_new_embeddings',    // option name
             array(  // args
                 'type' => 'boolean',
-                'default' => false,
+                'default' => true,
                 'sanitize_callback' => function($value){
                     return $value ? true : false;
                 }
@@ -489,6 +498,60 @@ class ContentOracleEmbeddings extends PluginFeature{
             echo '<p>Visit <a href="' . esc_url($generate_embeddings_url) . '" >this page </a> to generate embeddings for your posts, or set the embedding chunking method to none.</p>';
             echo '</div>';
         }
+    }
+
+    //  \\  //  \\  //  \\  //  AUTO GENERATE EMBEDDINGS  //  \\  //  \\  //  \\  //  \\
+    public function auto_generate_embeddings(){
+
+        //check if the auto-generate embeddings setting is set
+        if (!get_option($this->get_prefix() . 'auto_generate_embeddings', false)) {
+            return;
+        }
+
+        //get the post types that are indexed by the AI
+        $post_types = get_option($this->get_prefix() . 'post_types', []);
+        if (empty($post_types)) {
+            return;
+        }
+
+        //get the posts to generate embeddings for
+        $for_all_posts = get_option($this->get_prefix() . 'auto_generate_only_new_embeddings', false) ? 'new' : 'all';
+
+        //if we are generating all new embeddings, get all posts
+        if ($for_all_posts){
+            //get all posts
+            $posts = get_posts(array(
+                'post_type' => $post_types,
+                'numberposts' => -1,
+                'orderby' => 'post_type',
+                'order' => 'ASC'
+            ));
+        }
+        //otherwise, get the posts that do not have embeddings
+        else{
+            //get all posts that do not have embeddings
+            $posts = get_posts(array(
+                'post_type' => $post_types,
+                'numberposts' => -1,
+                'orderby' => 'post_type',
+                'order' => 'ASC',
+                'meta_query' => array(
+                    'relation' => 'OR',
+                    array(
+                        'key' => $this->get_prefix() . 'embeddings',
+                        'compare' => 'NOT EXISTS'
+                    ),
+                    array(
+                        'key' => $this->get_prefix() . 'embeddings',
+                        'value' => 'false',
+                        'compare' => '='
+                    )
+                )
+            ));
+        }
+
+        //generate embeddings for the posts
+        $this->generate_embeddings($posts);
     }
 
 }
