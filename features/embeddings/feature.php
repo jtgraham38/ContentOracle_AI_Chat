@@ -395,7 +395,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         // create the settings fields
         add_settings_field(
             $this->get_prefix() . "chunking_method",    // id of the field
-            'Chunking Method',   // title
+            'Embedding Method',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/chunking_method_input.php';
             },
