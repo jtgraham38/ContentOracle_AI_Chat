@@ -24,10 +24,10 @@ class ContentOracleSearchBlock extends PluginFeature{
     //register the custom search block
     public function register_search_blocks(){
         //include seach block utils
-        require_once $this->get_base_dir() . 'features/search_block/util.php';
+        require_once plugin_dir_path( __FILE__ ) . '/util.php';
 
         //register search block
-        register_block_type($this->get_base_dir() . '/features/search_block/block/build');
+        register_block_type(plugin_dir_path( __FILE__ ) . '/block/build');
     }
 
     //handle a search request

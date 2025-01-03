@@ -149,16 +149,16 @@ $arrow_styles = implode( ';', array_map(
 // // echo "border_color_classes<br>";
 // // print_r($border_color_classes);
 
-echo "</pre>";
+// // echo "</pre>";
 ?>
 <div style="display:flex; justify-content:center;">
     <div
         class="contentoracle-ai_search_root"
-        <?php echo $root_styles ?>
+        <?php echo esc_attr( $root_styles )  ?>
     >
         <label 
             class="<?php echo esc_attr( $label_classes ) ?>" 
-            style="<?php echo $label_styles ?>"
+            style="<?php echo esc_attr( $label_styles ) ?>"
             for="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>"
         >
             <?php echo esc_html( $attributes['label'] ) ?>
@@ -172,7 +172,7 @@ echo "</pre>";
         >
             <input 
                 class="<?php echo esc_attr( $input_classes ) ?>" 
-                style="<?php echo $input_styles ?>" type="search" 
+                style="<?php echo esc_attr( $input_styles ) ?>" type="search" 
                 id="contentoracle_search_input_<?php echo esc_attr($instance_id) ?>" 
                 name="contentoracle_ai_search"
                 required
@@ -182,7 +182,7 @@ echo "</pre>";
             <input 
                 type="submit" 
                 class="<?php echo esc_attr( $button_classes ) ?>"
-                 style="<?php echo $button_styles ?>"
+                 style="<?php echo esc_attr( $button_styles ) ?>"
                  value="Search"
                  id=
             >

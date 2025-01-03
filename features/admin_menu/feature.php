@@ -30,11 +30,11 @@ class ContentOracleMenu extends PluginFeature{
             function(){ // callback function
                 require_once plugin_dir_path(__FILE__) . 'elements/main_page.php';
             },
-            $this->get_base_url() . "features/admin_menu/assets/images/coai_icon_light.png"    // icon
+            plugin_dir_url( __FILE__ ) . "/assets/images/coai_icon_light.png"    // icon
         );
     }
 
     public function enqueue_icon_style(){
-        wp_enqueue_style('contentoracle-icon', $this->get_base_url() . 'features/admin_menu/assets/css/icon.css');
+        wp_enqueue_style('contentoracle-icon', plugin_dir_url( __FILE__ ) . '/assets/css/icon.css');
     }
 }

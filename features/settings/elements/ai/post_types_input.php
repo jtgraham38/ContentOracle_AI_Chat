@@ -28,7 +28,7 @@ $post_types_setting = get_option($this->get_prefix() . 'post_types');
         style="height: 8rem;"
     >
         <?php foreach ($post_types as $label=>$post_type): ?>
-            <option value="<?php echo esc_attr($label); ?>" <?php echo in_array($post_type->name, $post_types_setting) ? 'selected' : ''; ?>>
+            <option value="<?php echo esc_attr($label); ?>" <?php echo esc_attr( in_array($post_type->name, $post_types_setting) ? 'selected' : '' ); ?>>
                 <?php echo esc_html($post_type->label); ?>
             </option>
         <?php endforeach; ?>

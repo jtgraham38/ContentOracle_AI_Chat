@@ -33,7 +33,7 @@ class ContentOracleAnalytics extends PluginFeature{
     }
 
     public function render_page(){
-        echo "<h1>Analytics</h1> <strong>Coming soon...</strong>";
+        echo esc_html("<h1>Analytics</h1> <strong>Coming soon...</strong>");
     }
 
 

@@ -31,7 +31,7 @@ class ContentOracleApiConnection{
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json'
             ),
-            'body' => json_encode(array(
+            'body' => wp_json_encode(array(
                 'message' => $query,
                 'conversation' => $conversation,
                 'content' => $content,
