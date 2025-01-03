@@ -63,7 +63,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     }
 
-    //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //
+    //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
 
     //callback that flags a post for embedding generation when the checkbox is checked
     public function flag_post_for_embedding_generation($post_ID, $post, $update){
