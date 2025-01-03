@@ -75,6 +75,7 @@ if (isset($_REQUEST['action'])) {
             //ensure embeddings are enabled
             $chunking_method = get_option($this->get_prefix() . 'chunking_method');
             if ($chunking_method == 'none' || $chunking_method == '') {
+                echo 'Chunking method must be set to generate embeddings.';
                 break;
             }
 
@@ -102,9 +103,10 @@ if (isset($_REQUEST['action'])) {
                             ),
                             array(
                                 'key' => $this->get_prefix() . 'embeddings',
-                                'value' => 'false',
-                                'compare' => '='
-                            )
+                                'value' => 'a:0:{}',
+                                'compare' => '='   //empty
+                            ),
+
                         )
                     ));
                     break;
@@ -121,7 +123,6 @@ if (isset($_REQUEST['action'])) {
             }
             
             //call $this->generate_embeddings for each post
-            //TODO: I should make a mass batch submission to my api eventually
             $this->generate_embeddings($posts);
     }
     //end switch action
@@ -304,7 +305,7 @@ $posts = get_posts(array(
     <div style="width: 2rem;"></div>
     <div>
         <h3>Bulk Generate Embeddings</h3>
-        <p>Generate embeddings for many posts at once!</p>
+        <p>Generate embeddings for many posts at once! <small>Note that this could take a while!</small></p>
 
         <form 
             method="POST" 
