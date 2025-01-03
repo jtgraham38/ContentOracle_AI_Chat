@@ -20,6 +20,7 @@ class ContentOracleApiConnection{
         $this->client_ip = $client_ip;
     }
 
+    //get a chat response from content oracle api
     public function ai_chat(string $query, array $content, array $conversation){
         //build the request
         $url = self::API_BASE_URL . '/v1/ai/chat';
@@ -67,6 +68,41 @@ class ContentOracleApiConnection{
         //parse the response
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
+        return $data;
+    }
+
+    //get a user query embedded by content oracle api
+    public function query_vector(string $query){
+        //build the request
+        $url = self::API_BASE_URL . '/v1/ai/query_vector';
+        
+        $payload = array(
+            'headers' => array(
+                'Authorization' => 'Bearer ' . get_option($this->prefix . 'api_token'),
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ),
+            'body' => json_encode(array(
+                'chunking_method' => get_option($this->prefix . 'chunking_method', 'none'),
+                'client_ip' => $this->client_ip,
+                'query' => $query,
+            )),
+            'timeout' => 250,
+        );
+
+        //make the request
+        $url = ContentOracleApiConnection::API_BASE_URL . '/v1/ai/embedquery';
+        $response = wp_remote_post($url, $payload);
+
+        //handle wordpress errors
+        if (is_wp_error($response)){
+            throw new Exception($response->get_error_message());
+        }
+        
+        //retrieve and format the response
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
         return $data;
     }
 }

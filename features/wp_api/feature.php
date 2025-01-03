@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
 
 require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . 'ContentOracleApiConnection.php';
+require_once plugin_dir_path(__FILE__) . '../embeddings/VectorTable.php';
+require_once plugin_dir_path(__FILE__) . '../embeddings/chunk_getters.php';
 
 use jtgraham38\jgwordpresskit\PluginFeature;
 
@@ -85,9 +87,18 @@ class ContentOracleApi extends PluginFeature{
         $message = $request->get_param('message');
 
         //get the content to use in the response
-        $content = $this->keyword_content_search($message);
-
-        $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+        //switch based on the chunking method
+        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        switch ($chunking_method){
+            case 'token:256':
+                $content = $this->token256_content_search($message);
+                $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+                break;
+            default:
+                $content = $this->keyword_content_search($message);
+                $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                break;
+        }
 
         //get the conversation from the request
         $conversation = $request->get_param('conversation');
@@ -123,9 +134,6 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
-        //create array holding ids of posts used in the response
-        $label_num = 1;
-
         //apply post processing to the ai_response
         $ai_connection = $response['ai_connection'];
         $ai_response = $response['generated']['message'];
@@ -146,9 +154,10 @@ class ContentOracleApi extends PluginFeature{
 
         //find citations fitting the form |[$]|lorem ipsum|[$]||[@]|580|[@]|, and place an in-text citation there
         //NOTE: I want to replace the thing in the parentheses, of strings meeting this form: |[$]|lorem ipsum|[$]||[@]|580|[@]|
+        $posts_cited = [];
         $ai_response = preg_replace_callback(
             '/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$label_num, &$content) { //& = pass by reference
+            function ($matches) use (&$content, &$posts_cited) { //& = pass by reference
                 //get the text and post_id from the matches
                 $text = $matches[1];
                 $post_id = $matches[2];
@@ -159,12 +168,14 @@ class ContentOracleApi extends PluginFeature{
                 $label = "";
                 foreach ($content as &$post){   //& = pass by reference
                     if ( $post['id'] == $post_id ){
-                        //account for the case where the post has already been cited
-                        if ( !isset( $post['label'] ) ){
-                            $post['label'] = $label_num;
+
+                        //check if the post has been used already
+                        if ( !in_array($post_id, $posts_cited) ){
+                            $posts_cited[] = $post_id;
                         }
-                        $label = $post['label'];
-                        $label_num++;
+
+                        //get the label for the inline citation
+                        $label = array_search($post_id, $posts_cited) + 1;
                         break;
                     }
                 }
@@ -177,7 +188,7 @@ class ContentOracleApi extends PluginFeature{
         //find citations fitting the form |[@]|580|[@]| (broken |[$]| wrapper), and place an in-text citation there
         $ai_response = preg_replace_callback(
             '/\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$label_num, &$content) { //& = pass by reference
+            function ($matches) use (&$content, &$posts_cited) { //& = pass by reference
                 //get the post_id from the matches
                 $post_id = $matches[1];
                 //get the post url
@@ -187,12 +198,14 @@ class ContentOracleApi extends PluginFeature{
                 $label = "";
                 foreach ($content as &$post){   //& = pass by reference
                     if ( $post['id'] == $post_id ){
-                        //account for the case where the post has already been cited
-                        if ( !isset( $post['label'] ) ){
-                            $post['label'] = $label_num;
+                       
+                        //check if the post has been used already
+                        if ( !in_array($post_id, $posts_cited) ){
+                            $posts_cited[] = $post_id;
                         }
-                        $label = $post['label'];
-                        $label_num++;
+
+                        //get the label for the inline citation
+                        $label = array_search($post_id, $posts_cited) + 1;
                         break;
                     }
                 }
@@ -218,11 +231,22 @@ class ContentOracleApi extends PluginFeature{
         });
         $ai_content_used = array_values($ai_content_used);  //ensure the array keys are starting at 0, incrementing by 1
 
+        //convert the posts to cite to an array of post objects
+        $posts_cited = array_map(function($id){
+            return [
+                'id' => $id,
+                'title' => get_the_title($id),
+                'url' => get_the_permalink($id),
+                'type' => get_post_type($id)
+            ];
+        }, $posts_cited);
+        
         //return the response
         return new WP_REST_Response(array(
             'message' => $message,
             'context_supplied' => $content,
-            'context_used' => $ai_content_used,
+            'context_used' => $ai_content_used,     //chunks used in the response
+            'citations' => $posts_cited,            //posts cited in the response
             'response' => $ai_response,
             'action' => $ai_action
         ));
@@ -391,8 +415,76 @@ class ContentOracleApi extends PluginFeature{
         return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'UNKNOWN';
     }
 
+    //token:256 embedding search
+    function token256_content_search($message){
+        //begin by embedding the user's message
+        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+        $response = $api->query_vector($message);
+        if (empty($response['embeddings'])){
+            throw new Exception('No embeddings returned from the AI');
+        }
+
+        $embedding = $response['embeddings'][0]['embedding'];
+
+        
+        //then, find the most similar vectors in the database table
+        $vt = new ContentOracle_VectorTable( $this->get_prefix() );
+        $ordered_vec_ids = $vt->search( $embedding, 10 );
+
+
+
+        //then, get the posts and sections each vector corresponds to
+        $vecs = $vt->ids( $ordered_vec_ids );
+
+        //sort the vectors into the order returned by the search
+        $vecs = array_map(function($id) use ($vecs){
+            foreach ($vecs as $vec){
+                if ($vec->id == $id){
+                    return $vec;
+                }
+            }
+        }, $ordered_vec_ids);
+
+        //create an array of the content embedding data
+        $content_embedding_datas = [];
+        foreach ($vecs as &$vec){
+            $content_embedding_datas[] = [
+                'id' => $vec->id,
+                'post_id' => $vec->post_id,
+                'sequence_no' => $vec->sequence_no,
+            ];
+        }
+
+        //use the sequence numbers and post metas to retrieve the correct portions of the posts
+        $chunks = [];
+        foreach ($content_embedding_datas as $data){
+            $post_id = $data['post_id'];
+            $sequence_no = $data['sequence_no'];
+            
+            //get the post
+            $post = get_post($post_id);
+
+            //get the post content for the sequence number
+            $chunk = token256_get_chunk($post->post_content, $sequence_no);
+
+            //add the chunk to the chunks array
+            $chunks[] = [
+                'id' => $post_id,
+                'title' => $post->post_title,
+                'url' => get_the_permalink($post_id),
+                'body' => $chunk,
+                'type' => get_post_type($post_id)
+            ];
+        }
+
+        //return the post chunks
+        return $chunks;
+    }
+
+
+
     //register a contentoracle healthcheck route
-    public function register_healthcheck_rest_route(){
+    function register_healthcheck_rest_route(){
         register_rest_route('contentoracle/v1', '/healthcheck', array(
             'methods' => 'GET',
             'permission_callback' => '__return_true', // this line was added to allow any site visitor to make an ai healthcheck request
@@ -403,6 +495,4 @@ class ContentOracleApi extends PluginFeature{
             }
         ));
     }
-
-
 }
