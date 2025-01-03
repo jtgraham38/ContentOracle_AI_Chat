@@ -282,6 +282,7 @@ class ContentOracleEmbeddings extends PluginFeature{
                 'client_ip' => $this->get_client_ip(),
                 'content' => $content
             ]),
+            'timeout' => 7200,   //long timeout (2 hours) because of wait in coai api to avoid request limit
         ];
 
         //make the request
@@ -543,7 +544,7 @@ class ContentOracleEmbeddings extends PluginFeature{
                     ),
                     array(
                         'key' => $this->get_prefix() . 'embeddings',
-                        'value' => 'false',
+                        'value' => "a:0:{}",
                         'compare' => '='
                     )
                 )
