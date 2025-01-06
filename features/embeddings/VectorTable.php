@@ -89,7 +89,7 @@ class ContentOracle_VectorTable{
     }
 
     //get a vector by id
-    public function id(int $id): object{
+    public function id(int $id): object | null{
         global $wpdb;
 
         return $wpdb->get_row($wpdb->prepare(
@@ -115,7 +115,7 @@ class ContentOracle_VectorTable{
     }
 
     //get a vector by post id and sequence no
-    public function get(int $post_id, int $sequence_no): object{
+    public function get(int $post_id, int $sequence_no): object | null{
         global $wpdb;
 
         return $wpdb->get_row($wpdb->prepare(
@@ -126,7 +126,7 @@ class ContentOracle_VectorTable{
     }
 
     //get most recently generated vector for a post
-    public function get_latest_updated(int $post_id): object{
+    public function get_latest_updated(int $post_id): object | null{
         global $wpdb;
 
         return $wpdb->get_row($wpdb->prepare(
