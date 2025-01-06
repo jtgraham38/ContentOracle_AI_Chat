@@ -31,7 +31,7 @@ class ContentOracle_VectorTable{
     }
 
     //initialize the table
-    public function init(){
+    public function init(): void{
         //if the table does not exist, create it
         if ($this->table_exists() == false){
             $this->create_table();
@@ -42,7 +42,7 @@ class ContentOracle_VectorTable{
     //  \\  //  \\  //  \\ TABLE CRUD //  \\  //  \\  //  \\
 
     //find the n most similar vectors to a given vector
-    public function search($vector, int $n=5){
+    public function search($vector, int $n=5): array{
         global $wpdb;
 
         //convert from array to string
@@ -89,7 +89,7 @@ class ContentOracle_VectorTable{
     }
 
     //get a vector by id
-    public function id(int $id){
+    public function id(int $id): object{
         global $wpdb;
 
         return $wpdb->get_row($wpdb->prepare(
@@ -99,7 +99,7 @@ class ContentOracle_VectorTable{
     }
 
     //get multiple vectors by id
-    public function ids(array $ids){
+    public function ids(array $ids): array{
         global $wpdb;
 
         $ids_str = implode(',', $ids);
@@ -115,7 +115,7 @@ class ContentOracle_VectorTable{
     }
 
     //get a vector by post id and sequence no
-    public function get(int $post_id, int $sequence_no){
+    public function get(int $post_id, int $sequence_no): object{
         global $wpdb;
 
         return $wpdb->get_row($wpdb->prepare(
@@ -126,7 +126,7 @@ class ContentOracle_VectorTable{
     }
 
     //get most recently generated vector for a post
-    public function get_latest_updated(int $post_id){
+    public function get_latest_updated(int $post_id): object{
         global $wpdb;
 
         return $wpdb->get_row($wpdb->prepare(
@@ -136,7 +136,7 @@ class ContentOracle_VectorTable{
     }
 
     //get all vectors
-    public function get_all(){
+    public function get_all(): array{
         global $wpdb;
 
         return $wpdb->get_results(
@@ -190,7 +190,7 @@ class ContentOracle_VectorTable{
 
     //insert or update all vectors for a particular post
     //NOTE: the vectors array should be ordered from sequence no 0 to n
-    public function insert_all(int $post_id, array $vectors){
+    public function insert_all(int $post_id, array $vectors): array{
         global $wpdb;
 
         //delete all existing vectors for the post
@@ -216,7 +216,7 @@ class ContentOracle_VectorTable{
     }
 
     //delete a vector by id
-    public function delete(int $id){
+    public function delete(int $id): void{
         global $wpdb;
 
         $wpdb->delete(
@@ -232,7 +232,7 @@ class ContentOracle_VectorTable{
 
     //  \\  //  \\  //  \\ MANAGE SQL TABLES/FUNCS //  \\  //  \\  //  \\
     //create the table
-    public function create_table(){
+    public function create_table(): void{
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
 
@@ -263,20 +263,20 @@ class ContentOracle_VectorTable{
     }
 
     //drop the table
-    public function drop_table(){
+    public function drop_table(): void{
         global $wpdb;
         $wpdb->query("DROP TABLE IF EXISTS $this->table_name");
     }
 
     //check if the table exists
-    public function table_exists(){
+    public function table_exists(): bool{
         global $wpdb;
         return $wpdb->get_var("SHOW TABLES LIKE '$this->table_name'") == $this->table_name;
     }
 
     //  \\  //  \\  //  \\  BINARY CODES //  \\  //  \\  //  \\
     //get the binary representation of a vector
-    public function get_binary_code( $vector ){
+    public function get_binary_code( $vector ): string{    //hexadecimal string
         //convert the vecor to an array, if it is not one
         if (!is_array($vector)){
             $vector = json_decode($vector, true);
@@ -287,7 +287,7 @@ class ContentOracle_VectorTable{
 
     //convert a vector to binary
     //each hexadecimal character represents the signs of 4 values in the vector
-    public function vector_to_binary(array $vector_arr){
+    public function vector_to_binary(array $vector_arr): string{    //hexadecimal string
         $binary_code = '';
 
         //1 if value is greater than 0, 0 otherwise
@@ -306,22 +306,22 @@ class ContentOracle_VectorTable{
 
     //  \\  //  \\  //  \\ UTILS //  \\  //  \\  //  \\
     //get the table name
-    public function get_table_name(){
+    public function get_table_name(): string{
         return $this->table_name;
     }
 
     //get the db version
-    public function get_db_version(){
+    public function get_db_version(): string{
         return $this->db_version;
     }
 
     //get the prefix
-    public function get_prefix(){
+    public function get_prefix(): string{
         return $this->prefix;
     }
 
     //get vector magnitude
-    public function magnitude($vector){
+    public function magnitude($vector): float{
         $magnitude = 0;
         foreach ($vector as $value){
             $magnitude += $value * $value;
