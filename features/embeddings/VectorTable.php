@@ -154,57 +154,38 @@ class ContentOracle_VectorTable{
         //get the binary code
         $binary_code = $this->get_binary_code($vector);
 
-        //if the vector exists, update it
+        //if the vector exists, update it with a sql statement (to use the UNHEX function)
         if ($vector_exists > 0){
-            $wpdb->update(
-                $this->table_name,
-                array(
-                    'vector' => $vector,
-                    'vector_type' => $vector_type,
-                    'binary_code' => $binary_code
-                ),
-                array(
-                    'post_id' => $post_id,
-                    'sequence_no' => $sequence_no,
-                    'magnitude' => $this->magnitude(json_decode($vector, true))
-                ),
-                array(
-                    '%s',
-                    '%s',
-                    '%s'
-                ),
-                array(
-                    '%d',
-                    '%d',
-                    '%f'
-                )
-            );
+            $wpdb->query($wpdb->prepare(
+                "UPDATE $this->table_name SET vector = %s, vector_type = %s, binary_code = UNHEX( %s ) WHERE post_id = %d AND sequence_no = %d",
+                $vector,
+                $vector_type,
+                $binary_code,
+                $post_id,
+                $sequence_no
+            ));
+
+            $ret_id = $vector_exists->id;
         }
         //if the vector does not exist, insert it
         else{
-            $wpdb->insert(
-                $this->table_name,
-                array(
-                    'post_id' => $post_id,
-                    'sequence_no' => $sequence_no,
-                    'vector' => $vector,
-                    'vector_type' => $vector_type,
-                    'binary_code' => $binary_code,
-                    'magnitude' => $this->magnitude(json_decode($vector, true))
-                ),
-                array(
-                    '%d',
-                    '%d',
-                    '%s',
-                    '%s',
-                    '%s',
-                    '%f'
-                )
-            );
+            //insert with a sql statement (to use the UNHEX function)
+             $wpdb->query($wpdb->prepare(
+                "INSERT INTO $this->table_name (post_id, sequence_no, vector, vector_type, binary_code, magnitude) VALUES (%d, %d, %s, %s, UNHEX( %s ), %f)",
+                $post_id,
+                $sequence_no,
+                $vector,
+                $vector_type,
+                $binary_code,
+                $this->magnitude(json_decode($vector, true))
+            ));
+
+            //return the id of the inserted vector
+            $ret_id = $wpdb->insert_id;
         }
 
         //return the id of the inserted/updated vector
-        return $wpdb->insert_id;
+        return $ret_id;
     }
 
     //insert or update all vectors for a particular post

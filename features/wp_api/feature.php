@@ -431,8 +431,6 @@ class ContentOracleApi extends PluginFeature{
         $vt = new ContentOracle_VectorTable( $this->get_prefix() );
         $ordered_vec_ids = $vt->search( $embedding, 10 );
 
-
-
         //then, get the posts and sections each vector corresponds to
         $vecs = $vt->ids( $ordered_vec_ids );
 
