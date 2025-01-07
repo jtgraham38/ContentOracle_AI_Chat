@@ -92,7 +92,7 @@ class ContentOracleApi extends PluginFeature{
         switch ($chunking_method){
             case 'token:256':
                 $content = $this->token256_content_search($message);
-                $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+                $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
                 break;
             default:
                 $content = $this->keyword_content_search($message);
@@ -429,7 +429,7 @@ class ContentOracleApi extends PluginFeature{
         
         //then, find the most similar vectors in the database table
         $vt = new ContentOracle_VectorTable( $this->get_prefix() );
-        $ordered_vec_ids = $vt->search( $embedding, 10 );
+        $ordered_vec_ids = $vt->search( $embedding, 15 );
 
         //then, get the posts and sections each vector corresponds to
         $vecs = $vt->ids( $ordered_vec_ids );
