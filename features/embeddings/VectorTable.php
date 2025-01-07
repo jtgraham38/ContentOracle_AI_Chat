@@ -115,14 +115,14 @@ class ContentOracle_VectorTable{
         $candidates_str = implode(',', $candidate_ids);
 
         //normalize the user query vector
-        $normalized_vector = json_encode($this->normalize(json_decode($vector, true)));
+        //$normalized_vector = json_encode($this->normalize(json_decode($vector, true)));
 
         //using only the candidates found, rerank the candidates in the database
         //NOTE: currently,this query computes the cosine similarity of each candidate with the user query vector
         $rerank_query = 
         "SELECT v.id, (SUM(q_json.element * db_json.element) / (v.magnitude * %f)) AS cosine_similarity
             FROM $this->table_name v
-            JOIN JSON_TABLE(v.normalized_vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
+            JOIN JSON_TABLE(v.vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
                 ON 1 = 1  
             JOIN JSON_TABLE(%s, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) q_json 
                 ON q_json.idx = db_json.idx 
@@ -133,7 +133,7 @@ class ContentOracle_VectorTable{
         ";
         $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query,
             $this->magnitude(json_decode($vector, true)),   //enter magnitude of user query vector
-            $normalized_vector ,                                         //enter user query vector
+            $vector//$normalized_vector ,                                         //enter user query vector
         ));
 
         if (empty($reranked_candidates)){
