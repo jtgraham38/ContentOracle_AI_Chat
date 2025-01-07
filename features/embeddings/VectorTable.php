@@ -9,7 +9,12 @@ if (!defined('ABSPATH')) {
 // require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 
 // Use statements for namespaced classes
-
+//custom heap class, used in candidate generation
+class ContentOracleMinHeap extends SplMinHeap{
+    protected function compare($a, $b): int{
+        return $a['hamming_distance'] <=> $b['hamming_distance'];
+    }
+}
 
 //class that manages the vector table
 class ContentOracle_VectorTable{
@@ -53,31 +58,82 @@ class ContentOracle_VectorTable{
         //get the binary code
         $binary_code = $this->get_binary_code($vector);
 
-        //find candidates by computing the hamming distance
-        $candidates_query = "SELECT id, BIT_COUNT(binary_code ^ UNHEX(%s)) AS hamming_distance FROM $this->table_name ORDER BY hamming_distance LIMIT $n";
-        $candidates = $wpdb->get_results($wpdb->prepare($candidates_query, $binary_code));
-        $candidate_ids = [];
-        foreach ($candidates as $candidate){
-            $candidate_ids[] = $candidate->id;
+        //NOTE
+        //NOTE
+        //NOTE
+        //NOTE: the below method for computing hamming distance in db dosen't work
+        //NOTE: because different databases (like mysql and mariadb handle binary operations differently)
+        //TODO: I need to find a sql query that will work in both mysql and mariadb bc wordpress supports both
+        //find candidates by computing the hamming distance, and taking the n closest
+        // $candidates_query = "
+        // SELECT 
+        // id,
+        // BIT_COUNT(BINARY binary_code ^ UNHEX(BINARY %s)) AS hamming_distance
+        // FROM $this->table_name
+        // ORDER BY hamming_distance ASC
+        // LIMIT $n
+        // ";
+        // $candidates = $wpdb->get_results($wpdb->prepare($candidates_query, $binary_code));
+        // $candidate_ids = [];
+        // foreach ($candidates as $candidate){
+        //     $candidate_ids[] = $candidate->id;
+        // }
+        // $candidates_str = implode(',', $candidate_ids);
+        // $normalized_vector = json_encode($this->normalize(json_decode($vector, true)));
+
+        // echo "<pre>";
+        // var_dump($candidates);
+        // echo "</pre>";
+
+        //get all vectors from the database
+        $candidates_query = "select id, binary_code from $this->table_name";
+        $embeddings = $wpdb->get_results($candidates_query);
+
+        //get the n vectors with the smallest hamming distance
+        $closest_candidates = new ContentOracleMinHeap();
+        //add each vector to my minheap
+        foreach ($embeddings as $embedding){
+            //compute the hamming distance between the embedding and the user query vector
+            $hamming_distance = substr_count( hex2bin($binary_code) ^ $embedding->binary_code, "1");
+
+            //get id and binary code
+            $closest_candidates->insert([
+                'id' => $embedding->id,
+                'hamming_distance' => $hamming_distance
+            ]);
         }
+        
+        //get the n closest candidates out of the heap
+        $candidates = [];
+        for ($i = 0; $i < $n; $i++){
+            if ($closest_candidates->count() < 1) break;
+            $candidates[] = $closest_candidates->extract();
+        }
+
+        //get the ids of the candidates
+        $candidate_ids = array_map(function($candidate){ return $candidate['id']; }, $candidates);
         $candidates_str = implode(',', $candidate_ids);
+
+        //normalize the user query vector
+        $normalized_vector = json_encode($this->normalize(json_decode($vector, true)));
 
         //using only the candidates found, rerank the candidates in the database
         //NOTE: currently,this query computes the cosine similarity of each candidate with the user query vector
         $rerank_query = 
         "SELECT v.id, (SUM(q_json.element * db_json.element) / (v.magnitude * %f)) AS cosine_similarity
             FROM $this->table_name v
+            JOIN JSON_TABLE(v.normalized_vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
+                ON 1 = 1  
             JOIN JSON_TABLE(%s, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) q_json 
-                ON 1 = 1 
-            JOIN JSON_TABLE(v.vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
                 ON q_json.idx = db_json.idx 
             WHERE v.id IN ($candidates_str)
             GROUP BY v.id
             ORDER BY cosine_similarity DESC
+            LIMIT $n
         ";
         $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query,
             $this->magnitude(json_decode($vector, true)),   //enter magnitude of user query vector
-            $vector,                                         //enter user query vector
+            $normalized_vector ,                                         //enter user query vector
         ));
 
         if (empty($reranked_candidates)){
@@ -154,11 +210,15 @@ class ContentOracle_VectorTable{
         //get the binary code
         $binary_code = $this->get_binary_code($vector);
 
+        //get the normalized vector
+        $normalized_vector = json_encode($this->normalize(json_decode($vector, true)));
+
         //if the vector exists, update it with a sql statement (to use the UNHEX function)
         if ($vector_exists > 0){
             $wpdb->query($wpdb->prepare(
-                "UPDATE $this->table_name SET vector = %s, vector_type = %s, binary_code = UNHEX( %s ) WHERE post_id = %d AND sequence_no = %d",
+                "UPDATE $this->table_name SET vector = %s, normalized_vector = %s, vector_type = %s, binary_code = UNHEX(BINARY %s ) WHERE post_id = %d AND sequence_no = %d",
                 $vector,
+                $normalized_vector,
                 $vector_type,
                 $binary_code,
                 $post_id,
@@ -171,10 +231,11 @@ class ContentOracle_VectorTable{
         else{
             //insert with a sql statement (to use the UNHEX function)
              $wpdb->query($wpdb->prepare(
-                "INSERT INTO $this->table_name (post_id, sequence_no, vector, vector_type, binary_code, magnitude) VALUES (%d, %d, %s, %s, UNHEX( %s ), %f)",
+                "INSERT INTO $this->table_name (post_id, sequence_no, vector, normalized_vector, vector_type, binary_code, magnitude) VALUES (%d, %d, %s, %s, %s, UNHEX(BINARY %s ), %f)",
                 $post_id,
                 $sequence_no,
                 $vector,
+                $normalized_vector,
                 $vector_type,
                 $binary_code,
                 $this->magnitude(json_decode($vector, true))
@@ -242,6 +303,7 @@ class ContentOracle_VectorTable{
             post_id mediumint(9) NOT NULL,
             sequence_no mediumint(9) NOT NULL,
             vector JSON NOT NULL,
+            normalized_vector JSON NOT NULL,
             vector_type varchar(255) NOT NULL,
             binary_code BINARY(%d) NOT NULL,
             magnitude float NOT NULL,
@@ -305,6 +367,16 @@ class ContentOracle_VectorTable{
     }
 
     //  \\  //  \\  //  \\ UTILS //  \\  //  \\  //  \\
+    //normalize a vector
+    public function normalize($vector): array{
+        $mag = $this->magnitude($vector);
+        $magnitude = $mag == 0 ? 1e-10 : $mag;
+        return array_map(function($value) use ($magnitude){
+            return $value / $magnitude;
+        }, $vector);
+    }
+
+
     //get the table name
     public function get_table_name(): string{
         return $this->table_name;
