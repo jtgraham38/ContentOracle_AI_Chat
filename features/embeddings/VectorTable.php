@@ -68,6 +68,7 @@ class ContentOracle_VectorTable{
         // $candidates_query = "
         // SELECT 
         // id,
+        ////NOTE: will need to unhex both under current implmentation, since I am not unhexing currently when I put them in the db
         // BIT_COUNT(BINARY binary_code ^ UNHEX(BINARY %s)) AS hamming_distance
         // FROM $this->table_name
         // ORDER BY hamming_distance ASC
@@ -94,7 +95,13 @@ class ContentOracle_VectorTable{
         //add each vector to my minheap
         foreach ($embeddings as $embedding){
             //compute the hamming distance between the embedding and the user query vector
-            $hamming_distance = substr_count( hex2bin($binary_code) ^ $embedding->binary_code, "1");
+            $embedding_binary_code = $this->hex_to_binary($embedding->binary_code);
+            $hamming_distance = 0;
+            for ($i = 0; $i < $this->vector_length; $i++){
+                if ($binary_code[$i] != $embedding_binary_code[$i]){
+                    $hamming_distance++;
+                }
+            }
 
             //get id and binary code
             $closest_candidates->insert([
@@ -216,7 +223,7 @@ class ContentOracle_VectorTable{
         //if the vector exists, update it with a sql statement (to use the UNHEX function)
         if ($vector_exists > 0){
             $wpdb->query($wpdb->prepare(
-                "UPDATE $this->table_name SET vector = %s, normalized_vector = %s, vector_type = %s, binary_code = UNHEX(BINARY %s ) WHERE post_id = %d AND sequence_no = %d",
+                "UPDATE $this->table_name SET vector = %s, normalized_vector = %s, vector_type = %s, binary_code = %s WHERE post_id = %d AND sequence_no = %d",
                 $vector,
                 $normalized_vector,
                 $vector_type,
@@ -231,7 +238,7 @@ class ContentOracle_VectorTable{
         else{
             //insert with a sql statement (to use the UNHEX function)
              $wpdb->query($wpdb->prepare(
-                "INSERT INTO $this->table_name (post_id, sequence_no, vector, normalized_vector, vector_type, binary_code, magnitude) VALUES (%d, %d, %s, %s, %s, UNHEX(BINARY %s ), %f)",
+                "INSERT INTO $this->table_name (post_id, sequence_no, vector, normalized_vector, vector_type, binary_code, magnitude) VALUES (%d, %d, %s, %s, %s, %s , %f)",
                 $post_id,
                 $sequence_no,
                 $vector,
@@ -305,18 +312,18 @@ class ContentOracle_VectorTable{
             vector JSON NOT NULL,
             normalized_vector JSON NOT NULL,
             vector_type varchar(255) NOT NULL,
-            binary_code BINARY(%d) NOT NULL,
+            binary_code BLOB NOT NULL,
             magnitude float NOT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
             PRIMARY KEY  (id)
-        ) $charset_collate;", $this->vector_length/8);
+        ) $charset_collate;"/*, $this->vector_length/8 * 2*/);
         //^ binary code is the binary representation of the vector, length is vector_length/8 for 8 bits per byte
         //it is divided by 8 because 1 byte = 8 bits,
         //and each character in the binary code is a hexadecimal character representing 4 bits
         //each hexadecimal character represents the signs of 4 values in the vector
         // 4 bits/char * 2 chars/byte = 8 bits/byte
-        //so divide the length of the binary code in bits by 8 to get the length in bytes
+        //so divide the length of the binary code in bits by 8, and multiply by 2 to get the length in bytes
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
@@ -344,12 +351,12 @@ class ContentOracle_VectorTable{
             $vector = json_decode($vector, true);
         }
 
-        return $this->vector_to_binary($vector);
+        return $this->vector_to_hex($vector);
     }
 
     //convert a vector to binary
     //each hexadecimal character represents the signs of 4 values in the vector
-    public function vector_to_binary(array $vector_arr): string{    //hexadecimal string
+    public function vector_to_hex(array $vector_arr): string{    //hexadecimal string
         $binary_code = '';
 
         //1 if value is greater than 0, 0 otherwise
@@ -358,12 +365,23 @@ class ContentOracle_VectorTable{
         }
 
         //convert binary to bytes
-        $binhexCode = "";
-        foreach (str_split($binary_code, 4) as $halfByte){
-            $binhexCode .= strtoupper(dechex(bindec($halfByte)));
-        }
+        return $this->binary_to_hex($binary_code);
+    }
 
-        return $binhexCode;
+    public function hex_to_binary(string $hex): string{
+        $binary_code = '';
+        foreach (str_split($hex) as $char){
+            $binary_code .= str_pad(decbin(hexdec($char)), 4, '0', STR_PAD_LEFT);
+        }
+        return $binary_code;
+    }
+
+    public function binary_to_hex(string $binary): string{
+        $hex_code = '';
+        foreach (str_split($binary, 4) as $halfByte){
+            $hex_code .= strtoupper(dechex(bindec($halfByte)));
+        }
+        return $hex_code;
     }
 
     //  \\  //  \\  //  \\ UTILS //  \\  //  \\  //  \\
