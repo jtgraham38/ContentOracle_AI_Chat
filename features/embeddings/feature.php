@@ -149,7 +149,13 @@ class ContentOracleEmbeddings extends PluginFeature{
 
             //add the chunked post to the array
             $chunked_posts[] = $chunks;
+
+            //add the post title to the beginning of each chunk for better embeddings
+            foreach ($chunks->chunks as $i => $chunk){
+                $chunks->chunks[$i] = array_merge([$post->post_title], $chunk);
+            }
         }
+
 
         //send an embeddings request to ContentOracle AI
         try{
