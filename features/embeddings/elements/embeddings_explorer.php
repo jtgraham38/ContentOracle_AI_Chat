@@ -10,7 +10,8 @@ require_once plugin_dir_path(__FILE__) . '../chunk_getters.php';
 
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 //access to vector table
-$VT = new ContentOracle_VectorTable($this->get_prefix());
+$VT = new ContentOracle_VectorTable($this->get_prefix() ?? "contentoracle_");
+
 //$result = $VT->search(json_encode( $vector ));
 //this file shows an input, and uses it to display the raw embeddings values for a given post
 
