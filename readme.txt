@@ -1,14 +1,18 @@
 === ContentOracle AI Chat ===
-Contributors: ContentOracle AI
+Contributors: jtgraham38
 Tags: ai, search, content, rag
 Requires at least: 6.5
 Tested up to: 6.7.1
 Stable tag: 1.0.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
-Short Description: ContentOracle AI Search seamlessly blends the power of generative AI with your website’s search feature.
+
+ContentOracle AI Search seamlessly blends the power of generative AI with your website’s search feature.
 
 == Description ==
+
+https://youtu.be/W9pr_weJHWA
+
 The internet is changing. Experts and leaders of major businesses are quickly recognizing the role that generative ai will play in the future of search. Millions of people every day ask artificial intelligence for recommendations, common facts, and how-to knowledge. This trend will continue to grow exponentially in the years to come. However, their are inherent limitations on what AI can and can’t do. It is very good at recalling information, and wording even very complex topics in a way that even a layman can understand. But, it does not possess the specialist knowledge that many online content creators and businesses put into the content they post on their website, nor does it know anything about the things that are going on at that business.
 
 That is where ContentOracle AI Chat comes in. ContentOracle AI Chat bridges the gap between the unique insights your organization offers in your blog content and the power of AI to clearly and concisely get site visitors the information they are looking for. What results is a user experience that doesn’t give vistors a generic answer, but rather an answer uniquely tailored based on your content. Add to this the fact that our AI can recommend relevant posts, products, events, and more based on a goal you set, semantic content anaysis, and a suite of analytic features, and you’ve got a game-changing addition to your user's experience on your website.
@@ -39,7 +43,7 @@ ContentOracle AI bills on a usage-based basis.  So, the more your users interact
 The AI Search block is designed to connect your users with your AI Chat block from anywhere on your website.  When the user searches something in the AI Search block, they will be redirected to your main AI search page, where your AI Chat block should reside.  Their search query will be preemptively sent to the AI to kick off the conversation.
 
 == 3rd-Party Services ==
-This app makes use of the ContentOracle AI api to process user messages, index website content, and generate chat responses.  The url of the api is: https://app.contentoracleai.com.  Here is the url of it's terms of service: https://app.contentoracleai.com/terms.  Data sent to the api includes messages the user enters into chat blocks, content from the website (posts, pages, products, etc.), server and client domains and ips (to prevent abuse), and analytic data to enhance the performance of the application.  Messages and site content may be stored and indexed for debugging and feature development purposes. ContentOracle AI is an api that is used on a pay-as-you-go by enrolled sites.  The API is required to make the blocks supplied by this plugin work, and allows site visitors to use an ai chat feature to interact witht he information in your content in a more intuitive and lively way.
+This app makes use of the ContentOracle AI api to process user messages, index website content, and generate chat responses.  The url of the api is: https://app.contentoracleai.com.  Here is the url of it's terms of service: https://app.contentoracleai.com/terms.  Data sent to the api includes messages the user enters into chat blocks, content from the website (posts, pages, products, etc.), server and client domains and ips (to prevent abuse), and analytic data to enhance the performance of the application.  Messages and site content may be stored and indexed for debugging and feature development purposes. ContentOracle AI is an api that is used on a pay-as-you-go basis by enrolled sites.  The API is required to make the blocks supplied by this plugin work, and allows site visitors to use an ai chat feature to interact witht he information in your content in a more intuitive and lively way.
 
 == 3rd-Party Libraries ==
 This plugin makes use of the following third-party libraries and services:
