@@ -358,16 +358,16 @@ class ContentOracleEmbeddings extends PluginFeature{
     }
 
     public function register_styles(){
-        if (strpos(get_current_screen()->base, 'contentoracle-embeddings') === false) {
+        if (strpos(get_current_screen()->base, 'contentoracle-ai-chat-embeddings') === false) {
             return;
         }
-        wp_enqueue_style('contentoracle-embeddings', plugin_dir_url(__FILE__) . 'assets/css/explorer.css');
+        wp_enqueue_style('contentoracle-ai-chat-embeddings', plugin_dir_url(__FILE__) . 'assets/css/explorer.css');
     }
 
     
     public function add_embedding_meta_box(){
         add_meta_box(
-            'contentoracle-embeddings',
+            'contentoracle-ai-chat-embeddings',
             'ContentOracle AI Embeddings',
             function(){
                 require_once plugin_dir_path(__FILE__) . 'elements/_meta_box.php';
@@ -384,14 +384,14 @@ class ContentOracleEmbeddings extends PluginFeature{
             'Embeddings', // page title
             'Embeddings', // menu title
             'manage_options', // capability
-            'contentoracle-embeddings', // menu slug
+            'contentoracle-ai-chat-embeddings', // menu slug
             array($this, 'render_page') // callback function
         );
     }
 
     public function register_settings(){
         add_settings_section(
-            'contentoracle_embeddings_settings', // id
+            'coai_chat_embeddings_settings', // id
             '', // title
             function(){ // callback
                 echo 'Manage your AI search settings here.';
@@ -407,7 +407,7 @@ class ContentOracleEmbeddings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/chunking_method_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_embeddings_settings',  // section
+            'coai_chat_embeddings_settings',  // section
             array(
             'label_for' => $this->get_prefix() .'chunking_method'
             )
@@ -420,7 +420,7 @@ class ContentOracleEmbeddings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_embeddings_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_embeddings_settings',  // section
+            'coai_chat_embeddings_settings',  // section
             array(
             'label_for' => $this->get_prefix() .'auto_generate_embeddings'
             )
@@ -433,7 +433,7 @@ class ContentOracleEmbeddings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_only_new_embeddings_input.php';
             },
             'contentoracle-ai-settings', // page (matches menu slug)
-            'contentoracle_embeddings_settings',  // section
+            'coai_chat_embeddings_settings',  // section
             array(
             'label_for' => $this->get_prefix() .'auto_generate_only_new_embeddings'
             )
@@ -441,7 +441,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         // create the settings themselves
         register_setting(
-            'contentoracle_embeddings_settings', // option group
+            'coai_chat_embeddings_settings', // option group
             $this->get_prefix() . 'chunking_method',    // option name
             array(  // args
                 'type' => 'string',
@@ -451,7 +451,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         );
 
         register_setting(
-            'contentoracle_embeddings_settings', // option group
+            'coai_chat_embeddings_settings', // option group
             $this->get_prefix() . 'auto_generate_embeddings',    // option name
             array(  // args
                 'type' => 'boolean',
@@ -463,7 +463,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         );
 
         register_setting(
-            'contentoracle_embeddings_settings', // option group
+            'coai_chat_embeddings_settings', // option group
             $this->get_prefix() . 'auto_generate_only_new_embeddings',    // option name
             array(  // args
                 'type' => 'boolean',
@@ -499,7 +499,7 @@ class ContentOracleEmbeddings extends PluginFeature{
                 return;
             }
 
-            $generate_embeddings_url = admin_url('admin.php?page=contentoracle-embeddings');
+            $generate_embeddings_url = admin_url('admin.php?page=contentoracle-ai-chat-embeddings');
             echo '<div class="notice notice-info is-dismissible">';
             echo '<h2>You must generate embeddings to use Semantic Search!</h2>';
             echo '<p>Visit <a href="' . esc_url($generate_embeddings_url) . '" >this page </a> to generate embeddings for your posts, or set the embedding chunking method to none.</p>';

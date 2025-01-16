@@ -13,8 +13,8 @@ if (!defined('ABSPATH')) {
 
     <form method="post" action="options.php">
             <?php
-                settings_fields('contentoracle_ai_settings');
-                do_settings_fields('contentoracle-ai-settings', 'contentoracle_ai_settings');
+                settings_fields('coai_chat_ai_settings');
+                do_settings_fields('contentoracle-ai-settings', 'coai_chat_ai_settings');
             ?>
             <?php submit_button(); ?>
     </form>

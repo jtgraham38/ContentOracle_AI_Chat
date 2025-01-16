@@ -250,11 +250,11 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
             <?php echo esc_html($attributes['buttonText']); ?>
         </button>
     </form>
-    <?php if ( get_option('contentoracle_debug_mode', false) ){ ?>
+    <?php if ( get_option('coai_chat_debug_mode', false) ){ ?>
         <span style="color: red;" coai-x-text="error"></span>
         <span style="color: red;">See the console for more debugging info!</span>
     <?php } ?>
-    <?php if ( get_option('contentoracle_display_credit_link', false) ){ ?>
+    <?php if ( get_option('coai_chat_display_credit_link', false) ){ ?>
         <small style="float: right; margin: 0.2rem 0.1rem;">
             Powered by 
             <a href="https://contentoracleai.com" target="_blank" class="contentoracle-footer_citation_link">

@@ -26,7 +26,7 @@ class ContentOracleMenu extends PluginFeature{
             'ContentOracle AI', // page title
             'ContentOracle',        // menu title
             'manage_options',   // capability
-            'contentoracle-ai', // menu slug
+            'contentoracle-ai-chat', // menu slug
             function(){ // callback function
                 require_once plugin_dir_path(__FILE__) . 'elements/main_page.php';
             },

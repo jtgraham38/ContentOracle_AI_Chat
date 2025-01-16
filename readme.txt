@@ -3,7 +3,7 @@ Contributors: ContentOracle AI
 Tags: ai, search, content, rag
 Requires at least: 6.5
 Tested up to: 6.7.1
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Short Description: ContentOracle AI Search seamlessly blends the power of generative AI with your website’s search feature.
@@ -56,6 +56,9 @@ This plugin makes use of the following third-party libraries and services:
 == Changelog ==
 = 1.0.0 =
 * Initial release
+
+= 1.1.0 =
+* Changed database prefix, and changed admin menu slugs.
 
 == Upgrade Notice ==
 = 1.0.0 =

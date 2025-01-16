@@ -3,7 +3,7 @@
  * Plugin Name:       ContentOracle AI Chat
  * Plugin URI:        https://contentoracleai.com/contentoracle-ai-chat/
  * Description:       ContentOracle AI Search seamlessly blends the power of generative AI with your website’s search feature.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 6.5
  * Requires PHP:      7.2
  * Author:            ContentOracle AI
@@ -25,7 +25,7 @@ use jtgraham38\jgwordpresskit\Plugin;
 
 
 //create a new plugin manager
-$plugin = new Plugin("contentoracle_", plugin_dir_path( __FILE__ ), plugin_dir_url( __FILE__ ));
+$plugin = new Plugin("coai_chat_", plugin_dir_path( __FILE__ ), plugin_dir_url( __FILE__ ));
 
 //register features with the plugin manager here...
 
