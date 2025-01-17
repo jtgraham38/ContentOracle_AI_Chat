@@ -10,9 +10,16 @@ if (!defined('ABSPATH')) {
 
 // Use statements for namespaced classes
 //custom heap class, used in candidate generation
-class ContentOracleMinHeap extends SplMinHeap{
+class ContentOracleCandidateMinHeap extends SplMinHeap{
     protected function compare($a, $b): int{
         return $a['hamming_distance'] <=> $b['hamming_distance'];
+    }
+}
+
+// another custom heap class, for getting most similar vectors
+class ContentOracleRerankMaxHeap extends SplMaxHeap{
+    protected function compare($a, $b): int{
+        return $a['cosine_similarity'] <=> $b['cosine_similarity'];
     }
 }
 
@@ -91,7 +98,7 @@ class ContentOracle_VectorTable{
         $embeddings = $wpdb->get_results($candidates_query);
 
         //get the n vectors with the smallest hamming distance
-        $closest_candidates = new ContentOracleMinHeap();
+        $closest_candidates = new ContentOracleCandidateMinHeap();
         //add each vector to my minheap
         foreach ($embeddings as $embedding){
             //compute the hamming distance between the embedding and the user query vector
@@ -124,29 +131,70 @@ class ContentOracle_VectorTable{
         //normalize the user query vector
         //$normalized_vector = json_encode($this->normalize(json_decode($vector, true)));
 
+
+        //NOTE
+        //NOTE
+        //NOTE
+        //NOTE: I'm not sure this works, so I will use simple php comparison for now
+        //TODO: I need to find a sql query that will work in both mysql and mariadb bc wordpress supports both
         //using only the candidates found, rerank the candidates in the database
         //NOTE: currently,this query computes the cosine similarity of each candidate with the user query vector
-        $rerank_query = 
-        "SELECT v.id, (SUM(q_json.element * db_json.element) / (v.magnitude * %f)) AS cosine_similarity
-            FROM $this->table_name v
-            JOIN JSON_TABLE(v.vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
-                ON 1 = 1  
-            JOIN JSON_TABLE(%s, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) q_json 
-                ON q_json.idx = db_json.idx 
-            WHERE v.id IN ($candidates_str)
-            GROUP BY v.id
-            ORDER BY cosine_similarity DESC
-            LIMIT $n
-        ";
-        $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query,
-            $this->magnitude(json_decode($vector, true)),   //enter magnitude of user query vector
-            $vector//$normalized_vector ,                                         //enter user query vector
-        ));
+        // $rerank_query = 
+        // "SELECT v.id, (SUM(q_json.element * db_json.element) / (v.magnitude * %f)) AS cosine_similarity
+        //     FROM $this->table_name v
+        //     JOIN JSON_TABLE(v.vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
+        //         ON 1 = 1  
+        //     JOIN JSON_TABLE(%s, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) q_json 
+        //         ON q_json.idx = db_json.idx 
+        //     WHERE v.id IN ($candidates_str)
+        //     GROUP BY v.id
+        //     ORDER BY cosine_similarity DESC
+        //     LIMIT $n
+        // ";
+        // $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query,
+        //     $this->magnitude(json_decode($vector, true)),   //enter magnitude of user query vector
+        //     $vector//$normalized_vector ,                                         //enter user query vector
+        // ));
 
-        if (empty($reranked_candidates)){
-            return [];
+        //find the candidates with the lowest cosine distance to the query vector using php
+        $reranked_candidates = new ContentOracleRerankMaxHeap();
+        
+        //get all the candidates
+        $sql = "SELECT id, magnitude, vector FROM $this->table_name WHERE id IN ($candidates_str)";
+        $candidates = $wpdb->get_results($sql);
+
+        //parse the vector
+        $vector = json_decode($vector, true);
+
+        //compute the cosine similarity of each candidate with the user query vector
+        foreach ($candidates as $candidate){
+            //decode the vector
+            $candidate_vector = json_decode($candidate->vector, true);
+
+            //calculate the cosine similarity
+            $cosine_similarity = 0;
+            for ($i = 0; $i < count( $candidate_vector ); $i++){
+                $cosine_similarity += floatval( $vector[$i] ) * floatval( $candidate_vector[$i] );
+            }
+            $cosine_similarity /= ($candidate->magnitude * $this->magnitude($vector)) + 0.000000000001;
+
+            //put the candidate in the reranked max heap
+            $reranked_candidates->insert([
+                'id' => $candidate->id,
+                'cosine_similarity' => $cosine_similarity
+            ]);
         }
-        $reranked_ids = array_map(function($candidate){ return $candidate->id; }, $reranked_candidates);
+
+        //get the n most similar candidates
+        $reranked_candidates_arr = [];
+        for ($i = 0; $i < $n; $i++){
+            if ($reranked_candidates->count() < 1) break;
+            $reranked_candidates_arr[] = $reranked_candidates->extract();
+        }
+        
+
+        //return the ids of the reranked candidates
+        $reranked_ids = array_map(function($candidate){ return $candidate['id']; }, $reranked_candidates_arr);
 
         return $reranked_ids;
     }
