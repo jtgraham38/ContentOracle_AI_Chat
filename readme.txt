@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag
 Requires at least: 6.5
 Tested up to: 6.7.1
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -64,9 +64,15 @@ This plugin makes use of the following third-party libraries and services:
 = 1.1.0 =
 * Changed database prefix, and changed admin menu slugs.
 
+= 1.1.1 =
+* Modified similarity calculation to ensure compatibility with most databases.
+
 == Upgrade Notice ==
 = 1.0.0 =
 Upgrade notice for users of previous versions.
+
+= 1.1.0 =
+You will need to regenerate embeddings, and reset all settings, including your api key, since the database prefix changed.  You can also use a database explorer to get you old exact settings back.
 
 == Screenshots ==
 1. This is the first screenshot.
