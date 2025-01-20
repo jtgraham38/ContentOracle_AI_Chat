@@ -18,7 +18,7 @@ That is where ContentOracle AI Chat comes in. ContentOracle AI Chat bridges the 
 
 - Upload the plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
 - Activate the plugin through the 'Plugins' screen in WordPress.
-- Go to **URL_HERE**, and create an account by clicking register. After registering, you should be redirected to the dashboard.
+- Go to [app.contentoracleai.com](https://app.contentoracleai.com/), and create an account by clicking register. After registering, you should be redirected to the dashboard.
 - Navigate to the tokens tab. Click the plus button to create a new token. Give the token a name (the name doesn't matter, it is a label for your own purposes). Expiration date can be set or left empty.
 - Copy the token to your clipboard. We'll need it later.
 - Navigate to the subscription tab next. Enter your billing information. This is required for the chat functionality to work on your site.
@@ -37,7 +37,7 @@ All you need to do is edit the prompt settings. In the admin dashboard, navigate
 
 ### How does billing work?
 
-ContentOracle AI bills on a usage-based basis. So, the more your users interact with the AI bot, the more you will be billed. Billing details can be found by visiting **URL_HERE**. A spend limit can be set in your ContentOracle account dashboard
+ContentOracle AI bills on a usage-based basis. So, the more your users interact with the AI bot, the more you will be billed. Billing details can be found by visiting [app.contentoracleai.com/dashboard?p=subscription](https://app.contentoracleai.com/dashboard?p=subscription). A spend limit can be set in your ContentOracle account dashboard
 
 ### What does the AI Search block do?
 
