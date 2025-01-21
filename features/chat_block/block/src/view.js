@@ -72,7 +72,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		//this.loading = true;
 		
 		//prepare the request headers and body
-		const url = this.apiBaseUrl + 'contentoracle/v1/chat';
+		const url = this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat';
 		const headers = {
 			'Content-Type': 'application/json',
 			'COAI-X-WP-Nonce': this.chatNonce
@@ -203,7 +203,7 @@ store( 'contentoracle-ai-chat', {
 			console.log( context.conversation );
 
 			//prepare the request
-			const url = context.apiBaseUrl + 'contentoracle/v1/search';
+			const url = context.apiBaseUrl + 'contentoracle-ai-chat/v1/search';
 			const data = {
 				query: context.userMsg,
 			};
