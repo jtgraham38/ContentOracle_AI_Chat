@@ -134,27 +134,27 @@ class ContentOracleApi extends PluginFeature{
     //streamed chat callback
     public function streamed_ai_chat($request){
         // //get the query
-        // $message = $request->get_param('message');
+        $message = $request->get_param('message');
 
-        // //get the content to use in the response
-        // //switch based on the chunking method
-        // $chunking_method = get_option($this->get_prefix() . 'chunking_method');
-        // switch ($chunking_method){
-        //     case 'token:256':
-        //         $content = $this->token256_content_search($message);
-        //         $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
-        //         break;
-        //     default:
-        //         $content = $this->keyword_content_search($message);
-        //         $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
-        //         break;
-        // }
+        //get the content to use in the response
+        //switch based on the chunking method
+        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        switch ($chunking_method){
+            case 'token:256':
+                $content = $this->token256_content_search($message);
+                $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
+                break;
+            default:
+                $content = $this->keyword_content_search($message);
+                $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                break;
+        }
 
-        // //get the conversation from the request
-        // $conversation = [];//$request->get_param('conversation');
+        //get the conversation from the request
+        $conversation = [];//$request->get_param('conversation');
 
-        // //get the ip address of the client for COAI rate limiting
-        // $client_ip = $this->get_client_ip();
+        //get the ip address of the client for COAI rate limiting
+        $client_ip = $this->get_client_ip();
         
         //TODO: FIGURE OUT WHAT THE PROBLEM WITH OUT PUT BUFFERING IS
         //set buffer to flush immediately
@@ -175,56 +175,57 @@ class ContentOracleApi extends PluginFeature{
     ob_implicit_flush(1);
 
     // Text to stream
-    $text = "Lorem ipsum dolor sit amet consectetur adipisicing elit.";
-    $words = explode(" ", $text);
+    // $text = "Lorem ipsum dolor sit amet consectetur adipisicing elit.";
+    // $words = explode(" ", $text);
 
-    // Stream words
-    foreach ($words as $word) {
-        echo $word . " ";
-        flush();
-        usleep(200000); // Sleep for 0.2 seconds
-    }
-
-    // Return a REST API response to avoid WordPress errors
-    die(); // Stop further WordPress execution
+    // // Stream words
+    // foreach ($words as $word) {
+    //     echo $word . " ";
+    //     flush();
+    //     usleep(200000); // Sleep for 0.2 seconds
+    // }
 
 
 
-        // //send a request to the ai to generate a response
-        // $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
-        // $response = $api->streamed_ai_chat($message, $content, $conversation, function($data){
+        //send a request to the ai to generate a response
+        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
+        $response = $api->streamed_ai_chat($message, $content, $conversation, function($data){
 
 
-        //     //send the data
-        //     echo $data;
-        // });
+            //send the data
+            echo $data;
+            echo "\n||\n||\n";
+            flush();
+            usleep(200000); // Sleep for 0.2 seconds
+        });
 
-        // //flush the buffer
-        // ob_end_flush();
 
-        // //handle error in response
-        // if ( isset( $response['error'] ) ){
-        //     return new WP_REST_Response(
-        //         array(
-        //             'error' => $response['error']
-        //         )
-        //     );
-        // }
-        // if (isset($response['errors'])){
-        //     return new WP_REST_Response(
-        //         array(
-        //             'errors' => $response['errors']
-        //         )
-        //     );
-        // }
-        // //TODO: temporary handler for unauthenticated error, it should return a 401 unauthorized error
-        // if ( (isset($response['message']) && $response['message'] == 'Unauthenticated.') ){
-        //     return new WP_REST_Response(
-        //         array(
-        //             'response' => $response['message']
-        //         )
-        //     );
-        // }
+        //handle error in response
+        if ( isset( $response['error'] ) ){
+            return new WP_REST_Response(
+                array(
+                    'error' => $response['error']
+                )
+            );
+        }
+        if (isset($response['errors'])){
+            return new WP_REST_Response(
+                array(
+                    'errors' => $response['errors']
+                )
+            );
+        }
+        //TODO: temporary handler for unauthenticated error, it should return a 401 unauthorized error
+        if ( (isset($response['message']) && $response['message'] == 'Unauthenticated.') ){
+            return new WP_REST_Response(
+                array(
+                    'response' => $response['message']
+                )
+            );
+        }
+
+        //stop executing here
+        die;
     }
 
     //search callback
