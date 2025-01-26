@@ -267,6 +267,26 @@ export default function Edit({
 							/>
 						</div>
 					</div>
+
+					<div class="contentoracle-ai_panelbody_group">
+						<div className="contentoracle-ai_panelbody_input_container">
+							<label 
+								className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2" 
+								htmlFor={`wp-block-chat_placeholder_${iid}`}
+								style={{marginBottom: '0.5rem'}}
+							>
+								Stream Responses?
+							</label>
+							<input 
+								type="checkbox" 
+								defaultChecked={ attributes.streamResponses }
+								id={`wp-block-chat_placeholder_${iid}`}
+								onChange={ ( event ) => {
+									setAttributes( { placeholder: event.target.checked } );
+								} }
+							></input>
+						</div>
+					</div>
 				</div>
 				</PanelBody>
 			</InspectorControls>

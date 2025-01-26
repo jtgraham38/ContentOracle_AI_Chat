@@ -50,6 +50,10 @@
     "userMsgTextColor": {
       "type": "string",
       "default": "#eeeeff"
+    },
+    "streamResponses": {
+      "type": "boolean",
+      "default": true
     }
   },
   "selectors": {

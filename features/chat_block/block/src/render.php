@@ -119,7 +119,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     coai-x-data="contentoracle_ai_chat"
     data-contentoracle_rest_url="<?php echo esc_url( get_rest_url() ) ?>"
     data-contentoracle_chat_nonce="<?php echo esc_attr( wp_create_nonce('contentoracle_chat_nonce') ) ?>"
-    data-contentoracle_stream_responses="<?php echo esc_attr( get_option('coai_chat_stream_responses', false) ) ?>"
+    data-contentoracle_stream_responses="MAKE AN $ATTRIBUTES ENTRY FOR THIS"
 >
     <div class="contentoracle-ai_chat_header">
         <h3 
