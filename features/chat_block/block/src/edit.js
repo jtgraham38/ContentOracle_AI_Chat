@@ -282,7 +282,7 @@ export default function Edit({
 								defaultChecked={ attributes.streamResponses }
 								id={`wp-block-chat_placeholder_${iid}`}
 								onChange={ ( event ) => {
-									setAttributes( { placeholder: event.target.checked } );
+									setAttributes( { streamResponses: event.target.checked } );
 								} }
 							></input>
 						</div>

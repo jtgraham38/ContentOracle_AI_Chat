@@ -298,7 +298,7 @@ function Edit({
     id: `wp-block-chat_placeholder_${iid}`,
     onChange: event => {
       setAttributes({
-        placeholder: event.target.checked
+        streamResponses: event.target.checked
       });
     }
   })))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {

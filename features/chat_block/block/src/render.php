@@ -109,9 +109,8 @@ $action_btn_classnames .= " contentoracle-action_button";
 
 //generate unique id for the chat
 $chat_id = wp_unique_id('contentoracle-ai_chat_');
+
 ?>
-
-
 <div 
     id="<?php echo esc_attr( $chat_id ) ?>" 
     style="<?php echo esc_attr($root_inline_styles) ?>" 
@@ -119,7 +118,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     coai-x-data="contentoracle_ai_chat"
     data-contentoracle_rest_url="<?php echo esc_url( get_rest_url() ) ?>"
     data-contentoracle_chat_nonce="<?php echo esc_attr( wp_create_nonce('contentoracle_chat_nonce') ) ?>"
-    data-contentoracle_stream_responses="MAKE AN $ATTRIBUTES ENTRY FOR THIS"
+    data-contentoracle_stream_responses="<?php echo esc_attr( $attributes['streamResponses'] ) ?>"
 >
     <div class="contentoracle-ai_chat_header">
         <h3 
