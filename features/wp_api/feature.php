@@ -139,15 +139,23 @@ class ContentOracleApi extends PluginFeature{
         //get the content to use in the response
         //switch based on the chunking method
         $chunking_method = get_option($this->get_prefix() . 'chunking_method');
-        switch ($chunking_method){
-            case 'token:256':
-                $content = $this->token256_content_search($message);
-                $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
-                break;
-            default:
-                $content = $this->keyword_content_search($message);
-                $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
-                break;
+        try{
+            switch ($chunking_method){
+                case 'token:256':
+                    $content = $this->token256_content_search($message);
+                    $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
+                    break;
+                default:
+                    $content = $this->keyword_content_search($message);
+                    $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                    break;
+            }
+        } catch (Exception $e){
+            return new WP_REST_Response(
+                array(
+                    'error' => $e->getMessage()
+                )
+            );
         }
 
         //get the conversation from the request
@@ -156,47 +164,28 @@ class ContentOracleApi extends PluginFeature{
         //get the ip address of the client for COAI rate limiting
         $client_ip = $this->get_client_ip();
         
-        //TODO: FIGURE OUT WHAT THE PROBLEM WITH OUT PUT BUFFERING IS
-        //set buffer to flush immediately
-        //set response streaming vars
-         // Set headers for streaming
-         // Ensure headers are sent before output
-    if (!headers_sent()) {
-        header('Content-Type: text/plain'); // Adjust as needed
-        header('Cache-Control: no-cache');
-        header('Connection: keep-alive');
-        header('X-Accel-Buffering: no'); // For Nginx
-    }
+        // Set headers for streaming
+        // Ensure headers are sent before output
+        if (!headers_sent()) {
+            header('Content-Type: text/plain'); // Adjust as needed
+            header('Cache-Control: no-cache');
+            header('Connection: keep-alive');
+            header('X-Accel-Buffering: no'); // For Nginx
+        }
 
-    // Disable buffering to send output directly
-    @ini_set('output_buffering', 'Off');
-    @ini_set('zlib.output_compression', 'Off');
-    @ini_set('implicit_flush', 'On');
-    ob_implicit_flush(1);
-
-    // Text to stream
-    // $text = "Lorem ipsum dolor sit amet consectetur adipisicing elit.";
-    // $words = explode(" ", $text);
-
-    // // Stream words
-    // foreach ($words as $word) {
-    //     echo $word . " ";
-    //     flush();
-    //     usleep(200000); // Sleep for 0.2 seconds
-    // }
-
+        // Disable buffering to send output directly
+        @ini_set('output_buffering', 'Off');
+        @ini_set('zlib.output_compression', 'Off');
+        @ini_set('implicit_flush', 'On');
+        ob_implicit_flush(1);
 
 
         //send a request to the ai to generate a response
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
         $response = $api->streamed_ai_chat($message, $content, $conversation, function($data){
-
-
             //send the data
             echo $data;
-            echo "\n||\n||\n";
-            flush();
-            usleep(200000); // Sleep for 0.2 seconds
+            flush();    //flush to stream
         });
 
 
@@ -236,15 +225,23 @@ class ContentOracleApi extends PluginFeature{
         //get the content to use in the response
         //switch based on the chunking method
         $chunking_method = get_option($this->get_prefix() . 'chunking_method');
-        switch ($chunking_method){
-            case 'token:256':
-                $content = $this->token256_content_search($message);
-                $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
-                break;
-            default:
-                $content = $this->keyword_content_search($message);
-                $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
-                break;
+        try{
+            switch ($chunking_method){
+                case 'token:256':
+                    $content = $this->token256_content_search($message);
+                    $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
+                    break;
+                default:
+                    $content = $this->keyword_content_search($message);
+                    $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                    break;
+            }
+        } catch (Exception $e){
+            return new WP_REST_Response(
+                array(
+                    'error' => $e->getMessage()
+                )
+            );
         }
 
         //get the conversation from the request
@@ -566,7 +563,10 @@ class ContentOracleApi extends PluginFeature{
     function token256_content_search($message){
         //begin by embedding the user's message
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+
+        //get the embedding from the ai
         $response = $api->query_vector($message);
+
         if (empty($response['embeddings'])){
             throw new Exception('No embeddings returned from the AI');
         }

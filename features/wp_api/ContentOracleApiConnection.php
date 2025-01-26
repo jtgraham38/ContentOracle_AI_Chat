@@ -156,6 +156,11 @@ class ContentOracleApiConnection{
         if (is_wp_error($response)){
             throw new Exception($response->get_error_message());
         }
+
+        //handle non-2XX responses
+        if (wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300) {
+            throw new Exception(wp_remote_retrieve_response_message($response));
+        }
         
         //retrieve and format the response
         $body = wp_remote_retrieve_body($response);
