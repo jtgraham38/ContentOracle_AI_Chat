@@ -38,10 +38,10 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		const searchQuery = urlParams.get('contentoracle_ai_search');
 		if (searchQuery) {
 			if (this.stream_responses) {
-				this.sendStreamed( this.userMsg, event );
+				this.sendStreamed( searchQuery, event );
 			}
 			else{
-				this.send( this.userMsg, event );
+				this.send( searchQuery, event );
 			}
 		}
 		
