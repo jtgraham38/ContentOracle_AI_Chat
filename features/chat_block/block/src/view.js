@@ -16,11 +16,14 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	loading: false,
 	error: "",
 	chatNonce: "",	//will be filled in by the block via php
+	stream_responses: true,
 	init() {
 		console.log('init chat!!!');
 		//load the rest url into the apiBaseUrl from the data-contentoracle_rest_url attribute
 		this.apiBaseUrl = this.$el.getAttribute('data-contentoracle_rest_url');
 		this.chatNonce = this.$el.getAttribute('data-contentoracle_chat_nonce');
+		this.stream_responses = this.$el.getAttribute('data-contentoracle_stream_responses');
+		console.log(this.stream_responses);
 
 		//scroll to the bottom of the chat when the conversation updates
 		this.$watch('conversation', () => {
@@ -34,7 +37,12 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		const urlParams = new URLSearchParams(window.location.search);
 		const searchQuery = urlParams.get('contentoracle_ai_search');
 		if (searchQuery) {
-			this.send( searchQuery );
+			if (this.stream_responses) {
+				this.sendStreamed( this.userMsg, event );
+			}
+			else{
+				this.send( this.userMsg, event );
+			}
 		}
 		
 	},
@@ -61,15 +69,19 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		}
 
 		//send the message
-		await this.send( this.userMsg, event );
+		if (this.stream_responses) {
+			await this.sendStreamed( this.userMsg, event );
+		}
+		else{
+			await this.send( this.userMsg, event );
+		}
 	},
 	//sends a message to the server and gets an ai response back
 	async send( msg ) {
-		//set loading state, after a slight delat
+		//set loading state, after a slight delay
 		setTimeout( 
 			() => { this.loading = true; }, 1000 
 		);
-		//this.loading = true;
 		
 		//prepare the request headers and body
 		const url = this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat';
@@ -166,6 +178,10 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		//clear out input
 		this.userMsg = '';
 	},
+
+	async sendStreamed( msg ){
+		console.log('streaming');
+	},
 	//scrolls to the bottom of the chat
 	scrollToBottom( event ) {
         const chatContainer = this.$refs.chatBody;
@@ -175,70 +191,3 @@ Alpine.data('contentoracle_ai_chat', () => ({
 )
 
 Alpine.start();
-
-//the interactivity api way to do it... api seems to new with too little documentation to use just yet
-/*
-store( 'contentoracle-ai-chat', {
-	actions: {
-		//NOTE: this should not be implemented with async/await, but with a generator
-		//NOTE: unexpected behavior when using async/await, the message is not added to the conversation
-		//TODO: check this page for more: https://make.wordpress.org/core/2024/03/04/interactivity-api-dev-note/
-		sendMessage: async ( event ) => {
-			//get the message from the user
-			const context = getContext();
-
-			//ensure there is a message
-			if ( context.userMsg === '' ) {
-				//NOTE: the validaity doesnt work, for some reason!
-				event.target.setCustomValidity( 'Please enter a message!' );
-				console.log( 'No message entered!' );
-				return
-			}
-
-			//add message to conversation
-			context.conversation.push( {
-				role: 'user',
-				message: context.userMsg,
-			} );
-			console.log( context.conversation );
-
-			//prepare the request
-			const url = context.apiBaseUrl + 'contentoracle-ai-chat/v1/search';
-			const data = {
-				query: context.userMsg,
-			};
-			const options = {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify( data ),
-			};
-
-			//send the request
-			const request = await fetch( url, options )
-			const json = await request.json();
-			//const json = { response: {it: "worked"} }
-
-			//push the response to the conversation
-			context.conversation.push( {
-				role: 'assistant',
-				message: json.response.it,	//NOTE: .it is temporary for now, will grab actual message later
-			} );
-
-			//clear out input
-			context.userMsg = '';
-			event.target.value = '';
-		},
-		updateUserMsg: ( event ) => {
-			console.log("updateUserMsg")
-			//console.log( `Updating user message to: ${ event.target.value }` );
-			const context = getContext();
-			context.userMsg = event.target.value;
-		}
-	},
-	callbacks: {
-		
-	},
-} );
-*/
