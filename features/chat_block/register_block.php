@@ -71,10 +71,10 @@ class ContentOracleAiBlock extends PluginFeature{
             $scrollbar_color = $link_color;
 
             //generate the styles for the chat block
-            $user_bg = $attributes['userMsgBgColor'];
-            $user_text = $attributes['userMsgTextColor'];
-            $bot_bg = $attributes['botMsgBgColor'];
-            $bot_text = $attributes['botMsgTextColor'];
+            $user_bg = isset($attributes['userMsgBgColor']) ? $attributes['userMsgBgColor'] : '#3232fd';
+            $user_text = isset($attributes['userMsgTextColor']) ? $attributes['userMsgTextColor'] : '#eeeeff';
+            $bot_bg = isset($attributes['botMsgBgColor']) ? $attributes['botMsgBgColor'] : '#d1d1d1';
+            $bot_text = isset($attributes['botMsgTextColor']) ? $attributes['botMsgTextColor'] : '#111111';
 
             $style_string = sprintf('
                 .contentoracle-ai_chat_bubble_user {

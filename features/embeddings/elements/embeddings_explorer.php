@@ -10,7 +10,7 @@ require_once plugin_dir_path(__FILE__) . '../chunk_getters.php';
 
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 //access to vector table
-$VT = new ContentOracle_VectorTable($this->get_prefix() ?? "contentoracle_");
+$VT = new ContentOracle_VectorTable($this->get_prefix() ?? "coai_chat_");
 
 //$result = $VT->search(json_encode( $vector ));
 //this file shows an input, and uses it to display the raw embeddings values for a given post
@@ -49,7 +49,7 @@ if (isset($_REQUEST['action'])) {
                 // update_post_meta($post_id, $this->get_prefix() . 'embeddings', $embeddings);
 
                 //ensure the post is of a type that the ai indexes
-                $post_types = get_option('contentoracle_post_types');
+                $post_types = get_option('coai_chat_post_types');
                 if (!isset($selected_post) || !in_array($selected_post->post_type, $post_types)) {
                     return;
                 }
@@ -87,7 +87,7 @@ if (isset($_REQUEST['action'])) {
             $bulk_option = $_REQUEST['bulk_generate_embeddings_option'];
 
             //get all the posts, based on the selected bulk option and post types to index
-            $post_types = get_option('contentoracle_post_types') ?? [];
+            $post_types = get_option('coai_chat_post_types') ?? [];
             $posts = [];
             switch ($bulk_option) {
                 case 'unembedded':
@@ -135,7 +135,7 @@ if (!is_array($embeddings)) {
 }
 
 //get the types of posts that are indexed by the AI
-$post_types = get_option('contentoracle_post_types');
+$post_types = get_option('coai_chat_post_types');
 
 //get all posts of the indexed types
 $posts = get_posts(array(
@@ -191,7 +191,7 @@ $posts = get_posts(array(
                 let selector = document.getElementById('<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector');
                 console.log(selector, "selector");
                 selector.addEventListener('change', function(){
-                    window.location.href = '<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings&post_id=' + selector.value;
+                    window.location.href = '<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-ai-chat-embeddings&post_id=' + selector.value;
                 });
             });
         </script>
@@ -216,7 +216,7 @@ $posts = get_posts(array(
         >
             <form 
                 method="POST" 
-                action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings&post_id=<?php echo esc_url($post_id) ?>"
+                action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-ai-chat-embeddings&post_id=<?php echo esc_url($post_id) ?>"
             >
                 <div
                     style="max-width: 48rem; overflow-x: auto;"
@@ -310,7 +310,7 @@ $posts = get_posts(array(
 
         <form 
             method="POST" 
-            action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-embeddings" 
+            action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-ai-chat-embeddings" 
         >
         <label for="bulk_generate_embeddings_select">Bulk Options</label>
             <div style="display: flex;">
