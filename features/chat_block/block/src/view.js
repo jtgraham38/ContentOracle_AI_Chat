@@ -180,7 +180,46 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	},
 
 	async sendStreamed( msg ){
-		console.log('streaming');
+
+		//add the user's message to conversation 
+		//this is done here so that the message is not already in the conversation when the message is sent to the
+		//coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
+		this.conversation.push( {
+			role: 'user',
+			content: msg,
+		} );
+
+		//initialize the xhr request
+		const xhr = new XMLHttpRequest();
+		xhr.open(
+			"GET",			//TODO: change later!
+			this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat/stream&message=' + msg,
+			true
+		);
+
+		//set the headers
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		xhr.setRequestHeader('COAI-X-WP-Nonce', this.chatNonce);
+
+		//set streaming handler
+		xhr.onprogress = function(event) {
+			console.log(event.target.response);
+			console.log("_________________________")
+			// const fragment = JSON.parse(event.target.response);
+			// console.log(fragment?.generated?.message);
+		};
+
+		//set error handler
+		xhr.onerror = function() {
+			console.error(event);
+		};
+
+		//send the request with the body
+		const data = {
+			message: msg,
+			conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10),
+		};
+		xhr.send(JSON.stringify(data));
 	},
 	//scrolls to the bottom of the chat
 	scrollToBottom( event ) {
