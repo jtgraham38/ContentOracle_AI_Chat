@@ -318,7 +318,7 @@ export default function Edit({
 							<div { ...actionContainerProps }>
 								<label { ...actionLabelProps }>Want to learn more about growing tomatos?  Read on!</label>
 
-								<img { ...actionImageProps } src={ window.location.origin + '/wp-content/plugins/contentoracle/features/chat_block/assets/images/tomatos.jpg'} alt="tomatos"></img>
+								<img { ...actionImageProps } src={ window.location.origin + '/wp-content/plugins/contentoracle_ai_chat/features/chat_block/assets/images/tomatos.jpg'} alt="tomatos"></img>
 
 								<p { ...actionTextProps } >Discover the secrets to cultivating thriving tomatoes with the perfect soil mix. From pH levels to nutrient-rich ingredients, learn how to create the ideal growing environment for juicy, flavorful tomatoes in your garden.</p>
 
