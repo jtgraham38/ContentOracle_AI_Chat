@@ -7751,6 +7751,11 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     this.userMsg = '';
   },
   async sendStreamed(msg) {
+    //set loading state, after a slight delay
+    setTimeout(() => {
+      this.loading = true;
+    }, 1000);
+
     //add the user's message to conversation 
     //this is done here so that the message is not already in the conversation when the message is sent to the
     //coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
@@ -7770,12 +7775,80 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     xhr.setRequestHeader('COAI-X-WP-Nonce', this.chatNonce);
 
     //set streaming handler
+    let finger = 0;
+    let full_response = "";
     xhr.onprogress = function (event) {
-      console.log(event.target.response);
-      console.log("_________________________");
-      // const fragment = JSON.parse(event.target.response);
-      // console.log(fragment?.generated?.message);
-    };
+      //set loading state
+      this.loading = false;
+
+      //get the response from the event
+      const _response = event.target.response;
+
+      //split on separator, the first "private use character" is the separator
+      let responses = _response.split("\u{E000}").slice(finger);
+      finger += responses.length - 1;
+
+      //filter out empty strings
+      responses = responses.filter(response => response.length > 0);
+
+      //TODO
+      //TODO
+      //TODO TODO: sometimes, each entry of the respones array is not a full fragment, I need to solve and fix this
+      //TODO
+      //TODO
+
+      //iterate through the responses, parsing them
+      responses.map(response => {
+        //push a chat bubble to the conversation for the ai response to fill, if one has not already been added
+        if (this.conversation.length == 0 || this.conversation[this.conversation.length - 1].role != 'assistant') {
+          this.conversation.push({
+            role: 'assistant',
+            content: "",
+            citations: [],
+            context_used: [],
+            context_supplied: [],
+            action: null
+          });
+        }
+
+        //parse the response
+        let parsed;
+        try {
+          parsed = JSON.parse(response);
+        } catch (e) {
+          console.error(e);
+          console.error(responses);
+          return;
+        }
+
+        //handle the response
+        if (parsed?.error) {
+          //this is an error that might be set in the wp api, because it is not a part of the response
+          this.error = parsed.error;
+          console.error(parsed.error);
+        }
+        //check if this is the action response
+        else if (parsed?.action) {
+          //handle the action
+          if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+            this.conversation[this.conversation.length - 1].action = parsed.action;
+          }
+        }
+        //otherwise, extract the generated message fragment
+        else {
+          //ensure the last message is not finished yet and it is an assistant message
+          if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+            //append the fragment to the last message
+            if (parsed?.generated?.message.length > 0) {
+              full_response += parsed?.generated?.message;
+            }
+          }
+
+          //render and sanitize the markdown
+          this.conversation[this.conversation.length - 1].content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(full_response));
+        }
+      });
+    }.bind(this); //IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
 
     //set error handler
     xhr.onerror = function () {

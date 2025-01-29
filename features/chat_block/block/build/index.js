@@ -341,7 +341,7 @@ function Edit({
     ...actionLabelProps
   }, "Want to learn more about growing tomatos?  Read on!"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
     ...actionImageProps,
-    src: window.location.origin + '/wp-content/plugins/contentoracle/features/chat_block/assets/images/tomatos.jpg',
+    src: window.location.origin + '/wp-content/plugins/contentoracle_ai_chat/features/chat_block/assets/images/tomatos.jpg',
     alt: "tomatos"
   }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
     ...actionTextProps

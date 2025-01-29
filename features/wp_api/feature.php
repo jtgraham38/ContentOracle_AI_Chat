@@ -184,7 +184,27 @@ class ContentOracleApi extends PluginFeature{
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
         $response = $api->streamed_ai_chat($message, $content, $conversation, function($data){
             //send the data
-            echo $data;
+
+            $parsed = json_decode($data, true);
+            
+            //handle the action
+            if ( isset($parsed['action']) && isset($parsed['action']['content_id']) && get_post($parsed['action']['content_id']) ){
+                $parsed['action']['content_type'] = get_post_type($parsed['action']['content_id']);
+                $parsed['action']['content_url'] = get_post_permalink($parsed['action']['content_id']);
+                $parsed['action']['content_excerpt'] = get_the_excerpt($parsed['action']['content_id']);
+                $parsed['action']['content_featured_image'] = get_the_post_thumbnail_url($parsed['action']['content_id']);
+
+                //encode and echo the action
+                $action = json_encode($parsed);
+                echo $action;
+            }
+            //TODO: handle sources, citations, etc.
+            else{
+                echo $data;
+                $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
+                echo $private_use_char; // Send a private use character to signal the end of the fragment
+            }
+
             flush();    //flush to stream
         });
 
