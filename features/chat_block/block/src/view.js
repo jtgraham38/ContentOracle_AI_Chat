@@ -207,7 +207,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		//initialize the xhr request
 		const xhr = new XMLHttpRequest();
 		xhr.open(
-			"GET",			//TODO: change later!
+			"POST",			//TODO: change later!
 			this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat/stream&message=' + msg,
 			true
 		);

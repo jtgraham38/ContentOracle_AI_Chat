@@ -83,7 +83,7 @@ class ContentOracleApi extends PluginFeature{
 
         //streamed route
         register_rest_route('contentoracle-ai-chat/v1', '/chat/stream', array(
-            'methods' => 'GET',             //TODO: change to post on going live
+            'methods' => 'POST',             //TODO: change to post on going live
             'permission_callback' => function($request){    //nonce validations
                 return true; //TODO: fix this one day!
                 $nonce = $request->get_header('COAI-X-WP-Nonce');
