@@ -7776,7 +7776,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
     //set streaming handler
     let finger = 0;
-    let full_response = "";
+    let raw_response = ""; //store the raw response, so we don't try to double parse the markdown
     xhr.onprogress = function (event) {
       //set loading state
       this.loading = false;
@@ -7790,12 +7790,6 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
       //filter out empty strings
       responses = responses.filter(response => response.length > 0);
-
-      //TODO
-      //TODO
-      //TODO TODO: sometimes, each entry of the respones array is not a full fragment, I need to solve and fix this
-      //TODO
-      //TODO
 
       //iterate through the responses, parsing them
       responses.map(response => {
@@ -7848,12 +7842,26 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
             //append the fragment to the last message
             if (parsed?.generated?.message.length > 0) {
-              full_response += parsed?.generated?.message;
+              raw_response += parsed?.generated?.message;
             }
           }
 
+          //add the raw (unparsed) response to the last message
+          this.conversation[this.conversation.length - 1].raw_content = raw_response;
+
+          //add the in-text citations to the last message
+          //render the citations
+          const cited_chat = this.addCitations(this.conversation[this.conversation.length - 1]);
+
           //render and sanitize the markdown
-          this.conversation[this.conversation.length - 1].content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(full_response));
+          const rendered_chat_content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(cited_chat.raw_content));
+
+          //the content raw content has been cooked!
+          const rendered_cited_chat = cited_chat;
+          rendered_cited_chat.content = rendered_chat_content;
+
+          //now, after all parses and transformations, set the chat content to the rendered chat
+          this.conversation[this.conversation.length - 1] = cited_chat;
         }
       });
     }.bind(this); //IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
@@ -7869,6 +7877,68 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10)
     };
     xhr.send(JSON.stringify(data));
+
+    //TODO: implement the generation of in-text citations and context used here in the block.
+  },
+  //ads inline citations and citations section to an ai chat response
+  addCitations(chat) {
+    console.log("citationizing");
+    //begin by making a SHALLOW copy of the original chat object
+    //I'd rather return a copy than modify state directly
+    const copy = Object.assign({}, chat);
+
+    //find all citations, which match the form "[|$|]lorem ipsum... [|$|][|@|]content_id[|@|]"
+    //and replace them with the citation,
+    //which is an a tag linking to the content_id. with the class contentoracle-inline_citation
+    //and text numbered from 1 to n
+    //where n is the number of citations in the response
+    console.log(copy);
+    let current_lbl = 1;
+    copy.raw_content = chat.raw_content.replace(/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/g, (match, text, post_id) => {
+      // Get the post URL
+      const post = chat.context_supplied[post_id];
+
+      //see if this post has been labelled already
+      if (!post.label) {
+        chat.context_supplied[post_id].label = current_lbl++;
+      }
+
+      //create the citation
+      const label = post.label;
+      const url = post.url;
+      return `${text} <a href="${url}" class="contentoracle-inline_citation" target="_blank">${label}</a>`;
+    });
+
+    //now, handle citations that are missing the "[|$|]lorem ipsum... [|$|]" part
+    //in the case that the wrapper around the content is missing
+    copy.raw_content = chat.raw_content.replace(/\|\[@\]\|(\d+)\|\[@\]\|/g, (match, post_id) => {
+      // Get the post URL
+      const post = chat.context_supplied[post_id];
+
+      //see if this post has been labelled already
+      if (!post.label) {
+        chat.context_supplied[post_id].label = current_lbl++;
+      }
+
+      //create the citation
+      const label = post.label;
+      const url = post.url;
+      return `<a href="${url}" class="contentoracle-inline_citation" target="_blank">${label}</a>`;
+    });
+
+    //remove extra "|[$]|" and "|[@]|" from the content
+    copy.raw_content = copy.raw_content.replace(/\|\[@\]\|/g, "");
+    copy.raw_content = copy.raw_content.replace(/\|\[\$\]\|/g, "");
+
+    //todo: set context used for bottom citations
+
+    //return copy
+    return copy;
+  },
+  //add styling to the main idea of an ai response
+  addMainIdea(event) {
+    //set delimiters
+    mainIdeaDelimiter = "[|#|]";
   },
   //scrolls to the bottom of the chat
   scrollToBottom(event) {
