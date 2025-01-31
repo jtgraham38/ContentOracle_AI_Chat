@@ -328,105 +328,17 @@ class ContentOracleApi extends PluginFeature{
             $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['content_id']);
         }
 
-        //wrap the main idea of the response (returned wrapped in |>#<|) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
-        //TODO
-        $ai_response = preg_replace('/\|\[#\]\|([^*]+)\|\[#\]\|/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response);
-
-        //find citations fitting the form |[$]|lorem ipsum|[$]||[@]|580|[@]|, and place an in-text citation there
-        //NOTE: I want to replace the thing in the parentheses, of strings meeting this form: |[$]|lorem ipsum|[$]||[@]|580|[@]|
-        $posts_cited = [];
-        $ai_response = preg_replace_callback(
-            '/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$content, &$posts_cited) { //& = pass by reference
-                //get the text and post_id from the matches
-                $text = $matches[1];
-                $post_id = $matches[2];
-                //get the post url
-                $url = get_post_permalink($post_id);
-
-                //find the post in the content array, and give it a label
-                $label = "";
-                foreach ($content as &$post){   //& = pass by reference
-                    if ( $post['id'] == $post_id ){
-
-                        //check if the post has been used already
-                        if ( !in_array($post_id, $posts_cited) ){
-                            $posts_cited[] = $post_id;
-                        }
-
-                        //get the label for the inline citation
-                        $label = array_search($post_id, $posts_cited) + 1;
-                        break;
-                    }
-                }
-
-                return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\" target=\"_blank\">$label</a>";
-            },
-            $ai_response
-        );     
-
-        //find citations fitting the form |[@]|580|[@]| (broken |[$]| wrapper), and place an in-text citation there
-        $ai_response = preg_replace_callback(
-            '/\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$content, &$posts_cited) { //& = pass by reference
-                //get the post_id from the matches
-                $post_id = $matches[1];
-                //get the post url
-                $url = get_post_permalink($post_id);
-
-                //find the post in the content array, and give it a label
-                $label = "";
-                foreach ($content as &$post){   //& = pass by reference
-                    if ( $post['id'] == $post_id ){
-                       
-                        //check if the post has been used already
-                        if ( !in_array($post_id, $posts_cited) ){
-                            $posts_cited[] = $post_id;
-                        }
-
-                        //get the label for the inline citation
-                        $label = array_search($post_id, $posts_cited) + 1;
-                        break;
-                    }
-                }
-
-                return "<a href=\"$url\" class=\"contentoracle-inline_citation\" target=\"_blank\">$label</a>";
-            },
-            $ai_response
-        );
-
-        //find |[@]| with other content inside, and delete them
-        $ai_response = preg_replace('/\|\[@\]\|[^|]+\|\[@\]\|/', '', $ai_response);
-
-        //find other |[@]| wrappers and remove them
-        $ai_response = preg_replace('/\|\[@\]\|/', '', $ai_response);
-
-        //find |[$]| (broken wrappers) and delete them
-        $ai_response = preg_replace('/\|\[\$\]\|/', '', $ai_response);
-
-
-        //filter the content to remove any posts that were not used in the response
-        $ai_content_used = array_filter($content, function($post) use ($ai_content_ids_used, $ai_action){
-            return in_array($post['id'], $ai_content_ids_used) || $post['id'] == $ai_action['content_id'] ?? false;
-        });
-        $ai_content_used = array_values($ai_content_used);  //ensure the array keys are starting at 0, incrementing by 1
-
-        //convert the posts to cite to an array of post objects
-        $posts_cited = array_map(function($id){
-            return [
-                'id' => $id,
-                'title' => get_the_title($id),
-                'url' => get_the_permalink($id),
-                'type' => get_post_type($id)
-            ];
-        }, $posts_cited);
+        //convert the content used to a id-to-post array
+        $id2post = [];
+        foreach ($content as $post){
+            $id2post[$post['id']] = $post;
+        }
         
         //return the response
         return new WP_REST_Response(array(
             'message' => $message,
-            'context_supplied' => $content,
-            'context_used' => $ai_content_used,     //chunks used in the response
-            'citations' => $posts_cited,            //posts cited in the response
+            'context_supplied' => $id2post,
+            'context_used' => [],
             'response' => $ai_response,
             'action' => $ai_action
         ));

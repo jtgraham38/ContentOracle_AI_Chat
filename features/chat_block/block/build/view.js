@@ -7723,20 +7723,30 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         console.error("Unauthenticated. Site admin should check api token.");
       } else {
         try {
-          //render and sanitize the markdown
-          let rendered = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(json.response));
-
-          //TODO: implement citations, and context_used here in the block
-
-          //push the response to the conversation
-          this.conversation.push({
+          //add the response to the conversation
+          //this is done here so that the message is not already in the conversation when the message is sent to the
+          //coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
+          const placheholder_response = {
             role: 'assistant',
-            content: rendered,
-            citations: json.citations,
-            context_used: json.context_used,
+            raw_content: json.response,
+            content: "",
+            context_used: [],
             context_supplied: json.context_supplied,
-            action: json.action
-          });
+            action: null
+          };
+          this.conversation.push(placheholder_response);
+
+          //render the main idea
+          const main_idea_chat = this.addMainIdea(placheholder_response);
+
+          //render the citations
+          const cited_chat = this.addCitations(main_idea_chat);
+
+          //render and sanitize the markdown
+          cited_chat.content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(cited_chat.raw_content));
+
+          //replace the placheholder with the rendered chat
+          this.conversation[this.conversation.length - 1] = cited_chat;
           console.log("conversation", this.conversation);
         } catch (e) {
           this.error = "An error occurred while processing the response";
@@ -7799,7 +7809,6 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           this.conversation.push({
             role: 'assistant',
             content: "",
-            citations: [],
             context_used: [],
             context_supplied: [],
             action: null
@@ -7898,14 +7907,13 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     //which is an a tag linking to the content_id. with the class contentoracle-inline_citation
     //and text numbered from 1 to n
     //where n is the number of citations in the response
-    console.log(copy);
     let current_lbl = 1;
     copy.raw_content = chat.raw_content.replace(/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/g, (match, text, post_id) => {
       // Get the post URL
       const post = chat.context_supplied[post_id];
 
       //see if this post has been labelled already
-      if (!post.label) {
+      if (!post?.label) {
         chat.context_supplied[post_id].label = current_lbl++;
       }
 
@@ -7922,7 +7930,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       const post = chat.context_supplied[post_id];
 
       //see if this post has been labelled already
-      if (!post.label) {
+      if (!post?.label) {
         chat.context_supplied[post_id].label = current_lbl++;
       }
 
@@ -7944,10 +7952,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         context_used.push(post);
       }
     });
-    console.log("filtered", context_used);
     //sort by label, with lowest label first
     context_used.sort((a, b) => a.label - b.label);
-    console.log("sorted", context_used);
     //set the context used
     copy.context_used = context_used;
 
