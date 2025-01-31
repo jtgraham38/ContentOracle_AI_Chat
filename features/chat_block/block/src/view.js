@@ -16,15 +16,17 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	loading: false,
 	error: "",
 	chatNonce: "",	//will be filled in by the block via php
+	stream_responses: true,
 	init() {
 		console.log('init chat!!!');
 		//load the rest url into the apiBaseUrl from the data-contentoracle_rest_url attribute
 		this.apiBaseUrl = this.$el.getAttribute('data-contentoracle_rest_url');
 		this.chatNonce = this.$el.getAttribute('data-contentoracle_chat_nonce');
+		this.stream_responses = this.$el.getAttribute('data-contentoracle_stream_responses');
 
 		//scroll to the bottom of the chat when the conversation updates
 		this.$watch('conversation', () => {
-            this.scrollToBottom(); // Call the function when conversation updates
+			this.scrollToBottom(); // Call the function when conversation updates
 		});
 		this.$watch('loading', () => {
 			this.scrollToBottom(); // Call the function when loading updates
@@ -34,7 +36,12 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		const urlParams = new URLSearchParams(window.location.search);
 		const searchQuery = urlParams.get('contentoracle_ai_search');
 		if (searchQuery) {
-			this.send( searchQuery );
+			if (this.stream_responses) {
+				this.sendStreamed(searchQuery, event);
+			}
+			else {
+				this.send(searchQuery, event);
+			}
 		}
 		
 	},
@@ -61,18 +68,22 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		}
 
 		//send the message
-		await this.send( this.userMsg, event );
+		if (this.stream_responses) {
+			await this.sendStreamed( this.userMsg, event );
+		}
+		else{
+			await this.send( this.userMsg, event );
+		}
 	},
 	//sends a message to the server and gets an ai response back
 	async send( msg ) {
-		//set loading state, after a slight delat
+		//set loading state, after a slight delay
 		setTimeout( 
 			() => { this.loading = true; }, 1000 
 		);
-		//this.loading = true;
 		
 		//prepare the request headers and body
-		const url = this.apiBaseUrl + 'contentoracle/v1/chat';
+		const url = this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat';
 		const headers = {
 			'Content-Type': 'application/json',
 			'COAI-X-WP-Nonce': this.chatNonce
@@ -138,20 +149,32 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			}
 			else{
 				try {
+					//add the response to the conversation
+					//this is done here so that the message is not already in the conversation when the message is sent to the
+					//coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
+					const placheholder_response = {
+						role: 'assistant',
+						raw_content: json.response,
+						content: "",
+						context_used: [],
+						context_supplied: json.context_supplied,
+						action: null
+					}
+					this.conversation.push(placheholder_response);
+
+					//render the main idea
+					const main_idea_chat = this.addMainIdea(placheholder_response);
+
+					//render the citations
+					const cited_chat = this.addCitations(main_idea_chat);
 
 					//render and sanitize the markdown
-					let rendered = DOMPurify.sanitize(marked.parse(json.response));
+					cited_chat.content = DOMPurify.sanitize(marked.parse(cited_chat.raw_content));
 
-					//push the response to the conversation
-						console.log(json);
-						this.conversation.push( {
-							role: 'assistant',
-							content: rendered,
-							citations: json.citations,
-							context_used: json.context_used,
-							context_supplied: json.context_supplied,
-							action: json.action
-						});
+					//replace the placheholder with the rendered chat
+					this.conversation[this.conversation.length - 1] = cited_chat;
+
+					console.log("conversation", this.conversation);
 				}
 				catch(e){
 					this.error = "An error occurred while processing the response";
@@ -166,6 +189,246 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		//clear out input
 		this.userMsg = '';
 	},
+
+	async sendStreamed(msg) {
+		//set loading state, after a slight delay
+		setTimeout( 
+			() => { this.loading = true; }, 1000 
+		);
+
+		//add the user's message to conversation 
+		//this is done here so that the message is not already in the conversation when the message is sent to the
+		//coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
+		this.conversation.push( {
+			role: 'user',
+			content: msg,
+		} );
+
+		//initialize the xhr request
+		const xhr = new XMLHttpRequest();
+		xhr.open(
+			"GET",			//TODO: change later!
+			this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat/stream&message=' + msg,
+			true
+		);
+
+		//set the headers
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		xhr.setRequestHeader('COAI-X-WP-Nonce', this.chatNonce);
+
+		//set streaming handler
+		let finger = 0;
+		let raw_response = "";	//store the raw response, so we don't try to double parse the markdown
+		xhr.onprogress = function (event) {
+			//set loading state
+			this.loading = false;
+
+			//get the response from the event
+			const _response = event.target.response;
+			
+			//split on separator, the first "private use character" is the separator
+			let responses = _response.split("\u{E000}").slice(finger);
+			finger += responses.length-1;
+
+			//filter out empty strings
+			responses = responses.filter((response) => response.length > 0);
+
+			//iterate through the responses, parsing them
+			responses.map((response) => {
+
+				//push a chat bubble to the conversation for the ai response to fill, if one has not already been added
+				if (this.conversation.length == 0 || this.conversation[this.conversation.length - 1].role != 'assistant') {
+					this.conversation.push({
+						role: 'assistant',
+						content: "",
+						context_used: [],
+						context_supplied: [],
+						action: null
+					});
+				}
+
+				//parse the response
+				let parsed;
+				try {
+					parsed = JSON.parse(response);
+				} catch (e) {
+					console.error(e);
+					// console.error(responses);
+					// console.error(_response);
+					return;
+				}
+
+				//handle the response
+				if ( parsed?.error ){
+					//this is an error that might be set in the wp api, because it is not a part of the response
+					this.error = parsed.error
+					console.error(parsed.error);
+				}
+				//check if this is the action response
+				else if (parsed?.action) {
+					//handle the action
+					if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+						this.conversation[this.conversation.length - 1].action = parsed.action;
+					}
+				}
+				//else if it is the context supplied response
+				else if (parsed?.context_supplied) {
+					//set the context supplied on the ai's message
+					if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+						this.conversation[this.conversation.length - 1].context_supplied = parsed.context_supplied;
+					}
+				}
+				//otherwise, extract the generated message fragment
+				else {
+					//ensure the last message is not finished yet and it is an assistant message
+					if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+						//append the fragment to the last message
+						if (parsed?.generated?.message.length > 0) {
+							raw_response += parsed?.generated?.message;
+						}
+					}
+
+					//add the raw (unparsed) response to the last message
+					this.conversation[this.conversation.length - 1].raw_content = raw_response;
+
+					//render the main idea
+					const main_idea_chat = this.addMainIdea(this.conversation[this.conversation.length - 1]);
+
+					//add the in-text citations to the last message
+					//render the citations
+					const cited_chat = this.addCitations(main_idea_chat);
+					
+					//render and sanitize the markdown
+					const rendered_chat_content = DOMPurify.sanitize(
+						marked.parse(
+							cited_chat.raw_content
+						)
+					);
+							
+					//the content raw content has been cooked!
+					const rendered_cited_chat = cited_chat;
+					rendered_cited_chat.content = rendered_chat_content;
+					
+					//now, after all parses and transformations, set the chat content to the rendered chat
+					this.conversation[this.conversation.length - 1] = cited_chat;
+				}
+			} )
+		}.bind(this);	//IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
+
+		//set error handler
+		xhr.onerror = function() {
+			console.error(event);
+		};
+		
+		//after the request is done
+		xhr.onload = function() {
+			console.log("conversation", this.conversation);
+		}.bind(this);	//IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
+
+		//send the request with the body
+		const data = {
+			message: msg,
+			conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10),
+		};
+		xhr.send(JSON.stringify(data));
+	},
+
+	//ads inline citations and citations section to an ai chat response
+	addCitations(chat) {
+		//begin by making a SHALLOW copy of the original chat object
+		//I'd rather return a copy than modify state directly
+		const copy = Object.assign({}, chat);
+
+		//find all citations, which match the form "[|$|]lorem ipsum... [|$|][|@|]content_id[|@|]"
+		//and replace them with the citation,
+		//which is an a tag linking to the content_id. with the class contentoracle-inline_citation
+		//and text numbered from 1 to n
+		//where n is the number of citations in the response
+		let current_lbl = 1;
+		copy.raw_content = chat.raw_content.replace(
+			/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/g,
+			(match, text, post_id) => {
+				// Get the post URL
+				const post = chat.context_supplied[post_id];
+
+				//see if this post has been labelled already
+				if (!post?.label) {
+					chat.context_supplied[post_id].label = current_lbl++;
+				}
+
+				//create the citation
+				const label = post.label;
+				const url = post.url;
+				return `${text} <a href="${url}" class="contentoracle-inline_citation" target="_blank">${label}</a>`;
+			}
+		);
+
+		//now, handle citations that are missing the "[|$|]lorem ipsum... [|$|]" part
+		//in the case that the wrapper around the content is missing
+		copy.raw_content = chat.raw_content.replace(
+			/\|\[@\]\|(\d+)\|\[@\]\|/g,
+			(match, post_id) => {
+				// Get the post URL
+				const post = chat.context_supplied[post_id];
+				
+				//see if this post has been labelled already
+				if (!post?.label) {
+					chat.context_supplied[post_id].label = current_lbl++;
+				}
+
+				//create the citation
+				const label = post.label;
+				const url = post.url;
+				return `<a href="${url}" class="contentoracle-inline_citation" target="_blank">${label}</a>`;
+			}
+		)
+
+		//remove extra "|[$]|" and "|[@]|" from the content
+		copy.raw_content = copy.raw_content.replace(/\|\[@\]\|/g, "");
+		copy.raw_content = copy.raw_content.replace(/\|\[\$\]\|/g, "");
+
+		// set context used for bottom citations
+		//filter to see which ones were labelled
+		const context_used = []
+		Object.entries(chat.context_supplied).forEach(([key, post]) => {
+			if (post.label) {
+				context_used.push(post);
+			}
+		})
+		//sort by label, with lowest label first
+		context_used.sort((a, b) => a.label - b.label);
+		//set the context used
+		copy.context_used = context_used;
+
+		//return copy
+		return copy;
+		
+	},
+	//add styling to the main idea of an ai response
+	addMainIdea(chat) {
+		//anything fitting the form "|[#]|lorem ipsum...|[#]|" is the main idea
+		//wrap it in a span with the class "contentoracle-ai_chat_bubble_bot_main_idea"
+
+		//begin by making a SHALLOW copy of the original chat object
+		//I'd rather return a copy than modify state directly
+		const copy = Object.assign({}, chat);
+
+		//find the main idea, which matches the form "|[#]|lorem ipsum...|[#]|"
+		//and replace it with the main idea,
+		//which is a span tag with the class contentoracle-ai_chat_bubble_bot_main_idea
+		copy.raw_content = chat.raw_content.replace(
+			/\|\[\#\]\|([^|]+)\|\[#\]\|/g,
+			(match, text) => {
+				return `<span class="contentoracle-ai_chat_bubble_bot_main_idea">${text}</span>`;
+			}
+		);
+
+		//remove extra "|[#]|" from the content
+		copy.raw_content = copy.raw_content.replace(/\|\[#\]\|/g, "");
+
+		//return copy
+		return copy;
+	},
 	//scrolls to the bottom of the chat
 	scrollToBottom( event ) {
         const chatContainer = this.$refs.chatBody;
@@ -175,70 +438,3 @@ Alpine.data('contentoracle_ai_chat', () => ({
 )
 
 Alpine.start();
-
-//the interactivity api way to do it... api seems to new with too little documentation to use just yet
-/*
-store( 'contentoracle-ai-chat', {
-	actions: {
-		//NOTE: this should not be implemented with async/await, but with a generator
-		//NOTE: unexpected behavior when using async/await, the message is not added to the conversation
-		//TODO: check this page for more: https://make.wordpress.org/core/2024/03/04/interactivity-api-dev-note/
-		sendMessage: async ( event ) => {
-			//get the message from the user
-			const context = getContext();
-
-			//ensure there is a message
-			if ( context.userMsg === '' ) {
-				//NOTE: the validaity doesnt work, for some reason!
-				event.target.setCustomValidity( 'Please enter a message!' );
-				console.log( 'No message entered!' );
-				return
-			}
-
-			//add message to conversation
-			context.conversation.push( {
-				role: 'user',
-				message: context.userMsg,
-			} );
-			console.log( context.conversation );
-
-			//prepare the request
-			const url = context.apiBaseUrl + 'contentoracle/v1/search';
-			const data = {
-				query: context.userMsg,
-			};
-			const options = {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify( data ),
-			};
-
-			//send the request
-			const request = await fetch( url, options )
-			const json = await request.json();
-			//const json = { response: {it: "worked"} }
-
-			//push the response to the conversation
-			context.conversation.push( {
-				role: 'assistant',
-				message: json.response.it,	//NOTE: .it is temporary for now, will grab actual message later
-			} );
-
-			//clear out input
-			context.userMsg = '';
-			event.target.value = '';
-		},
-		updateUserMsg: ( event ) => {
-			console.log("updateUserMsg")
-			//console.log( `Updating user message to: ${ event.target.value }` );
-			const context = getContext();
-			context.userMsg = event.target.value;
-		}
-	},
-	callbacks: {
-		
-	},
-} );
-*/

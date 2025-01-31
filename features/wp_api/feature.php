@@ -24,15 +24,16 @@ class ContentOracleApi extends PluginFeature{
     }
 
     public function add_actions(){
-        add_action('rest_api_init', array($this, 'register_search_rest_route'));
+        add_action('rest_api_init', array($this, 'register_search_rest_routes'));
         add_action('rest_api_init', array($this, 'register_healthcheck_rest_route'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
 
     //register the search route
-    public function register_search_rest_route(){
-        register_rest_route('contentoracle/v1', '/chat', array(
+    public function register_search_rest_routes(){
+        //non-streamed route
+        register_rest_route('contentoracle-ai-chat/v1', '/chat', array(
             'methods' => 'POST',
             'permission_callback' => function($request){    //nonce validations
                 return true; //TODO: fix this one day!
@@ -79,6 +80,177 @@ class ContentOracleApi extends PluginFeature{
                 )
             )
         ));
+
+        //streamed route
+        register_rest_route('contentoracle-ai-chat/v1', '/chat/stream', array(
+            'methods' => 'GET',             //TODO: change to post on going live
+            'permission_callback' => function($request){    //nonce validations
+                return true; //TODO: fix this one day!
+                $nonce = $request->get_header('COAI-X-WP-Nonce');
+                if (!wp_verify_nonce($nonce, 'contentoracle_chat_nonce')) {
+                    return new WP_Error('rest_invalid_nonce', 'Invalid nonce: contentoracle_chat_nonce', array('status' => 403));
+                }
+                return true;
+            },
+            'callback' => array($this, 'streamed_ai_chat'),
+            'args' => array(
+                'message' => array(
+                    'required' => true,
+                    'validate_callback' => function($param, $request, $key){
+                        return is_string($param) && strlen($param) < 256;
+                    },
+                    'sanitize_callback' => function($param, $request, $key){
+                        return sanitize_text_field($param);
+                    }
+                ),
+                // 'conversation' => array(
+                //     'required' => true,
+                //     'validate_callback' => function($param, $request, $key){
+                //         if (!is_array($param)) return false;
+
+                //         //validate each element of the conversation array
+                //         foreach ($param as $msg){
+                //             if (!is_array($msg)) return false;
+                //             if (!isset($msg['role']) || !is_string($msg['role'])) return false;
+                //             if (!in_array($msg['role'], ['user', 'assistant', 'tool', 'system'])) return false;
+                //             if (!isset($msg['content']) || !is_string($msg['content'])) return false;
+                //         }
+
+                //         return is_array($param);
+                //     },
+                //     'sanitize_callback' => function($param, $request, $key){
+                //         return array_map(function($msg){
+                //             return array(
+                //                 'role' => sanitize_text_field($msg['role']),
+                //                 'content' => sanitize_text_field($msg['content'])
+                //             );
+                //         }, $param);
+                //     }
+                // )
+            )
+        ));
+    }
+
+    //streamed chat callback
+    public function streamed_ai_chat($request){
+        //divider character, to separate the fragments of the response
+        $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
+
+        // //get the query
+        $message = $request->get_param('message');
+
+        //get the content to use in the response
+        //switch based on the chunking method
+        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        try{
+            switch ($chunking_method){
+                case 'token:256':
+                    $content = $this->token256_content_search($message);
+                    $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
+                    break;
+                default:
+                    $content = $this->keyword_content_search($message);
+                    $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                    break;
+            }
+        } catch (Exception $e){
+            return new WP_REST_Response(
+                array(
+                    'error' => $e->getMessage()
+                )
+            );
+        }
+
+        //TODO: move this to after the first fragment, so it only is sent if a response is generated
+        //send the content supplied to the client block
+        $id2post = [];
+        foreach ($content as $post){
+            $id2post[$post['id']] = $post;
+        }
+        $context_supplied = json_encode(["context_supplied" => $id2post]);
+        echo $context_supplied;
+        echo $private_use_char; // Send a private use character to signal the end of the fragment
+        flush();
+
+        //get the conversation from the request
+        $conversation = [];//$request->get_param('conversation');
+
+        //get the ip address of the client for COAI rate limiting
+        $client_ip = $this->get_client_ip();
+        
+        // Set headers for streaming
+        // Ensure headers are sent before output
+        if (!headers_sent()) {
+            header('Content-Type: text/plain'); // Adjust as needed
+            header('Cache-Control: no-cache');
+            header('Connection: keep-alive');
+            header('X-Accel-Buffering: no'); // For Nginx
+        }
+
+        // Disable buffering to send output directly
+        @ini_set('output_buffering', 'Off');
+        @ini_set('zlib.output_compression', 'Off');
+        @ini_set('implicit_flush', 'On');
+        ob_implicit_flush(1);
+
+
+        //send a request to the ai to generate a response
+        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
+        $response = $api->streamed_ai_chat($message, $content, $conversation, function($data){
+            //divider character, to separate the fragments of the response
+            $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
+            
+            //send the data to the client...
+            $parsed = json_decode($data, true);
+            
+            //handle the action
+            if ( isset($parsed['action']) && isset($parsed['action']['content_id']) && get_post($parsed['action']['content_id']) ){
+                $parsed['action']['content_type'] = get_post_type($parsed['action']['content_id']);
+                $parsed['action']['content_url'] = get_post_permalink($parsed['action']['content_id']);
+                $parsed['action']['content_excerpt'] = get_the_excerpt($parsed['action']['content_id']);
+                $parsed['action']['content_featured_image'] = get_the_post_thumbnail_url($parsed['action']['content_id']);
+
+                //encode and echo the action
+                $action = json_encode($parsed);
+                echo $action;
+                echo $private_use_char; // Send a private use character to signal the end of the fragment
+            }
+            //TODO: handle sources, citations, etc.
+            else{
+                echo json_encode($parsed);
+                echo $private_use_char; // Send a private use character to signal the end of the fragment
+            }
+
+            flush();    //flush to stream
+        });
+
+
+        //handle error in response
+        if ( isset( $response['error'] ) ){
+            return new WP_REST_Response(
+                array(
+                    'error' => $response['error']
+                )
+            );
+        }
+        if (isset($response['errors'])){
+            return new WP_REST_Response(
+                array(
+                    'errors' => $response['errors']
+                )
+            );
+        }
+        //TODO: temporary handler for unauthenticated error, it should return a 401 unauthorized error
+        if ( (isset($response['message']) && $response['message'] == 'Unauthenticated.') ){
+            return new WP_REST_Response(
+                array(
+                    'response' => $response['message']
+                )
+            );
+        }
+
+        //stop executing here
+        die;
     }
 
     //search callback
@@ -89,15 +261,23 @@ class ContentOracleApi extends PluginFeature{
         //get the content to use in the response
         //switch based on the chunking method
         $chunking_method = get_option($this->get_prefix() . 'chunking_method');
-        switch ($chunking_method){
-            case 'token:256':
-                $content = $this->token256_content_search($message);
-                $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
-                break;
-            default:
-                $content = $this->keyword_content_search($message);
-                $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
-                break;
+        try{
+            switch ($chunking_method){
+                case 'token:256':
+                    $content = $this->token256_content_search($message);
+                    $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
+                    break;
+                default:
+                    $content = $this->keyword_content_search($message);
+                    $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                    break;
+            }
+        } catch (Exception $e){
+            return new WP_REST_Response(
+                array(
+                    'error' => $e->getMessage()
+                )
+            );
         }
 
         //get the conversation from the request
@@ -148,105 +328,17 @@ class ContentOracleApi extends PluginFeature{
             $ai_action['content_featured_image'] = get_the_post_thumbnail_url($ai_action['content_id']);
         }
 
-        //wrap the main idea of the response (returned wrapped in |>#<|) in a span with a class "contentoracle-ai_chat_bubble_bot_main_idea"
-        //TODO
-        $ai_response = preg_replace('/\|\[#\]\|([^*]+)\|\[#\]\|/', '<span class="contentoracle-ai_chat_bubble_bot_main_idea">$1</span>', $ai_response);
-
-        //find citations fitting the form |[$]|lorem ipsum|[$]||[@]|580|[@]|, and place an in-text citation there
-        //NOTE: I want to replace the thing in the parentheses, of strings meeting this form: |[$]|lorem ipsum|[$]||[@]|580|[@]|
-        $posts_cited = [];
-        $ai_response = preg_replace_callback(
-            '/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$content, &$posts_cited) { //& = pass by reference
-                //get the text and post_id from the matches
-                $text = $matches[1];
-                $post_id = $matches[2];
-                //get the post url
-                $url = get_post_permalink($post_id);
-
-                //find the post in the content array, and give it a label
-                $label = "";
-                foreach ($content as &$post){   //& = pass by reference
-                    if ( $post['id'] == $post_id ){
-
-                        //check if the post has been used already
-                        if ( !in_array($post_id, $posts_cited) ){
-                            $posts_cited[] = $post_id;
-                        }
-
-                        //get the label for the inline citation
-                        $label = array_search($post_id, $posts_cited) + 1;
-                        break;
-                    }
-                }
-
-                return "$text <a href=\"$url\" class=\"contentoracle-inline_citation\" target=\"_blank\">$label</a>";
-            },
-            $ai_response
-        );     
-
-        //find citations fitting the form |[@]|580|[@]| (broken |[$]| wrapper), and place an in-text citation there
-        $ai_response = preg_replace_callback(
-            '/\|\[@\]\|(\d+)\|\[@\]\|/',
-            function ($matches) use (&$content, &$posts_cited) { //& = pass by reference
-                //get the post_id from the matches
-                $post_id = $matches[1];
-                //get the post url
-                $url = get_post_permalink($post_id);
-
-                //find the post in the content array, and give it a label
-                $label = "";
-                foreach ($content as &$post){   //& = pass by reference
-                    if ( $post['id'] == $post_id ){
-                       
-                        //check if the post has been used already
-                        if ( !in_array($post_id, $posts_cited) ){
-                            $posts_cited[] = $post_id;
-                        }
-
-                        //get the label for the inline citation
-                        $label = array_search($post_id, $posts_cited) + 1;
-                        break;
-                    }
-                }
-
-                return "<a href=\"$url\" class=\"contentoracle-inline_citation\" target=\"_blank\">$label</a>";
-            },
-            $ai_response
-        );
-
-        //find |[@]| with other content inside, and delete them
-        $ai_response = preg_replace('/\|\[@\]\|[^|]+\|\[@\]\|/', '', $ai_response);
-
-        //find other |[@]| wrappers and remove them
-        $ai_response = preg_replace('/\|\[@\]\|/', '', $ai_response);
-
-        //find |[$]| (broken wrappers) and delete them
-        $ai_response = preg_replace('/\|\[\$\]\|/', '', $ai_response);
-
-
-        //filter the content to remove any posts that were not used in the response
-        $ai_content_used = array_filter($content, function($post) use ($ai_content_ids_used, $ai_action){
-            return in_array($post['id'], $ai_content_ids_used) || $post['id'] == $ai_action['content_id'] ?? false;
-        });
-        $ai_content_used = array_values($ai_content_used);  //ensure the array keys are starting at 0, incrementing by 1
-
-        //convert the posts to cite to an array of post objects
-        $posts_cited = array_map(function($id){
-            return [
-                'id' => $id,
-                'title' => get_the_title($id),
-                'url' => get_the_permalink($id),
-                'type' => get_post_type($id)
-            ];
-        }, $posts_cited);
+        //convert the content used to a id-to-post array
+        $id2post = [];
+        foreach ($content as $post){
+            $id2post[$post['id']] = $post;
+        }
         
         //return the response
         return new WP_REST_Response(array(
             'message' => $message,
-            'context_supplied' => $content,
-            'context_used' => $ai_content_used,     //chunks used in the response
-            'citations' => $posts_cited,            //posts cited in the response
+            'context_supplied' => $id2post,
+            'context_used' => [],
             'response' => $ai_response,
             'action' => $ai_action
         ));
@@ -419,13 +511,15 @@ class ContentOracleApi extends PluginFeature{
     function token256_content_search($message){
         //begin by embedding the user's message
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+
+        //get the embedding from the ai
         $response = $api->query_vector($message);
+
         if (empty($response['embeddings'])){
             throw new Exception('No embeddings returned from the AI');
         }
 
         $embedding = $response['embeddings'][0]['embedding'];
-
         
         //then, find the most similar vectors in the database table
         $vt = new ContentOracle_VectorTable( $this->get_prefix() );
@@ -483,7 +577,7 @@ class ContentOracleApi extends PluginFeature{
 
     //register a contentoracle healthcheck route
     function register_healthcheck_rest_route(){
-        register_rest_route('contentoracle/v1', '/healthcheck', array(
+        register_rest_route('contentoracle-ai-chat/v1', '/healthcheck', array(
             'methods' => 'GET',
             'permission_callback' => '__return_true', // this line was added to allow any site visitor to make an ai healthcheck request
             'callback' => function(){

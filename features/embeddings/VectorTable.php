@@ -63,7 +63,7 @@ class ContentOracle_VectorTable{
         }
 
         //get the binary code
-        $binary_code = $this->get_binary_code($vector);
+        $binary_code = $this->hex_to_binary( $this->get_binary_code($vector) );
 
         //NOTE
         //NOTE
@@ -102,7 +102,7 @@ class ContentOracle_VectorTable{
         //add each vector to my minheap
         foreach ($embeddings as $embedding){
             //compute the hamming distance between the embedding and the user query vector
-            $embedding_binary_code = $this->hex_to_binary($embedding->binary_code);
+            $embedding_binary_code = $this->hex_to_binary( $embedding->binary_code);
             $hamming_distance = 0;
             for ($i = 0; $i < $this->vector_length; $i++){
                 if ($binary_code[$i] != $embedding_binary_code[$i]){

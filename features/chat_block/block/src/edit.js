@@ -267,6 +267,26 @@ export default function Edit({
 							/>
 						</div>
 					</div>
+
+					<div class="contentoracle-ai_panelbody_group">
+						<div className="contentoracle-ai_panelbody_input_container">
+							<label 
+								className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2" 
+								htmlFor={`wp-block-chat_placeholder_${iid}`}
+								style={{marginBottom: '0.5rem'}}
+							>
+								Stream Responses?
+							</label>
+							<input 
+								type="checkbox" 
+								defaultChecked={ attributes.streamResponses }
+								id={`wp-block-chat_placeholder_${iid}`}
+								onChange={ ( event ) => {
+									setAttributes( { streamResponses: event.target.checked } );
+								} }
+							></input>
+						</div>
+					</div>
 				</div>
 				</PanelBody>
 			</InspectorControls>
@@ -298,7 +318,7 @@ export default function Edit({
 							<div { ...actionContainerProps }>
 								<label { ...actionLabelProps }>Want to learn more about growing tomatos?  Read on!</label>
 
-								<img { ...actionImageProps } src={ window.location.origin + '/wp-content/plugins/contentoracle/features/chat_block/assets/images/tomatos.jpg'} alt="tomatos"></img>
+								<img { ...actionImageProps } src={ window.location.origin + '/wp-content/plugins/contentoracle_ai_chat/features/chat_block/assets/images/tomatos.jpg'} alt="tomatos"></img>
 
 								<p { ...actionTextProps } >Discover the secrets to cultivating thriving tomatoes with the perfect soil mix. From pH levels to nutrient-rich ingredients, learn how to create the ideal growing environment for juicy, flavorful tomatoes in your garden.</p>
 
