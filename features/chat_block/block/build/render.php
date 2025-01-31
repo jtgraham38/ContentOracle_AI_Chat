@@ -184,14 +184,14 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                     </div>
                 </template>
 
-                <template coai-x-if="chat?.citations && chat?.citations?.length != 0">
+                <template coai-x-if="chat?.context_used && chat?.context_used?.length != 0">
                     <div style="padding: 0.25rem; display: flex; flex-direction: column; align-items: center;">
 
                         <span style="text-size: larger; width: 100%;">Sources</span>
                         
                         <div class="<?php echo esc_attr($sources_border_classnames) ?>" style="<?php echo esc_attr($sources_border_inline_styles) ?>">
 
-                            <template coai-x-for="(source, index) in chat.citations">
+                            <template coai-x-for="(source, index) in chat.context_used">
                                 <div class="contentoracle-footer_citation">
                                     <span coai-x-text="(parseInt(index) + 1) + '.'"></span>
                                     <span coai-x-text="source.title"></span>

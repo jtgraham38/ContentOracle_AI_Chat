@@ -164,6 +164,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 						context_supplied: json.context_supplied,
 						action: json.action
 					});
+					console.log("conversation", this.conversation);
 				}
 				catch(e){
 					this.error = "An error occurred while processing the response";
@@ -309,6 +310,11 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		xhr.onerror = function() {
 			console.error(event);
 		};
+		
+		//after the request is done
+		xhr.onload = function() {
+			console.log("conversation", this.conversation);
+		}.bind(this);	//IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
 
 		//send the request with the body
 		const data = {
@@ -316,13 +322,10 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10),
 		};
 		xhr.send(JSON.stringify(data));
-
-		//TODO: implement the generation of in-text citations and context used here in the block.
 	},
 
 	//ads inline citations and citations section to an ai chat response
 	addCitations(chat) {
-		console.log("citationizing")
 		//begin by making a SHALLOW copy of the original chat object
 		//I'd rather return a copy than modify state directly
 		const copy = Object.assign({}, chat);
@@ -376,7 +379,20 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		copy.raw_content = copy.raw_content.replace(/\|\[@\]\|/g, "");
 		copy.raw_content = copy.raw_content.replace(/\|\[\$\]\|/g, "");
 
-		//todo: set context used for bottom citations
+		// set context used for bottom citations
+		//filter to see which ones were labelled
+		const context_used = []
+		Object.entries(chat.context_supplied).forEach(([key, post]) => {
+			if (post.label) {
+				context_used.push(post);
+			}
+		})
+		console.log("filtered", context_used)
+		//sort by label, with lowest label first
+		context_used.sort((a, b) => a.label - b.label);
+		console.log("sorted", context_used)
+		//set the context used
+		copy.context_used = context_used;
 
 		//return copy
 		return copy;

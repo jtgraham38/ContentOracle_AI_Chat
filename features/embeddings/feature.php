@@ -257,6 +257,8 @@ class ContentOracleEmbeddings extends PluginFeature{
             //skip generation if no chunks exist
             if (empty($_chunks)) {
                 echo "No chunks found for post " . esc_html($cp->post_id) . ", skipping! <br>";
+                //unset the generate embedding post meta
+                update_post_meta($cp->post_id, $this->get_prefix() . 'should_generate_embeddings', false);
                 continue;
             }
 
