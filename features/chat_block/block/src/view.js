@@ -281,9 +281,12 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					//add the raw (unparsed) response to the last message
 					this.conversation[this.conversation.length - 1].raw_content = raw_response;
 
+					//render the main idea
+					const main_idea_chat = this.addMainIdea(this.conversation[this.conversation.length - 1]);
+
 					//add the in-text citations to the last message
 					//render the citations
-					const cited_chat = this.addCitations(this.conversation[this.conversation.length - 1]);
+					const cited_chat = this.addCitations(main_idea_chat);
 					
 					//render and sanitize the markdown
 					const rendered_chat_content = DOMPurify.sanitize(
@@ -380,9 +383,29 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		
 	},
 	//add styling to the main idea of an ai response
-	addMainIdea(event) {
-		//set delimiters
-		mainIdeaDelimiter = "[|#|]";
+	addMainIdea(chat) {
+		//anything fitting the form "|[#]|lorem ipsum...|[#]|" is the main idea
+		//wrap it in a span with the class "contentoracle-ai_chat_bubble_bot_main_idea"
+
+		//begin by making a SHALLOW copy of the original chat object
+		//I'd rather return a copy than modify state directly
+		const copy = Object.assign({}, chat);
+
+		//find the main idea, which matches the form "|[#]|lorem ipsum...|[#]|"
+		//and replace it with the main idea,
+		//which is a span tag with the class contentoracle-ai_chat_bubble_bot_main_idea
+		copy.raw_content = chat.raw_content.replace(
+			/\|\[\#\]\|([^|]+)\|\[#\]\|/g,
+			(match, text) => {
+				return `<span class="contentoracle-ai_chat_bubble_bot_main_idea">${text}</span>`;
+			}
+		);
+
+		//remove extra "|[#]|" from the content
+		copy.raw_content = copy.raw_content.replace(/\|\[#\]\|/g, "");
+
+		//return copy
+		return copy;
 	},
 	//scrolls to the bottom of the chat
 	scrollToBottom( event ) {
