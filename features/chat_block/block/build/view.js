@@ -7777,7 +7777,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
     //initialize the xhr request
     const xhr = new XMLHttpRequest();
-    xhr.open("GET",
+    xhr.open("POST",
     //TODO: change later!
     this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat/stream&message=' + msg, true);
 
