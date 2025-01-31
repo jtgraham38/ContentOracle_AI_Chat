@@ -250,6 +250,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				} catch (e) {
 					console.error(e);
 					console.error(responses);
+					console.error(_response);
 					return;
 				}
 

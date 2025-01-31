@@ -7818,6 +7818,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         } catch (e) {
           console.error(e);
           console.error(responses);
+          console.error(_response);
           return;
         }
 

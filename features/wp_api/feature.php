@@ -200,7 +200,7 @@ class ContentOracleApi extends PluginFeature{
             }
             //TODO: handle sources, citations, etc.
             else{
-                echo $data;
+                echo json_encode($parsed);
                 $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
                 echo $private_use_char; // Send a private use character to signal the end of the fragment
             }
