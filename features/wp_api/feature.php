@@ -183,9 +183,11 @@ class ContentOracleApi extends PluginFeature{
         //send a request to the ai to generate a response
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
         $response = $api->streamed_ai_chat($message, $content, $conversation, function($data){
-            //send the data
-
+            //send the data to the client...
             $parsed = json_decode($data, true);
+
+            //divider character
+            $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
             
             //handle the action
             if ( isset($parsed['action']) && isset($parsed['action']['content_id']) && get_post($parsed['action']['content_id']) ){
@@ -197,11 +199,11 @@ class ContentOracleApi extends PluginFeature{
                 //encode and echo the action
                 $action = json_encode($parsed);
                 echo $action;
+                echo $private_use_char; // Send a private use character to signal the end of the fragment
             }
             //TODO: handle sources, citations, etc.
             else{
                 echo json_encode($parsed);
-                $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
                 echo $private_use_char; // Send a private use character to signal the end of the fragment
             }
 
@@ -232,6 +234,11 @@ class ContentOracleApi extends PluginFeature{
                 )
             );
         }
+
+        //send the context supplied back to the client block
+        $context_supplied = json_encode(["context_supplied" => $content]);
+        echo $context_supplied;
+        flush();
 
         //stop executing here
         die;

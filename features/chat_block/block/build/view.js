@@ -7606,7 +7606,6 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     this.apiBaseUrl = this.$el.getAttribute('data-contentoracle_rest_url');
     this.chatNonce = this.$el.getAttribute('data-contentoracle_chat_nonce');
     this.stream_responses = this.$el.getAttribute('data-contentoracle_stream_responses');
-    console.log(this.stream_responses);
 
     //scroll to the bottom of the chat when the conversation updates
     this.$watch('conversation', () => {
@@ -7727,8 +7726,9 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           //render and sanitize the markdown
           let rendered = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(json.response));
 
+          //TODO: implement citations, and context_used here in the block
+
           //push the response to the conversation
-          console.log(json);
           this.conversation.push({
             role: 'assistant',
             content: rendered,
@@ -7817,8 +7817,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           parsed = JSON.parse(response);
         } catch (e) {
           console.error(e);
-          console.error(responses);
-          console.error(_response);
+          // console.error(responses);
+          // console.error(_response);
           return;
         }
 
@@ -7833,6 +7833,13 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           //handle the action
           if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
             this.conversation[this.conversation.length - 1].action = parsed.action;
+          }
+        }
+        //else if it is the context supplied response
+        else if (parsed?.context_supplied) {
+          //set the context supplied on the ai's message
+          if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+            this.conversation[this.conversation.length - 1].context_supplied = parsed.context_supplied;
           }
         }
         //otherwise, extract the generated message fragment

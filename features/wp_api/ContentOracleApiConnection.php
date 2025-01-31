@@ -77,6 +77,7 @@ class ContentOracleApiConnection{
         //build the request
         $url = self::API_BASE_URL . '/v1/ai/chat/stream';
 
+
         //initialize the curl request
         $ch = curl_init();
         curl_setopt_array($ch, array(
