@@ -12,12 +12,12 @@ if (!defined('ABSPATH')) {
 //custom heap class, used in candidate generation
 class ContentOracleCandidateMinHeap extends SplMinHeap{
     protected function compare($a, $b): int{
-        return $a['hamming_distance'] <=> $b['hamming_distance'];
+        return $b['hamming_distance'] <=> $a['hamming_distance'];
     }
 }
 
 // another custom heap class, for getting most similar vectors
-class ContentOracleRerankMaxHeap extends SplMaxHeap{
+class ContentOracleRerankMaxHeap extends SplMinHeap{
     protected function compare($a, $b): int{
         return $a['cosine_similarity'] <=> $b['cosine_similarity'];
     }
@@ -65,34 +65,7 @@ class ContentOracle_VectorTable{
         //get the binary code
         $binary_code = $this->hex_to_binary( $this->get_binary_code($vector) );
 
-        //NOTE
-        //NOTE
-        //NOTE
-        //NOTE: the below method for computing hamming distance in db dosen't work
-        //NOTE: because different databases (like mysql and mariadb handle binary operations differently)
-        //TODO: I need to find a sql query that will work in both mysql and mariadb bc wordpress supports both
-        //find candidates by computing the hamming distance, and taking the n closest
-        // $candidates_query = "
-        // SELECT 
-        // id,
-        ////NOTE: will need to unhex both under current implmentation, since I am not unhexing currently when I put them in the db
-        // BIT_COUNT(BINARY binary_code ^ UNHEX(BINARY %s)) AS hamming_distance
-        // FROM $this->table_name
-        // ORDER BY hamming_distance ASC
-        // LIMIT $n
-        // ";
-        // $candidates = $wpdb->get_results($wpdb->prepare($candidates_query, $binary_code));
-        // $candidate_ids = [];
-        // foreach ($candidates as $candidate){
-        //     $candidate_ids[] = $candidate->id;
-        // }
-        // $candidates_str = implode(',', $candidate_ids);
-        // $normalized_vector = json_encode($this->normalize(json_decode($vector, true)));
-
-        // echo "<pre>";
-        // var_dump($candidates);
-        // echo "</pre>";
-
+        //  \\  //  \\  CANDIDATE GENERATION //  \\  //  \\  //
         //get all vectors from the database
         $candidates_query = "select id, binary_code from $this->table_name";
         $embeddings = $wpdb->get_results($candidates_query);
@@ -113,13 +86,13 @@ class ContentOracle_VectorTable{
             //get id and binary code
             $closest_candidates->insert([
                 'id' => $embedding->id,
-                'hamming_distance' => $hamming_distance
+                'hamming_distance' => floatval($hamming_distance)
             ]);
         }
         
-        //get the n closest candidates out of the heap
+        //get the 4n closest candidates out of the heap
         $candidates = [];
-        for ($i = 0; $i < $n; $i++){
+        for ($i = 0; $i < 4*$n; $i++){
             if ($closest_candidates->count() < 1) break;
             $candidates[] = $closest_candidates->extract();
         }
@@ -128,34 +101,7 @@ class ContentOracle_VectorTable{
         $candidate_ids = array_map(function($candidate){ return $candidate['id']; }, $candidates);
         $candidates_str = implode(',', $candidate_ids);
 
-        //normalize the user query vector
-        //$normalized_vector = json_encode($this->normalize(json_decode($vector, true)));
-
-
-        //NOTE
-        //NOTE
-        //NOTE
-        //NOTE: I'm not sure this works, so I will use simple php comparison for now
-        //TODO: I need to find a sql query that will work in both mysql and mariadb bc wordpress supports both
-        //using only the candidates found, rerank the candidates in the database
-        //NOTE: currently,this query computes the cosine similarity of each candidate with the user query vector
-        // $rerank_query = 
-        // "SELECT v.id, (SUM(q_json.element * db_json.element) / (v.magnitude * %f)) AS cosine_similarity
-        //     FROM $this->table_name v
-        //     JOIN JSON_TABLE(v.vector, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) db_json 
-        //         ON 1 = 1  
-        //     JOIN JSON_TABLE(%s, '$[*]' COLUMNS (idx FOR ORDINALITY, element DOUBLE PATH '$')) q_json 
-        //         ON q_json.idx = db_json.idx 
-        //     WHERE v.id IN ($candidates_str)
-        //     GROUP BY v.id
-        //     ORDER BY cosine_similarity DESC
-        //     LIMIT $n
-        // ";
-        // $reranked_candidates = $wpdb->get_results($wpdb->prepare($rerank_query,
-        //     $this->magnitude(json_decode($vector, true)),   //enter magnitude of user query vector
-        //     $vector//$normalized_vector ,                                         //enter user query vector
-        // ));
-
+        //  \\  //  \\  RERANKING //  \\  //  \\  //
         //find the candidates with the lowest cosine distance to the query vector using php
         $reranked_candidates = new ContentOracleRerankMaxHeap();
         
@@ -183,6 +129,7 @@ class ContentOracle_VectorTable{
                 'id' => $candidate->id,
                 'cosine_similarity' => $cosine_similarity
             ]);
+
         }
 
         //get the n most similar candidates
@@ -191,6 +138,12 @@ class ContentOracle_VectorTable{
             if ($reranked_candidates->count() < 1) break;
             $reranked_candidates_arr[] = $reranked_candidates->extract();
         }
+
+        //get post titles with candidates
+        foreach ($reranked_candidates_arr as &$candidate){
+            $candidate['post_title'] = get_the_title($candidate['id']);
+        }
+        echo json_encode($reranked_candidates_arr);
         
 
         //return the ids of the reranked candidates
