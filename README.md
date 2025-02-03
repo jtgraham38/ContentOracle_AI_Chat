@@ -1,4 +1,5 @@
 # ContentOracle AI Chat
+Get it on the [plugin directory](https://wordpress.org/plugins/jtgraham-contentoracle-ai-chat/).
 
 ## Welcome
 
