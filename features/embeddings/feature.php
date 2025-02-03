@@ -150,9 +150,10 @@ class ContentOracleEmbeddings extends PluginFeature{
             //add the chunked post to the array
             $chunked_posts[] = $chunks;
 
-            //add the post title to the beginning of each chunk for better embeddings
+            //add the post title and type to the beginning of each chunk for better embeddings
             foreach ($chunks->chunks as $i => $chunk){
-                $chunks->chunks[$i] = array_merge([$post->post_title], $chunk);
+                $chunks->chunks[$i] = array_merge(["Title: ".$post->post_title], $chunk);
+                $chunks->chunks[$i] = array_merge(["Type: ".get_post_type($post_ID)], $chunk);
             }
         }
 
