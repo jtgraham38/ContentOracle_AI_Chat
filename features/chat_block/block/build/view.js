@@ -7732,7 +7732,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
             content: "",
             context_used: [],
             context_supplied: json.context_supplied,
-            action: null
+            action: json.action
           };
           this.conversation.push(placheholder_response);
 
