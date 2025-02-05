@@ -140,10 +140,10 @@ class ContentOracle_VectorTable{
         }
 
         //get post titles with candidates
-        foreach ($reranked_candidates_arr as &$candidate){
-            $candidate['post_title'] = get_the_title($candidate['id']);
-        }
-        echo json_encode($reranked_candidates_arr);
+        // foreach ($reranked_candidates_arr as &$candidate){
+        //     $candidate['post_title'] = get_the_title($candidate['id']);
+        // }
+        // echo json_encode($reranked_candidates_arr);
         
 
         //return the ids of the reranked candidates

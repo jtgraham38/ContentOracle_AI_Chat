@@ -15,6 +15,8 @@ require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . 'ContentOracleApiConnection.php';
 require_once plugin_dir_path(__FILE__) . '../embeddings/VectorTable.php';
 require_once plugin_dir_path(__FILE__) . '../embeddings/chunk_getters.php';
+require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
+require_once plugin_dir_path(__FILE__) . 'WPAPIErrorResponse.php';
 
 use jtgraham38\jgwordpresskit\PluginFeature;
 
@@ -153,11 +155,22 @@ class ContentOracleApi extends PluginFeature{
                     $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
                     break;
             }
-        } catch (Exception $e){
-            return new WP_REST_Response(
-                array(
-                    'error' => $e->getMessage()
-                )
+        }
+        catch (ContentOracle_ResponseException $e){
+            //returns the error response, with the raw error object, from the api
+            return new Contentoracle_WPAPIErrorResponse(
+                $e->response,
+                $e->getMessage(),
+                'EMBED_ERR',
+                $e->error_source
+            );
+        } 
+        catch (Exception $e){
+            //no error response supplied, so none is returned
+            return new Contentoracle_WPAPIErrorResponse(
+                [],
+                $e->getMessage(),
+                'EMBED_ERR'
             );
         }
 
@@ -215,39 +228,49 @@ class ContentOracleApi extends PluginFeature{
                 echo $action;
                 echo $private_use_char; // Send a private use character to signal the end of the fragment
             }
-            //TODO: handle sources, citations, etc.
+            //handle error responses
+            else if ( isset( $parsed['error'] ) ){
+                //don't use an exception, create the response here directly
+                $error = new Contentoracle_WPAPIErrorResponse(
+                    $parsed,
+                    $parsed['message'],
+                    $parsed['error'],
+                    'coai'
+                );
+                echo json_encode($error);
+            }
+            else if (isset($parsed['errors'])){
+                //don't use an exception, create the response here directly
+                $error = new Contentoracle_WPAPIErrorResponse(
+                    $parsed,
+                    'Multiple errors in response from the AI',
+                    'AI_CHAT_ERR',
+                    'coai'
+                );
+                echo json_encode($error);
+            }
+            else if (isset($response['message']) && $response['message'] == 'Unauthenticated.'){
+                //don't use an exception, create the response here directly
+                $error = new Contentoracle_WPAPIErrorResponse(
+                    $parsed,
+                    'Unauthenticated.',
+                    'AI_CHAT_ERR',
+                    'coai'
+                );
+                echo json_encode($error);
+            }
+            //handle chat response fragment
+            //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
             else{
+                //NOTE: for some reason, the error handlers below handle problems here, so I don't need to handle them here
+
+                //echo the response fragment
                 echo json_encode($parsed);
                 echo $private_use_char; // Send a private use character to signal the end of the fragment
             }
 
             flush();    //flush to stream
         });
-
-
-        //handle error in response
-        if ( isset( $response['error'] ) ){
-            return new WP_REST_Response(
-                array(
-                    'error' => $response['error']
-                )
-            );
-        }
-        if (isset($response['errors'])){
-            return new WP_REST_Response(
-                array(
-                    'errors' => $response['errors']
-                )
-            );
-        }
-        //TODO: temporary handler for unauthenticated error, it should return a 401 unauthorized error
-        if ( (isset($response['message']) && $response['message'] == 'Unauthenticated.') ){
-            return new WP_REST_Response(
-                array(
-                    'response' => $response['message']
-                )
-            );
-        }
 
         //stop executing here
         die;
@@ -272,11 +295,22 @@ class ContentOracleApi extends PluginFeature{
                     $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
                     break;
             }
-        } catch (Exception $e){
-            return new WP_REST_Response(
-                array(
-                    'error' => $e->getMessage()
-                )
+        } 
+        catch (ContentOracle_ResponseException $e){
+            //returns the error response, with the raw error object, from the api
+            return new Contentoracle_WPAPIErrorResponse(
+                $e->response,
+                $e->getMessage(),
+                'EMBED_ERR',
+                $e->error_source
+            );
+        }
+        catch (Exception $e){
+            //no error response supplied, so none is returned
+            return new Contentoracle_WPAPIErrorResponse(
+                [],
+                $e->getMessage(),
+                'EMBED_ERR'
             );
         }
 
@@ -288,29 +322,25 @@ class ContentOracleApi extends PluginFeature{
         
         //send a request to the ai to generate a response
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
-        $response = $api->ai_chat($message, $content, $conversation);
-
-        //handle error in response
-        if ( isset( $response['error'] ) ){
-            return new WP_REST_Response(
-                array(
-                    'error' => $response['error']
-                )
+        try{
+            //get an ai response
+            $response = $api->ai_chat($message, $content, $conversation);
+        }
+        catch (ContentOracle_ResponseException $e){
+            //returns the error response, with the raw error object, from the api
+            return new Contentoracle_WPAPIErrorResponse(
+                $e->response,
+                $e->getMessage(),
+                'AI_CHAT_ERR',
+                $e->error_source
             );
         }
-        if (isset($response['errors'])){
-            return new WP_REST_Response(
-                array(
-                    'errors' => $response['errors']
-                )
-            );
-        }
-        //TODO: temporary handler for unauthenticated error, it should return a 401 unauthorized error
-        if ( (isset($response['message']) && $response['message'] == 'Unauthenticated.') ){
-            return new WP_REST_Response(
-                array(
-                    'response' => $response['message']
-                )
+        catch (Exception $e){
+            //no error response supplied, so none is returned
+            return new Contentoracle_WPAPIErrorResponse(
+                [],
+                $e->getMessage(),
+                'AI_CHAT_ERR'
             );
         }
 
@@ -515,8 +545,12 @@ class ContentOracleApi extends PluginFeature{
         //get the embedding from the ai
         $response = $api->query_vector($message);
 
-        if (empty($response['embeddings'])){
-            throw new Exception('No embeddings returned from the AI');
+        if (!isset($response['embeddings'][0]['embedding'])){
+            throw new ResponseException(
+                'No embeddings returned from the AI',
+                $response,
+                'coai'
+            );
         }
 
         $embedding = $response['embeddings'][0]['embedding'];

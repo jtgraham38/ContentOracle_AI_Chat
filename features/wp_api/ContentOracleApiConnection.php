@@ -5,6 +5,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+//include the response exception class
+require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
+
 class ContentOracleApiConnection{
 
     const API_BASE_URL = 'https://app.contentoracleai.com/api';
@@ -63,12 +66,53 @@ class ContentOracleApiConnection{
 
         //handle wordpress errors
         if (is_wp_error($response)){
-            return [ 'error' => $response->get_error_message() ];
+            throw new ContentOracle_ResponseException(
+                $response->get_error_message(),
+                $response
+            );
         }
-        
+
+        //throw exception if response is not 2XX
+        if (wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300) {
+            throw new ContentOracle_ResponseException(
+                wp_remote_retrieve_response_message($response),
+                $response,
+                "coai"
+            );
+        }
+
         //parse the response
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
+
+        //throw excpetion if $response['error'] is set
+        if (isset($data['error'])){
+            throw new ContentOracle_ResponseException(
+                $data['error'],
+                $response,
+                "coai"
+            );
+        }
+
+        //throw excpetion if $response['errors'] is set
+        if (isset($data['errors'])){
+            throw new ContentOracle_ResponseException(
+                $data['errors'],    //TODO: how to merge these to a string?
+                $response,
+                "coai"
+            );
+        }
+
+        //check if message is "Unauthenticated."
+        if (isset($data['message']) && $data['message'] === "Unauthenticated."){
+            throw new ContentOracle_ResponseException(
+                "Unauthenticated.",
+                $response,
+                "coai"
+            );
+        }
+
+        //if we reach here, the response is valid
         return $data;
     }
 
@@ -155,17 +199,33 @@ class ContentOracleApiConnection{
 
         //handle wordpress errors
         if (is_wp_error($response)){
-            throw new Exception($response->get_error_message());
+            throw new ContentOracle_ResponseException(
+                $response->get_error_message(),
+                $response
+            );
         }
 
         //handle non-2XX responses
         if (wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300) {
-            throw new Exception(wp_remote_retrieve_response_message($response));
+            throw new ContentOracle_ResponseException(
+                wp_remote_retrieve_response_message($response),
+                $response,
+                "coai"
+            );
         }
         
         //retrieve and format the response
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
+
+        //check if message is "Unauthenticated."
+        if (isset($data['message']) && $data['message'] === "Unauthenticated."){
+            throw new ContentOracle_ResponseException(
+                "Unauthenticated.",
+                $response,
+                "coai"
+            );
+        }
 
         return $data;
     }
