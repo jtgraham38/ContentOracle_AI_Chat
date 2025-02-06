@@ -7694,64 +7694,38 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     //handle the response
     if (json.error) {
       //this is an error that might be set in the wp api, because it is not a part of the response
-      this.error = json.error;
-      console.error(json.error);
-    }
-    if (json.errors) {
-      //combine the errors into a single string, and push to the conversation
-      let error_msgs = [];
-      Object.entries(json.errors).map(([key, value]) => {
-        error_msgs.push(key + ": " + value);
-      });
-      this.error = error_msgs.join(", ");
-      console.error(json.errors);
-    } else if (json?.response?.error) {
-      //push the error to the conversation
-      //this is an error that might be set in contentoracle api, because it is a part of the response
-      this.error = json.response.error;
-      console.error(json.response.error);
-    } else if (json?.code) {
-      //handle error from the wp api validators, like nonce error, etc.
-      this.error = json?.message;
-      console.error(json);
+      this.handleErrorResponse(json);
     } else {
-      //check for unauthenticated
-      //TODO: change structure of handler when coai response changes
-      if (json?.response == "Unauthenticated.") {
-        //push the error to the conversation
-        this.error = "Unauthenticated. Site admin should check api token.";
-        console.error("Unauthenticated. Site admin should check api token.");
-      } else {
-        try {
-          //add the response to the conversation
-          //this is done here so that the message is not already in the conversation when the message is sent to the
-          //coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
-          const placheholder_response = {
-            role: 'assistant',
-            raw_content: json.response,
-            content: "",
-            context_used: [],
-            context_supplied: json.context_supplied,
-            action: json.action
-          };
-          this.conversation.push(placheholder_response);
+      try {
+        //add the response to the conversation
+        //this is done here so that the message is not already in the conversation when the message is sent to the
+        //coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
+        const placheholder_response = {
+          role: 'assistant',
+          raw_content: json.response,
+          content: "",
+          context_used: [],
+          context_supplied: json.context_supplied,
+          action: json.action
+        };
+        this.conversation.push(placheholder_response);
 
-          //render the main idea
-          const main_idea_chat = this.addMainIdea(placheholder_response);
+        //render the main idea
+        const main_idea_chat = this.addMainIdea(placheholder_response);
 
-          //render the citations
-          const cited_chat = this.addCitations(main_idea_chat);
+        //render the citations
+        const cited_chat = this.addCitations(main_idea_chat);
 
-          //render and sanitize the markdown
-          cited_chat.content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(cited_chat.raw_content));
+        //render and sanitize the markdown
+        cited_chat.content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(cited_chat.raw_content));
 
-          //replace the placheholder with the rendered chat
-          this.conversation[this.conversation.length - 1] = cited_chat;
-          console.log("conversation", this.conversation);
-        } catch (e) {
-          this.error = "An error occurred while processing the response";
-          console.error(e);
-        }
+        //replace the placheholder with the rendered chat
+        this.conversation[this.conversation.length - 1] = cited_chat;
+        console.log("conversation", this.conversation);
+      } catch (e) {
+        //don't use handleErrorResponse, because this is not the result of a malformed/bad response
+        this.error = "An error occurred while streaming in the response.  See console for more details.";
+        console.error(e);
       }
     }
 
@@ -7779,7 +7753,9 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     const xhr = new XMLHttpRequest();
     xhr.open("POST",
     //TODO: change later!
-    this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat/stream&message=' + msg, true);
+    this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat/stream',
+    //&message=' + msg,
+    true);
 
     //set the headers
     xhr.setRequestHeader('Content-Type', 'application/json');
@@ -7820,17 +7796,15 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         try {
           parsed = JSON.parse(response);
         } catch (e) {
+          //don't use handleErrorResponse, because this is not the result of a response
+          this.error = "The response could not be parsed.";
           console.error(e);
-          // console.error(responses);
-          // console.error(_response);
           return;
         }
 
         //handle the response
         if (parsed?.error) {
-          //this is an error that might be set in the wp api, because it is not a part of the response
-          this.error = parsed.error;
-          console.error(parsed.error);
+          this.handleErrorResponse(parsed);
         }
         //check if this is the action response
         else if (parsed?.action) {
@@ -7986,6 +7960,11 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
   scrollToBottom(event) {
     const chatContainer = this.$refs.chatBody;
     chatContainer.scrollTop = chatContainer.scrollHeight;
+  },
+  //performs all tasks that need to be performed when an error response is received
+  handleErrorResponse(error) {
+    this.error = `Error ${error.error.code}: "${error.error.message}".\nSee console for more details.`;
+    console.error(`Error originates from ${error.error_source == "coai" ? "ContentOracle AI API" : "WordPress API"}.`, error.error);
   }
 }));
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].start();
