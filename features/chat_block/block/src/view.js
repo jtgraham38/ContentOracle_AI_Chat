@@ -147,7 +147,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			}
 			catch(e){
 				//don't use handleErrorResponse, because this is not the result of a malformed/bad response
-				this.error = "An error occurred while streaming in the response.  See console for more details.";
+				this.error = "An error occurred while streaming in the response.";
 				console.error(e);
 			}
 		}
@@ -403,7 +403,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
     },
 	//performs all tasks that need to be performed when an error response is received
 	handleErrorResponse( error ) {
-		this.error = `Error ${error.error.code}: "${error.error.message}".\nSee console for more details.`;
+		this.error = `Error ${error.error.error}: "${error.error.message}".`;
 		console.error(`Error originates from ${error.error_source == "coai" ? "ContentOracle AI API" : "WordPress API"}.`, error.error);
 	},
 })
