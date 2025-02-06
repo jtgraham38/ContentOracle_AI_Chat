@@ -7984,8 +7984,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       // Check if the current scroll position is not already at the desired position
       if (chatContainer.scrollTop + chatContainer.clientHeight < lastChatPosition) {
         // Scroll to the position of the last assistant chat
-        chatContainer.scrollTop = lastChatPosition - 5; // Adjust the offset value as needed
-        console.log("scrolling up a little");
+        chatContainer.scrollTop = lastChatPosition + 5; // Adjust the offset value as needed
       }
     }
   },
