@@ -7607,12 +7607,23 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     this.chatNonce = this.$el.getAttribute('data-contentoracle_chat_nonce');
     this.stream_responses = this.$el.getAttribute('data-contentoracle_stream_responses');
 
-    //scroll to the bottom of the chat when the conversation updates
+    //scroll to the top of the bottommost chat when the conversation updates
     this.$watch('conversation', () => {
-      this.scrollToBottom(); // Call the function when conversation updates
+      this.scrollToBottomMostChat(); // Call the function when conversation updates
     });
+
+    //scroll to the bottom of the chat when the loading state updates
     this.$watch('loading', () => {
-      this.scrollToBottom(); // Call the function when loading updates
+      if (this.loading) {
+        this.scrollToBottom(); // Call the function when loading updates
+      }
+    });
+
+    //scroll to the bottom of the chat when the error state updates
+    this.$watch('error', () => {
+      if (this.error) {
+        this.scrollToBottom(); // Call the function when error updates
+      }
     });
 
     //preemptively add the search query to the conversation, if it exists
@@ -7960,6 +7971,23 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
   scrollToBottom(event) {
     const chatContainer = this.$refs.chatBody;
     chatContainer.scrollTop = chatContainer.scrollHeight;
+  },
+  //scrolls to the top of the bottommost assistant chat
+  scrollToBottomMostChat(event) {
+    const chatContainer = this.$refs.chatBody;
+    const assistantChats = chatContainer.querySelectorAll('.contentoracle-ai_chat_bubble');
+    const lastChat = assistantChats[assistantChats.length - 1];
+    if (lastChat) {
+      // Get the position of the last assistant chat
+      const lastChatPosition = lastChat.offsetTop;
+
+      // Check if the current scroll position is not already at the desired position
+      if (chatContainer.scrollTop + chatContainer.clientHeight < lastChatPosition) {
+        // Scroll to the position of the last assistant chat
+        chatContainer.scrollTop = lastChatPosition - 5; // Adjust the offset value as needed
+        console.log("scrolling up a little");
+      }
+    }
   },
   //performs all tasks that need to be performed when an error response is received
   handleErrorResponse(error) {
