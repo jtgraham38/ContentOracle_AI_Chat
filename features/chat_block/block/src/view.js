@@ -452,20 +452,16 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 		//get the context used in the most recent ai response
 		const context_used = this.conversation[this.conversation.length - 1].context_used;
-		console.log("context_used", context_used);
 
 		//create the new text content for the user message
 		const context_used_str = context_used.map((post) => {
-			console.log("post in context_used", post);
 			return "Title: " + post.title + " (" + post.type + ")" + " - " + post.body
 		}).join("\n");
-		const new_content = context_used_str + "\n\n" + this.conversation[this.conversation.length - 2].content;
-		console.log("new_content", new_content);
+		//TODO: split in view on the private use character, and add a new line after each one
+		const new_content = context_used_str + "\u{E001}" + this.conversation[this.conversation.length - 2].content;
 
 		//add the context used to user chat it was used to generate a completion for
 		this.conversation[this.conversation.length - 2].content = new_content
-
-		console.log("udpated conversation", this.conversation[this.conversation.length - 2]);
 	}
 })
 )
