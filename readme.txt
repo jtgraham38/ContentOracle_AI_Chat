@@ -1,6 +1,6 @@
 === ContentOracle AI Chat ===
 Contributors: jtgraham38
-Tags: ai, search, content, rag, ecommerce, chat
+Tags: ai, search, content, rag, chat
 Requires at least: 6.5
 Tested up to: 6.7.1
 Stable tag: 1.2.0
@@ -67,7 +67,7 @@ This plugin makes use of the following third-party libraries and services:
 = 1.1.1 =
 * Modified similarity calculation to ensure compatibility with most databases.
 
-== 1.2.0 ==
+= 1.2.0 =
 * Implemented streaming of ai chat responses.
 * Fixed bugs with semantic text matching.
 * Vastly improved error handling and reporting.

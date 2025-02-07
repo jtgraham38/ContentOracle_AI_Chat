@@ -3,8 +3,8 @@
 //this class creates a unified response object for errors from the api
 class Contentoracle_WPAPIErrorResponse{
 
-    public array $error;            //contains the error object, if any
-    public string $error_msg;         //contains the error message, if any
+    public $error;                  //contains the error object, if any
+    public string $error_msg;       //contains the error message, if any
     public string $error_code;      //contains the error code, if any
     public string $error_source;    //the source of the error (the contentoracle api or the wordpress ap)
 
