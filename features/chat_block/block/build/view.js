@@ -7892,18 +7892,23 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     //I'd rather return a copy than modify state directly
     const copy = Object.assign({}, chat);
 
+    //find the current citation label
+    const num_labelled = Object.entries(chat.context_used).map(([key, value]) => {
+      return value.label;
+    }).length;
+    let current_lbl = num_labelled + 1;
+
     //find all citations, which match the form "[|$|]lorem ipsum... [|$|][|@|]content_id[|@|]"
     //and replace them with the citation,
     //which is an a tag linking to the content_id. with the class contentoracle-inline_citation
     //and text numbered from 1 to n
     //where n is the number of citations in the response
-    let current_lbl = 1;
     copy.raw_content = chat.raw_content.replace(/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/g, (match, text, post_id) => {
       // Get the post URL
       const post = chat.context_supplied[post_id];
 
       //see if this post has been labelled already
-      if (!post?.label) {
+      if (post && !post?.label) {
         chat.context_supplied[post_id].label = current_lbl++;
       }
 
@@ -7920,7 +7925,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       const post = chat.context_supplied[post_id];
 
       //see if this post has been labelled already
-      if (!post?.label) {
+      if (post && !post?.label) {
         chat.context_supplied[post_id].label = current_lbl++;
       }
 
