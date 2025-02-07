@@ -7732,6 +7732,9 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
         //replace the placheholder with the rendered chat
         this.conversation[this.conversation.length - 1] = cited_chat;
+
+        //add context to the previous user message
+        this.linkContextToUserMessage();
         console.log("conversation", this.conversation);
       } catch (e) {
         //don't use handleErrorResponse, because this is not the result of a malformed/bad response
@@ -7871,6 +7874,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
     //after the request is done
     xhr.onload = function () {
+      //add context to the previous user message
+      this.linkContextToUserMessage();
       console.log("conversation", this.conversation);
     }.bind(this); //IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
 
@@ -7992,6 +7997,32 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
   handleErrorResponse(error) {
     this.error = `Error ${error.error.error}: "${error.error.message}".`;
     console.error(`Error originates from ${error.error_source == "coai" ? "ContentOracle AI API" : "WordPress API"}.`, error.error);
+  },
+  //link the most recent user message to the content used to generate the response for it
+  linkContextToUserMessage() {
+    //add the context used in the most recent ai response to the body of the most recent user response
+    //this implements "context memory" in the chat, where the ai can pull from information from content
+    //used in previous messages
+    if (this.conversation.length < 2 || this.conversation[this.conversation.length - 1].role != 'assistant') {
+      console.log("no assistant message to link to");
+      return;
+    }
+
+    //get the context used in the most recent ai response
+    const context_used = this.conversation[this.conversation.length - 1].context_used;
+    console.log("context_used", context_used);
+
+    //create the new text content for the user message
+    const context_used_str = context_used.map(post => {
+      console.log("post in context_used", post);
+      return "Title: " + post.title + " (" + post.type + ")" + " - " + post.body;
+    }).join("\n");
+    const new_content = context_used_str + "\n\n" + this.conversation[this.conversation.length - 2].content;
+    console.log("new_content", new_content);
+
+    //add the context used to user chat it was used to generate a completion for
+    this.conversation[this.conversation.length - 2].content = new_content;
+    console.log("udpated conversation", this.conversation[this.conversation.length - 2]);
   }
 }));
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].start();
