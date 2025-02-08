@@ -7910,8 +7910,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       }
 
       //create the citation
-      const label = post.label;
-      const url = post.url;
+      const label = post?.label || current_lbl++;
+      const url = post?.url || "#";
       return `${text} <a href="${url}" class="contentoracle-inline_citation" target="_blank">${label}</a>`;
     });
 
@@ -7927,8 +7927,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       }
 
       //create the citation
-      const label = post.label;
-      const url = post.url;
+      const label = post?.label || current_lbl++;
+      const url = post?.url || "#";
       return `<a href="${url}" class="contentoracle-inline_citation" target="_blank">${label}</a>`;
     });
 
