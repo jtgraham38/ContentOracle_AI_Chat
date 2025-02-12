@@ -7,7 +7,13 @@ class ContentOracle_ResponseException extends Exception{
     public function __construct($message = "", $response = null, $error_source = "wp"){
         parent::__construct($message);
 
-        $this->response = json_decode($response['body'], true);
+        //decode the response if it is a string
+        if (is_string($response)){
+            $response = json_decode($response, true);
+        }
+        else{
+            $this->response = $response;
+        }
         $this->error_source = $error_source;
     }
 }

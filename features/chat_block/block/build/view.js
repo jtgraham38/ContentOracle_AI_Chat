@@ -7715,8 +7715,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           role: 'assistant',
           raw_content: json.response,
           content: "",
-          context_used: [],
-          context_supplied: json.context_supplied,
+          content_used: [],
+          content_supplied: json.content_supplied,
           action: json.action
         };
         this.conversation.push(placheholder_response);
@@ -7799,8 +7799,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           this.conversation.push({
             role: 'assistant',
             content: "",
-            context_used: [],
-            context_supplied: [],
+            content_used: [],
+            content_supplied: [],
             action: null
           });
         }
@@ -7828,10 +7828,10 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           }
         }
         //else if it is the context supplied response
-        else if (parsed?.context_supplied) {
+        else if (parsed?.content_supplied) {
           //set the context supplied on the ai's message
           if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
-            this.conversation[this.conversation.length - 1].context_supplied = parsed.context_supplied;
+            this.conversation[this.conversation.length - 1].content_supplied = parsed.content_supplied;
           }
         }
         //otherwise, extract the generated message fragment
@@ -7893,7 +7893,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     const copy = Object.assign({}, chat);
 
     //find the current citation label
-    const num_labelled = Object.entries(chat.context_used).map(([key, value]) => {
+    const num_labelled = Object.entries(chat.content_used).map(([key, value]) => {
       return value.label;
     }).length;
     let current_lbl = num_labelled + 1;
@@ -7905,11 +7905,11 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     //where n is the number of citations in the response
     copy.raw_content = chat.raw_content.replace(/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/g, (match, text, post_id) => {
       // Get the post URL
-      const post = chat.context_supplied[post_id];
+      const post = chat.content_supplied[post_id];
 
       //see if this post has been labelled already
       if (post && !post?.label) {
-        chat.context_supplied[post_id].label = current_lbl++;
+        chat.content_supplied[post_id].label = current_lbl++;
       }
 
       //create the citation
@@ -7922,11 +7922,11 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     //in the case that the wrapper around the content is missing
     copy.raw_content = chat.raw_content.replace(/\|\[@\]\|(\d+)\|\[@\]\|/g, (match, post_id) => {
       // Get the post URL
-      const post = chat.context_supplied[post_id];
+      const post = chat.content_supplied[post_id];
 
       //see if this post has been labelled already
       if (post && !post?.label) {
-        chat.context_supplied[post_id].label = current_lbl++;
+        chat.content_supplied[post_id].label = current_lbl++;
       }
 
       //create the citation
@@ -7941,16 +7941,16 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
     // set context used for bottom citations
     //filter to see which ones were labelled
-    const context_used = [];
-    Object.entries(chat.context_supplied).forEach(([key, post]) => {
+    const content_used = [];
+    Object.entries(chat.content_supplied).forEach(([key, post]) => {
       if (post.label) {
-        context_used.push(post);
+        content_used.push(post);
       }
     });
     //sort by label, with lowest label first
-    context_used.sort((a, b) => a.label - b.label);
+    content_used.sort((a, b) => a.label - b.label);
     //set the context used
-    copy.context_used = context_used;
+    copy.content_used = content_used;
 
     //return copy
     return copy;
@@ -8014,14 +8014,14 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     }
 
     //get the context used in the most recent ai response
-    const context_used = this.conversation[this.conversation.length - 1].context_used;
+    const content_used = this.conversation[this.conversation.length - 1].content_used;
 
     //create the new text content for the user message
-    const context_used_str = context_used.map(post => {
+    const content_used_str = content_used.map(post => {
       return "Title: " + post.title + " (" + post.type + ")" + " - " + post.body;
     }).join("\n");
     //TODO: split in view on the private use character, and add a new line after each one
-    const new_content = context_used_str + "\u{E001}" + this.conversation[this.conversation.length - 2].content;
+    const new_content = content_used_str + "\u{E001}" + this.conversation[this.conversation.length - 2].content;
 
     //add the context used to user chat it was used to generate a completion for
     this.conversation[this.conversation.length - 2].content = new_content;

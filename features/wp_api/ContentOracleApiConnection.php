@@ -201,7 +201,7 @@ class ContentOracleApiConnection{
         if (is_wp_error($response)){
             throw new ContentOracle_ResponseException(
                 $response->get_error_message(),
-                $response
+                $response->errors  //because this response is of type WP_Error, not Array, so need to get the errors array
             );
         }
 

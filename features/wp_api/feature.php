@@ -314,6 +314,8 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
+        
+
         //get the conversation from the request
         $conversation = $request->get_param('conversation');
 
@@ -347,8 +349,8 @@ class ContentOracleApi extends PluginFeature{
         //apply post processing to the ai_response
         $ai_connection = $response['ai_connection'];
         $ai_response = $response['generated']['message'];
+        $ai_engineered_input = $response['generated']['engineered_input'];
         $ai_action = $response['generated']['action'];
-        $ai_content_ids_used = $response['generated']['content_used'] ?? [];
 
         //add the post link, excerpt, and featured image to the action
         if ( isset( $ai_action['content_id'] ) && get_post($ai_action['content_id']) ){
@@ -367,13 +369,12 @@ class ContentOracleApi extends PluginFeature{
         //return the response
         return new WP_REST_Response(array(
             'message' => $message,
-            'context_supplied' => $id2post,
-            'context_used' => [],
+            'content_supplied' => $id2post,
             'response' => $ai_response,
-            'action' => $ai_action
+            'action' => $ai_action,
+            'engineered_input' => $ai_engineered_input,
         ));
     }
-
     //simple keyword search to find relevant posts
     function keyword_content_search($message){
         //tokenize the message
@@ -606,8 +607,6 @@ class ContentOracleApi extends PluginFeature{
         //return the post chunks
         return $chunks;
     }
-
-
 
     //register a contentoracle healthcheck route
     function register_healthcheck_rest_route(){
