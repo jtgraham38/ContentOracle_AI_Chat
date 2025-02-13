@@ -254,7 +254,7 @@ Greener Garden Center is here to help you with all your gardening needs. Visit o
 					role: 'assistant',
 					raw_content: json.response,
 					content: "",
-					context_used: [],
+					content_used: [],
 					content_supplied: json.content_supplied,
 					action: json.action
 				}
@@ -340,7 +340,7 @@ Greener Garden Center is here to help you with all your gardening needs. Visit o
 					this.conversation.push({
 						role: 'assistant',
 						content: "",
-						context_used: [],
+						content_used: [],
 						content_supplied: [],
 						action: null
 					});
@@ -447,7 +447,7 @@ Greener Garden Center is here to help you with all your gardening needs. Visit o
 			switch (artifact_type) {
 				case 'inline_citation':
 					const inline_citation = new InlineCitationArtifact(artifact);
-					const rendered = inline_citation.render(chat.content_supplied);
+					const rendered = inline_citation.render(chat.content_supplied, chat.content_used);
 					return rendered.outerHTML;
 				default:
 					return match;
@@ -473,8 +473,8 @@ Greener Garden Center is here to help you with all your gardening needs. Visit o
 	getConversationWithContext(){
 		//make a copy of the conversation, to avoid state mutation
 		const conversation = JSON.parse(JSON.stringify(this.conversation));
-		let context_used = null;
-		let context_used_str = null;
+		let content_used = null;
+		let content_used_str = null;
 
 		//iterate through the conversation, and prepend the context used by the ai in its response to the user message
 		for (let i = conversation.length - 1; i >= 0; i--) {
@@ -485,18 +485,18 @@ Greener Garden Center is here to help you with all your gardening needs. Visit o
 			//this chat is an assistant message
 			if (chat.role == 'assistant') {
 				//get the context used by the ai in its response
-				context_used = chat.context_used;
+				content_used = chat.content_used;
 
 				//create the new text content for the user message
-				context_used_str = "Use this site content in your response: " + context_used.map((post) => {
+				content_used_str = "Use this site content in your response: " + content_used.map((post) => {
 					return "Title: " + post.title + " (" + post.type + ")" + " - " + post.body
 				}).join("\n");
 			}
 			//otherwise, if this is a user message, prepend the context used by the ai in its response
 			else{
 				//prepend the context used to the user message
-				if (context_used){
-					conversation[i].content = context_used_str + "\nUser query: " + chat.content;
+				if (content_used){
+					conversation[i].content = content_used_str + "\nUser query: " + chat.content;
 				}
 			}
 		}
