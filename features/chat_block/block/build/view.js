@@ -3447,7 +3447,8 @@ class InlineCitationArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["def
   }
 
   //NOTE: content_supplied is passed by reference, and it maps content_id to the content object
-  render(content_supplied) {
+  //NOTE: so is content_used, which we add each piece of content we use to
+  render(content_supplied, content_used) {
     //var to hold label for this citation
     let lbl = 0;
 
@@ -3465,6 +3466,20 @@ class InlineCitationArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["def
         }
       }
       lbl = largest + 1;
+    }
+
+    //check if this piece of content is in content_used
+    let already_used = false;
+    for (let i = 0; i < content_used.length; i++) {
+      if (content_used[i].id === this.content_id) {
+        already_used = true;
+        break;
+      }
+    }
+
+    //add it to the list of content used, if necessary
+    if (!already_used) {
+      content_used.push(content_supplied[this.content_id]);
     }
 
     //create a span
@@ -7812,6 +7827,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           "type": "post"
         }
       },
+      content_used: [],
       raw_content: `Growing tomatoes can be a rewarding experience. Here are some steps to help you succeed:
 1. **Choose the Right Variety**: Select a tomato variety suitable for your climate and space. Determinate (bush) types are ideal for small spaces, while indeterminate (vine) types are perfect for a prolonged harvest.
 

@@ -10,7 +10,8 @@ export default class InlineCitationArtifact extends COAI_Artifact {
     }
 
     //NOTE: content_supplied is passed by reference, and it maps content_id to the content object
-    render(content_supplied) {
+    //NOTE: so is content_used, which we add each piece of content we use to
+    render(content_supplied, content_used) {
         //var to hold label for this citation
         let lbl = 0;
 
@@ -28,6 +29,22 @@ export default class InlineCitationArtifact extends COAI_Artifact {
                 }
             }
             lbl = largest + 1;
+        }
+
+        //check if this piece of content is in content_used
+        let already_used = false;
+        for (let i = 0; i < content_used.length; i++) {
+            if (content_used[i].id === this.content_id) {
+                already_used = true;
+                break;
+            }
+        }
+
+        //add it to the list of content used, if necessary
+        if (!already_used) {
+            content_used.push(
+                content_supplied[this.content_id]
+            );
         }
 
 

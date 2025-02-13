@@ -137,7 +137,8 @@ Alpine.data('contentoracle_ai_chat', () => ({
         "body": "providing the right care and attention , you can enjoy a steady supply of homegrown tomatoes , bursting with flavor and nutrition . Whether you ' re growing them in containers on a balcony or in a sprawling backyard garden , tomatoes are a delightful addition to any garden and a testament to the wonders of nature .",
         "type": "post"
     }
-},
+			},
+			content_used: [],
 			raw_content: `Growing tomatoes can be a rewarding experience. Here are some steps to help you succeed:
 1. **Choose the Right Variety**: Select a tomato variety suitable for your climate and space. Determinate (bush) types are ideal for small spaces, while indeterminate (vine) types are perfect for a prolonged harvest.
 
