@@ -180,13 +180,13 @@ class ContentOracleApi extends PluginFeature{
         foreach ($content as $post){
             $id2post[$post['id']] = $post;
         }
-        $context_supplied = json_encode(["context_supplied" => $id2post]);
-        echo $context_supplied;
+        $content_supplied = json_encode(["content_supplied" => $id2post]);
+        echo $content_supplied;
         echo $private_use_char; // Send a private use character to signal the end of the fragment
         flush();
 
         //get the conversation from the request
-        $conversation = [];//$request->get_param('conversation');
+        $conversation = $request->get_param('conversation');
 
         //get the ip address of the client for COAI rate limiting
         $client_ip = $this->get_client_ip();
@@ -201,77 +201,125 @@ class ContentOracleApi extends PluginFeature{
         }
 
         // Disable buffering to send output directly
-        @ini_set('output_buffering', 'Off');
-        @ini_set('zlib.output_compression', 'Off');
-        @ini_set('implicit_flush', 'On');
-        ob_implicit_flush(1);
+        @ini_set('output_buffering', 'On');
+        //@ini_set('zlib.output_compression', 'Off');
+        //@ini_set('implicit_flush', 'On');
+        //ob_implicit_flush(1);
 
 
         //send a request to the ai to generate a response
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
-        $response = $api->streamed_ai_chat($message, $content, $conversation, function($data){
-            //divider character, to separate the fragments of the response
-            $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
-            
-            //send the data to the client...
-            $parsed = json_decode($data, true);
-            
-            //handle the action
-            if ( isset($parsed['action']) && isset($parsed['action']['content_id']) && get_post($parsed['action']['content_id']) ){
-                $parsed['action']['content_type'] = get_post_type($parsed['action']['content_id']);
-                $parsed['action']['content_url'] = get_post_permalink($parsed['action']['content_id']);
-                $parsed['action']['content_excerpt'] = get_the_excerpt($parsed['action']['content_id']);
-                $parsed['action']['content_featured_image'] = get_the_post_thumbnail_url($parsed['action']['content_id']);
+        $response = $api->streamed_ai_chat($message, $content, $conversation, 
+            function($data){
+                //divider character, to separate the fragments of the response
+                $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
 
-                //encode and echo the action
-                $action = json_encode($parsed);
-                echo $action;
-                echo $private_use_char; // Send a private use character to signal the end of the fragment
-            }
-            //handle error responses
-            else if ( isset( $parsed['error'] ) ){
-                //don't use an exception, create the response here directly
-                $error = new Contentoracle_WPAPIErrorResponse(
-                    $parsed,
-                    $parsed['message'],
-                    $parsed['error'],
-                    'coai'
-                );
-                echo json_encode($error);
-            }
-            else if (isset($parsed['errors'])){
-                //don't use an exception, create the response here directly
-                $error = new Contentoracle_WPAPIErrorResponse(
-                    $parsed,
-                    'Multiple errors in response from the AI',
-                    'AI_CHAT_ERR',
-                    'coai'
-                );
-                echo json_encode($error);
-            }
-            else if (isset($response['message']) && $response['message'] == 'Unauthenticated.'){
-                //don't use an exception, create the response here directly
-                $error = new Contentoracle_WPAPIErrorResponse(
-                    $parsed,
-                    'Unauthenticated.',
-                    'AI_CHAT_ERR',
-                    'coai'
-                );
-                echo json_encode($error);
-            }
-            //handle chat response fragment
-            //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
-            else{
-                //NOTE: for some reason, the error handlers below handle problems here, so I don't need to handle them here
+                //start output buffering if it is not already started
+                if (ob_get_level() == 0){
+                    //start ouput buffering
+                    ob_start();
+                }
 
-                //echo the response fragment
-                echo json_encode($parsed);
-                echo $private_use_char; // Send a private use character to signal the end of the fragment
+                //echo data to the output buffer
+                echo $data;
+
+                //get the full content of the output buffer, and clear it
+                $full_data = ob_get_clean();
+
+                //attempt to parse the data from the output buffer
+                $parsed = json_decode($full_data, true);
+
+                //if there is an error, a valid fragment is not found
+                //so return the data to the output buffer and return
+                if (json_last_error() != JSON_ERROR_NONE){
+                    //start output buffering
+                    ob_start();
+
+                    //echo the partial fragment
+                    echo $data;
+                    
+                    //stop executing here
+                    return;
+                }
+
+                //if we reach this point, a valid fragment was found
+                //and the output buffer is empty, and output buffering is stopped
+
+                //start output buffering again
+                ob_start();
+
+                //set error to none to start
+                $error = null;
+
+                //    \\    //    \\  make updates to the parsed data below  //    \\    //    \\
+                //handle an action fragment
+                if ( isset($parsed['action']) && isset($parsed['action']['content_id']) && get_post($parsed['action']['content_id']) ){
+                    $parsed['action']['content_type'] = get_post_type($parsed['action']['content_id']);
+                    $parsed['action']['content_url'] = get_post_permalink($parsed['action']['content_id']);
+                    $parsed['action']['content_excerpt'] = get_the_excerpt($parsed['action']['content_id']);
+                    $parsed['action']['content_featured_image'] = get_the_post_thumbnail_url($parsed['action']['content_id']);
+                }
+                //handle an engineered_prompt fragment
+                else if ( isset($parsed['engineered_prompt']) ){
+                    //encode and echo the engineered input
+                    //modifications to $parsed here...
+                }
+                //handle an error fragment
+                else if ( isset($parsed['error']) ){
+                    //don't use an exception, create the response here directly
+                    $error = new Contentoracle_WPAPIErrorResponse(
+                        $parsed,
+                        $parsed['message'],
+                        $parsed['error'],
+                        'coai'
+                    );
+                }
+                //handle multiple errors
+                else if (isset($parsed['errors'])){
+                    //don't use an exception, create the response here directly
+                    $error = new Contentoracle_WPAPIErrorResponse(
+                        $parsed,
+                        'Multiple errors in response from the AI',
+                        'AI_CHAT_ERR',
+                        'coai'
+                    );
+                }
+                //handle unauthenticated
+                else if (isset($parsed['message']) && $parsed['message'] == 'Unauthenticated.'){
+                    //don't use an exception, create the response here directly
+                    $error = new Contentoracle_WPAPIErrorResponse(
+                        $parsed,
+                        'Unauthenticated.',
+                        'AI_CHAT_ERR',
+                        'coai'
+                    );
+                }
+                //handle chat response fragment
+                else{
+                    //modifications to $parsed here...
+                }
+                //    \\    //    \\  make updates to the parsed data above  //    \\    //    \\
+
+                //when we reach here, the parsed data is ready to be sent to the client
+                
+                //check if $error is set
+                if ($error){
+                    //encode and echo the error
+                    echo json_encode($error);
+                }
+                //if no error, echo the parsed data
+                else{
+                    //encode and echo the parsed data
+                    echo json_encode($parsed);
+                }
+
+                //separator and flush
+                echo $private_use_char;
+                ob_flush();    //flush to buffer
+                flush();    //flush to stream
+                    
             }
-
-            flush();    //flush to stream
-        });
-
+        );
         //stop executing here
         die;
     }

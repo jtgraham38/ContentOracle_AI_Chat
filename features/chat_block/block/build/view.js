@@ -7679,9 +7679,10 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       'Content-Type': 'application/json',
       'COAI-X-WP-Nonce': this.chatNonce
     };
+    const contextConversation = this.getConversationWithContext();
     const data = {
       message: msg,
-      conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10)
+      conversation: contextConversation.length <= 10 ? contextConversation : contextConversation.slice(contextConversation.length - 10)
     };
     //build the request
     const options = {
@@ -7711,30 +7712,24 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         //add the response to the conversation
         //this is done here so that the message is not already in the conversation when the message is sent to the
         //coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
-        const placheholder_response = {
+        const placeholder_response = {
           role: 'assistant',
           raw_content: json.response,
           content: "",
-          content_used: [],
-          content_supplied: json.content_supplied,
+          context_used: [],
+          context_supplied: json.context_supplied,
           action: json.action
         };
-        this.conversation.push(placheholder_response);
+        this.conversation.push(placeholder_response);
 
-        //render the main idea
-        const main_idea_chat = this.addMainIdea(placheholder_response);
+        //parse the coai artifacts (updates the raw content with the parsed artifacts)
+        const artifacts_parsed_content = this.parseArtifacts(this.conversation[this.conversation.length - 1].raw_content);
 
-        //render the citations
-        const cited_chat = this.addCitations(main_idea_chat);
+        //render and sanitize the markdown in the chat's raw content
+        const md_rendered_content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(artifacts_parsed_content));
 
-        //render and sanitize the markdown
-        cited_chat.content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(cited_chat.raw_content));
-
-        //replace the placheholder with the rendered chat
-        this.conversation[this.conversation.length - 1] = cited_chat;
-
-        //add context to the previous user message
-        this.linkContextToUserMessage();
+        //now, after all parses and transformations, set the chat content to the rendered chat
+        this.conversation[this.conversation.length - 1].content = md_rendered_content;
         console.log("conversation", this.conversation);
       } catch (e) {
         //don't use handleErrorResponse, because this is not the result of a malformed/bad response
@@ -7799,8 +7794,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           this.conversation.push({
             role: 'assistant',
             content: "",
-            content_used: [],
-            content_supplied: [],
+            context_used: [],
+            context_supplied: [],
             action: null
           });
         }
@@ -7828,10 +7823,10 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           }
         }
         //else if it is the context supplied response
-        else if (parsed?.content_supplied) {
+        else if (parsed?.context_supplied) {
           //set the context supplied on the ai's message
           if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
-            this.conversation[this.conversation.length - 1].content_supplied = parsed.content_supplied;
+            this.conversation[this.conversation.length - 1].context_supplied = parsed.context_supplied;
           }
         }
         //otherwise, extract the generated message fragment
@@ -7846,23 +7841,21 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
           //add the raw (unparsed) response to the last message
           this.conversation[this.conversation.length - 1].raw_content = raw_response;
+          console.log(raw_response);
 
-          //render the main idea
-          const main_idea_chat = this.addMainIdea(this.conversation[this.conversation.length - 1]);
+          //parse the coai artifacts (updates the raw content with the parsed artifacts)
+          const artifacts_parsed_content = this.parseArtifacts(this.conversation[this.conversation.length - 1].raw_content);
 
-          //add the in-text citations to the last message
-          //render the citations
-          const cited_chat = this.addCitations(main_idea_chat);
-
-          //render and sanitize the markdown
-          const rendered_chat_content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(cited_chat.raw_content));
-
-          //the content raw content has been cooked!
-          const rendered_cited_chat = cited_chat;
-          rendered_cited_chat.content = rendered_chat_content;
+          //render and sanitize the markdown in the chat's raw content
+          // const md_rendered_content = DOMPurify.sanitize(
+          // 	marked.parse(
+          // 		artifacts_parsed_content
+          // 	)
+          // );
+          const md_rendered_content = artifacts_parsed_content;
 
           //now, after all parses and transformations, set the chat content to the rendered chat
-          this.conversation[this.conversation.length - 1] = cited_chat;
+          this.conversation[this.conversation.length - 1].content = md_rendered_content;
         }
       });
     }.bind(this); //IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
@@ -7874,108 +7867,20 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
     //after the request is done
     xhr.onload = function () {
-      //add context to the previous user message
-      this.linkContextToUserMessage();
       console.log("conversation", this.conversation);
     }.bind(this); //IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
 
     //send the request with the body
+    const contextConversation = this.getConversationWithContext();
     const data = {
       message: msg,
-      conversation: this.conversation.length <= 10 ? this.conversation : this.conversation.slice(this.conversation.length - 10)
+      conversation: contextConversation.length <= 10 ? contextConversation : contextConversation.slice(contextConversation.length - 10)
     };
     xhr.send(JSON.stringify(data));
   },
-  //ads inline citations and citations section to an ai chat response
-  addCitations(chat) {
-    //begin by making a SHALLOW copy of the original chat object
-    //I'd rather return a copy than modify state directly
-    const copy = Object.assign({}, chat);
-
-    //find the current citation label
-    const num_labelled = Object.entries(chat.content_used).map(([key, value]) => {
-      return value.label;
-    }).length;
-    let current_lbl = num_labelled + 1;
-
-    //find all citations, which match the form "[|$|]lorem ipsum... [|$|][|@|]content_id[|@|]"
-    //and replace them with the citation,
-    //which is an a tag linking to the content_id. with the class contentoracle-inline_citation
-    //and text numbered from 1 to n
-    //where n is the number of citations in the response
-    copy.raw_content = chat.raw_content.replace(/\|\[\$\]\|([^|]+)\|\[\$\]\|\s*\|\[@\]\|(\d+)\|\[@\]\|/g, (match, text, post_id) => {
-      // Get the post URL
-      const post = chat.content_supplied[post_id];
-
-      //see if this post has been labelled already
-      if (post && !post?.label) {
-        chat.content_supplied[post_id].label = current_lbl++;
-      }
-
-      //create the citation
-      const label = post.label;
-      const url = post.url;
-      return `${text} <a href="${url}" class="contentoracle-inline_citation" target="_blank">${label}</a>`;
-    });
-
-    //now, handle citations that are missing the "[|$|]lorem ipsum... [|$|]" part
-    //in the case that the wrapper around the content is missing
-    copy.raw_content = chat.raw_content.replace(/\|\[@\]\|(\d+)\|\[@\]\|/g, (match, post_id) => {
-      // Get the post URL
-      const post = chat.content_supplied[post_id];
-
-      //see if this post has been labelled already
-      if (post && !post?.label) {
-        chat.content_supplied[post_id].label = current_lbl++;
-      }
-
-      //create the citation
-      const label = post.label;
-      const url = post.url;
-      return `<a href="${url}" class="contentoracle-inline_citation" target="_blank">${label}</a>`;
-    });
-
-    //remove extra "|[$]|" and "|[@]|" from the content
-    copy.raw_content = copy.raw_content.replace(/\|\[@\]\|/g, "");
-    copy.raw_content = copy.raw_content.replace(/\|\[\$\]\|/g, "");
-
-    // set context used for bottom citations
-    //filter to see which ones were labelled
-    const content_used = [];
-    Object.entries(chat.content_supplied).forEach(([key, post]) => {
-      if (post.label) {
-        content_used.push(post);
-      }
-    });
-    //sort by label, with lowest label first
-    content_used.sort((a, b) => a.label - b.label);
-    //set the context used
-    copy.content_used = content_used;
-
-    //return copy
-    return copy;
-  },
-  //add styling to the main idea of an ai response
-  addMainIdea(chat) {
-    //anything fitting the form "|[#]|lorem ipsum...|[#]|" is the main idea
-    //wrap it in a span with the class "contentoracle-ai_chat_bubble_bot_main_idea"
-
-    //begin by making a SHALLOW copy of the original chat object
-    //I'd rather return a copy than modify state directly
-    const copy = Object.assign({}, chat);
-
-    //find the main idea, which matches the form "|[#]|lorem ipsum...|[#]|"
-    //and replace it with the main idea,
-    //which is a span tag with the class contentoracle-ai_chat_bubble_bot_main_idea
-    copy.raw_content = chat.raw_content.replace(/\|\[\#\]\|([^|]+)\|\[#\]\|/g, (match, text) => {
-      return `<span class="contentoracle-ai_chat_bubble_bot_main_idea">${text}</span>`;
-    });
-
-    //remove extra "|[#]|" from the content
-    copy.raw_content = copy.raw_content.replace(/\|\[#\]\|/g, "");
-
-    //return copy
-    return copy;
+  //looks at the raw content of the string, and replaces it with the raw content with artifacts parsed and rendered
+  parseArtifacts(str) {
+    return str;
   },
   //scrolls to the bottom of the chat
   scrollToBottom(event) {
@@ -7983,48 +7888,46 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     chatContainer.scrollTop = chatContainer.scrollHeight;
   },
   //scrolls to the top of the bottommost assistant chat
-  scrollToBottomMostChat(event) {
-    const chatContainer = this.$refs.chatBody;
-    const assistantChats = chatContainer.querySelectorAll('.contentoracle-ai_chat_bubble');
-    const lastChat = assistantChats[assistantChats.length - 1];
-    if (lastChat) {
-      // Get the position of the last assistant chat
-      const lastChatPosition = lastChat.offsetTop;
-
-      // Check if the current scroll position is not already at the desired position
-      if (chatContainer.scrollTop + chatContainer.clientHeight < lastChatPosition) {
-        // Scroll to the position of the last assistant chat
-        chatContainer.scrollTop = lastChatPosition + 5; // Adjust the offset value as needed
-      }
-    }
-  },
+  scrollToBottomMostChat(event) {},
   //performs all tasks that need to be performed when an error response is received
   handleErrorResponse(error) {
     this.error = `Error ${error.error.error}: "${error.error.message}".`;
     console.error(`Error originates from ${error.error_source == "coai" ? "ContentOracle AI API" : "WordPress API"}.`, error.error);
   },
-  //link the most recent user message to the content used to generate the response for it
-  linkContextToUserMessage() {
-    //add the context used in the most recent ai response to the body of the most recent user response
-    //this implements "context memory" in the chat, where the ai can pull from information from content
-    //used in previous messages
-    if (this.conversation.length < 2 || this.conversation[this.conversation.length - 1].role != 'assistant') {
-      console.log("no assistant message to link to");
-      return;
+  //get the conversations, with the context prepended to the user message
+  getConversationWithContext() {
+    //make a copy of the conversation, to avoid state mutation
+    const conversation = JSON.parse(JSON.stringify(this.conversation));
+    let context_used = null;
+    let context_used_str = null;
+
+    //iterate through the conversation, and prepend the context used by the ai in its response to the user message
+    for (let i = conversation.length - 1; i >= 0; i--) {
+      //get a chat message
+      const chat = conversation[i];
+
+      //get the context used by the ai in its response if 
+      //this chat is an assistant message
+      if (chat.role == 'assistant') {
+        //get the context used by the ai in its response
+        context_used = chat.context_used;
+
+        //create the new text content for the user message
+        context_used_str = "Use this site content in your response: " + context_used.map(post => {
+          return "Title: " + post.title + " (" + post.type + ")" + " - " + post.body;
+        }).join("\n");
+      }
+      //otherwise, if this is a user message, prepend the context used by the ai in its response
+      else {
+        //prepend the context used to the user message
+        if (context_used) {
+          conversation[i].content = context_used_str + "\nUser query: " + chat.content;
+        }
+      }
     }
 
-    //get the context used in the most recent ai response
-    const content_used = this.conversation[this.conversation.length - 1].content_used;
-
-    //create the new text content for the user message
-    const content_used_str = content_used.map(post => {
-      return "Title: " + post.title + " (" + post.type + ")" + " - " + post.body;
-    }).join("\n");
-    //TODO: split in view on the private use character, and add a new line after each one
-    const new_content = content_used_str + "\u{E001}" + this.conversation[this.conversation.length - 2].content;
-
-    //add the context used to user chat it was used to generate a completion for
-    this.conversation[this.conversation.length - 2].content = new_content;
+    //return the conversation
+    return conversation;
   }
 }));
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].start();
