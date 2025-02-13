@@ -10,7 +10,7 @@ require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
 
 class ContentOracleApiConnection{
 
-    const API_BASE_URL = "https://contentoracle.jacob-t-graham.com/api";//'https://app.contentoracleai.com/api';
+    const API_BASE_URL = 'https://app.contentoracleai.com/api';//"https://contentoracle.jacob-t-graham.com/api";
 
     private $prefix;
     private $base_url;

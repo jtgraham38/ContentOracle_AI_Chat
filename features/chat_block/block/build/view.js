@@ -8145,7 +8145,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
   scrollToBottomMostChat(event) {},
   //performs all tasks that need to be performed when an error response is received
   handleErrorResponse(error) {
-    this.error = `Error ${error.error.error}: "${error.error.message}".`;
+    this.error = `Error ${error.error.error || error.error_code}: "${error.error_msg}".`; //|| output hte unauthorized error properly
     console.error(`Error originates from ${error.error_source == "coai" ? "ContentOracle AI API" : "WordPress API"}.`, error.error);
   },
   //get the conversations, with the context prepended to the user message
