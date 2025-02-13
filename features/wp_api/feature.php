@@ -420,7 +420,7 @@ class ContentOracleApi extends PluginFeature{
             'content_supplied' => $id2post,
             'response' => $ai_response,
             'action' => $ai_action,
-            'engineered_input' => $ai_engineered_input,
+            'engineered_prompt' => $ai_engineered_input,
         ));
     }
     //simple keyword search to find relevant posts
