@@ -8119,7 +8119,7 @@ Greener Garden Center is here to help you with all your gardening needs. Visit o
       switch (artifact_type) {
         case 'inline_citation':
           const inline_citation = new _artifacts_inline_citation_artifact__WEBPACK_IMPORTED_MODULE_3__["default"](artifact);
-          const rendered = inline_citation.render(chat.content_supplied, chat.content_used);
+          const rendered = inline_citation.render(chat.content_supplied, chat.content_used); //NOTE: these are modified by reference
           return rendered.outerHTML;
         default:
           return match;
