@@ -3397,6 +3397,98 @@ var module_default = src_default;
 
 /***/ }),
 
+/***/ "./src/artifacts/artifact.js":
+/*!***********************************!*\
+  !*** ./src/artifacts/artifact.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ COAI_Artifact)
+/* harmony export */ });
+class COAI_Artifact {
+  constructor(artifact) {
+    if (new.target === COAI_Artifact) {
+      throw new TypeError("Cannot construct COAI_Artifact instances directly");
+    }
+
+    //save the input artifact
+    this.el = artifact;
+  }
+
+  //render the artifact
+  static render() {
+    throw new Error('render method must be implemented');
+  }
+}
+
+/***/ }),
+
+/***/ "./src/artifacts/inline_citation_artifact.js":
+/*!***************************************************!*\
+  !*** ./src/artifacts/inline_citation_artifact.js ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ InlineCitationArtifact)
+/* harmony export */ });
+/* harmony import */ var _artifact__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./artifact */ "./src/artifacts/artifact.js");
+
+
+// Your code here
+class InlineCitationArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor(artifact) {
+    super(artifact);
+    //set the attributes of the artifact
+    this.content_id = artifact.getAttribute('content_id');
+  }
+
+  //NOTE: content_supplied is passed by reference, and it maps content_id to the content object
+  render(content_supplied) {
+    //var to hold label for this citation
+    let lbl = 0;
+
+    //see if this piece of content has already been cited
+    if (content_supplied[this.content_id]?.label) {
+      lbl = content_supplied[this.content_id].label;
+    }
+    //if it hasn't been, assign it a label
+    else {
+      //search through content_supplied for the largest label
+      let largest = 0;
+      for (let key in content_supplied) {
+        if (content_supplied[key].label > largest) {
+          largest = content_supplied[key].label;
+        }
+      }
+      lbl = largest + 1;
+    }
+
+    //create a span
+    const span = document.createElement('span');
+    span.innerHTML = this.el.innerHTML;
+
+    //create a link
+    const a = document.createElement('a');
+    a.href = content_supplied[this.content_id].url || '#';
+    a.classList.add('contentoracle-inline_citation');
+    a.target = '_blank';
+    a.innerHTML = lbl;
+
+    //set label on content supplied entry
+    content_supplied[this.content_id].label = lbl;
+
+    //add the link to the span
+    span.appendChild(a);
+    return span;
+  }
+}
+
+/***/ }),
+
 /***/ "./node_modules/dompurify/dist/purify.js":
 /*!***********************************************!*\
   !*** ./node_modules/dompurify/dist/purify.js ***!
@@ -7579,9 +7671,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var marked__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! marked */ "./node_modules/marked/lib/marked.esm.js");
 /* harmony import */ var dompurify__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! dompurify */ "./node_modules/dompurify/dist/purify.js");
 /* harmony import */ var dompurify__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(dompurify__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _artifacts_inline_citation_artifact__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./artifacts/inline_citation_artifact */ "./src/artifacts/inline_citation_artifact.js");
 /**
  * WordPress dependencies
  */
+
 
 
 
@@ -7636,6 +7730,120 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         this.send(searchQuery, event);
       }
     }
+
+    //TEST
+    const S = {
+      content_supplied: {
+        "1": {
+          "id": "1",
+          "title": "Hello world!",
+          "url": "http://localhost:8080/?p=1",
+          "body": "Welcome to WordPress . This is your first post . Edit or delete it , then start writing !",
+          "type": "post"
+        },
+        "2": {
+          "id": "2",
+          "title": "Sample Page",
+          "url": "http://localhost:8080/?page_id=2",
+          "body": "This is an example page . It ' s different from a blog post because it will stay in one place and will show up in your site navigation ( in most themes ) . Most people start with an About page that introduces them to potential site visitors . It might say something like this : Hi there ! I ' m a bike messenger by day , aspiring actor by night , and this is my website . I live in Los Angeles , have a great dog named Jack , and I like piña coladas . ( And gettin ' caught in the rain . ) . . . or something like this : The XYZ Doohickey Company was founded in 1971 , and has been providing quality doohickeys to the public ever since . Located in Gotham City , XYZ employs over 2 , 000 people and does all kinds of awesome things for the Gotham community . As a new WordPress user , you should go to your dashboard to delete this page and create new pages for your content . Have fun !",
+          "type": "page"
+        },
+        "23": {
+          "id": "23",
+          "title": "The Most Tasty Tomatos in the Northeast",
+          "url": "http://localhost:8080/?p=23",
+          "body": "The tastiest tomatos to grow in the Northeast are Roma , Beefsteak , and Cherry tomatos . These tomatos are the most popular and have the best flavor .",
+          "type": "post"
+        },
+        "25": {
+          "id": "25",
+          "title": "How to Grow Tomatos in the Northeast",
+          "url": "http://localhost:8080/?p=25",
+          "body": "Growing tomatos in the Northeast is easy . You need to plant them in the spring , water them regularly , and give them plenty of sunlight . You can grow tomatos in your backyard or in a container on your porch .",
+          "type": "post"
+        },
+        "27": {
+          "id": "27",
+          "title": "The Best Soil for Growing Tomatos",
+          "url": "http://localhost:8080/?p=27",
+          "body": "The best soil for growing tomatos is loamy soil . Loamy soil is a mixture of sand , silt , and clay . It is well - draining and has plenty of nutrients for tomatos to grow . You can buy loamy soil at your local garden center or make your own by mixing sand , silt , and clay together . . .",
+          "type": "post"
+        },
+        "297": {
+          "id": "297",
+          "title": "Tomato Seed Starting Seminar",
+          "url": "http://localhost:8080/?tribe_events=tomato-seed-starting-seminar",
+          "body": "Join us for an informative seminar on starting your own tomato plants from seed ! This hands - on event is perfect for both novice and experienced gardeners who want to learn the essentials of growing healthy , vibrant tomatoes from scratch . During this seminar , you ' ll learn about : Selecting the best tomato varieties for your garden . Proper seed starting techniques , including timing and soil preparation . Creating the ideal environment for seed germination . Transplanting seedlings and caring for young plants . Common challenges and how to overcome them for a bountiful harvest . This seminar will provide you with practical tips and expert advice to help ensure a successful growing season . All participants will also receive a packet of tomato seeds to start at home . Whether you ' re looking to enhance your gardening skills or simply want to grow your own delicious tomatoes , this seminar is a great opportunity to get started ! Register now to reserve your spot ! growth",
+          "type": "tribe_events"
+        },
+        "299": {
+          "id": "299",
+          "title": "Tomato",
+          "url": "http://localhost:8080/?tribe_events=tomato",
+          "body": "This event is a tomato",
+          "type": "tribe_events"
+        },
+        "340": {
+          "id": "340",
+          "title": "Cart",
+          "url": "http://localhost:8080/?page_id=340",
+          "body": "You may be interested in … Your cart is currently empty ! New in store",
+          "type": "page"
+        },
+        "345": {
+          "id": "345",
+          "title": "Tomato Seeds",
+          "url": "http://localhost:8080/?product=tomato-seeds",
+          "body": "Experience the joy of homegrown tomatoes with our premium tomato seed pack . These non - GMO seeds guarantee vigorous growth and high yield , perfect for both beginner and experienced gardeners . Enjoy fresh , juicy tomatoes right from your backyard .",
+          "type": "product"
+        },
+        "346": {
+          "id": "346",
+          "title": "Garden Soil",
+          "url": "http://localhost:8080/?product=garden-soil",
+          "body": "Our Garden Soil is a premium blend of organic materials , designed to promote healthy plant growth . It ensures proper drainage and nutrient retention , creating an ideal environment for your plants . Enhance your garden ' s fertility and overall health with our rich , earthy soil . Perfect for various plants , flowers , and vegetables , especially tomatoes .",
+          "type": "product"
+        },
+        "542": {
+          "id": "542",
+          "title": "The Journey of Tomato Growth: From Seed to Fruit",
+          "url": "http://localhost:8080/?p=542",
+          "body": "providing the right care and attention , you can enjoy a steady supply of homegrown tomatoes , bursting with flavor and nutrition . Whether you ' re growing them in containers on a balcony or in a sprawling backyard garden , tomatoes are a delightful addition to any garden and a testament to the wonders of nature .",
+          "type": "post"
+        }
+      },
+      raw_content: `Growing tomatoes can be a rewarding experience. Here are some steps to help you succeed:
+1. **Choose the Right Variety**: Select a tomato variety suitable for your climate and space. Determinate (bush) types are ideal for small spaces, while indeterminate (vine) types are perfect for a prolonged harvest.
+
+2. **Starting Seeds**:
+   - **Indoors**: Start seeds indoors 6-8 weeks before the last frost.
+   - **Planting**: Plant seeds in a seed-starting mix, about ¼ inch deep.
+   - **Conditions**: Keep the soil moist and provide warmth (70-80°F) and 12-16 hours of light daily.
+
+3. **Transplanting**:
+   - **Hardening Off**: Gradually acclimate seedlings to outdoor conditions over 7-10 days.
+   - **Soil Preparation**: Use well-draining, nutrient-rich soil with a slightly acidic pH (6.0-6.8).
+   - **Planting Deep**: Bury seedlings up to their first set of true leaves to encourage root growth.
+
+4. **Growing Conditions**:
+   - **Sunlight**: Ensure plants receive at least 6-8 hours of direct sunlight daily.
+   - **Watering**: Water deeply and consistently, providing 1-2 inches of water per week.
+   - **Mulching**: Apply mulch to retain soil moisture and regulate temperature.
+   - **Support**: Use stakes, cages, or trellises to keep plants upright.
+
+5. **Fertilizing and Pruning**:
+   - **Fertilizer**: Use a balanced fertilizer initially, then switch to one higher in phosphorus and potassium as plants flower and fruit.
+   - **Pruning**: Remove suckers on indeterminate varieties to focus energy on fruit production.
+
+6. **Pollination**: Encourage pollination by gently shaking the plant or using an electric toothbrush near the flowers.
+
+7. **Harvesting**: Pick tomatoes when they are fully colored and slightly firm.
+
+For the best results, consider using <coai-artifact artifact_type="inline_citation" content_id="345">our premium tomato seeds</coai-artifact> and <coai-artifact artifact_type="inline_citation" content_id="346">our Garden Soil</coai-artifact> to ensure vigorous growth and high yield.
+
+Greener Garden Center is here to help you with all your gardening needs. Visit our store or shop online for a wide selection of gardening products.`
+    };
+    this.renderArtifacts(S);
   },
   //sends a message using the input value
   async sendMessage(event) {
@@ -7717,13 +7925,13 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           raw_content: json.response,
           content: "",
           context_used: [],
-          context_supplied: json.context_supplied,
+          content_supplied: json.content_supplied,
           action: json.action
         };
         this.conversation.push(placeholder_response);
 
         //parse the coai artifacts (updates the raw content with the parsed artifacts)
-        const artifacts_parsed_content = this.parseArtifacts(this.conversation[this.conversation.length - 1].raw_content);
+        const artifacts_parsed_content = this.renderArtifacts(this.conversation[this.conversation.length - 1]);
 
         //render and sanitize the markdown in the chat's raw content
         const md_rendered_content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(artifacts_parsed_content));
@@ -7795,7 +8003,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
             role: 'assistant',
             content: "",
             context_used: [],
-            context_supplied: [],
+            content_supplied: [],
             action: null
           });
         }
@@ -7823,10 +8031,10 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
           }
         }
         //else if it is the context supplied response
-        else if (parsed?.context_supplied) {
+        else if (parsed?.content_supplied) {
           //set the context supplied on the ai's message
           if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
-            this.conversation[this.conversation.length - 1].context_supplied = parsed.context_supplied;
+            this.conversation[this.conversation.length - 1].content_supplied = parsed.content_supplied;
           }
         }
         //otherwise, extract the generated message fragment
@@ -7841,18 +8049,12 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
           //add the raw (unparsed) response to the last message
           this.conversation[this.conversation.length - 1].raw_content = raw_response;
-          console.log(raw_response);
 
           //parse the coai artifacts (updates the raw content with the parsed artifacts)
-          const artifacts_parsed_content = this.parseArtifacts(this.conversation[this.conversation.length - 1].raw_content);
+          const artifacts_parsed_content = this.renderArtifacts(this.conversation[this.conversation.length - 1]);
 
           //render and sanitize the markdown in the chat's raw content
-          // const md_rendered_content = DOMPurify.sanitize(
-          // 	marked.parse(
-          // 		artifacts_parsed_content
-          // 	)
-          // );
-          const md_rendered_content = artifacts_parsed_content;
+          const md_rendered_content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(artifacts_parsed_content));
 
           //now, after all parses and transformations, set the chat content to the rendered chat
           this.conversation[this.conversation.length - 1].content = md_rendered_content;
@@ -7878,9 +8080,36 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     };
     xhr.send(JSON.stringify(data));
   },
-  //looks at the raw content of the string, and replaces it with the raw content with artifacts parsed and rendered
-  parseArtifacts(str) {
-    return str;
+  //looks at the raw content of a chat, and replaces it with the raw content with artifacts parsed and rendered
+  renderArtifacts(chat) {
+    //gregex for all artifact tags
+    const regex = /<coai-artifact[^>]*>(.*?)<\/coai-artifact>/g;
+
+    //get the raw content of the chat
+    const raw_content = chat.raw_content;
+
+    //render each artifact
+    const artifacts_rendered = raw_content.replace(regex, (match, innerText) => {
+      //parse the tag, and find it's type
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(match, 'text/html');
+      const artifact = doc.querySelector('coai-artifact');
+      const artifact_type = artifact.getAttribute('artifact_type');
+
+      //get other information about the chat
+      const content_supplied = chat.content_supplied; //for inline citations
+
+      //use the artifact parsers to parse each artifact based on it's type
+      switch (artifact_type) {
+        case 'inline_citation':
+          const inline_citation = new _artifacts_inline_citation_artifact__WEBPACK_IMPORTED_MODULE_3__["default"](artifact);
+          const rendered = inline_citation.render(chat.content_supplied);
+          return rendered.outerHTML;
+        default:
+          return match;
+      }
+    });
+    return artifacts_rendered;
   },
   //scrolls to the bottom of the chat
   scrollToBottom(event) {
