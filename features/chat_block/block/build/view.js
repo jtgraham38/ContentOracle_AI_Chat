@@ -8162,7 +8162,9 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
         //if there is an assistant message after this one
         if (i + 1 < conversation.length && conversation[i + 1].role == 'assistant') {
           //set the user message content to the assistant message's engineered input
-          conversation[i].content = conversation[i + 1].engineered_prompt;
+          if (conversation[i + 1].engineered_prompt) {
+            conversation[i].content = conversation[i + 1].engineered_prompt;
+          }
         }
       }
     }
