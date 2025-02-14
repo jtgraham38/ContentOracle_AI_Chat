@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat
 Requires at least: 6.5
 Tested up to: 6.7.1
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -76,6 +76,9 @@ This plugin makes use of the following third-party libraries and services:
 = 1.3.0 =
 * Artifact rendering added to make chats more interactive and useful.
 * Improve conversation structure to improve agent memory.
+
+= 1.3.1 = 
+* Fix a bug in response streaming.
 
 == Upgrade Notice ==
 = 1.0.0 =
