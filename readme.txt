@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat
 Requires at least: 6.5
 Tested up to: 6.7.1
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -73,6 +73,10 @@ This plugin makes use of the following third-party libraries and services:
 * Vastly improved error handling and reporting.
 * More user-friendly auto-scrolling in the chat block.
 
+= 1.3.0 =
+* Artifact rendering added to make chats more interactive and useful.
+* Improve conversation structure to improve agent memory.
+
 == Upgrade Notice ==
 = 1.0.0 =
 Upgrade notice for users of previous versions.
@@ -83,6 +87,9 @@ You will need to regenerate embeddings, and reset all settings, including your a
 = 1.2.0 = 
 To use response streaming, you must use the checkbox provided on the chat block.
 Semantic text matching is currently experimental.  Use it, but its performance is not yet guaranteed.
+
+= 1.3.0 =
+Please install this update.  It correctly handles artifacts added to the api.  Things like inline citations will be broken if you do not update.
 
 == Screenshots ==
 1. This is the first screenshot.
