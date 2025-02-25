@@ -23,6 +23,7 @@ class ContentOracleSettings extends PluginFeature{
         add_action('admin_menu', array($this, 'add_plugin_settings_page'), 20);
         add_action('admin_init', array($this, 'init_plugin_settings'));
         add_action('init', array($this, 'create_results_page'));
+        add_action('init', array($this, 'register_coai_api_url'));
 
         //register styles
         add_action('admin_enqueue_scripts', array($this, 'register_styles'));
@@ -394,5 +395,13 @@ class ContentOracleSettings extends PluginFeature{
             return;
         }
         wp_enqueue_style('contentoracle-ai-chat-settings', plugin_dir_url(__FILE__) . 'assets/css/admin.css');
+    }
+
+    //register the url of coai api (so it can be changed for testing)
+    public function register_coai_api_url(){
+        $api_url = get_option($this->get_prefix() . 'api_url', null);
+        if (!$api_url){
+            update_option($this->get_prefix() . 'api_url', 'https://app.contentoracleai.com/api');
+        }
     }
 }

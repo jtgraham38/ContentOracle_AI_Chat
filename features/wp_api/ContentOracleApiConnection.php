@@ -10,8 +10,6 @@ require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
 
 class ContentOracleApiConnection{
 
-    const API_BASE_URL = 'https://app.contentoracleai.com/api';//"https://contentoracle.jacob-t-graham.com/api";
-
     private $prefix;
     private $base_url;
     private $base_dir;
@@ -19,15 +17,20 @@ class ContentOracleApiConnection{
 
     public function __construct($prefix, $base_url, $base_dir, $client_ip){
         $this->prefix = $prefix;
-        $this->base_url = $base_url;
+        $this->base_url = get_option('coai_chat_api_url', 'https://app.contentoracleai.com/api') ?? 'https://app.contentoracleai.com/api';
         $this->base_dir = $base_dir;
         $this->client_ip = $client_ip;
+    }
+
+    //static function to get the base url
+    public static function get_base_url(){
+        return get_option('coai_chat_api_url', 'https://app.contentoracleai.com/api') ?? 'https://app.contentoracleai.com/api';
     }
 
     //get a chat response from content oracle api
     public function ai_chat(string $query, array $content, array $conversation){
         //build the request
-        $url = self::API_BASE_URL . '/v1/ai/chat';
+        $url = $this->base_url . '/v1/ai/chat';
         
         $args = array(
             'headers' => array(
@@ -119,7 +122,7 @@ class ContentOracleApiConnection{
     //get a streamed chat response from content oracle api
     public function streamed_ai_chat(string $query, array $content, array $conversation, callable $callback){
         //build the request
-        $url = self::API_BASE_URL . '/v1/ai/chat/stream';
+        $url = $this->base_url . '/v1/ai/chat/stream';
 
 
         //initialize the curl request
@@ -177,7 +180,7 @@ class ContentOracleApiConnection{
     //get a user query embedded by content oracle api
     public function query_vector(string $query){
         //build the request
-        $url = self::API_BASE_URL . '/v1/ai/query_vector';
+        $url = $this->base_url . '/v1/ai/query_vector';
         
         $payload = array(
             'headers' => array(
@@ -194,7 +197,7 @@ class ContentOracleApiConnection{
         );
 
         //make the request
-        $url = ContentOracleApiConnection::API_BASE_URL . '/v1/ai/embedquery';
+        $url = $this->base_url . '/v1/ai/embedquery';
         $response = wp_remote_post($url, $payload);
 
         //handle wordpress errors

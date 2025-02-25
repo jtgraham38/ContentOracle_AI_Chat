@@ -595,7 +595,7 @@ class ContentOracleApi extends PluginFeature{
         $response = $api->query_vector($message);
 
         if (!isset($response['embeddings'][0]['embedding'])){
-            throw new ResponseException(
+            throw new ContentOracle_ResponseException(
                 'No embeddings returned from the AI',
                 $response,
                 'coai'
