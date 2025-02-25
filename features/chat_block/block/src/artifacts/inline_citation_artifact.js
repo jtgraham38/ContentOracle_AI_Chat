@@ -4,7 +4,7 @@ import COAI_Artifact from './artifact';
 export default class InlineCitationArtifact extends COAI_Artifact {
 
     constructor(artifact) {
-        super(artifact);
+        super(artifact)
         //set the attributes of the artifact
         this.content_id = artifact.getAttribute('content_id');
     }

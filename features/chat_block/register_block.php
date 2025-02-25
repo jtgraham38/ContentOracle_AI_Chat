@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
 }
 
 require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
+require_once plugin_dir_path(__FILE__) . 'util.php';
 
 use jtgraham38\jgwordpresskit\PluginFeature;
 
@@ -70,6 +71,10 @@ class ContentOracleAiBlock extends PluginFeature{
 
             $scrollbar_color = $link_color;
 
+            //get the other border styles: width and radius
+            $border_width = isset($attributes['style']['border']['width']) ? $attributes['style']['border']['width'] : '1px';
+            $border_radius = isset($attributes['style']['border']['radius']) ? $attributes['style']['border']['radius'] : '5px';
+
             //generate the styles for the chat block
             $user_bg = isset($attributes['userMsgBgColor']) ? $attributes['userMsgBgColor'] : '#3232fd';
             $user_text = isset($attributes['userMsgTextColor']) ? $attributes['userMsgTextColor'] : '#eeeeff';
@@ -95,6 +100,8 @@ class ContentOracleAiBlock extends PluginFeature{
                     overflow-y: auto;
                     scrollbar-color: %s rgba(0, 0, 0, 0.01);
                 }
+                .coai_chat-featured_content {
+                    border: 
             ', $user_bg, $user_text, $bot_bg, $bot_text, $link_color, $link_color, $scrollbar_color);
 
             // Sanitize the CSS string

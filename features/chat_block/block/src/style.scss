@@ -73,6 +73,24 @@
 				text-decoration: none;
 			}
 
+			/* featured content */
+			.coai_chat-featured_content{
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+				font-size: larger;
+
+				.coai_chat-featured_content_inner{
+					padding: 0.5rem;
+					p{
+						margin: 0 0.5rem;
+					}
+
+				}
+				
+			}
+
 			.contentoracle-source_list{
 				width: 100%;
 				

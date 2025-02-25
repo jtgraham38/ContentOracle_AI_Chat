@@ -3425,6 +3425,70 @@ class COAI_Artifact {
 
 /***/ }),
 
+/***/ "./src/artifacts/featured_content_artifact.js":
+/*!****************************************************!*\
+  !*** ./src/artifacts/featured_content_artifact.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ FeaturedContentArtifact)
+/* harmony export */ });
+/* harmony import */ var _artifact__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./artifact */ "./src/artifacts/artifact.js");
+
+
+// Your code here
+class FeaturedContentArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["default"] {
+  constructor(artifact) {
+    super(artifact);
+    //set the attributes of the artifact
+    this.content_id = artifact.getAttribute('content_id');
+  }
+
+  //render the artifact
+  //NOTE: content_supplied is passed by reference, and it maps content_id to the content object
+  render(content_supplied) {
+    //create a container, with class coai_chat-featured_content
+    const container = document.createElement('div');
+    container.classList.add('coai_chat-featured_content');
+
+    //create an inner container, with class coai_chat-featured_content_inner
+    const inner_container = document.createElement('div');
+    inner_container.classList.add('coai_chat-featured_content_inner');
+
+    //create the cta
+    const cta = document.createElement('p');
+    cta.innerHTML = this.el.innerHTML;
+
+    //create a link button
+    const btn = document.createElement('a');
+    const btn_text = this.el.getAttribute('button_text');
+    btn.href = content_supplied[this.content_id].url || '#';
+    btn.innerText = btn_text || 'Go!';
+
+    //create an image for the featured image
+    if (content_supplied[this.content_id].image) {
+      const img = document.createElement('img');
+      img.src = content_supplied[this.content_id].image;
+      img.alt = content_supplied[this.content_id].title;
+    }
+
+    //build the card
+    if (content_supplied[this.content_id].image) {
+      inner_container.appendChild(img);
+    }
+    inner_container.appendChild(cta);
+    container.appendChild(inner_container);
+    container.appendChild(btn);
+
+    //return the container
+    return container;
+  }
+}
+
+/***/ }),
+
 /***/ "./src/artifacts/inline_citation_artifact.js":
 /*!***************************************************!*\
   !*** ./src/artifacts/inline_citation_artifact.js ***!
@@ -7687,9 +7751,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var dompurify__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! dompurify */ "./node_modules/dompurify/dist/purify.js");
 /* harmony import */ var dompurify__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(dompurify__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _artifacts_inline_citation_artifact__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./artifacts/inline_citation_artifact */ "./src/artifacts/inline_citation_artifact.js");
+/* harmony import */ var _artifacts_featured_content_artifact__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./artifacts/featured_content_artifact */ "./src/artifacts/featured_content_artifact.js");
 /**
  * WordPress dependencies
  */
+
 
 
 
@@ -8125,10 +8191,15 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       const content_supplied = chat.content_supplied; //for inline citations
 
       //use the artifact parsers to parse each artifact based on it's type
+      let rendered;
       switch (artifact_type) {
         case 'inline_citation':
-          const inline_citation = new _artifacts_inline_citation_artifact__WEBPACK_IMPORTED_MODULE_3__["default"](artifact);
-          const rendered = inline_citation.render(chat.content_supplied, chat.content_used); //NOTE: these are modified by reference
+          let inline_citation = new _artifacts_inline_citation_artifact__WEBPACK_IMPORTED_MODULE_3__["default"](artifact);
+          rendered = inline_citation.render(chat.content_supplied, chat.content_used); //NOTE: these are modified by reference
+          return rendered.outerHTML;
+        case 'featured_content':
+          let featured_content = new _artifacts_featured_content_artifact__WEBPACK_IMPORTED_MODULE_4__["default"](artifact);
+          rendered = featured_content.render(chat.content_supplied); //NOTE: these are modified by reference
           return rendered.outerHTML;
         default:
           return match;
