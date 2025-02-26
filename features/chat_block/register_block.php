@@ -22,6 +22,13 @@ But, the render_block hook is necessary because it has access to the block attri
 */
 
 
+//TODO
+////TODO
+//////TODO I need to implement my styling library into this plugin in order to appropriatle style the featured_content artfiacts
+//////TODO as well as for general quality of life improvements
+////TODO
+//TODO
+
 class ContentOracleAiBlock extends PluginFeature{
 
     //this string is used to pass the generated styles from the render_block filter callback to the enqueue_block_assets action callback

@@ -30,10 +30,12 @@ export default class FeaturedContentArtifact extends COAI_Artifact {
         const btn_text = this.el.getAttribute('button_text');
         btn.href = content_supplied[this.content_id].url || '#';
         btn.innerText = btn_text || 'Go!';
+        btn.target = '_blank';
         
         //create an image for the featured image
+        let img;
         if (content_supplied[this.content_id].image) {
-            const img = document.createElement('img');
+            img = document.createElement('img');
             img.src = content_supplied[this.content_id].image;
             img.alt = content_supplied[this.content_id].title;
         }

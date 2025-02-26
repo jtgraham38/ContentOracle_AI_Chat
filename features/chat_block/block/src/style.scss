@@ -82,9 +82,16 @@
 				font-size: larger;
 
 				.coai_chat-featured_content_inner{
+					display: flex;
+					flex-direction: row;
+					align-items: center;
 					padding: 0.5rem;
 					p{
 						margin: 0 0.5rem;
+					}
+
+					img{
+						max-height: 3rem;
 					}
 
 				}

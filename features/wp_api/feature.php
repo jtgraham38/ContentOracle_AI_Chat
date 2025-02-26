@@ -487,7 +487,8 @@ class ContentOracleApi extends PluginFeature{
                 'title' => get_the_title(),
                 'url' => get_the_permalink(),
                 'body' => get_the_content(),
-                'type' => get_post_type()
+                'type' => get_post_type(),
+                'image' => get_the_post_thumbnail_url($post_id),
             ];
             $content[] = $entry;
         }
@@ -648,7 +649,8 @@ class ContentOracleApi extends PluginFeature{
                 'title' => $post->post_title,
                 'url' => get_the_permalink($post_id),
                 'body' => $chunk,
-                'type' => get_post_type($post_id)
+                'type' => get_post_type($post_id),
+                'image' => get_the_post_thumbnail_url($post_id),
             ];
         }
 
