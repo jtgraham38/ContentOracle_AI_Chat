@@ -295,7 +295,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         ];
 
         //make the request
-        $url = ContentOracleApiConnection::API_BASE_URL . '/v1/ai/embed';
+        $url = ContentOracleApiConnection::get_base_url() . '/v1/ai/embed';
         $response = wp_remote_post($url, $payload);
 
         //handle wordpress errors

@@ -236,7 +236,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                 placeholder="<?php echo esc_attr( $attributes['placeholder'] ) ?>"
                 coai-x-model:value="userMsg"
                 coai-x-ref="chatInput"
-                coai-x-bind:disabled="loading || error != ''"
+                coai-x-bind:disabled="loading"
                 required
                 maxlength="255"
             >

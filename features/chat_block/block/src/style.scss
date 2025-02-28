@@ -73,6 +73,31 @@
 				text-decoration: none;
 			}
 
+			/* featured content */
+			.coai_chat-featured_content{
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+				align-items: center;
+				font-size: larger;
+
+				.coai_chat-featured_content_inner{
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					padding: 0.5rem;
+					p{
+						margin: 0 0.5rem;
+					}
+
+					img{
+						max-height: 3rem;
+					}
+
+				}
+				
+			}
+
 			.contentoracle-source_list{
 				width: 100%;
 				

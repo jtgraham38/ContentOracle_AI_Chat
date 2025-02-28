@@ -25,6 +25,7 @@
   clear: both;
   /* responsive design on narrow screens*/
   /* citations */
+  /* featured content */
   /* action */
 }
 @media (max-width: 768px) {
@@ -71,6 +72,25 @@
   vertical-align: super; /*mimic the <sup> tag*/
   font-size: smaller;
   text-decoration: none;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .coai_chat-featured_content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  font-size: larger;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .coai_chat-featured_content .coai_chat-featured_content_inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .coai_chat-featured_content .coai_chat-featured_content_inner p {
+  margin: 0 0.5rem;
+}
+.contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .coai_chat-featured_content .coai_chat-featured_content_inner img {
+  max-height: 3rem;
 }
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-source_list {
   width: 100%;

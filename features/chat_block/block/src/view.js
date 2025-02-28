@@ -5,6 +5,7 @@ import Alpine from 'alpinejs';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import InlineCitationArtifact from './artifacts/inline_citation_artifact';
+import FeaturedContentArtifact from './artifacts/featured_content_artifact';
 
 //set the alpine prefix (default is x-)
 Alpine.prefix('coai-x-')
@@ -454,10 +455,15 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			const content_supplied = chat.content_supplied;	//for inline citations
 			
 			//use the artifact parsers to parse each artifact based on it's type
+			let rendered;
 			switch (artifact_type) {
 				case 'inline_citation':
-					const inline_citation = new InlineCitationArtifact(artifact);
-					const rendered = inline_citation.render(chat.content_supplied, chat.content_used);	//NOTE: these are modified by reference
+					let inline_citation = new InlineCitationArtifact(artifact);
+					rendered = inline_citation.render(chat.content_supplied, chat.content_used);	//NOTE: these are modified by reference
+					return rendered.outerHTML;
+				case 'featured_content':
+					let featured_content = new FeaturedContentArtifact(artifact);
+					rendered = featured_content.render(chat.content_supplied);	//NOTE: these are modified by reference
 					return rendered.outerHTML;
 				default:
 					return match;
