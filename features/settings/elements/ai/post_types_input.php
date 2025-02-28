@@ -33,4 +33,5 @@ $post_types_setting = get_option($this->get_prefix() . 'post_types');
             </option>
         <?php endforeach; ?>
     </select>
+    <small style="display: block; margin-top: 0.5rem;"> Note that any content from any post of the types selected could be used to generate a response.  Do not select post types that contain sensitive information. </small>
 </div>
