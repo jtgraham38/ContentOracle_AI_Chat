@@ -90,6 +90,7 @@ else {
 }
 //create classes and styles
 $notice_styles['border-radius'] = $attributes['style']['border']['radius'] ?? '0px';
+$notice_styles['z-index'] = '1000'; //make sure the notice is on top of everything
 
 $notice_styles = implode( ';', array_map(
     function ( $value, $key ) {

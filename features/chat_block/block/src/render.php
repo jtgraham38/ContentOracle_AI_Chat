@@ -5,6 +5,17 @@ if (!defined('ABSPATH')) {
 }
 //see the 'core/search' block in for the reference I used: https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/search/index.php
 
+//include autoload
+require_once plugin_dir_path(__FILE__) . '../../../../vendor/autoload.php';
+
+use jtgraham38\jgwordpressstyle\BlockStyle;
+
+//echo the volors
+echo "<pre>";
+print_r(contentoracle_ai_chat_block_get_border_attrs($attributes));
+echo "</pre>";
+
+
 //get the instance id
 $instance_id = uniqid();//include seach block utils
 

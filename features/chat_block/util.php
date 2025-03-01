@@ -4,6 +4,10 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
+use jtgraham38\jgwordpressstyle\BlockStyle;
+
+
 //
 ////
 ////// NOTE: the classnames building will still need some work, to assemble the proper wordpress classname, instead of just the raw attr value!
@@ -169,57 +173,63 @@ function contentoracle_ai_chat_block_get_padding_attrs($attributes) {
     $classnames = [];
     $inline_styles = [];
 
-    //get padding classes or inline styles
-    if (!empty($attributes['style']['spacing']['padding'])) {
-        $padding = $attributes['style']['spacing']['padding'];
-        //do top padding
-        if (!empty($padding['top'])) {
-            //translate any preset values
-            $value = $attributes['style']['spacing']['padding']['top'];
-            $has_padding_preset = str_contains( $value, 'var:preset|spacing|' );
-            if ( $has_padding_preset ) {
-                $named_spacing_value = substr( $value, strrpos( $value, '|' ) + 1 );
-                $value             = sprintf( 'var(--wp--preset--spacing--%s)', $named_spacing_value );
-            }
+    //create style parser
+    $style_parser = new BlockStyle($attributes);
 
-            $inline_styles['padding-top'] = $value;
-        }
-        //do right padding
-        if (!empty($padding['right'])) {
-            //translate any preset values
-            $value = $attributes['style']['spacing']['padding']['right'];
-            $has_padding_preset = str_contains( $value, 'var:preset|spacing|' );
-            if ( $has_padding_preset ) {
-                $named_spacing_value = substr( $value, strrpos( $value, '|' ) + 1 );
-                $value             = sprintf( 'var(--wp--preset--spacing--%s)', $named_spacing_value );
-            }
+    //get the values of each attr
+    $padding = $style_parser->padding();
+    $top_padding = $padding['top'] ?? null;
+    $right_padding = $padding['right'] ?? null;
+    $bottom_padding = $padding['bottom'] ?? null;
+    $left_padding = $padding['left'] ?? null;
 
-            $inline_styles['padding-right'] = $value;
+    //do top padding
+    if (!empty($top_padding->value)) {
+        //translate any preset values
+        $value = $top_padding->value;
+        $has_padding_preset = str_contains( $value, 'var:preset|spacing|' );
+        if ( $has_padding_preset ) {
+            $named_spacing_value = substr( $value, strrpos( $value, '|' ) + 1 );
+            $value             = sprintf( 'var(--wp--preset--spacing--%s)', $named_spacing_value );
         }
-        //do bottom padding
-        if (!empty($padding['bottom'])) {
-            //translate any preset values
-            $value = $attributes['style']['spacing']['padding']['bottom'];
-            $has_padding_preset = str_contains( $value, 'var:preset|spacing|' );
-            if ( $has_padding_preset ) {
-                $named_spacing_value = substr( $value, strrpos( $value, '|' ) + 1 );
-                $value             = sprintf( 'var(--wp--preset--spacing--%s)', $named_spacing_value );
-            }
 
-            $inline_styles['padding-bottom'] = $value;
+        $inline_styles['padding-top'] = $value;
+    }
+    //do right padding
+    if (!empty($right_padding->value)) {
+        //translate any preset values
+        $value = $right_padding->value;
+        $has_padding_preset = str_contains( $value, 'var:preset|spacing|' );
+        if ( $has_padding_preset ) {
+            $named_spacing_value = substr( $value, strrpos( $value, '|' ) + 1 );
+            $value             = sprintf( 'var(--wp--preset--spacing--%s)', $named_spacing_value );
         }
-        //do left padding
-        if (!empty($padding['left'])) {
-            //translate any preset values
-            $value = $attributes['style']['spacing']['padding']['left'];
-            $has_padding_preset = str_contains( $value, 'var:preset|spacing|' );
-            if ( $has_padding_preset ) {
-                $named_spacing_value = substr( $value, strrpos( $value, '|' ) + 1 );
-                $value             = sprintf( 'var(--wp--preset--spacing--%s)', $named_spacing_value );
-            }
 
-            $inline_styles['padding-left'] = $value;
+        $inline_styles['padding-right'] = $value;
+    }
+    //do bottom padding
+    if (!empty($bottom_padding->value)) {
+        //translate any preset values
+        $value = $bottom_padding->value;
+        $has_padding_preset = str_contains( $value, 'var:preset|spacing|' );
+        if ( $has_padding_preset ) {
+            $named_spacing_value = substr( $value, strrpos( $value, '|' ) + 1 );
+            $value             = sprintf( 'var(--wp--preset--spacing--%s)', $named_spacing_value );
         }
+
+        $inline_styles['padding-bottom'] = $value;
+    }
+    //do left padding
+    if (!empty($left_padding->value)) {
+        //translate any preset values
+        $value = $left_padding->value;
+        $has_padding_preset = str_contains( $value, 'var:preset|spacing|' );
+        if ( $has_padding_preset ) {
+            $named_spacing_value = substr( $value, strrpos( $value, '|' ) + 1 );
+            $value             = sprintf( 'var(--wp--preset--spacing--%s)', $named_spacing_value );
+        }
+
+        $inline_styles['padding-left'] = $value;
     }
 
     //return the classnames and inline styles
@@ -234,42 +244,45 @@ function contentoracle_ai_chat_block_get_color_attrs($attributes) {
     $classnames = [];
     $inline_styles = [];
 
-    //get background color classes or inline styles
-    //if a preset background color is set, use that
-    if (!empty($attributes['backgroundColor'])) {
+    //create style parser
+    $style_parser = new BlockStyle($attributes);
+
+    //get the values of each attr
+    $background_color = $style_parser->bgColor();
+    $text_color = $style_parser->textColor();
+
+    //get class or inline style of background color
+    if ($background_color->isPreset) {
         $classnames[] = "has-background";
-        $classnames[] = "has-" . $attributes['backgroundColor'] . "-background-color";
-    } 
-    //otherwise, if a custom background color is set, use that
-    else if (!empty($attributes['style']['color']['background'])){
-        $value = $attributes['style']['color']['background'];
-        $has_color_preset = str_contains( $value, 'var:preset|color|' );
-		if ( $has_color_preset ) {
-            $named_color_value = substr( $value, strrpos( $value, '|' ) + 1 );
-			$value             = sprintf( 'var(--wp--preset--color--%s)', $named_color_value );
-		}
-
-        
-        $inline_styles['background-color'] = $value;
+        $classnames[] = "has-" . $background_color->value . "-background-color";
+    } else {
+        //if the background color is a css variable, use that
+        if (str_contains($background_color->value, 'var:preset|color|')){
+            $named_color_value = substr( $background_color->value, strrpos( $background_color->value, '|' ) + 1 );
+            $inline_styles['background-color'] = sprintf( 'var(--wp--preset--color--%s)', $named_color_value );
+        }
+        //otherwise, use the raw value
+        else{
+            $inline_styles['background-color'] = $background_color->value;
+        }
     }
 
-    //get text color classes or inline styles
-    //if a preset text color is set, use that
-    if (!empty($attributes['textColor'])) {
+    //get class or inline style of text color
+    if ($text_color->isPreset) {
         $classnames[] = "has-text-color";
-        $classnames[] = "has-" . $attributes['textColor'] . "-color";
-    } 
-    //otherwise, if a custom text color is set, use that
-    else if (!empty($attributes['style']['color']['text'])){
-        $value = $attributes['style']['color']['text'];
-        $has_color_preset = str_contains( $value, 'var:preset|color|' );
-		if ( $has_color_preset ) {
-            $named_color_value = substr( $value, strrpos( $value, '|' ) + 1 );
-			$value             = sprintf( 'var(--wp--preset--color--%s)', $named_color_value );
-		}
-
-        $inline_styles['color'] = $attributes['style']['color']['text'];
+        $classnames[] = "has-" . $text_color->value . "-color";
+    } else {
+        //if the text color is a css variable, use that
+        if (str_contains($text_color->value, 'var:preset|color|')){
+            $named_color_value = substr( $text_color->value, strrpos( $text_color->value, '|' ) + 1 );
+            $inline_styles['color'] = sprintf( 'var(--wp--preset--color--%s)', $named_color_value );
+        }
+        //otherwise, use the raw value
+        else{
+            $inline_styles['color'] = $text_color->value;
+        }
     }
+
 
     //return the classnames and inline styles
     return [
@@ -283,26 +296,27 @@ function contentoracle_ai_chat_block_get_border_attrs($attributes) {
     $classnames = [];
     $inline_styles = [];
 
-    //get border color classes or inline styles
-    //if a preset border color is set, use that
-    if (!empty($attributes['borderColor'])) {
+    //create style parser
+    $style_parser = new BlockStyle($attributes);
+
+    //get the values of each attr
+    $border_color = $style_parser->borderColor();
+    $border_width = $style_parser->borderWidth();
+    $border_radius = $style_parser->borderRadius();
+
+    //get class or inline style of color
+    if ($border_color->isPreset) {
         $classnames[] = "has-border-color";
-        $classnames[] = "has-" . $attributes['borderColor'] . "-border-color";
-    } 
-    //otherwise, if a custom border color is set, use that
-    else if (!empty($attributes['style']['border']['color'])){
-        $inline_styles['border-color'] = $attributes['style']['border']['color'];
+        $classnames[] = "has-" . $border_color->value . "-border-color";
+    } else {
+        $inline_styles['border-color'] = $border_color->value;
     }
 
-    //get border width classes or inline styles
-    if (!empty($attributes['style']['border']['width'])) {
-        $inline_styles['border-width'] = $attributes['style']['border']['width'];
-    }
+    //border widht should be inline style
+    $inline_styles['border-width'] = $border_width->value;
 
-    //get border radius classes or inline styles
-    if (!empty($attributes['style']['border']['radius'])) {
-        $inline_styles['border-radius'] = $attributes['style']['border']['radius'];
-    }
+    //border radius should be inline style
+    $inline_styles['border-radius'] = $border_radius->value;
 
     //return the classnames and inline styles
     return [
