@@ -301,6 +301,25 @@ function Edit({
         streamResponses: event.target.checked
       });
     }
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    class: "contentoracle-ai_panelbody_group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "contentoracle-ai_panelbody_input_container"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    className: "components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2",
+    htmlFor: `wp-block-chat_placeholder_${iid}`,
+    style: {
+      marginBottom: '0.5rem'
+    }
+  }, "Auto-scroll to this block on page load?"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    type: "checkbox",
+    defaultChecked: attributes.scrollBlockIntoView,
+    id: `wp-block-chat_placeholder_${iid}`,
+    onChange: event => {
+      setAttributes({
+        scrollBlockIntoView: event.target.checked
+      });
+    }
   })))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...blockProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -324,30 +343,6 @@ function Edit({
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Tomato plants grow best in full sun, in soil that is rich in organic matter, and well-drained.", (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("sup", {
     ...inlineCitationLinkProps
   }, "1"), "  They need a lot of water, but not too much. They also need a lot of nutrients, so you should fertilize them regularly. You should also prune them regularly to keep them healthy and productive. If you follow these tips, you should have a healthy and productive tomato plant."), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    style: {
-      padding: '0.25rem',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center'
-    }
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
-    style: {
-      textSize: 'larger',
-      width: '100%'
-    }
-  }, " Take Action! "), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    ...actionContainerProps
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
-    ...actionLabelProps
-  }, "Want to learn more about growing tomatos?  Read on!"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("img", {
-    ...actionImageProps,
-    src: window.location.origin + '/wp-content/plugins/contentoracle_ai_chat/features/chat_block/assets/images/tomatos.jpg',
-    alt: "tomatos"
-  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", {
-    ...actionTextProps
-  }, "Discover the secrets to cultivating thriving tomatoes with the perfect soil mix. From pH levels to nutrient-rich ingredients, learn how to create the ideal growing environment for juicy, flavorful tomatoes in your garden."), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
-    ...actionButtonProps
-  }, "Keep Reading"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     style: {
       padding: '0.25rem',
       display: 'flex',
@@ -550,7 +545,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-chat","version":"0.1.0","title":"Contentoracle Ai Chat","category":"contentoracle","icon":"smiley","description":"Let your users chat with ai, and show ai search results with your site\'s custom content.","example":{},"keywords":["chat","ai","contentoracle","search","searchbar","query","answer","question"],"attributes":{"header":{"type":"string","default":"ContentOracle Ai Chat"},"placeholder":{"type":"string","default":"Ask me anything..."},"buttonText":{"type":"string","default":"Send"},"height":{"type":"string","default":"20rem"},"botMsgBgColor":{"type":"string","default":"#d1d1d1"},"botMsgTextColor":{"type":"string","default":"#111111"},"userMsgBgColor":{"type":"string","default":"#3232fd"},"userMsgTextColor":{"type":"string","default":"#eeeeff"},"streamResponses":{"type":"boolean","default":true}},"selectors":{"root":".contentoracle-ai_chat_root","input_container":".contentoracle-ai_chat_input_container","input":".contentoracle-ai_chat_input","button":".contentoracle-ai_chat_button","conversation":".contentoracle-ai_chat_conversation","label":".contentoracle-ai_chat_label","header":".contentoracle-ai_chat_header","inline_citation":".contentoracle-inline_citation","source_list":".contentoracle-source_list","footer_citation":".contentoracle-footer_citation","footer_citation_link":".contentoracle-footer_citation_link","action_container":".contentoracle-action_container","action_label":".contentoracle-action_label","action_button":".contentoracle-action_button","action_excerpt":".contentoracle-action_excerpt","action_image":".contentoracle-action_image"},"supports":{"color":{"background":true,"text":true},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"spacing":{"margin":true,"padding":true},"html":false},"textdomain":"contentoracle-ai-chat-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScriptModule":"file:./view.js"}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-chat","version":"0.1.0","title":"Contentoracle Ai Chat","category":"contentoracle","icon":"smiley","description":"Let your users chat with ai, and show ai search results with your site\'s custom content.","example":{},"keywords":["chat","ai","contentoracle","search","searchbar","query","answer","question"],"attributes":{"header":{"type":"string","default":"ContentOracle Ai Chat"},"placeholder":{"type":"string","default":"Ask me anything..."},"buttonText":{"type":"string","default":"Send"},"height":{"type":"string","default":"20rem"},"botMsgBgColor":{"type":"string","default":"#d1d1d1"},"botMsgTextColor":{"type":"string","default":"#111111"},"userMsgBgColor":{"type":"string","default":"#3232fd"},"userMsgTextColor":{"type":"string","default":"#eeeeff"},"streamResponses":{"type":"boolean","default":true},"scrollBlockIntoView":{"type":"boolean","default":true}},"selectors":{"root":".contentoracle-ai_chat_root","input_container":".contentoracle-ai_chat_input_container","input":".contentoracle-ai_chat_input","button":".contentoracle-ai_chat_button","conversation":".contentoracle-ai_chat_conversation","label":".contentoracle-ai_chat_label","header":".contentoracle-ai_chat_header","inline_citation":".contentoracle-inline_citation","source_list":".contentoracle-source_list","footer_citation":".contentoracle-footer_citation","footer_citation_link":".contentoracle-footer_citation_link","action_container":".contentoracle-action_container","action_label":".contentoracle-action_label","action_button":".contentoracle-action_button","action_excerpt":".contentoracle-action_excerpt","action_image":".contentoracle-action_image"},"supports":{"color":{"background":true,"text":true},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"spacing":{"margin":true,"padding":true},"html":false},"textdomain":"contentoracle-ai-chat-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScriptModule":"file:./view.js"}');
 
 /***/ })
 

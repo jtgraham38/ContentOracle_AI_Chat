@@ -136,6 +136,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     data-contentoracle_rest_url="<?php echo esc_url( get_rest_url() ) ?>"
     data-contentoracle_chat_nonce="<?php echo esc_attr( wp_create_nonce('contentoracle_chat_nonce') ) ?>"
     data-contentoracle_stream_responses="<?php echo esc_attr( $attributes['streamResponses'] ) ?>"
+    data-contentoracle_scroll_block_into_view="<?php echo esc_attr( $attributes['scrollBlockIntoView'] ) ?>"
     data-contentoracle_featured_content_border_classes="<?php echo esc_attr( $featured_content_border_classes ) ?>"
     data-contentoracle_featured_content_button_classes="<?php echo esc_attr( $featured_content_button_classes ) ?>"
 >

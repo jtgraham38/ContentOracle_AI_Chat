@@ -54,6 +54,10 @@
     "streamResponses": {
       "type": "boolean",
       "default": true
+    },
+    "scrollBlockIntoView": {
+      "type": "boolean",
+      "default": true
     }
   },
   "selectors": {

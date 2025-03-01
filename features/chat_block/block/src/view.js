@@ -19,6 +19,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	error: "",
 	chatNonce: "",	//will be filled in by the block via php
 	stream_responses: true,
+	scrollBlockIntoView: false,
 	featured_content_border_classes: "",
 	featured_content_button_classes: "",
 	init() {
@@ -27,9 +28,10 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		this.apiBaseUrl = this.$el.getAttribute('data-contentoracle_rest_url');
 		this.chatNonce = this.$el.getAttribute('data-contentoracle_chat_nonce');
 		this.stream_responses = this.$el.getAttribute('data-contentoracle_stream_responses');
+		this.scrollBlockIntoView = this.$el.getAttribute('data-contentoracle_scroll_block_into_view');
 		this.featured_content_border_classes = this.$el.getAttribute('data-contentoracle_featured_content_border_classes').split(" ");
 		this.featured_content_button_classes = this.$el.getAttribute('data-contentoracle_featured_content_button_classes').split(" ");
-		
+
 		//scroll to the top of the bottommost chat when the conversation updates
 		this.$watch('conversation', () => {
 			this.scrollToBottomMostChat(); // Call the function when conversation updates
@@ -60,6 +62,10 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				this.send(searchQuery, event)
 			}
 		}
+
+		//scroll this block into view on page load if it is set to do so
+		if (this.scrollBlockIntoView)
+			this.scrollToBlock();
 	},
 	//sends a message using the input value
 	async sendMessage( event ) {
@@ -395,7 +401,13 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 		//return the conversation
 		return conversation;
-	}
+	},
+
+	//scroll the window to this block
+	scrollToBlock( event ) {
+		//scroll the block into view
+		this.$el.scrollIntoView({ behavior: "smooth" });
+	},
 })
 )
 

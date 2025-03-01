@@ -95,9 +95,9 @@ class ContentOracleAiBlock extends PluginFeature{
             $border_color = $border_styles['border-color'] ?? "";
 
             //get button color and text color
-            $button_Styles = contentoracle_ai_chat_block_get_color_attrs($attributes)['inline_styles'];
+            $button_styles = contentoracle_ai_chat_block_get_color_attrs($attributes)['inline_styles'];
             $button_bg = $border_color;
-            $button_text = $button_Styles['color'];
+            $button_text = $button_styles['color'] ?? "";
 
 
             $style_string = sprintf('
