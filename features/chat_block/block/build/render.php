@@ -8,12 +8,12 @@ if (!defined('ABSPATH')) {
 //include autoload
 require_once plugin_dir_path(__FILE__) . '../../../../vendor/autoload.php';
 
-use jtgraham38\jgwordpressstyle\BlockStyle;
+//use jtgraham38\jgwordpressstyle\BlockStyle;
 
 //echo the volors
-echo "<pre>";
-print_r(contentoracle_ai_chat_block_get_border_attrs($attributes));
-echo "</pre>";
+// echo "<pre>";
+// print_r(contentoracle_ai_chat_block_get_border_attrs($attributes));
+// echo "</pre>";
 
 
 //get the instance id

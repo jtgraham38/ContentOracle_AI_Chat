@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "af6eb7292f7beab4f9ae5f36678184b5",
+    "content-hash": "975e86e64ac1e793ea57fd8a69ea727f",
     "packages": [
         {
             "name": "jtgraham38/jgwordpressblockstyle",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jtgraham38/JGWPBlockStyles.git",
-                "reference": "500c20571195f6616a691c2541e5d6c9b415074a"
+                "reference": "61883883b69773a664d56ba0e585338143774c1c"
             },
             "dist": {
                 "type": "tar",
-                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/jgwordpressblockstyle/jtgraham38-jgwordpressblockstyle-500c20571195f6616a691c2541e5d6c9b415074a-zip-26dad2.tar",
-                "reference": "500c20571195f6616a691c2541e5d6c9b415074a",
-                "shasum": "a231ad7b7dc0c6e16dad49fb4425958b2c87eb84"
+                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/jgwordpressblockstyle/jtgraham38-jgwordpressblockstyle-61883883b69773a664d56ba0e585338143774c1c-zip-6a50f1.tar",
+                "reference": "61883883b69773a664d56ba0e585338143774c1c",
+                "shasum": "c3cb91595765abe7e5124c0a54032c04a9f91eb0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.5"
@@ -41,10 +41,10 @@
             ],
             "description": "A set of utility functions for extracting style values from a block's attributes object.",
             "support": {
-                "source": "https://github.com/jtgraham38/JGWPBlockStyles/tree/0.1.0",
+                "source": "https://github.com/jtgraham38/JGWPBlockStyles/tree/0.1.1",
                 "issues": "https://github.com/jtgraham38/JGWPBlockStyles/issues"
             },
-            "time": "2025-02-28T16:19:32+00:00"
+            "time": "2025-03-01T03:31:52+00:00"
         },
         {
             "name": "jtgraham38/jgwordpresskit",
