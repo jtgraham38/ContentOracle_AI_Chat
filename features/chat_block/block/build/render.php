@@ -118,6 +118,12 @@ $action_border_classnames = implode(" ", $action_border_classnames);
 $action_btn_classnames = $button_classnames;
 $action_btn_classnames .= " contentoracle-action_button";
 
+//featured content border color and button class names (Styles handled in the register_block.php file)
+$featured_content_border_classes = contentoracle_ai_chat_block_get_border_attrs($attributes)['classnames'];
+$featured_content_border_classes = implode(" ", $featured_content_border_classes);
+
+$featured_content_button_classes = implode(" ", $button_attrs['classnames']);
+
 //generate unique id for the chat
 $chat_id = wp_unique_id('contentoracle-ai_chat_');
 
@@ -130,6 +136,8 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     data-contentoracle_rest_url="<?php echo esc_url( get_rest_url() ) ?>"
     data-contentoracle_chat_nonce="<?php echo esc_attr( wp_create_nonce('contentoracle_chat_nonce') ) ?>"
     data-contentoracle_stream_responses="<?php echo esc_attr( $attributes['streamResponses'] ) ?>"
+    data-contentoracle_featured_content_border_classes="<?php echo esc_attr( $featured_content_border_classes ) ?>"
+    data-contentoracle_featured_content_button_classes="<?php echo esc_attr( $featured_content_button_classes ) ?>"
 >
     <div class="contentoracle-ai_chat_header">
         <h3 

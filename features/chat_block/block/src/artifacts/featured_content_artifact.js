@@ -11,10 +11,13 @@ export default class FeaturedContentArtifact extends COAI_Artifact {
 
     //render the artifact
     //NOTE: content_supplied is passed by reference, and it maps content_id to the content object
-    render(content_supplied) {
-        //create a container, with class coai_chat-featured_content
+    render(content_supplied, featured_content_border_classes, featured_content_button_classes) {        //create a container, with class coai_chat-featured_content
         const container = document.createElement('div');
         container.classList.add('coai_chat-featured_content');
+        featured_content_border_classes.map((border_class) => {
+            if (border_class)
+                container.classList.add(border_class);
+        });
 
         //create an inner container, with class coai_chat-featured_content_inner
         const inner_container = document.createElement('div');
@@ -31,6 +34,12 @@ export default class FeaturedContentArtifact extends COAI_Artifact {
         btn.href = content_supplied[this.content_id].url || '#';
         btn.innerText = btn_text || 'Go!';
         btn.target = '_blank';
+        btn.classList.add('coai_chat-featured_content_btn');
+        featured_content_button_classes.map((button_class) => {
+            if (button_class)
+                btn.classList.add(button_class);
+        });
+
         
         //create an image for the featured image
         let img;

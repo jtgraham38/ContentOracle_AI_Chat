@@ -88,6 +88,18 @@ class ContentOracleAiBlock extends PluginFeature{
             $bot_bg = isset($attributes['botMsgBgColor']) ? $attributes['botMsgBgColor'] : '#d1d1d1';
             $bot_text = isset($attributes['botMsgTextColor']) ? $attributes['botMsgTextColor'] : '#111111';
 
+            //get border color, width, and radius
+            $border_styles = contentoracle_ai_chat_block_get_border_attrs($attributes)['inline_styles'];
+            $border_width = $border_styles['border-width'];
+            $border_radius = $border_styles['border-radius'];
+            $border_color = $border_styles['border-color'] ?? "";
+
+            //get button color and text color
+            $button_Styles = contentoracle_ai_chat_block_get_color_attrs($attributes)['inline_styles'];
+            $button_bg = $border_color;
+            $button_text = $button_Styles['color'];
+
+
             $style_string = sprintf('
                 .contentoracle-ai_chat_bubble_user {
                     background-color: %s;
@@ -107,9 +119,16 @@ class ContentOracleAiBlock extends PluginFeature{
                     overflow-y: auto;
                     scrollbar-color: %s rgba(0, 0, 0, 0.01);
                 }
-                .coai_chat-featured_content {
-                    border: 
-            ', $user_bg, $user_text, $bot_bg, $bot_text, $link_color, $link_color, $scrollbar_color);
+                .coai_chat-featured_content{
+                    border: %s solid %s;
+                    border-radius: %s;
+                }
+                .coai_chat-featured_content a{
+                    background-color: %s;
+                    color: %s;
+                    border-radius: %s;
+                }
+            ', $user_bg, $user_text, $bot_bg, $bot_text, $link_color, $link_color, $scrollbar_color, $border_width, $border_color, $border_radius, $button_bg, $button_text, $border_radius);
 
             // Sanitize the CSS string
             $allowed_css = array(

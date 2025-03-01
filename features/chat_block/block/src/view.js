@@ -19,13 +19,17 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	error: "",
 	chatNonce: "",	//will be filled in by the block via php
 	stream_responses: true,
+	featured_content_border_classes: "",
+	featured_content_button_classes: "",
 	init() {
 		console.log('init chat!!!');
 		//load the rest url into the apiBaseUrl from the data-contentoracle_rest_url attribute
 		this.apiBaseUrl = this.$el.getAttribute('data-contentoracle_rest_url');
 		this.chatNonce = this.$el.getAttribute('data-contentoracle_chat_nonce');
 		this.stream_responses = this.$el.getAttribute('data-contentoracle_stream_responses');
-
+		this.featured_content_border_classes = this.$el.getAttribute('data-contentoracle_featured_content_border_classes').split(" ");
+		this.featured_content_button_classes = this.$el.getAttribute('data-contentoracle_featured_content_button_classes').split(" ");
+		
 		//scroll to the top of the bottommost chat when the conversation updates
 		this.$watch('conversation', () => {
 			this.scrollToBottomMostChat(); // Call the function when conversation updates
@@ -56,123 +60,6 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				this.send(searchQuery, event)
 			}
 		}
-
-
-		//TEST
-// 		const S = {
-// 			content_supplied: {
-//     "1": {
-//         "id": "1",
-//         "title": "Hello world!",
-//         "url": "http://localhost:8080/?p=1",
-//         "body": "Welcome to WordPress . This is your first post . Edit or delete it , then start writing !",
-//         "type": "post"
-//     },
-//     "2": {
-//         "id": "2",
-//         "title": "Sample Page",
-//         "url": "http://localhost:8080/?page_id=2",
-//         "body": "This is an example page . It ' s different from a blog post because it will stay in one place and will show up in your site navigation ( in most themes ) . Most people start with an About page that introduces them to potential site visitors . It might say something like this : Hi there ! I ' m a bike messenger by day , aspiring actor by night , and this is my website . I live in Los Angeles , have a great dog named Jack , and I like piña coladas . ( And gettin ' caught in the rain . ) . . . or something like this : The XYZ Doohickey Company was founded in 1971 , and has been providing quality doohickeys to the public ever since . Located in Gotham City , XYZ employs over 2 , 000 people and does all kinds of awesome things for the Gotham community . As a new WordPress user , you should go to your dashboard to delete this page and create new pages for your content . Have fun !",
-//         "type": "page"
-//     },
-//     "23": {
-//         "id": "23",
-//         "title": "The Most Tasty Tomatos in the Northeast",
-//         "url": "http://localhost:8080/?p=23",
-//         "body": "The tastiest tomatos to grow in the Northeast are Roma , Beefsteak , and Cherry tomatos . These tomatos are the most popular and have the best flavor .",
-//         "type": "post"
-//     },
-//     "25": {
-//         "id": "25",
-//         "title": "How to Grow Tomatos in the Northeast",
-//         "url": "http://localhost:8080/?p=25",
-//         "body": "Growing tomatos in the Northeast is easy . You need to plant them in the spring , water them regularly , and give them plenty of sunlight . You can grow tomatos in your backyard or in a container on your porch .",
-//         "type": "post"
-//     },
-//     "27": {
-//         "id": "27",
-//         "title": "The Best Soil for Growing Tomatos",
-//         "url": "http://localhost:8080/?p=27",
-//         "body": "The best soil for growing tomatos is loamy soil . Loamy soil is a mixture of sand , silt , and clay . It is well - draining and has plenty of nutrients for tomatos to grow . You can buy loamy soil at your local garden center or make your own by mixing sand , silt , and clay together . . .",
-//         "type": "post"
-//     },
-//     "297": {
-//         "id": "297",
-//         "title": "Tomato Seed Starting Seminar",
-//         "url": "http://localhost:8080/?tribe_events=tomato-seed-starting-seminar",
-//         "body": "Join us for an informative seminar on starting your own tomato plants from seed ! This hands - on event is perfect for both novice and experienced gardeners who want to learn the essentials of growing healthy , vibrant tomatoes from scratch . During this seminar , you ' ll learn about : Selecting the best tomato varieties for your garden . Proper seed starting techniques , including timing and soil preparation . Creating the ideal environment for seed germination . Transplanting seedlings and caring for young plants . Common challenges and how to overcome them for a bountiful harvest . This seminar will provide you with practical tips and expert advice to help ensure a successful growing season . All participants will also receive a packet of tomato seeds to start at home . Whether you ' re looking to enhance your gardening skills or simply want to grow your own delicious tomatoes , this seminar is a great opportunity to get started ! Register now to reserve your spot ! growth",
-//         "type": "tribe_events"
-//     },
-//     "299": {
-//         "id": "299",
-//         "title": "Tomato",
-//         "url": "http://localhost:8080/?tribe_events=tomato",
-//         "body": "This event is a tomato",
-//         "type": "tribe_events"
-//     },
-//     "340": {
-//         "id": "340",
-//         "title": "Cart",
-//         "url": "http://localhost:8080/?page_id=340",
-//         "body": "You may be interested in … Your cart is currently empty ! New in store",
-//         "type": "page"
-//     },
-//     "345": {
-//         "id": "345",
-//         "title": "Tomato Seeds",
-//         "url": "http://localhost:8080/?product=tomato-seeds",
-//         "body": "Experience the joy of homegrown tomatoes with our premium tomato seed pack . These non - GMO seeds guarantee vigorous growth and high yield , perfect for both beginner and experienced gardeners . Enjoy fresh , juicy tomatoes right from your backyard .",
-//         "type": "product"
-//     },
-//     "346": {
-//         "id": "346",
-//         "title": "Garden Soil",
-//         "url": "http://localhost:8080/?product=garden-soil",
-//         "body": "Our Garden Soil is a premium blend of organic materials , designed to promote healthy plant growth . It ensures proper drainage and nutrient retention , creating an ideal environment for your plants . Enhance your garden ' s fertility and overall health with our rich , earthy soil . Perfect for various plants , flowers , and vegetables , especially tomatoes .",
-//         "type": "product"
-//     },
-//     "542": {
-//         "id": "542",
-//         "title": "The Journey of Tomato Growth: From Seed to Fruit",
-//         "url": "http://localhost:8080/?p=542",
-//         "body": "providing the right care and attention , you can enjoy a steady supply of homegrown tomatoes , bursting with flavor and nutrition . Whether you ' re growing them in containers on a balcony or in a sprawling backyard garden , tomatoes are a delightful addition to any garden and a testament to the wonders of nature .",
-//         "type": "post"
-//     }
-// 			},
-// 			content_used: [],
-// 			raw_content: `Growing tomatoes can be a rewarding experience. Here are some steps to help you succeed:
-// 1. **Choose the Right Variety**: Select a tomato variety suitable for your climate and space. Determinate (bush) types are ideal for small spaces, while indeterminate (vine) types are perfect for a prolonged harvest.
-
-// 2. **Starting Seeds**:
-//    - **Indoors**: Start seeds indoors 6-8 weeks before the last frost.
-//    - **Planting**: Plant seeds in a seed-starting mix, about ¼ inch deep.
-//    - **Conditions**: Keep the soil moist and provide warmth (70-80°F) and 12-16 hours of light daily.
-
-// 3. **Transplanting**:
-//    - **Hardening Off**: Gradually acclimate seedlings to outdoor conditions over 7-10 days.
-//    - **Soil Preparation**: Use well-draining, nutrient-rich soil with a slightly acidic pH (6.0-6.8).
-//    - **Planting Deep**: Bury seedlings up to their first set of true leaves to encourage root growth.
-
-// 4. **Growing Conditions**:
-//    - **Sunlight**: Ensure plants receive at least 6-8 hours of direct sunlight daily.
-//    - **Watering**: Water deeply and consistently, providing 1-2 inches of water per week.
-//    - **Mulching**: Apply mulch to retain soil moisture and regulate temperature.
-//    - **Support**: Use stakes, cages, or trellises to keep plants upright.
-
-// 5. **Fertilizing and Pruning**:
-//    - **Fertilizer**: Use a balanced fertilizer initially, then switch to one higher in phosphorus and potassium as plants flower and fruit.
-//    - **Pruning**: Remove suckers on indeterminate varieties to focus energy on fruit production.
-
-// 6. **Pollination**: Encourage pollination by gently shaking the plant or using an electric toothbrush near the flowers.
-
-// 7. **Harvesting**: Pick tomatoes when they are fully colored and slightly firm.
-
-// For the best results, consider using <coai-artifact artifact_type="inline_citation" content_id="345">our premium tomato seeds</coai-artifact> and <coai-artifact artifact_type="inline_citation" content_id="346">our Garden Soil</coai-artifact> to ensure vigorous growth and high yield.
-
-// Greener Garden Center is here to help you with all your gardening needs. Visit our store or shop online for a wide selection of gardening products.`}
-
-		// this.renderArtifacts(S)
-
 	},
 	//sends a message using the input value
 	async sendMessage( event ) {
@@ -463,7 +350,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					return rendered.outerHTML;
 				case 'featured_content':
 					let featured_content = new FeaturedContentArtifact(artifact);
-					rendered = featured_content.render(chat.content_supplied);	//NOTE: these are modified by reference
+					rendered = featured_content.render(chat.content_supplied, this.featured_content_border_classes, this.featured_content_button_classes);	//NOTE: these are modified by reference
 					return rendered.outerHTML;
 				default:
 					return match;
