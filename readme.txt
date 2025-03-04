@@ -97,6 +97,7 @@ This plugin makes use of the following third-party libraries and services:
 * Input should no longer be disabled upon the occurence of an error.
 * Inline content recommendations to further enhance the conversation with the ai agent.
 * Add option to auto-scroll directly to the chat block on a page when the page loads.
+* Make the searchbar notification appear on top of other elements.
 
 == Upgrade Notice ==
 = 1.0.0 =
