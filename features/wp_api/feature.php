@@ -484,11 +484,11 @@ class ContentOracleApi extends PluginFeature{
             $wp_query->the_post();
             $entry = [
                 'id' => get_the_ID(),
-                'title' => get_the_title(),
-                'url' => get_the_permalink(),
-                'body' => get_the_content(),
-                'type' => get_post_type(),
-                'image' => get_the_post_thumbnail_url($post_id),
+                'title' => esc_html(get_the_title()),
+                'url' => esc_url(get_the_permalink()),
+                'body' => esc_html(get_the_content()),
+                'type' => esc_html(get_post_type()),
+                'image' => esc_url(get_the_post_thumbnail_url($post_id)),
             ];
             $content[] = $entry;
         }
@@ -646,11 +646,11 @@ class ContentOracleApi extends PluginFeature{
             //add the chunk to the chunks array
             $chunks[] = [
                 'id' => $post_id,
-                'title' => $post->post_title,
-                'url' => get_the_permalink($post_id),
-                'body' => $chunk,
-                'type' => get_post_type($post_id),
-                'image' => get_the_post_thumbnail_url($post_id),
+                'title' => esc_html($post->post_title),
+                'url' => esc_url(get_the_permalink($post_id)),
+                'body' => esc_html($chunk),
+                'type' => esc_html(get_post_type($post_id)),
+                'image' => esc_url(get_the_post_thumbnail_url($post_id)),
             ];
         }
 
