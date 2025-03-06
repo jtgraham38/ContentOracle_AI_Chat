@@ -3544,7 +3544,7 @@ class InlineCitationArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["def
     //check if this piece of content is in content_used
     let already_used = false;
     for (let i = 0; i < content_used.length; i++) {
-      if (content_used[i].id === this.content_id) {
+      if (content_used[i].id == this.content_id) {
         already_used = true;
         break;
       }
