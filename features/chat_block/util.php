@@ -257,7 +257,7 @@ function contentoracle_ai_chat_block_get_color_attrs($attributes) {
         $classnames[] = "has-" . $background_color->value . "-background-color";
     } else {
         //if the background color is a css variable, use that
-        if (str_contains($background_color->value, 'var:preset|color|')){
+        if (str_contains($background_color->value ?? "", 'var:preset|color|')){
             $named_color_value = substr( $background_color->value, strrpos( $background_color->value, '|' ) + 1 );
             $inline_styles['background-color'] = sprintf( 'var(--wp--preset--color--%s)', $named_color_value );
         }

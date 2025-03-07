@@ -174,6 +174,15 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
+        // Set headers for streaming
+        // Ensure headers are sent before output
+        if (!headers_sent()) {
+            //header('Content-Type: text/plain'); // Adjust as needed
+            header('Cache-Control: no-cache');
+            header('Connection: keep-alive');
+            header('X-Accel-Buffering: no'); // For Nginx
+        }
+        
         //TODO: move this to after the first fragment, so it only is sent if a response is generated
         //send the content supplied to the client block
         $id2post = [];
@@ -191,18 +200,10 @@ class ContentOracleApi extends PluginFeature{
         //get the ip address of the client for COAI rate limiting
         $client_ip = $this->get_client_ip();
         
-        // Set headers for streaming
-        // Ensure headers are sent before output
-        if (!headers_sent()) {
-            header('Content-Type: text/plain'); // Adjust as needed
-            header('Cache-Control: no-cache');
-            header('Connection: keep-alive');
-            header('X-Accel-Buffering: no'); // For Nginx
-        }
 
         // Disable buffering to send output directly
         @ini_set('output_buffering', 'On');
-        //@ini_set('zlib.output_compression', 'Off');
+        @ini_set('zlib.output_compression', 'Off');
         //@ini_set('implicit_flush', 'On');
         //ob_implicit_flush(1);
 
@@ -210,6 +211,13 @@ class ContentOracleApi extends PluginFeature{
         //send a request to the ai to generate a response
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
         $response = $api->streamed_ai_chat($message, $content, $conversation, 
+            // function($data){
+            //     echo $data . "\u{E000}";
+            //     flush();
+            //     ob_flush();
+            //     //ensure output is flushed
+            //     while (ob_get_level() > 0) ob_end_clean();
+            // }
             function($data){
                 //divider character, to separate the fragments of the response
                 $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
@@ -226,98 +234,111 @@ class ContentOracleApi extends PluginFeature{
                 //get the full content of the output buffer, and clear it
                 $full_data = ob_get_clean();
 
-                //attempt to parse the data from the output buffer
-                $parsed = json_decode($full_data, true);
+                //split the data out into discrete json objects
+                //they will not be separated by the private use character
+                //so find them where json objects butt up against each other
+                $fragments = $this->get_json_fragments($full_data); 
 
-                //if there is an error, a valid fragment is not found
-                //so return the data to the output buffer and return
-                if (json_last_error() != JSON_ERROR_NONE){
-                    //start output buffering
+                foreach ($fragments as $_fragment){
+
+                    //attempt to parse the data from the output buffer
+                    $parsed = json_decode($_fragment, true);
+
+                    //if there is an error, a valid fragment is not found
+                    //so return the data to the output buffer and return
+                    if (json_last_error() != JSON_ERROR_NONE){
+                        //start output buffering
+                        ob_start();
+
+                        //echo the partial fragment
+                        echo $data;
+                        
+                        //stop executing here
+                        return;
+                    }
+
+                    //if we reach this point, a valid fragment was found
+                    //and the output buffer is empty, and output buffering is stopped
+
+                    //start output buffering again
                     ob_start();
 
-                    //echo the partial fragment
-                    echo $data;
-                    
-                    //stop executing here
-                    return;
-                }
+                    //set error to none to start
+                    $error = null;
 
-                //if we reach this point, a valid fragment was found
-                //and the output buffer is empty, and output buffering is stopped
+                    //    \\    //    \\  make updates to the parsed data below  //    \\    //    \\
+                    //handle an action fragment
+                    if ( isset($parsed['action']) && isset($parsed['action']['content_id']) && get_post($parsed['action']['content_id']) ){
+                        $parsed['action']['content_type'] = get_post_type($parsed['action']['content_id']);
+                        $parsed['action']['content_url'] = get_post_permalink($parsed['action']['content_id']);
+                        $parsed['action']['content_excerpt'] = get_the_excerpt($parsed['action']['content_id']);
+                        $parsed['action']['content_featured_image'] = get_the_post_thumbnail_url($parsed['action']['content_id']);
+                    }
+                    //handle an engineered_prompt fragment
+                    else if ( isset($parsed['engineered_prompt']) ){
+                        //encode and echo the engineered input
+                        //modifications to $parsed here...
+                    }
+                    //handle an error fragment
+                    else if ( isset($parsed['error']) ){
+                        //don't use an exception, create the response here directly
+                        $error = new Contentoracle_WPAPIErrorResponse(
+                            $parsed,
+                            $parsed['message'],
+                            $parsed['error'],
+                            'coai'
+                        );
+                    }
+                    //handle multiple errors
+                    else if (isset($parsed['errors'])){
+                        //don't use an exception, create the response here directly
+                        $error = new Contentoracle_WPAPIErrorResponse(
+                            $parsed,
+                            'Multiple errors in response from the AI',
+                            'AI_CHAT_ERR',
+                            'coai'
+                        );
+                    }
+                    //handle unauthenticated
+                    else if (isset($parsed['message']) && $parsed['message'] == 'Unauthenticated.'){
+                        //don't use an exception, create the response here directly
+                        $error = new Contentoracle_WPAPIErrorResponse(
+                            $parsed,
+                            'Unauthenticated.',
+                            'AI_CHAT_ERR',
+                            'coai'
+                        );
+                    }
+                    //handle chat response fragment
+                    else{
+                        //modifications to $parsed here...
+                    }
+                    //    \\    //    \\  make updates to the parsed data above  //    \\    //    \\
 
-                //start output buffering again
-                ob_start();
-
-                //set error to none to start
-                $error = null;
-
-                //    \\    //    \\  make updates to the parsed data below  //    \\    //    \\
-                //handle an action fragment
-                if ( isset($parsed['action']) && isset($parsed['action']['content_id']) && get_post($parsed['action']['content_id']) ){
-                    $parsed['action']['content_type'] = get_post_type($parsed['action']['content_id']);
-                    $parsed['action']['content_url'] = get_post_permalink($parsed['action']['content_id']);
-                    $parsed['action']['content_excerpt'] = get_the_excerpt($parsed['action']['content_id']);
-                    $parsed['action']['content_featured_image'] = get_the_post_thumbnail_url($parsed['action']['content_id']);
-                }
-                //handle an engineered_prompt fragment
-                else if ( isset($parsed['engineered_prompt']) ){
-                    //encode and echo the engineered input
-                    //modifications to $parsed here...
-                }
-                //handle an error fragment
-                else if ( isset($parsed['error']) ){
-                    //don't use an exception, create the response here directly
-                    $error = new Contentoracle_WPAPIErrorResponse(
-                        $parsed,
-                        $parsed['message'],
-                        $parsed['error'],
-                        'coai'
-                    );
-                }
-                //handle multiple errors
-                else if (isset($parsed['errors'])){
-                    //don't use an exception, create the response here directly
-                    $error = new Contentoracle_WPAPIErrorResponse(
-                        $parsed,
-                        'Multiple errors in response from the AI',
-                        'AI_CHAT_ERR',
-                        'coai'
-                    );
-                }
-                //handle unauthenticated
-                else if (isset($parsed['message']) && $parsed['message'] == 'Unauthenticated.'){
-                    //don't use an exception, create the response here directly
-                    $error = new Contentoracle_WPAPIErrorResponse(
-                        $parsed,
-                        'Unauthenticated.',
-                        'AI_CHAT_ERR',
-                        'coai'
-                    );
-                }
-                //handle chat response fragment
-                else{
-                    //modifications to $parsed here...
-                }
-                //    \\    //    \\  make updates to the parsed data above  //    \\    //    \\
-
-                //when we reach here, the parsed data is ready to be sent to the client
+                    //when we reach here, the parsed data is ready to be sent to the client
                 
-                //check if $error is set
-                if ($error){
-                    //encode and echo the error
-                    echo json_encode($error);
-                }
-                //if no error, echo the parsed data
-                else{
-                    //encode and echo the parsed data
-                    echo json_encode($parsed);
-                }
+                    //check if $error is set
+                    if ($error){
+                        //encode and echo the error
+                        echo json_encode($error);
+                    }
+                    //if no error, echo the parsed data
+                    else{
+                        //encode and echo the parsed data
+                        echo json_encode($parsed);
+                    }
 
-                //separator and flush
-                echo $private_use_char;
-                ob_flush();    //flush to buffer
-                flush();    //flush to stream
-                    
+                    //looks like maybe the streaming will wokr irregulary on certain hosts, where each chunk is not a full json object.
+                    //TODO: brainstorm ideas to fix this
+                    //streaming does work, but "hoobadooba" appears at irregular intrevals on the client console
+
+                    //separator and flush
+                    echo $private_use_char;
+                    ob_flush();    //flush to buffer
+                    flush();    //flush to stream
+                    //ensure output is flushed
+                    while (ob_get_level() > 0) ob_end_clean();
+                }
             }
         );
         //stop executing here
@@ -669,5 +690,31 @@ class ContentOracleApi extends PluginFeature{
                 ));
             }
         ));
+    }
+
+    //get json objects from a string containing multiple json objects
+    function get_json_fragments($data){
+        //split the data out into discrete json objects
+        //they will not be separated by the private use character
+        //so find them where json objects butt up against each other
+        $fragments = [];
+        $start = 0;
+        $end = 0;
+        $depth = 0;
+        for ($i = 0; $i < strlen($data); $i++){
+            if ($data[$i] == '{'){
+                $depth++;
+                if ($depth == 1) $start = $i;
+            }
+            else if ($data[$i] == '}'){
+                $depth--;
+                if ($depth == 0){
+                    $end = $i;
+                    $fragments[] = substr($data, $start, $end - $start + 1);
+                }
+            }
+        }
+
+        return $fragments;
     }
 }

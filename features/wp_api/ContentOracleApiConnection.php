@@ -171,6 +171,9 @@ class ContentOracleApiConnection{
             return [ 'error' => curl_error($ch) ];
         }
 
+        //close the curl request
+        curl_close($ch);
+
         //handle wordpress errors
         if (is_wp_error($response)){
             return [ 'error' => $response->get_error_message() ];
