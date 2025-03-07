@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat
 Requires at least: 6.5
 Tested up to: 6.7.1
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -98,6 +98,9 @@ This plugin makes use of the following third-party libraries and services:
 * Inline content recommendations to further enhance the conversation with the ai agent.
 * Add option to auto-scroll directly to the chat block on a page when the page loads.
 * Make the searchbar notification appear on top of other elements.
+
+= 1.4.1 =
+* Various bug fixes.
 
 == Upgrade Notice ==
 = 1.0.0 =

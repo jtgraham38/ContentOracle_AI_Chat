@@ -34,7 +34,7 @@ export default class InlineCitationArtifact extends COAI_Artifact {
         //check if this piece of content is in content_used
         let already_used = false;
         for (let i = 0; i < content_used.length; i++) {
-            if (content_used[i].id === this.content_id) {
+            if (content_used[i].id == this.content_id) {
                 already_used = true;
                 break;
             }

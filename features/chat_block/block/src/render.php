@@ -214,7 +214,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                             <template coai-x-for="(source, index) in chat.content_used">
                                 <div class="contentoracle-footer_citation">
                                     <span coai-x-text="(parseInt(index) + 1) + '.'"></span>
-                                    <span coai-x-text="source.title"></span>
+                                    <span coai-x-html="source.title"></span>
                                     <a coai-x-bind:href="source.url" target="_blank" class="contentoracle-footer_citation_link">→</a>
                                 </div>
                             </template>
