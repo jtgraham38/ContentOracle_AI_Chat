@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat
 Requires at least: 6.5
 Tested up to: 6.7.1
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -101,6 +101,9 @@ This plugin makes use of the following third-party libraries and services:
 
 = 1.4.1 =
 * Various bug fixes.
+
+= 1.4.2 =
+* Fix to the response streaming feature.
 
 == Upgrade Notice ==
 = 1.0.0 =
