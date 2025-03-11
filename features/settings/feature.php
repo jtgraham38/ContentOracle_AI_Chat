@@ -367,6 +367,9 @@ class ContentOracleSettings extends PluginFeature{
                 'sanitize_callback' => 'sanitize_text_field'
             )
         );
+
+        //register setting for post meta keys
+        $this->register_post_meta_keys_settings();
     }
 
     //add ai settings page
@@ -387,6 +390,30 @@ class ContentOracleSettings extends PluginFeature{
     //NOTE: embeddings have been registered in their own feature, "embeddings"
 
     //NOTE: analytics have been registered in their own feature, "analytics"
+
+    //register setting for post meta keys
+    public function register_post_meta_keys_settings(){
+        //get all post types used for prompting
+        $post_types = get_option($this->get_prefix() . 'post_types', array('post', 'page'));
+
+        //register a setting for each post type
+        foreach ($post_types as $label=>$post_type){
+            //create the settings themselves
+            register_setting(
+                'coai_chat_ai_settings', // option group
+                $this->get_prefix() . $post_type . '_prompt_meta_keys',    // option name
+                array(  // args
+                    'type' => 'array',
+                    'default' => [],
+                    'sanitize_callback' => function($value){
+                        if (is_array($value)) $value = implode(',', $value);  //workaround for wordpress wrapping string input value in an array
+                        if ($value == NULL) $value = '';
+                        return explode(',', $value);
+                    }
+                )
+            );
+        }
+    }
     
     //register styles for the settings admin
     public function register_styles(){
