@@ -23,7 +23,7 @@ class ContentOracleAnalytics extends PluginFeature{
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
     public function add_menu(){
         add_submenu_page(
-            'contentoracle-ai', // parent slug
+            'contentoracle-ai-chat', // parent slug
             'Analytics', // page title
             'Analytics', // menu title
             'manage_options', // capability

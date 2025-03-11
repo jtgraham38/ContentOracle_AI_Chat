@@ -199,7 +199,7 @@ class ContentOracleSettings extends PluginFeature{
 
         //add a settings submenu
         add_submenu_page(
-            'contentoracle-ai', // $parent_slug
+            'contentoracle-ai-chat', // $parent_slug
             'Settings', // $page_title
             'Settings', // $menu_title
             'manage_options', // $capability
@@ -373,7 +373,7 @@ class ContentOracleSettings extends PluginFeature{
     public function add_ai_settings_page(){
         //add a settings submenu
         add_submenu_page(
-            'contentoracle-ai', // $parent_slug
+            'contentoracle-ai-chat', // $parent_slug
             'Prompt', // $page_title
             'Prompt', // $menu_title
             'manage_options', // $capability
