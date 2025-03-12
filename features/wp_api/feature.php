@@ -628,10 +628,15 @@ class ContentOracleApi extends PluginFeature{
         
         //then, find the most similar vectors in the database table
         $vt = new ContentOracle_VectorTable( $this->get_prefix() );
-        $ordered_vec_ids = $vt->search( $embedding, 15 );
+        $ordered_vec_ids = $vt->search( $embedding, 20 );
 
         //then, get the posts and sections each vector corresponds to
         $vecs = $vt->ids( $ordered_vec_ids );
+
+        //filter out vectors associated with posts that are not published
+        $vecs = array_filter($vecs, function($vec){
+            return get_post_status($vec->post_id) == 'publish';
+        });
 
         //sort the vectors into the order returned by the search
         $vecs = array_map(function($id) use ($vecs){
@@ -677,6 +682,15 @@ class ContentOracleApi extends PluginFeature{
 
         //return the post chunks
         return $chunks;
+    }
+
+    //get post meta configured by the user for each chunk
+    function get_meta_attributes($chunks){
+        //get post types
+        $post_types = get_option($this->get_prefix() . 'post_types');
+        if (!$post_types) $post_types = array('post', 'page');
+
+
     }
 
     //register a contentoracle healthcheck route
