@@ -637,11 +637,6 @@ class ContentOracleApi extends PluginFeature{
         //then, get the posts and sections each vector corresponds to
         $vecs = $vt->ids( $ordered_vec_ids );
 
-        //filter out vectors associated with posts that are not published
-        $vecs = array_filter($vecs, function($vec){
-            return get_post_status($vec->post_id) == 'publish';
-        });
-
         //sort the vectors into the order returned by the search
         $vecs = array_map(function($id) use ($vecs){
             foreach ($vecs as $vec){

@@ -66,8 +66,17 @@ class ContentOracle_VectorTable{
         $binary_code = $this->hex_to_binary( $this->get_binary_code($vector) );
 
         //  \\  //  \\  CANDIDATE GENERATION //  \\  //  \\  //
-        //get all vectors from the database
-        $candidates_query = "select id, binary_code from $this->table_name";
+        //ensure only published posts and the selected post types are used
+        $post_types = get_option($this->plugin_prefix . 'post_types');
+        $post_types = array_map(function($post_type){
+            return "'$post_type'";
+        }, $post_types);
+        $post_types = implode(',', $post_types);
+        $candidate_posts_query = "SELECT ID from $wpdb->posts WHERE post_type IN ($post_types) AND post_status = 'publish'";
+
+        //get all the vectors for the candidate posts
+        $candidates_query = "select id, binary_code from $this->table_name WHERE post_id IN ($candidate_posts_query)";
+
         $embeddings = $wpdb->get_results($candidates_query);
 
         //get the n vectors with the smallest hamming distance
