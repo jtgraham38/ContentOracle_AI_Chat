@@ -359,7 +359,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					rendered = featured_content.render(chat.content_supplied, this.featured_content_border_classes, this.featured_content_button_classes);	//NOTE: these are modified by reference
 					return rendered.outerHTML;
 				default:
-					return match;
+					return innerText;
 			}
 		})
 		return artifacts_rendered;
