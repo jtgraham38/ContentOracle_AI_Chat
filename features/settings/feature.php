@@ -408,7 +408,7 @@ class ContentOracleSettings extends PluginFeature{
                     'sanitize_callback' => function($value){
                         if (is_array($value)) $value = implode(',', $value);  //workaround for wordpress wrapping string input value in an array
                         if ($value == NULL) $value = '';
-                        return explode(',', $value);
+                        return array_map('trim', explode(',', $value));
                     }
                 )
             );
