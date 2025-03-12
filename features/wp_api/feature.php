@@ -174,6 +174,9 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
+        //get the configured post meta for each post
+        $content = $this->add_meta_attributes($content);
+
         // Set headers for streaming
         // Ensure headers are sent before output
         if (!headers_sent()) {
@@ -383,7 +386,8 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
-        
+        //get the configured post meta for each post
+        $content = $this->add_meta_attributes($content);
 
         //get the conversation from the request
         $conversation = $request->get_param('conversation');
@@ -685,12 +689,45 @@ class ContentOracleApi extends PluginFeature{
     }
 
     //get post meta configured by the user for each chunk
-    function get_meta_attributes($chunks){
+    function add_meta_attributes($chunks){
+        /*
+        Chunks is an array of arrays like this: 
+        Array
+        (
+            [id] => 542
+            [title] => Title
+            [url] => http://url.com/123
+            [body] => lorem ipsum
+            [type] => post_type
+            [image] => http://image.com/123.jpg
+        )
+        */
         //get post types
         $post_types = get_option($this->get_prefix() . 'post_types');
         if (!$post_types) $post_types = array('post', 'page');
 
+        //loop over each chunk
+        foreach ($chunks as &$chunk){
+            //skip posts of types that should not be used
+            if (!in_array($chunk['type'], $post_types)) continue;
 
+            //get the post meta for the post
+            $meta = get_post_meta($chunk['id']);
+
+            //get the meta keys for that post type configured by the user
+            $keys = get_option($this->get_prefix() . $chunk['type'] . '_prompt_meta_keys', []);
+
+            //filter out the meta that is not configured by the user
+            $meta = array_filter($meta, function($key) use ($keys){
+                return in_array($key, $keys);
+            }, ARRAY_FILTER_USE_KEY);
+
+            //add the meta to the chunk
+            $chunk['meta'] = $meta;
+        }
+
+        //return the chunks with the meta added
+        return $chunks;
     }
 
     //register a contentoracle healthcheck route
