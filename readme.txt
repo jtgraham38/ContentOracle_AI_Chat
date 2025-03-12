@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat
 Requires at least: 6.5
 Tested up to: 6.7.1
-Stable tag: 1.4.2
+Stable tag: 1.5.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -105,6 +105,12 @@ This plugin makes use of the following third-party libraries and services:
 = 1.4.2 =
 * Fix to the response streaming feature.
 
+= 1.5.0 =
+* Add support for sending certain post meta to ai api to generate a response with.
+* Fix issue where embeddings for unpublished or posts of unselected types could be used in response generation.
+* Fix bug in the WP Admin popup menu.
+* Unrender any artifacts the plugin receives that are not supported by this version.
+
 == Upgrade Notice ==
 = 1.0.0 =
 Upgrade notice for users of previous versions.
@@ -121,3 +127,6 @@ Please install this update.  It correctly handles artifacts added to the api.  T
 
 = 1.4.0 =
 Please upgrade to properly handle inline content recommendations.
+
+= 1.5.0 = 
+Upgrade to ensure passable compatibility with all future artifacts.
