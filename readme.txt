@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat
 Requires at least: 6.5
 Tested up to: 6.7.1
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -110,6 +110,9 @@ This plugin makes use of the following third-party libraries and services:
 * Fix issue where embeddings for unpublished or posts of unselected types could be used in response generation.
 * Fix bug in the WP Admin popup menu.
 * Unrender any artifacts the plugin receives that are not supported by this version.
+
+= 1.5.1 = 
+* Fix a small error display bug.
 
 == Upgrade Notice ==
 = 1.0.0 =
