@@ -249,7 +249,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					parsed = JSON.parse(response);
 				} catch (e) {
 					//don't use handleErrorResponse, because this is not the result of a response
-					this.error = "The response could not be parsed.";
+					//this.error = "The response could not be parsed.";	//commenting this to not show the error result, because the response still seems to generate alright
 					console.error(e);
 					return;
 				}
