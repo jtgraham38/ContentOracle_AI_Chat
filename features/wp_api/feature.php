@@ -190,7 +190,16 @@ class ContentOracleApi extends PluginFeature{
         //send the content supplied to the client block
         $id2post = [];
         foreach ($content as $post){
-            $id2post[$post['id']] = $post;
+            //check if the post is already in id2post
+            if (isset($id2post[$post['id']]))
+            {
+                //if the post is already in id2post, add the new content to the existing post
+                $id2post[$post['id']]['body'] .= $post['body'];
+            }
+            //if the post is not in id2post, add it
+            else{
+                $id2post[$post['id']] = $post;
+            }
         }
         $content_supplied = json_encode(["content_supplied" => $id2post]);
         echo $content_supplied;
@@ -436,7 +445,16 @@ class ContentOracleApi extends PluginFeature{
         //convert the content used to a id-to-post array
         $id2post = [];
         foreach ($content as $post){
-            $id2post[$post['id']] = $post;
+            //check if the post is already in id2post
+            if (isset($id2post[$post['id']]))
+            {
+                //if the post is already in id2post, add the new content to the existing post
+                $id2post[$post['id']]['body'] .= $post['body'];
+            }
+            //if the post is not in id2post, add it
+            else{
+                $id2post[$post['id']] = $post;
+            }
         }
         
         //return the response
