@@ -148,7 +148,7 @@ class ContentOracleApi extends PluginFeature{
             switch ($chunking_method){
                 case 'token:256':
                     $content = $this->token256_content_search($message);
-                    $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
                     break;
                 default:
                     $content = $this->keyword_content_search($message);
@@ -369,7 +369,7 @@ class ContentOracleApi extends PluginFeature{
             switch ($chunking_method){
                 case 'token:256':
                     $content = $this->token256_content_search($message);
-                    $content = array_slice($content, 0, 50); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
                     break;
                 default:
                     $content = $this->keyword_content_search($message);
