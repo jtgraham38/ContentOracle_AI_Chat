@@ -36,6 +36,9 @@ ContentOracle AI Chat bridges this gap by combining your unique content with AI'
 = What makes this plugin different than ChatGPT or Gemini? =  
 ContentOracle AI Chat uses retrieval-augmented generation (RAG) to incorporate your WordPress site content into AI responses, unlike generic AI chat services.
 
+= Do I need to integrate with any third-party applications? =
+No!  Just link your site to your ContentOracle AI account, and we handle the rest.  No need to integrate directly with LLM apis or third-party vector databases!
+
 = How do I customize the AI's responses? =  
 Navigate to **ContentOracle > Prompt** in the admin dashboard to edit prompt settings, tone, jargon, and more.
 
