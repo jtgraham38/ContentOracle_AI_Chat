@@ -59,6 +59,10 @@
       "type": "boolean",
       "default": true
     },
+    "greeterMsg": {
+      "type": "string",
+      "default": "Hello! I'm ContentOracle AI. How can I help you today?"
+    },
     "chatMessageSeederItems": {
       "type": "array",
       "default": [

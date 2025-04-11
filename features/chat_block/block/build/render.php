@@ -11,9 +11,9 @@ require_once plugin_dir_path(__FILE__) . '../../../../vendor/autoload.php';
 //use jtgraham38\jgwordpressstyle\BlockStyle;
 
 //echo the volors
-// echo "<pre>";
-// print_r(contentoracle_ai_chat_block_get_border_attrs($attributes));
-// echo "</pre>";
+echo "<pre>";
+print_r($attributes);
+echo "</pre>";
 
 
 //get the instance id
@@ -159,10 +159,8 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
         <template coai-x-if="conversation.length == 0">
             <div class="contentoracle-ai_chat_greeter_container">
                 <div class="contentoracle-ai_chat_greeter">
-                    <p
-
-                    >
-                        Hello! I'm ContentOracle AI. How can I help you today?
+                    <p>
+                        <?php echo esc_html($attributes['greeterMsg']); ?>
                     </p>
                     <div class="contentoracle-ai_chat_message_seeder">
                         <template coai-x-for="(item, index) in chat_message_seeder_items">

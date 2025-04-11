@@ -283,7 +283,7 @@ export default function Edit({
 							</div>
 						</div>
 
-						<div class="contentoracle-ai_panelbody_group">
+						<div className="contentoracle-ai_panelbody_group">
 							<div className="contentoracle-ai_panelbody_input_container">
 								<label
 									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
@@ -303,7 +303,7 @@ export default function Edit({
 							</div>
 						</div>
 
-						<div class="contentoracle-ai_panelbody_group">
+						<div className="contentoracle-ai_panelbody_group">
 							<div className="contentoracle-ai_panelbody_input_container">
 								<label
 									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
@@ -323,7 +323,7 @@ export default function Edit({
 							</div>
 						</div>
 
-						<div class="contentoracle-ai_panelbody_group">
+						<div className="contentoracle-ai_panelbody_group">
 							<div className="contentoracle-ai_panelbody_input_container">
 								<label
 									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
@@ -364,7 +364,20 @@ export default function Edit({
 					{attributes.showGreeterPreview ? (
 						<div {...greeterContainerProps}>
 							<div {...greeterProps}>
-								<p>Hello! I'm ContentOracle AI. How can I help you today?</p>
+								<RichText
+									value={attributes.greeterMsg}
+									onChange={(newValue) => {
+										setAttributes({ greeterMsg: newValue });
+										console.log(attributes.greeterMsg);
+									}}
+									placeholder="Enter greeter message..."
+									style={{
+										display: 'block',
+										width: '100%',
+										textAlign: 'center',
+										padding: '1rem'
+									}}
+								/>
 								<div {...messageSeederProps}>
 									{attributes.chatMessageSeederItems?.map((item, index) => (
 										<div
