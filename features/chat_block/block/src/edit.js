@@ -225,6 +225,26 @@ export default function Edit({
 							<div className="contentoracle-ai_panelbody_input_container">
 								<label
 									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
+									htmlFor={`wp-block-chat_preview_mode_${iid}`}
+									style={{ marginBottom: '0.5rem' }}
+								>
+									Show Chat Preview?
+								</label>
+								<input
+									type="checkbox"
+									defaultChecked={attributes.showChatPreview}
+									id={`wp-block-chat_preview_mode_${iid}`}
+									onChange={(event) => {
+										setAttributes({ showChatPreview: event.target.checked });
+									}}
+								></input>
+							</div>
+						</div>
+
+						<div className="contentoracle-ai_panelbody_group">
+							<div className="contentoracle-ai_panelbody_input_container">
+								<label
+									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
 									htmlFor={`wp-block-chat_height_${iid}`}>
 									Height
 								</label>
@@ -322,26 +342,6 @@ export default function Edit({
 								></input>
 							</div>
 						</div>
-
-						<div className="contentoracle-ai_panelbody_group">
-							<div className="contentoracle-ai_panelbody_input_container">
-								<label
-									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
-									htmlFor={`wp-block-chat_preview_mode_${iid}`}
-									style={{ marginBottom: '0.5rem' }}
-								>
-									Show Greeter Preview?
-								</label>
-								<input
-									type="checkbox"
-									defaultChecked={attributes.showGreeterPreview}
-									id={`wp-block-chat_preview_mode_${iid}`}
-									onChange={(event) => {
-										setAttributes({ showGreeterPreview: event.target.checked });
-									}}
-								></input>
-							</div>
-						</div>
 					</div>
 				</PanelBody>
 			</InspectorControls>
@@ -361,7 +361,7 @@ export default function Edit({
 					</h3>
 				</div>
 				<div {...chatWindowProps}>
-					{attributes.showGreeterPreview ? (
+					{!attributes.showChatPreview ? (
 						<div {...greeterContainerProps}>
 							<div {...greeterProps}>
 								<RichText
@@ -448,7 +448,13 @@ export default function Edit({
 											padding: '0.25rem 0.5rem',
 											width: 'fit-content',
 											marginTop: '0.5rem',
-											alignSelf: 'center'
+											alignSelf: 'center',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											lineHeight: '1',
+											minWidth: '2rem',
+											minHeight: '2rem'
 										}}
 									>
 										+

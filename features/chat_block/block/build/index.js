@@ -246,6 +246,25 @@ function Edit({
     className: "contentoracle-ai_panelbody_input_container"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
     className: "components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2",
+    htmlFor: `wp-block-chat_preview_mode_${iid}`,
+    style: {
+      marginBottom: '0.5rem'
+    }
+  }, "Show Chat Preview?"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    type: "checkbox",
+    defaultChecked: attributes.showChatPreview,
+    id: `wp-block-chat_preview_mode_${iid}`,
+    onChange: event => {
+      setAttributes({
+        showChatPreview: event.target.checked
+      });
+    }
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "contentoracle-ai_panelbody_group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "contentoracle-ai_panelbody_input_container"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    className: "components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2",
     htmlFor: `wp-block-chat_height_${iid}`
   }, "Height"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
     type: "range",
@@ -335,25 +354,6 @@ function Edit({
         scrollBlockIntoView: event.target.checked
       });
     }
-  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "contentoracle-ai_panelbody_group"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
-    className: "contentoracle-ai_panelbody_input_container"
-  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
-    className: "components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2",
-    htmlFor: `wp-block-chat_preview_mode_${iid}`,
-    style: {
-      marginBottom: '0.5rem'
-    }
-  }, "Show Greeter Preview?"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
-    type: "checkbox",
-    defaultChecked: attributes.showGreeterPreview,
-    id: `wp-block-chat_preview_mode_${iid}`,
-    onChange: event => {
-      setAttributes({
-        showGreeterPreview: event.target.checked
-      });
-    }
   })))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...blockProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -370,7 +370,7 @@ function Edit({
     }
   }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...chatWindowProps
-  }, attributes.showGreeterPreview ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  }, !attributes.showChatPreview ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...greeterContainerProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...greeterProps
@@ -458,7 +458,13 @@ function Edit({
       padding: '0.25rem 0.5rem',
       width: 'fit-content',
       marginTop: '0.5rem',
-      alignSelf: 'center'
+      alignSelf: 'center',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      lineHeight: '1',
+      minWidth: '2rem',
+      minHeight: '2rem'
     }
   }, "+")))) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...userMsgProps
