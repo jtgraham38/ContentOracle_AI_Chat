@@ -167,6 +167,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                             <div 
                                 class="contentoracle-ai_chat_message_seeder_item"
                                 coai-x-on:click="useChatMessageSeederItem(item)"
+                                style="border-radius: <?php echo esc_attr($sources_border_attrs['inline_styles']['border-radius'] ?? '4px'); ?>"
                             >
                                 <span coai-x-text="item"></span>
                             </div>

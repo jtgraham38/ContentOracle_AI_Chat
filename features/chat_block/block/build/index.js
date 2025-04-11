@@ -457,7 +457,8 @@ function Edit({
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between'
+      justifyContent: 'space-between',
+      borderRadius: borderProps?.style?.borderRadius
     }
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
     value: item,

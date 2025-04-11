@@ -446,7 +446,8 @@ export default function Edit({
 												cursor: 'pointer',
 												display: 'flex',
 												alignItems: 'center',
-												justifyContent: 'space-between'
+												justifyContent: 'space-between',
+												borderRadius: borderProps?.style?.borderRadius,
 											}}
 										>
 											<RichText
