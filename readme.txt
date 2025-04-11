@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.7.1  
-Stable tag: 1.5.2  
+Stable tag: 1.6.0 
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -13,7 +13,10 @@ ContentOracle AI Search seamlessly blends the power of generative AI with your w
 
 ContentOracle AI Chat adds powerful no-code, fully-customizable, content-aware AI chat features to your site. By combining the power of AI with the insights provided by your site content, ContentOracle AI Chat brings your users an unrivaled chat experience.
 
+== Demo! ==
 **Try it Here:** [demo.contentoracleai.com/](https://demo.contentoracleai.com/)  
+
+== Intro ==
 
 https://youtu.be/W9pr_weJHWA
 
@@ -84,6 +87,12 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.6.0 =
+* Added a greeter section to help your visitors get the convesation started.
+* You can now configure suggested starting messages for your visitors.
+* Made button background and text colors configurable independently of border and text styles in the chat block.
+* Fixed several styling bugs.
+
 = 1.5.2 =
 * Fix outputting of content supplied.
 * Updates to readme.txt
@@ -130,6 +139,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.6.0 =
+Full reverse compatibility, but upgrade for new features.
 
 = 1.5.0 =  
 Upgrade to ensure compatibility with future artifacts.  
