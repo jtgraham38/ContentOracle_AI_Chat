@@ -154,6 +154,30 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
 		style="<?php echo esc_attr( $chat_body_inline_styles ) ?>"
         coai-x-ref="chatBody"
 	>
+
+        <template coai-x-if="conversation.length == 0">
+            <div class="contentoracle-ai_chat_greeter_container">
+                <div class="contentoracle-ai_chat_greeter">
+                    <p
+
+                    >
+                        Hello! I'm ContentOracle AI. How can I help you today?
+                    </p>
+                    <div class="contentoracle-ai_chat_message_seeder">
+                        <div class="contentoracle-ai_chat_message_seeder_item">
+                            hooba
+                        </div>
+                        <div class="contentoracle-ai_chat_message_seeder_item">
+                            hooba
+                        </div>
+                        <div class="contentoracle-ai_chat_message_seeder_item">
+                            hooba
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
         <template coai-x-for="( chat, i ) in conversation" >
             <div
                 class="contentoracle-ai_chat_bubble"
