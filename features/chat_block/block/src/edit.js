@@ -48,7 +48,7 @@ export default function Edit({
 	const blockProps = useBlockProps({
 		className: 'contentoracle-ai_chat_root'
 	});
-	//console.log(blockProps);
+
 	const borderProps = useBorderProps(attributes);
 	//console.log(borderProps);
 	//add border classes to the block props classes
@@ -91,15 +91,61 @@ export default function Edit({
 	}
 
 	//make button props
+	function convertBtnBGColorPresetToClassName(preset) {
+		//pull out the preset name from the preset string
+		var presetName = preset.replace('var:preset|color|', '');
+		//return the class name
+		return `has-background has-${presetName}-background-color`;
+	}
+	function convertBtnTextColorPresetToClassName(preset) {
+		//pull out the preset name from the preset string
+		var presetName = preset.replace('var:preset|color|', '');
+		//return the class name
+		return `has-text-color has-${presetName}-color`;
+	}
+	var btn_backgroundColorIsClass = false;
+	var btn_text_colorIsClass = false;
+	var btn_backgroundColor = attributes?.style?.elements?.button?.color?.background;
+	var btn_text_color = attributes?.style?.elements?.button?.color?.text;
+
+	//check if the button background color is a preset color
+	if (btn_backgroundColor.startsWith('var:preset|color|')) {
+		btn_backgroundColorIsClass = true;
+		btn_backgroundColor = convertBtnBGColorPresetToClassName(btn_backgroundColor);
+	}
+	if (btn_text_color.startsWith('var:preset|color|')) {
+		btn_text_colorIsClass = true;
+		btn_text_color = convertBtnTextColorPresetToClassName(btn_text_color);
+	}
+
+
+	//check if the button text color is a preset color
+
+
+	console.log(btn_backgroundColor);
+	console.log(btn_text_color);
+
+	//define button props
 	const buttonProps = {
 		className: 'contentoracle-ai_chat_button',
 		style: {
 			borderRadius: borderProps?.style?.borderRadius,
-			backgroundColor: borderProps?.style?.borderColor,
-			color: blockProps?.style?.textColor
-
 		}
 	}
+
+	//conditionally add the background color class to the button props
+	if (btn_backgroundColorIsClass) {
+		buttonProps.className += ' ' + btn_backgroundColor;
+	} else {
+		buttonProps.style.backgroundColor = btn_backgroundColor;
+	}
+	if (btn_text_colorIsClass) {
+		buttonProps.className += ' ' + btn_text_color;
+	} else {
+		buttonProps.style.color = btn_text_color;
+	}
+
+	console.log(buttonProps);
 
 	//make header props
 	const labelProps = {

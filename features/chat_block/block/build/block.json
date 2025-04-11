@@ -61,7 +61,7 @@
     },
     "greeterMsg": {
       "type": "string",
-      "default": "Hello! I'm ContentOracle AI. How can I help you today?"
+      "default": "Hello! I'm ContentOracle AI Chat. How can I help you today?"
     },
     "chatMessageSeederItems": {
       "type": "array",
@@ -91,7 +91,8 @@
   "supports": {
     "color": {
       "background": true,
-      "text": true
+      "text": true,
+      "button": true
     },
     "__experimentalBorder": {
       "color": true,
