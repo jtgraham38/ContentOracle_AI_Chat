@@ -363,6 +363,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					return innerText;
 			}
 		})
+
 		return artifacts_rendered;
 	},
 	//scrolls to the bottom of the chat

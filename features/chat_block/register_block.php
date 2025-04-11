@@ -92,13 +92,12 @@ class ContentOracleAiBlock extends PluginFeature{
             $border_styles = contentoracle_ai_chat_block_get_border_attrs($attributes)['inline_styles'];
             $border_width = $border_styles['border-width'];
             $border_radius = $border_styles['border-radius'];
-            $border_color = $border_styles['border-color'] ?? "";
+            $border_color = $border_styles['border-color'] ?? "none";
 
             //get button color and text color
-            $button_styles = contentoracle_ai_chat_block_get_color_attrs($attributes)['inline_styles'];
-            $button_bg = $border_color;
-            $button_text = $button_styles['color'] ?? "";
-
+            $button_styles = contentoracle_ai_chat_block_get_button_attrs($attributes)['inline_styles'];
+            $button_bg = $button_styles['background-color'] ?? $border_color;
+            $button_text = $button_styles['color'] ?? "none";
 
             $style_string = sprintf('
                 .contentoracle-ai_chat_bubble_user {
