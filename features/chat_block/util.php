@@ -125,6 +125,9 @@ function contentoracle_ai_chat_block_get_button_attrs($attributes){
     $classnames = [];
     $inline_styles = [];
 
+    //make a style parser
+    $style_parser = new BlockStyle($attributes);
+
     //get border attributes
     $border_attrs = contentoracle_ai_chat_block_get_border_attrs($attributes);
     
@@ -133,32 +136,60 @@ function contentoracle_ai_chat_block_get_button_attrs($attributes){
         $inline_styles['border-radius'] = $border_attrs['inline_styles']['border-radius'];
     }
 
-    //apply the border color as the button bg color
-    //check for inline style first
-    if (array_key_exists('border-color', $border_attrs['inline_styles'])) {
-        $inline_styles['background-color'] = $border_attrs['inline_styles']['border-color'];
+    //lets get the background color
+    //get the button color, applying the border color as a fallback
+    $button_bg_color = $style_parser->btnBgColor();
+    if (isset($button_bg_color->value)) {
+        //check if the button bg color is a preset color
+        if ($button_bg_color->isPreset) {
+            $classnames[] = 'has-background';
+            $classnames[] = $style_parser->presetVarToClass($button_bg_color->value, 'has-', '-background-color');
+        }
+        //otherwise, use the raw value
+        else{
+            $inline_styles['background-color'] = $button_bg_color->value;
+        }
     }
-    //otherwise, check for classnames
-    else if (in_array('has-border-color', $border_attrs['classnames'])) {
-        $classnames[] = 'has-background';
-
-        foreach ($border_attrs['classnames'] as $classname) {
-            if (preg_match('/has-((?!border-color)[a-z]+|[a-z]+-\d+)-border-color/', $classname, $matches)) {
-                $classnames[] = 'has-' . $matches[1] . '-background-color';
+    //otherwise use the border color as the button bg color
+    else{
+        if (array_key_exists('border-color', $border_attrs['inline_styles'])) {
+            $inline_styles['background-color'] = $border_attrs['inline_styles']['border-color'];
+        }
+        //otherwise, check for classnames
+        else if (in_array('has-border-color', $border_attrs['classnames'])) {
+            $classnames[] = 'has-background';
+    
+            foreach ($border_attrs['classnames'] as $classname) {
+                if (preg_match('/has-((?!border-color)[a-z]+|[a-z]+-\d+)-border-color/', $classname, $matches)) {
+                    $classnames[] = 'has-' . $matches[1] . '-background-color';
+                }
             }
         }
     }
-
-    //get the color attributes
-    $color_attrs = contentoracle_ai_chat_block_get_color_attrs($attributes);
-
-    //apply only the text color
-    if (in_array('has-text-color', $color_attrs['classnames'])) {
-        $classnames[] = 'has-text-color';
-        $classnames[] = preg_grep('/has-((?!text-color)[a-z]+|[a-z]+-\d+)-color/', $color_attrs['classnames'])[1] ?? 'contrast';
-
-    } else if (array_key_exists('color', $color_attrs['inline_styles'])) {
-        $inline_styles['color'] = $color_attrs['inline_styles']['color'];
+    
+    //now, we apply the text color
+    $button_text_color = $style_parser->btnTextColor();
+    if (isset($button_text_color->value)) {
+        //check if the button text color is a preset color
+        if ($button_text_color->isPreset) {
+            $classnames[] = 'has-text-color';
+            $classnames[] = $style_parser->presetVarToClass($button_text_color->value, 'has-', '-color');
+        }
+        //otherwise, use the raw value
+        else{
+            $inline_styles['color'] = $button_text_color->value;
+        }
+    }
+    //if nothing was found, apply the text color of the block to the button
+    else{
+        //apply only the text color
+        if (in_array('has-text-color', $color_attrs['classnames'])) {
+            $classnames[] = 'has-text-color';
+            $classnames[] = preg_grep('/has-((?!text-color)[a-z]+|[a-z]+-\d+)-color/', $color_attrs['classnames'])[1] ?? 'contrast';
+    
+        } else if (array_key_exists('color', $color_attrs['inline_styles'])) {
+            $inline_styles['color'] = $color_attrs['inline_styles']['color'];
+        }
     }
 
     //return the classnames and inline styles

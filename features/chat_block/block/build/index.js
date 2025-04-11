@@ -140,12 +140,6 @@ function Edit({
     btn_text_colorIsClass = true;
     btn_text_color = convertBtnTextColorPresetToClassName(btn_text_color);
   }
-
-  //check if the button text color is a preset color
-
-  console.log(btn_backgroundColor);
-  console.log(btn_text_color);
-
   //define button props
   const buttonProps = {
     className: 'contentoracle-ai_chat_button',
