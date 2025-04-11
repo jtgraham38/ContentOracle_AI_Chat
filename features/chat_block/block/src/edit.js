@@ -160,9 +160,6 @@ export default function Edit({
 		}
 	}
 
-
-	console.log(buttonProps);
-
 	//make header props
 	const labelProps = {
 		className: 'contentoracle-ai_chat_header',
@@ -430,7 +427,6 @@ export default function Edit({
 									value={attributes.greeterMsg}
 									onChange={(newValue) => {
 										setAttributes({ greeterMsg: newValue });
-										console.log(attributes.greeterMsg);
 									}}
 									placeholder="Enter greeter message..."
 									style={{

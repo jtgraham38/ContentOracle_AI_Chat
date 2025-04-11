@@ -11,9 +11,9 @@ require_once plugin_dir_path(__FILE__) . '../../../../vendor/autoload.php';
 //use jtgraham38\jgwordpressstyle\BlockStyle;
 
 //echo the volors
-echo "<pre>";
-print_r($attributes);
-echo "</pre>";
+// echo "<pre>";
+// print_r($attributes);
+// echo "</pre>";
 
 
 //get the instance id

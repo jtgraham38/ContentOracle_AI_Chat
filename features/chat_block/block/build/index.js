@@ -182,7 +182,6 @@ function Edit({
       buttonProps.style.color = btn_text_color;
     }
   }
-  console.log(buttonProps);
 
   //make header props
   const labelProps = {
@@ -440,7 +439,6 @@ function Edit({
       setAttributes({
         greeterMsg: newValue
       });
-      console.log(attributes.greeterMsg);
     },
     placeholder: "Enter greeter message...",
     style: {

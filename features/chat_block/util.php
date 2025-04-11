@@ -291,34 +291,40 @@ function contentoracle_ai_chat_block_get_color_attrs($attributes) {
     $text_color = $style_parser->textColor();
 
     //get class or inline style of background color
-    if ($background_color->isPreset) {
-        $classnames[] = "has-background";
-        $classnames[] = "has-" . $background_color->value . "-background-color";
-    } else {
-        //if the background color is a css variable, use that
-        if (str_contains($background_color->value ?? "", 'var:preset|color|')){
-            $named_color_value = substr( $background_color->value, strrpos( $background_color->value, '|' ) + 1 );
-            $inline_styles['background-color'] = sprintf( 'var(--wp--preset--color--%s)', $named_color_value );
-        }
-        //otherwise, use the raw value
-        else{
-            $inline_styles['background-color'] = $background_color->value;
+    if (isset($background_color->value)) {
+        if ($background_color->isPreset) {
+            $classnames[] = "has-background";
+            $classnames[] = "has-" . $background_color->value . "-background-color";
+        } else {
+            //if the background color is a css variable, use that
+            if (str_contains($background_color->value ?? "", 'var:preset|color|')){
+                $named_color_value = substr( $background_color->value, strrpos( $background_color->value, '|' ) + 1 );
+                $inline_styles['background-color'] = sprintf( 'var(--wp--preset--color--%s)', $named_color_value );
+            }
+            //otherwise, use the raw value
+            else{
+                if (isset($background_color->value)) {
+                $inline_styles['background-color'] = $background_color->value;
+                }
+            }
         }
     }
 
     //get class or inline style of text color
-    if ($text_color->isPreset) {
-        $classnames[] = "has-text-color";
-        $classnames[] = "has-" . $text_color->value . "-color";
-    } else {
-        //if the text color is a css variable, use that
-        if (str_contains($text_color->value, 'var:preset|color|')){
-            $named_color_value = substr( $text_color->value, strrpos( $text_color->value, '|' ) + 1 );
-            $inline_styles['color'] = sprintf( 'var(--wp--preset--color--%s)', $named_color_value );
-        }
-        //otherwise, use the raw value
-        else{
-            $inline_styles['color'] = $text_color->value;
+    if (isset($text_color->value)) {
+        if ($text_color->isPreset) {
+            $classnames[] = "has-text-color";
+            $classnames[] = "has-" . $text_color->value . "-color";
+        } else {
+            //if the text color is a css variable, use that
+            if (str_contains($text_color->value, 'var:preset|color|')){
+                $named_color_value = substr( $text_color->value, strrpos( $text_color->value, '|' ) + 1 );
+                $inline_styles['color'] = sprintf( 'var(--wp--preset--color--%s)', $named_color_value );
+            }
+            //otherwise, use the raw value
+            else{
+                $inline_styles['color'] = $text_color->value;
+            }
         }
     }
 
