@@ -344,18 +344,24 @@ function contentoracle_ai_chat_block_get_border_attrs($attributes) {
     $border_radius = $style_parser->borderRadius();
 
     //get class or inline style of color
-    if ($border_color->isPreset) {
-        $classnames[] = "has-border-color";
-        $classnames[] = "has-" . $border_color->value . "-border-color";
-    } else {
-        $inline_styles['border-color'] = $border_color->value;
+    if (isset($border_color->value)) {
+        if ($border_color->isPreset) {
+            $classnames[] = "has-border-color";
+            $classnames[] = "has-" . $border_color->value . "-border-color";
+        } else {
+            $inline_styles['border-color'] = $border_color->value;
+        }
     }
 
     //border widht should be inline style
-    $inline_styles['border-width'] = $border_width->value;
+    if (isset($border_width->value)) {
+        $inline_styles['border-width'] = $border_width->value;
+    }
 
     //border radius should be inline style
-    $inline_styles['border-radius'] = $border_radius->value;
+    if (isset($border_radius->value)) {
+        $inline_styles['border-radius'] = $border_radius->value;
+    }
 
     //return the classnames and inline styles
     return [
