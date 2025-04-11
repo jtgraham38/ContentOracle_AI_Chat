@@ -222,6 +222,21 @@ function Edit({
     }
   };
 
+  //make greeter container props
+  const greeterContainerProps = {
+    className: 'contentoracle-ai_chat_greeter_container'
+  };
+
+  //make greeter props
+  const greeterProps = {
+    className: 'contentoracle-ai_chat_greeter'
+  };
+
+  //make message seeder props
+  const messageSeederProps = {
+    className: 'contentoracle-ai_chat_message_seeder'
+  };
+
   //return the editor markup
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     className: "contentoracle-ai_panelbody_root"
@@ -320,6 +335,25 @@ function Edit({
         scrollBlockIntoView: event.target.checked
       });
     }
+  }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    class: "contentoracle-ai_panelbody_group"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    className: "contentoracle-ai_panelbody_input_container"
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("label", {
+    className: "components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2",
+    htmlFor: `wp-block-chat_preview_mode_${iid}`,
+    style: {
+      marginBottom: '0.5rem'
+    }
+  }, "Show Greeter Preview?"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    type: "checkbox",
+    defaultChecked: attributes.showGreeterPreview,
+    id: `wp-block-chat_preview_mode_${iid}`,
+    onChange: event => {
+      setAttributes({
+        showGreeterPreview: event.target.checked
+      });
+    }
   })))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...blockProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
@@ -336,7 +370,82 @@ function Edit({
     }
   }))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...chatWindowProps
+  }, attributes.showGreeterPreview ? (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    ...greeterContainerProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    ...greeterProps
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "Hello! I'm ContentOracle AI. How can I help you today?"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    ...messageSeederProps
+  }, attributes.chatMessageSeederItems?.map((item, index) => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    key: index,
+    className: "contentoracle-ai_chat_message_seeder_item",
+    style: {
+      padding: '0.5rem',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    }
+  }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
+    value: item,
+    onChange: newValue => {
+      const newItems = [...attributes.chatMessageSeederItems];
+      newItems[index] = newValue;
+      setAttributes({
+        chatMessageSeederItems: newItems
+      });
+    },
+    placeholder: "Enter message seeder item...",
+    style: {
+      display: 'block',
+      width: '100%',
+      background: 'none',
+      border: 'none',
+      color: 'inherit',
+      padding: 0,
+      margin: 0
+    }
+  }), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: e => {
+      e.stopPropagation();
+      const newItems = [...attributes.chatMessageSeederItems];
+      newItems.splice(index, 1);
+      setAttributes({
+        chatMessageSeederItems: newItems
+      });
+    },
+    style: {
+      background: 'none',
+      border: 'none',
+      color: 'inherit',
+      cursor: 'pointer',
+      fontSize: '1.2rem',
+      padding: '0 0.25rem',
+      opacity: 0.7,
+      '&:hover': {
+        opacity: 1
+      }
+    }
+  }, "\u2212"))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("button", {
+    onClick: () => {
+      const newItems = [...(attributes.chatMessageSeederItems || []), ''];
+      setAttributes({
+        chatMessageSeederItems: newItems
+      });
+    },
+    style: {
+      background: 'none',
+      border: '1px solid #ccc',
+      borderRadius: '4px',
+      color: 'inherit',
+      cursor: 'pointer',
+      fontSize: '1.5rem',
+      padding: '0.25rem 0.5rem',
+      width: 'fit-content',
+      marginTop: '0.5rem',
+      alignSelf: 'center'
+    }
+  }, "+")))) : (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...userMsgProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("p", null, "How do I grow a tomato plant?")), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...botMsgProps
@@ -361,7 +470,7 @@ function Edit({
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", null, "The Best Soil for Growing Tomatos"), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("a", {
     href: "#",
     ...footerCitationLinkProps
-  }, "\u2192")))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+  }, "\u2192"))))))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
     ...inputContainerProps
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("span", {
     className: "contentoracle-ai_chat_input_wrapper"
@@ -545,7 +654,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-chat","version":"0.1.0","title":"Contentoracle Ai Chat","category":"contentoracle","icon":"smiley","description":"Let your users chat with ai, and show ai search results with your site\'s custom content.","example":{},"keywords":["chat","ai","contentoracle","search","searchbar","query","answer","question"],"attributes":{"header":{"type":"string","default":"ContentOracle Ai Chat"},"placeholder":{"type":"string","default":"Ask me anything..."},"buttonText":{"type":"string","default":"Send"},"height":{"type":"string","default":"20rem"},"botMsgBgColor":{"type":"string","default":"#d1d1d1"},"botMsgTextColor":{"type":"string","default":"#111111"},"userMsgBgColor":{"type":"string","default":"#3232fd"},"userMsgTextColor":{"type":"string","default":"#eeeeff"},"streamResponses":{"type":"boolean","default":true},"scrollBlockIntoView":{"type":"boolean","default":true}},"selectors":{"root":".contentoracle-ai_chat_root","input_container":".contentoracle-ai_chat_input_container","input":".contentoracle-ai_chat_input","button":".contentoracle-ai_chat_button","conversation":".contentoracle-ai_chat_conversation","label":".contentoracle-ai_chat_label","header":".contentoracle-ai_chat_header","inline_citation":".contentoracle-inline_citation","source_list":".contentoracle-source_list","footer_citation":".contentoracle-footer_citation","footer_citation_link":".contentoracle-footer_citation_link","action_container":".contentoracle-action_container","action_label":".contentoracle-action_label","action_button":".contentoracle-action_button","action_excerpt":".contentoracle-action_excerpt","action_image":".contentoracle-action_image"},"supports":{"color":{"background":true,"text":true},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"spacing":{"margin":true,"padding":true},"html":false},"textdomain":"contentoracle-ai-chat-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScriptModule":"file:./view.js"}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"contentoracle/ai-chat","version":"0.1.0","title":"Contentoracle Ai Chat","category":"contentoracle","icon":"smiley","description":"Let your users chat with ai, and show ai search results with your site\'s custom content.","example":{},"keywords":["chat","ai","contentoracle","search","searchbar","query","answer","question"],"attributes":{"header":{"type":"string","default":"ContentOracle Ai Chat"},"placeholder":{"type":"string","default":"Ask me anything..."},"buttonText":{"type":"string","default":"Send"},"height":{"type":"string","default":"20rem"},"botMsgBgColor":{"type":"string","default":"#d1d1d1"},"botMsgTextColor":{"type":"string","default":"#111111"},"userMsgBgColor":{"type":"string","default":"#3232fd"},"userMsgTextColor":{"type":"string","default":"#eeeeff"},"streamResponses":{"type":"boolean","default":true},"scrollBlockIntoView":{"type":"boolean","default":true},"chatMessageSeederItems":{"type":"array","default":["hello there"]}},"selectors":{"root":".contentoracle-ai_chat_root","input_container":".contentoracle-ai_chat_input_container","input":".contentoracle-ai_chat_input","button":".contentoracle-ai_chat_button","conversation":".contentoracle-ai_chat_conversation","label":".contentoracle-ai_chat_label","header":".contentoracle-ai_chat_header","inline_citation":".contentoracle-inline_citation","source_list":".contentoracle-source_list","footer_citation":".contentoracle-footer_citation","footer_citation_link":".contentoracle-footer_citation_link","action_container":".contentoracle-action_container","action_label":".contentoracle-action_label","action_button":".contentoracle-action_button","action_excerpt":".contentoracle-action_excerpt","action_image":".contentoracle-action_image"},"supports":{"color":{"background":true,"text":true},"__experimentalBorder":{"color":true,"radius":true,"width":true,"__experimentalSkipSerialization":true,"__experimentalDefaultControls":{"color":true,"radius":true,"width":true}},"border":{"radius":true,"color":true},"spacing":{"margin":true,"padding":true},"html":false},"textdomain":"contentoracle-ai-chat-block","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScriptModule":"file:./view.js"}');
 
 /***/ })
 

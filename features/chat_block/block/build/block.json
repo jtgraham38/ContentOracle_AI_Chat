@@ -58,6 +58,12 @@
     "scrollBlockIntoView": {
       "type": "boolean",
       "default": true
+    },
+    "chatMessageSeederItems": {
+      "type": "array",
+      "default": [
+        "hello there"
+      ]
     }
   },
   "selectors": {

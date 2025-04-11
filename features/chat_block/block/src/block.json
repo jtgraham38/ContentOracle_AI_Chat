@@ -20,9 +20,9 @@
 	],
 	"attributes": {
 		"header": {
-            "type": "string",
-            "default": "ContentOracle Ai Chat"
-        },
+			"type": "string",
+			"default": "ContentOracle Ai Chat"
+		},
 		"placeholder": {
 			"type": "string",
 			"default": "Ask me anything..."
@@ -58,6 +58,12 @@
 		"scrollBlockIntoView": {
 			"type": "boolean",
 			"default": true
+		},
+		"chatMessageSeederItems": {
+			"type": "array",
+			"default": [
+				"hello there"
+			]
 		}
 	},
 	"selectors": {
@@ -80,9 +86,9 @@
 	},
 	"supports": {
 		"color": {
-            "background": true,
-            "text": true
-        },
+			"background": true,
+			"text": true
+		},
 		"__experimentalBorder": {
 			"color": true,
 			"radius": true,

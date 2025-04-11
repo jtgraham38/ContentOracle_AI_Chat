@@ -52,33 +52,33 @@ export default function Edit({
 	const borderProps = useBorderProps(attributes);
 	//console.log(borderProps);
 	//add border classes to the block props classes
-	if (borderProps?.className){
-		if (blockProps?.className){
+	if (borderProps?.className) {
+		if (blockProps?.className) {
 			blockProps.className += ' ' + borderProps.className;
 		}
-		else{
+		else {
 			blockProps.className = borderProps.className;
 		}
 	}
 
 	//add border styles to the block props styles
-	if (borderProps?.style){
-		if (blockProps?.style){
-			blockProps.style = {...blockProps.style, ...borderProps.style};
+	if (borderProps?.style) {
+		if (blockProps?.style) {
+			blockProps.style = { ...blockProps.style, ...borderProps.style };
 		}
-		else{
+		else {
 			blockProps.style = borderProps.style;
 		}
 	}
-	
+
 	//make input container props
 	const inputContainerProps = {
 		...borderProps
 	}
-	if (inputContainerProps?.className){
+	if (inputContainerProps?.className) {
 		inputContainerProps.className += ' contentoracle-ai_chat_input_container';
 	}
-	else{
+	else {
 		inputContainerProps.className = 'contentoracle-ai_chat_input_container';
 	}
 
@@ -87,7 +87,7 @@ export default function Edit({
 		className: 'contentoracle-ai_chat_input',
 		style: {
 			borderRadius: borderProps?.style?.borderRadius
-		}	
+		}
 	}
 
 	//make button props
@@ -199,175 +199,293 @@ export default function Edit({
 		}
 	}
 
+	//make greeter container props
+	const greeterContainerProps = {
+		className: 'contentoracle-ai_chat_greeter_container',
+	}
+
+	//make greeter props
+	const greeterProps = {
+		className: 'contentoracle-ai_chat_greeter',
+	}
+
+	//make message seeder props
+	const messageSeederProps = {
+		className: 'contentoracle-ai_chat_message_seeder',
+	}
+
 	//return the editor markup
 	return (
 		<>
 			<InspectorControls>
 				<PanelBody>
-				<div className="contentoracle-ai_panelbody_root">
-					<h3>Display Settings</h3>
-					<div className="contentoracle-ai_panelbody_group">
-						<div className="contentoracle-ai_panelbody_input_container">
-							<label 
-								className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2" 
-								htmlFor={`wp-block-chat_height_${iid}`}>
-								Height
-							</label>
-							<input 
-								type="range" 
-								min="10" 
-								max="80" 
-								step="1"
-								defaultValue={ parseInt(attributes.height.slice(0,-3)) }
-								id={`wp-block-chat_height_${iid}`}
-								onChange={ ( event ) => {
-									setAttributes( { height: event.target.value + "rem" } );
-								} }
-							></input>
+					<div className="contentoracle-ai_panelbody_root">
+						<h3>Display Settings</h3>
+						<div className="contentoracle-ai_panelbody_group">
+							<div className="contentoracle-ai_panelbody_input_container">
+								<label
+									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
+									htmlFor={`wp-block-chat_height_${iid}`}>
+									Height
+								</label>
+								<input
+									type="range"
+									min="10"
+									max="80"
+									step="1"
+									defaultValue={parseInt(attributes.height.slice(0, -3))}
+									id={`wp-block-chat_height_${iid}`}
+									onChange={(event) => {
+										setAttributes({ height: event.target.value + "rem" });
+									}}
+								></input>
+							</div>
+							<p>{attributes?.height || "-"} </p>
 						</div>
-						<p>{ attributes?.height || "-" } </p>
-					</div>
 
-					<div className="contentoracle-ai_panelbody_group">
-						<div className="contentoracle-ai_panelbody_input_container">
-							<PanelColorSettings
-								title="Bot Message Colors"
-								initialOpen={true}
-								id={`contentoracle-ai_chat_bot_msg_background_color_${iid}`}
-								colorSettings={[
-									{
-										value: attributes?.botMsgBgColor,
-										onChange: (color) => setAttributes({ botMsgBgColor: color }),
-										label: 'Bot Background Color',
-									},
-									{
-										value: attributes?.botMsgTextColor,
-										onChange: (color) => setAttributes({ botMsgTextColor: color }),
-										label: 'Bot Text Color',
-									}
-								]}
-							/>
+						<div className="contentoracle-ai_panelbody_group">
+							<div className="contentoracle-ai_panelbody_input_container">
+								<PanelColorSettings
+									title="Bot Message Colors"
+									initialOpen={true}
+									id={`contentoracle-ai_chat_bot_msg_background_color_${iid}`}
+									colorSettings={[
+										{
+											value: attributes?.botMsgBgColor,
+											onChange: (color) => setAttributes({ botMsgBgColor: color }),
+											label: 'Bot Background Color',
+										},
+										{
+											value: attributes?.botMsgTextColor,
+											onChange: (color) => setAttributes({ botMsgTextColor: color }),
+											label: 'Bot Text Color',
+										}
+									]}
+								/>
 
-							<PanelColorSettings
-								title="User Message Colors"
-								initialOpen={true}
-								id={`contentoracle-ai_chat_user_msg_background_color_${iid}`}
-								colorSettings={[
-									{
-										value: attributes?.userMsgBgColor,
-										onChange: (color) => setAttributes({ userMsgBgColor: color }),
-										label: 'User Background Color',
-									},
-									{
-										value: attributes?.userMsgTextColor,
-										onChange: (color) => setAttributes({ userMsgTextColor: color }),
-										label: 'User Text Color',
-									}
-								]}
-							/>
+								<PanelColorSettings
+									title="User Message Colors"
+									initialOpen={true}
+									id={`contentoracle-ai_chat_user_msg_background_color_${iid}`}
+									colorSettings={[
+										{
+											value: attributes?.userMsgBgColor,
+											onChange: (color) => setAttributes({ userMsgBgColor: color }),
+											label: 'User Background Color',
+										},
+										{
+											value: attributes?.userMsgTextColor,
+											onChange: (color) => setAttributes({ userMsgTextColor: color }),
+											label: 'User Text Color',
+										}
+									]}
+								/>
+							</div>
+						</div>
+
+						<div class="contentoracle-ai_panelbody_group">
+							<div className="contentoracle-ai_panelbody_input_container">
+								<label
+									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
+									htmlFor={`wp-block-chat_placeholder_${iid}`}
+									style={{ marginBottom: '0.5rem' }}
+								>
+									Stream Responses?
+								</label>
+								<input
+									type="checkbox"
+									defaultChecked={attributes.streamResponses}
+									id={`wp-block-chat_placeholder_${iid}`}
+									onChange={(event) => {
+										setAttributes({ streamResponses: event.target.checked });
+									}}
+								></input>
+							</div>
+						</div>
+
+						<div class="contentoracle-ai_panelbody_group">
+							<div className="contentoracle-ai_panelbody_input_container">
+								<label
+									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
+									htmlFor={`wp-block-chat_placeholder_${iid}`}
+									style={{ marginBottom: '0.5rem' }}
+								>
+									Auto-scroll to this block on page load?
+								</label>
+								<input
+									type="checkbox"
+									defaultChecked={attributes.scrollBlockIntoView}
+									id={`wp-block-chat_placeholder_${iid}`}
+									onChange={(event) => {
+										setAttributes({ scrollBlockIntoView: event.target.checked });
+									}}
+								></input>
+							</div>
+						</div>
+
+						<div class="contentoracle-ai_panelbody_group">
+							<div className="contentoracle-ai_panelbody_input_container">
+								<label
+									className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2"
+									htmlFor={`wp-block-chat_preview_mode_${iid}`}
+									style={{ marginBottom: '0.5rem' }}
+								>
+									Show Greeter Preview?
+								</label>
+								<input
+									type="checkbox"
+									defaultChecked={attributes.showGreeterPreview}
+									id={`wp-block-chat_preview_mode_${iid}`}
+									onChange={(event) => {
+										setAttributes({ showGreeterPreview: event.target.checked });
+									}}
+								></input>
+							</div>
 						</div>
 					</div>
-
-					<div class="contentoracle-ai_panelbody_group">
-						<div className="contentoracle-ai_panelbody_input_container">
-							<label 
-								className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2" 
-								htmlFor={`wp-block-chat_placeholder_${iid}`}
-								style={{marginBottom: '0.5rem'}}
-							>
-								Stream Responses?
-							</label>
-							<input 
-								type="checkbox" 
-								defaultChecked={ attributes.streamResponses }
-								id={`wp-block-chat_placeholder_${iid}`}
-								onChange={ ( event ) => {
-									setAttributes( { streamResponses: event.target.checked } );
-								} }
-							></input>
-						</div>
-					</div>
-
-					<div class="contentoracle-ai_panelbody_group">
-						<div className="contentoracle-ai_panelbody_input_container">
-							<label 
-								className="components-base-control__label aceef-fb-c-f-cfc-1v57ksj ej5x27r2" 
-								htmlFor={`wp-block-chat_placeholder_${iid}`}
-								style={{marginBottom: '0.5rem'}}
-							>
-								Auto-scroll to this block on page load?
-							</label>
-							<input 
-								type="checkbox" 
-								defaultChecked={ attributes.scrollBlockIntoView }
-								id={`wp-block-chat_placeholder_${iid}`}
-								onChange={ ( event ) => {
-									setAttributes( { scrollBlockIntoView: event.target.checked } );
-								} }
-							></input>
-						</div>
-					</div>
-				</div>
 				</PanelBody>
 			</InspectorControls>
 
 
-			<div { ...blockProps }>
+			<div {...blockProps}>
 
 				<div className='contentoracle-ai_chat_header'>
-					<h3 { ...labelProps }>
-					<RichText
-						placeholder="AI Chat header here..."
-						value={ attributes.header }
-						onChange={ ( newValue ) => {
-							setAttributes( { header: newValue } );
-						} }
-					></RichText>
+					<h3 {...labelProps}>
+						<RichText
+							placeholder="AI Chat header here..."
+							value={attributes.header}
+							onChange={(newValue) => {
+								setAttributes({ header: newValue });
+							}}
+						></RichText>
 					</h3>
 				</div>
-				<div { ...chatWindowProps }>
-					<div { ...userMsgProps }>
-						<p>How do I grow a tomato plant?</p>
-					</div>
-
-					<div { ...botMsgProps }>
-						<p>Tomato plants grow best in full sun, in soil that is rich in organic matter, and well-drained.<sup {...inlineCitationLinkProps } >1</sup>  They need a lot of water, but not too much. They also need a lot of nutrients, so you should fertilize them regularly. You should also prune them regularly to keep them healthy and productive. If you follow these tips, you should have a healthy and productive tomato plant.</p>
-						
-						<div style={{padding: '0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-							<span style={{fontSize: 'larger', width: '100%'}}>Sources</span>
-							<ol { ...footerCitationListProps }>
-								<li className="contentoracle-footer_citation">
-									<span>The Best Soil for Growing Tomatos</span>
-									<a href="#" { ...footerCitationLinkProps } >→</a>
-								</li>
-							</ol>
+				<div {...chatWindowProps}>
+					{attributes.showGreeterPreview ? (
+						<div {...greeterContainerProps}>
+							<div {...greeterProps}>
+								<p>Hello! I'm ContentOracle AI. How can I help you today?</p>
+								<div {...messageSeederProps}>
+									{attributes.chatMessageSeederItems?.map((item, index) => (
+										<div
+											key={index}
+											className="contentoracle-ai_chat_message_seeder_item"
+											style={{
+												padding: '0.5rem',
+												cursor: 'pointer',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'space-between'
+											}}
+										>
+											<RichText
+												value={item}
+												onChange={(newValue) => {
+													const newItems = [...attributes.chatMessageSeederItems];
+													newItems[index] = newValue;
+													setAttributes({ chatMessageSeederItems: newItems });
+												}}
+												placeholder="Enter message seeder item..."
+												style={{
+													display: 'block',
+													width: '100%',
+													background: 'none',
+													border: 'none',
+													color: 'inherit',
+													padding: 0,
+													margin: 0
+												}}
+											/>
+											<button
+												onClick={(e) => {
+													e.stopPropagation();
+													const newItems = [...attributes.chatMessageSeederItems];
+													newItems.splice(index, 1);
+													setAttributes({ chatMessageSeederItems: newItems });
+												}}
+												style={{
+													background: 'none',
+													border: 'none',
+													color: 'inherit',
+													cursor: 'pointer',
+													fontSize: '1.2rem',
+													padding: '0 0.25rem',
+													opacity: 0.7,
+													'&:hover': {
+														opacity: 1
+													}
+												}}
+											>
+												−
+											</button>
+										</div>
+									))}
+									<button
+										onClick={() => {
+											const newItems = [...(attributes.chatMessageSeederItems || []), ''];
+											setAttributes({ chatMessageSeederItems: newItems });
+										}}
+										style={{
+											background: 'none',
+											border: '1px solid #ccc',
+											borderRadius: '4px',
+											color: 'inherit',
+											cursor: 'pointer',
+											fontSize: '1.5rem',
+											padding: '0.25rem 0.5rem',
+											width: 'fit-content',
+											marginTop: '0.5rem',
+											alignSelf: 'center'
+										}}
+									>
+										+
+									</button>
+								</div>
+							</div>
 						</div>
+					) : (
+						<>
+							<div {...userMsgProps}>
+								<p>How do I grow a tomato plant?</p>
+							</div>
 
+							<div {...botMsgProps}>
+								<p>Tomato plants grow best in full sun, in soil that is rich in organic matter, and well-drained.<sup {...inlineCitationLinkProps} >1</sup>  They need a lot of water, but not too much. They also need a lot of nutrients, so you should fertilize them regularly. You should also prune them regularly to keep them healthy and productive. If you follow these tips, you should have a healthy and productive tomato plant.</p>
 
-					</div>
-
+								<div style={{ padding: '0.25rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+									<span style={{ fontSize: 'larger', width: '100%' }}>Sources</span>
+									<ol {...footerCitationListProps}>
+										<li className="contentoracle-footer_citation">
+											<span>The Best Soil for Growing Tomatos</span>
+											<a href="#" {...footerCitationLinkProps} >→</a>
+										</li>
+									</ol>
+								</div>
+							</div>
+						</>
+					)}
 				</div>
-				<div { ...inputContainerProps }>
-					<span className="contentoracle-ai_chat_input_wrapper">	
-					<input 
-						type="text" 
-						{ ...inputProps }  
-						aria-label="Optional placeholder text" 
-						placeholder="Optional placeholder…" 
-						defaultValue={ attributes.placeholder }
-						onChange={ ( event ) => {
-							setAttributes( { placeholder: event.target.value } );
-						} }
-					/>
+				<div {...inputContainerProps}>
+					<span className="contentoracle-ai_chat_input_wrapper">
+						<input
+							type="text"
+							{...inputProps}
+							aria-label="Optional placeholder text"
+							placeholder="Optional placeholder…"
+							defaultValue={attributes.placeholder}
+							onChange={(event) => {
+								setAttributes({ placeholder: event.target.value });
+							}}
+						/>
 
 					</span>
-					<div  { ...buttonProps }>
+					<div  {...buttonProps}>
 						<RichText
 							placeholder="Search text here..."
-							value={ attributes.buttonText }
-							onChange={ ( newValue ) => {
-								setAttributes( { buttonText: newValue } );
-							} }
+							value={attributes.buttonText}
+							onChange={(newValue) => {
+								setAttributes({ buttonText: newValue });
+							}}
 						></RichText>
 					</div>
 				</div>

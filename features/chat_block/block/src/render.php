@@ -137,6 +137,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     data-contentoracle_chat_nonce="<?php echo esc_attr( wp_create_nonce('contentoracle_chat_nonce') ) ?>"
     data-contentoracle_stream_responses="<?php echo esc_attr( $attributes['streamResponses'] ) ?>"
     data-contentoracle_scroll_block_into_view="<?php echo esc_attr( $attributes['scrollBlockIntoView'] ) ?>"
+    data-contentoracle_chat_message_seeder_items="<?php echo esc_attr( json_encode( $attributes['chatMessageSeederItems'] ) ) ?>"
     data-contentoracle_featured_content_border_classes="<?php echo esc_attr( $featured_content_border_classes ) ?>"
     data-contentoracle_featured_content_button_classes="<?php echo esc_attr( $featured_content_button_classes ) ?>"
 >
@@ -164,15 +165,14 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                         Hello! I'm ContentOracle AI. How can I help you today?
                     </p>
                     <div class="contentoracle-ai_chat_message_seeder">
-                        <div class="contentoracle-ai_chat_message_seeder_item">
-                            hooba
-                        </div>
-                        <div class="contentoracle-ai_chat_message_seeder_item">
-                            hooba
-                        </div>
-                        <div class="contentoracle-ai_chat_message_seeder_item">
-                            hooba
-                        </div>
+                        <template coai-x-for="(item, index) in chat_message_seeder_items">
+                            <div 
+                                class="contentoracle-ai_chat_message_seeder_item"
+                                coai-x-on:click="useChatMessageSeederItem(item)"
+                            >
+                                <span coai-x-text="item"></span>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>

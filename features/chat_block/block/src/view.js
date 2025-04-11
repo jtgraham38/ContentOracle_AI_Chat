@@ -31,6 +31,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		this.scrollBlockIntoView = this.$el.getAttribute('data-contentoracle_scroll_block_into_view');
 		this.featured_content_border_classes = this.$el.getAttribute('data-contentoracle_featured_content_border_classes').split(" ");
 		this.featured_content_button_classes = this.$el.getAttribute('data-contentoracle_featured_content_button_classes').split(" ");
+		this.chat_message_seeder_items = JSON.parse(this.$el.getAttribute('data-contentoracle_chat_message_seeder_items'));
 
 		//scroll to the top of the bottommost chat when the conversation updates
 		this.$watch('conversation', () => {
@@ -68,43 +69,43 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			this.scrollToBlock();
 	},
 	//sends a message using the input value
-	async sendMessage( event ) {
+	async sendMessage(event) {
 		event.preventDefault();	//prevent a page refresh due to form tag
-		
+
 		//ensure there is a message
-		if ( this.userMsg === '' ) {
+		if (this.userMsg === '') {
 			//NOTE: the validaity doesnt work, for some reason!
 			this.$refs.chatInput.reportValidity();
 			return
 		}
 
 		//ensure not already loading
-		if ( this.loading ) {
-			this.$refs.chatInput.setCustomValidity( 'Please wait, I am trying to come up with a response!' );
+		if (this.loading) {
+			this.$refs.chatInput.setCustomValidity('Please wait, I am trying to come up with a response!');
 			return
 		}
 
 		//ensure error is not set
-		if ( this.error ) {
+		if (this.error) {
 			return
 		}
 
 		//send the message
 		if (this.stream_responses) {
-			await this.sendStreamed( this.userMsg, event );
+			await this.sendStreamed(this.userMsg, event);
 		}
-		else{
-			await this.send( this.userMsg, event );
+		else {
+			await this.send(this.userMsg, event);
 		}
 
 	},
 	//sends a message to the server and gets an ai response back
-	async send( msg ) {
+	async send(msg) {
 		//set loading state, after a slight delay
-		setTimeout( 
-			() => { this.loading = true; }, 1000 
+		setTimeout(
+			() => { this.loading = true; }, 1000
 		);
-		
+
 		//prepare the request headers and body
 		const url = this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat';
 		const headers = {
@@ -120,23 +121,23 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		const options = {
 			method: 'POST',
 			headers: headers,
-			body: JSON.stringify( data ),
+			body: JSON.stringify(data),
 		};
 
 		//add the user's message to conversation 
 		//this is done here so that the message is not already in the conversation when the message is sent to the
 		//coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
-		this.conversation.push( {
+		this.conversation.push({
 			role: 'user',
 			content: msg,
-		} );
+		});
 
 		//send the request
 		const request = await fetch(url, options)
 		const json = await request.json();
 
 		//handle the response
-		if ( json.error ){
+		if (json.error) {
 			//this is an error that might be set in the wp api, because it is not a part of the response
 			this.handleErrorResponse(json);
 		}
@@ -158,20 +159,20 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 				//parse the coai artifacts (updates the raw content with the parsed artifacts)
 				const artifacts_parsed_content = this.renderArtifacts(this.conversation[this.conversation.length - 1]);
-				
+
 				//render and sanitize the markdown in the chat's raw content
 				const md_rendered_content = DOMPurify.sanitize(
 					marked.parse(
 						artifacts_parsed_content
 					)
 				);
-				
+
 				//now, after all parses and transformations, set the chat content to the rendered chat
 				this.conversation[this.conversation.length - 1].content = md_rendered_content;
 
 				console.log("conversation", this.conversation);
 			}
-			catch(e){
+			catch (e) {
 				//don't use handleErrorResponse, because this is not the result of a malformed/bad response
 				this.error = "An error occurred while streaming in the response.";
 				console.error(e);
@@ -187,17 +188,17 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 	async sendStreamed(msg) {
 		//set loading state, after a slight delay
-		setTimeout( 
-			() => { this.loading = true; }, 1000 
+		setTimeout(
+			() => { this.loading = true; }, 1000
 		);
 
 		//add the user's message to conversation 
 		//this is done here so that the message is not already in the conversation when the message is sent to the
 		//coai api, because if it is, the api will append it again, and the conversation will have two user messages in a row
-		this.conversation.push( {
+		this.conversation.push({
 			role: 'user',
 			content: msg,
-		} );
+		});
 
 		//initialize the xhr request
 		const xhr = new XMLHttpRequest();
@@ -220,10 +221,10 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 			//get the response from the event
 			const _response = event.target.response;
-			
+
 			//split on separator, the first "private use character" is the separator
 			let responses = _response.split("\u{E000}").slice(finger);
-			finger += responses.length-1;
+			finger += responses.length - 1;
 
 			//filter out empty strings
 			responses = responses.filter((response) => response.length > 0);
@@ -255,7 +256,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				}
 
 				//handle the response
-				if ( parsed?.error ){
+				if (parsed?.error) {
 					this.handleErrorResponse(parsed);
 				}
 				//check if this is the action response
@@ -294,25 +295,25 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 					//parse the coai artifacts (updates the raw content with the parsed artifacts)
 					const artifacts_parsed_content = this.renderArtifacts(this.conversation[this.conversation.length - 1]);
-					
+
 					//render and sanitize the markdown in the chat's raw content
 					const md_rendered_content = DOMPurify.sanitize(
 						marked.parse(
 							artifacts_parsed_content
 						)
 					);
-					
+
 					//now, after all parses and transformations, set the chat content to the rendered chat
 					this.conversation[this.conversation.length - 1].content = md_rendered_content;
 				}
-			} )
+			})
 		}.bind(this);	//IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
 
 		//set error handler
-		xhr.onerror = function() {
+		xhr.onerror = function () {
 			console.error(event);
 		};
-		
+
 		//after the request is done
 		xhr.onload = function () {
 			console.log("conversation", this.conversation);
@@ -346,7 +347,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 			//get other information about the chat
 			const content_supplied = chat.content_supplied;	//for inline citations
-			
+
 			//use the artifact parsers to parse each artifact based on it's type
 			let rendered;
 			switch (artifact_type) {
@@ -365,21 +366,21 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		return artifacts_rendered;
 	},
 	//scrolls to the bottom of the chat
-	scrollToBottom( event ) {
-        const chatContainer = this.$refs.chatBody;
+	scrollToBottom(event) {
+		const chatContainer = this.$refs.chatBody;
 		chatContainer.scrollTop = chatContainer.scrollHeight;
 	},
 	//scrolls to the top of the bottommost assistant chat
-	scrollToBottomMostChat( event ) {
+	scrollToBottomMostChat(event) {
 	},
 	//performs all tasks that need to be performed when an error response is received
-	handleErrorResponse( error ) {
-		this.error = `Error ${error.error.error ||	error.error_code}: "${error.error_msg}".`;	//|| output hte unauthorized error properly
+	handleErrorResponse(error) {
+		this.error = `Error ${error.error.error || error.error_code}: "${error.error_msg}".`;	//|| output hte unauthorized error properly
 		console.error(`Error originates from ${error.error_source == "coai" ? "ContentOracle AI API" : "WordPress API"}.`, error.error);
 	},
 
 	//get the conversations, with the context prepended to the user message
-	getConversationWithContext(){
+	getConversationWithContext() {
 		//make a copy of the conversation, to avoid state mutation
 		const conversation = JSON.parse(JSON.stringify(this.conversation));
 		let content_used = null;
@@ -404,10 +405,21 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	},
 
 	//scroll the window to this block
-	scrollToBlock( event ) {
+	scrollToBlock(event) {
 		//scroll the block into view
 		this.$el.scrollIntoView({ behavior: "smooth" });
 	},
+
+	//use one of the chat message seeder items as the user's message
+	useChatMessageSeederItem(msg) {
+		//send the message (note, the calls below are async, KEEP THIS IN MIND)
+		if (this.stream_responses) {
+			this.sendStreamed(msg, {});
+		}
+		else {
+			this.send(msg, {});
+		}
+	}
 })
 )
 

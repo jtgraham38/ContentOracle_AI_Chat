@@ -7796,6 +7796,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     this.scrollBlockIntoView = this.$el.getAttribute('data-contentoracle_scroll_block_into_view');
     this.featured_content_border_classes = this.$el.getAttribute('data-contentoracle_featured_content_border_classes').split(" ");
     this.featured_content_button_classes = this.$el.getAttribute('data-contentoracle_featured_content_button_classes').split(" ");
+    this.chat_message_seeder_items = JSON.parse(this.$el.getAttribute('data-contentoracle_chat_message_seeder_items'));
 
     //scroll to the top of the bottommost chat when the conversation updates
     this.$watch('conversation', () => {
@@ -8152,6 +8153,15 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     this.$el.scrollIntoView({
       behavior: "smooth"
     });
+  },
+  //use one of the chat message seeder items as the user's message
+  useChatMessageSeederItem(msg) {
+    //send the message (note, the calls below are async, KEEP THIS IN MIND)
+    if (this.stream_responses) {
+      this.sendStreamed(msg, {});
+    } else {
+      this.send(msg, {});
+    }
   }
 }));
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].start();
