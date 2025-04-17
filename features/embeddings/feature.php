@@ -43,12 +43,14 @@ class ContentOracleEmbeddings extends PluginFeature{
         //register these only for the post types that are indexed by the AI
         $post_types = get_option($this->get_prefix() . 'post_types', []);
         foreach ($post_types as $post_type) {
+            //mark the post as needing new embeddings
+            add_action('save_post_' . $post_type, array($this, 'flag_post_for_embedding_generation'), 10, 3);  //this one runs before the generate_embeddings_on_save hook
+
+
             //generate new embeddings for a saved post
             //TODO: make this hook only register on the specific post types that are indexed by the AI
-            add_action('save_post_' . $post_type, array($this, 'generate_embeddings_on_save'), 20, 3);
+            add_action('save_post_' . $post_type, array($this, 'generate_embeddings_on_save'), 20, 3);  //this one runs after the flag_post_for_embedding_generation hook
     
-            //mark the post as needing new embeddings
-            add_action('save_post_' . $post_type, array($this, 'flag_post_for_embedding_generation'), 10, 3);
         }
 
         //show a notice to generate embeddings
@@ -87,6 +89,11 @@ class ContentOracleEmbeddings extends PluginFeature{
         ) {
             return;
         }
+
+        //check if the post is of the correct post type
+        if (!in_array($post->post_type, get_option($this->get_prefix() . 'post_types', []))) {
+            return;
+        }
         
         //update flag post meta for embedding generation if the checkbox is checked
         if (isset($_POST[$this->get_prefix() . 'generate_embeddings'])) {
@@ -115,6 +122,15 @@ class ContentOracleEmbeddings extends PluginFeature{
             return;
         }
 
+        //check if the post is of the correct post type
+        if (!in_array($post->post_type, get_option($this->get_prefix() . 'post_types', []))) {
+            return;
+        }
+
+        //ensure the post is being published
+        if ($post->post_status != 'publish') {
+            return;
+        }
 
         //check the chunking method setting (TODO: integrate this into the embedding generation process)
         $chunking_method = get_option($this->get_prefix() . 'chunking_method');
