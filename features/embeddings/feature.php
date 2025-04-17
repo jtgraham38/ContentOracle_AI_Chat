@@ -123,208 +123,17 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
 
         //generate the embeddings for the post
-        $post = $this->generate_embeddings($post);
+        $api = new ContentOracleApiConnection(
+            $this->get_prefix(), 
+            $this->get_base_url(), 
+            $this->get_base_dir(), 
+            $this->get_client_ip()
+        );
+        $api->bulk_generate_embeddings($post->ID);
+        
         return $post;
     }
 
-    //this is the function that is called in various places to generate embeddings for a post
-    //note that it does not perform all permission and semantic checks, as it is called in various places
-    public function generate_embeddings($posts){
-        //ensure posts is an array
-        if (!is_array($posts)){
-            $posts = [$posts];
-        }
-        
-        //prepare chunks for each post
-        $chunked_posts = [];
-        foreach ($posts as $post){
-            //get the post id
-            $post_ID = $post->ID;
-    
-            //ensure the post is not empty
-            if (empty($post->post_content)) {
-                echo "Post " . esc_html($post_ID) . " has no content, skipping embedding generation!<br>";
-                continue;
-            }
-    
-            //group the tokens into chunks
-            $chunks = $this->chunk_post($post);
-
-            //add the chunked post to the array
-            $chunked_posts[] = $chunks;
-
-            //add the post title and type to the beginning of each chunk for better embeddings
-            foreach ($chunks->chunks as $i => $chunk){
-                $chunks->chunks[$i] = array_merge(["Title: ".$post->post_title], $chunk);
-                $chunks->chunks[$i] = array_merge(["Type: ".get_post_type($post_ID)], $chunk);
-            }
-        }
-
-
-        //send an embeddings request to ContentOracle AI
-        try{
-            $embeddings = $this->coai_api_generate_embeddings($chunked_posts);
-            if (!is_array($embeddings)) {
-                $embeddings = [];
-            }
-        }
-        catch (Exception $e){
-            //if there is an error (usually, no embeddings are returned), return the post
-            //
-            ////NOTE: this error is usually triggered when the rate limit for the coai api is hit
-            ////NOTE: I need to fix this by making this function able to handle batches of posts in a single request
-            ////NOTE: the api can already handle this, but the plugin does not yet
-            //
-            echo esc_html("Error: " . $e->getMessage());
-            echo "<br>";
-            return $posts;
-        }
-
-        //save the embeddings to the embeddings table
-        $vt = new ContentOracle_VectorTable($this->get_prefix());
-        foreach ($embeddings as $post_id => $vectors){
-            $vectors = array_map(function($v){
-                return [
-                    'vector' => json_encode( $v['embedding'] ), 
-                    'vector_type' => get_option($this->get_prefix() . 'chunking_method')
-                ];
-            }, $vectors);
-            //inserts them with the sequence numbers inserted in order
-            $embedding_ids = $vt->insert_all($post_id, $vectors);
-
-            //save the ids of generated embeddings as post meta
-            if (count($embeddings) > 0) {
-                update_post_meta($post_id, $this->get_prefix() . 'embeddings', $embedding_ids);
-                update_post_meta($post_id, $this->get_prefix() . 'should_generate_embeddings', false);
-            }
-        }
-
-        //return the content
-        return $posts;
-    }
-
-    //function that chunks a post into smaller pieces for embedding generation, based on the chunking method
-    public function chunk_post($post){
-        $post_id = $post->ID;
-        $chunking_method = get_option($this->get_prefix() . 'chunking_method', 'none');
-        switch ($chunking_method) {
-            case 'token:256':
-                //get the post content
-                $body = strip_tags($post->post_content);
-
-                //split the body into tokens
-                $tokenizer = new WhitespaceAndPunctuationTokenizer();
-                $tokens = $tokenizer->tokenize($body);
-
-                //group the tokens into chunks
-                $chunks = array_chunk($tokens, $this->CHUNK_SIZE);
-
-                //return the post id mapped to the chunks
-                $return = new ContentOracle_ChunksForPost($post_id, $chunks);
-                break;
-            case '':
-            case 'none':
-                //return the post id mapped to the entire post content
-                $return = new ContentOracle_ChunksForPost($post_id, [$post->post_content]);
-                break;
-            default:
-                throw new Exception('Invalid chunking method: ' . $chunking_method);
-                break;
-        }
-
-        //return the chunks
-        return $return;
-
-    }
-
-    /*
-    *  This function makes the call to COAI to generate embeddings for a batch of posts
-    *  $cps: an array of ContentOracle_ChunksForPost objects, which contain the post id and the chunks of the post
-    */
-    public function coai_api_generate_embeddings($cps){
-        //if cps is not an array, make it into a single-element array
-        if (!is_array($cps)) {
-            $cps = [$cps];
-        }
-
-        //add each record to the payload
-        $content = [];
-        foreach ($cps as $cp) {
-            //create chunks
-            $_chunks = array_map(
-                function($chunk){
-                    return implode(' ', $chunk);
-                },
-                $cp->chunks
-            );
-
-            //skip generation if no chunks exist
-            if (empty($_chunks)) {
-                echo "No chunks found for post " . esc_html($cp->post_id) . ", skipping! <br>";
-                //unset the generate embedding post meta
-                update_post_meta($cp->post_id, $this->get_prefix() . 'should_generate_embeddings', false);
-                continue;
-            }
-
-            //add record to content
-            $content[] = [
-                'id' => $cp->post_id,
-                'url' => get_permalink($cp->post_id),
-                'title' => get_the_title($cp->post_id),
-                'chunks' => $_chunks,   //convert chunk from array of tokens to a string
-                'type' => get_post_type($cp->post_id),
-            ];
-        }
-
-        //ensure content is not empty
-        if (empty($content)){
-            echo "No posts viable for embedding generation found, no embeddings generated!<br>";
-            return [];
-        }
-
-        //create an array of content to send to the coai api
-        $payload = [
-            'headers' => array(
-                'Authorization' => 'Bearer ' . get_option($this->get_prefix() . 'api_token'),
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json'
-            ),
-            'body' => json_encode([
-                'chunking_method' => get_option($this->get_prefix() . 'chunking_method', 'none'),
-                'client_ip' => $this->get_client_ip(),
-                'content' => $content
-            ]),
-            'timeout' => 7200,   //long timeout (2 hours) because of wait in coai api to avoid request limit
-        ];
-
-        //make the request
-        $url = ContentOracleApiConnection::get_base_url() . '/v1/ai/embed';
-        $response = wp_remote_post($url, $payload);
-
-        //handle wordpress errors
-        if (is_wp_error($response)){
-            throw new Exception($response->get_error_message());
-        }
-        
-        //retrieve and format the response
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
-
-        //ensure the response is valid
-        if (empty($data['embeddings'])) {
-            throw new Exception('Invalid response from ContentOracle AI: embeddings key not set');
-        }
-
-        return $data['embeddings'];
-    }
-
-    public function get_update_tag(){
-        return $this->UPDATE_TAG;
-    }
-
-    public function get_chunk_size(){
-        return $this->CHUNK_SIZE;
-    }
 
     //  \\  //  \\  //  \\  //  \\ CALLBACKS NOT RELATED TO EMBEDDING GENERATION (DIRECTLY)  //  \\  //  \\  //  \\  // \\
 
@@ -358,12 +167,111 @@ class ContentOracleEmbeddings extends PluginFeature{
         // Sanitize IP address
         return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : 'UNKNOWN';
     }
-
+    //    \\    SETTINGS PAGE \\    //
     public function render_page(){
         require_once plugin_dir_path(__FILE__) . 'elements/_inputs.php';
     }
+    
+    public function add_menu(){
+            add_submenu_page(
+                'contentoracle-ai-chat', // parent slug
+                'Embeddings', // page title
+                'Embeddings', // menu title
+                'manage_options', // capability
+                'contentoracle-ai-chat-embeddings', // menu slug
+                array($this, 'render_page') // callback function
+            );
+        }
 
-    public function register_scripts(){
+        public function register_settings(){
+            add_settings_section(
+                'coai_chat_embeddings_settings', // id
+                '', // title
+                function(){ // callback
+                    echo 'Manage your AI search settings here.';
+                },
+                'contentoracle-ai-settings'  // page (matches menu slug)
+            );
+
+            // create the settings fields
+            add_settings_field(
+                $this->get_prefix() . "chunking_method",    // id of the field
+                'Embedding Method',   // title
+                function(){ // callback
+                    require_once plugin_dir_path(__FILE__) . 'elements/chunking_method_input.php';
+                },
+                'contentoracle-ai-settings', // page (matches menu slug)
+                'coai_chat_embeddings_settings',  // section
+                array(
+                'label_for' => $this->get_prefix() .'chunking_method'
+                )
+            );
+
+            add_settings_field(
+                $this->get_prefix() . "auto_generate_embeddings_interval",    // id of the field
+                'Auto-generate Embeddings Weekly',   // title
+                function(){ // callback
+                    require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_embeddings_input.php';
+                },
+                'contentoracle-ai-settings', // page (matches menu slug)
+                'coai_chat_embeddings_settings',  // section
+                array(
+                'label_for' => $this->get_prefix() .'auto_generate_embeddings'
+                )
+            );
+
+            add_settings_field(
+                $this->get_prefix() . "auto_generate_only_new_embeddings",    // id of the field
+                'Auto-generate Embeddings Weekly for Posts that are not Already Embedded',   // title
+                function(){ // callback
+                    require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_only_new_embeddings_input.php';
+                },
+                'contentoracle-ai-settings', // page (matches menu slug)
+                'coai_chat_embeddings_settings',  // section
+                array(
+                'label_for' => $this->get_prefix() .'auto_generate_only_new_embeddings'
+                )
+            );
+
+            // create the settings themselves
+            register_setting(
+                'coai_chat_embeddings_settings', // option group
+                $this->get_prefix() . 'chunking_method',    // option name
+                array(  // args
+                    'type' => 'string',
+                    'default' => 'token:256',
+                    'sanitize_callback' => 'sanitize_text_field'
+                )
+            );
+
+            register_setting(
+                'coai_chat_embeddings_settings', // option group
+                $this->get_prefix() . 'auto_generate_embeddings',    // option name
+                array(  // args
+                    'type' => 'boolean',
+                    'default' => true,
+                    'sanitize_callback' => function($value){
+                        return $value ? true : false;
+                    }
+                )
+            );
+
+            register_setting(
+                'coai_chat_embeddings_settings', // option group
+                $this->get_prefix() . 'auto_generate_only_new_embeddings',    // option name
+                array(  // args
+                    'type' => 'boolean',
+                    'default' => true,
+                    'sanitize_callback' => function($value){
+                        return $value ? true : false;
+                    }
+                )
+            );
+
+
+        }
+    
+        public function register_scripts(){
         //if we are on the embeddings page
         if (strpos(get_current_screen()->base, 'contentoracle-ai-chat-embeddings') === false) {
             return;
@@ -386,7 +294,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         wp_enqueue_style('contentoracle-ai-chat-embeddings', plugin_dir_url(__FILE__) . 'assets/css/explorer.css');
     }
 
-    
+    //    \\    add meta box to post editor    //    \\
     public function add_embedding_meta_box(){
         add_meta_box(
             'contentoracle-ai-chat-embeddings',
@@ -399,106 +307,6 @@ class ContentOracleEmbeddings extends PluginFeature{
             'high'
         );
     }
-
-    public function add_menu(){
-        add_submenu_page(
-            'contentoracle-ai-chat', // parent slug
-            'Embeddings', // page title
-            'Embeddings', // menu title
-            'manage_options', // capability
-            'contentoracle-ai-chat-embeddings', // menu slug
-            array($this, 'render_page') // callback function
-        );
-    }
-
-    public function register_settings(){
-        add_settings_section(
-            'coai_chat_embeddings_settings', // id
-            '', // title
-            function(){ // callback
-                echo 'Manage your AI search settings here.';
-            },
-            'contentoracle-ai-settings'  // page (matches menu slug)
-        );
-
-        // create the settings fields
-        add_settings_field(
-            $this->get_prefix() . "chunking_method",    // id of the field
-            'Embedding Method',   // title
-            function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/chunking_method_input.php';
-            },
-            'contentoracle-ai-settings', // page (matches menu slug)
-            'coai_chat_embeddings_settings',  // section
-            array(
-            'label_for' => $this->get_prefix() .'chunking_method'
-            )
-        );
-
-        add_settings_field(
-            $this->get_prefix() . "auto_generate_embeddings_interval",    // id of the field
-            'Auto-generate Embeddings',   // title
-            function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_embeddings_input.php';
-            },
-            'contentoracle-ai-settings', // page (matches menu slug)
-            'coai_chat_embeddings_settings',  // section
-            array(
-            'label_for' => $this->get_prefix() .'auto_generate_embeddings'
-            )
-        );
-
-        add_settings_field(
-            $this->get_prefix() . "auto_generate_only_new_embeddings",    // id of the field
-            'Auto-generate Only New Embeddings',   // title
-            function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_only_new_embeddings_input.php';
-            },
-            'contentoracle-ai-settings', // page (matches menu slug)
-            'coai_chat_embeddings_settings',  // section
-            array(
-            'label_for' => $this->get_prefix() .'auto_generate_only_new_embeddings'
-            )
-        );
-
-        // create the settings themselves
-        register_setting(
-            'coai_chat_embeddings_settings', // option group
-            $this->get_prefix() . 'chunking_method',    // option name
-            array(  // args
-                'type' => 'string',
-                'default' => '',
-                'sanitize_callback' => 'sanitize_text_field'
-            )
-        );
-
-        register_setting(
-            'coai_chat_embeddings_settings', // option group
-            $this->get_prefix() . 'auto_generate_embeddings',    // option name
-            array(  // args
-                'type' => 'boolean',
-                'default' => true,
-                'sanitize_callback' => function($value){
-                    return $value ? true : false;
-                }
-            )
-        );
-
-        register_setting(
-            'coai_chat_embeddings_settings', // option group
-            $this->get_prefix() . 'auto_generate_only_new_embeddings',    // option name
-            array(  // args
-                'type' => 'boolean',
-                'default' => true,
-                'sanitize_callback' => function($value){
-                    return $value ? true : false;
-                }
-            )
-        );
-
-
-    }
-
 
     //  \\  //  \\  //  \\  //  SHOW NOTICES TO PROMPT USER TO GENERATE EMBEDDINGS  //  \\  //  \\  //  \\  //  \\
     public function show_generate_embeddings_notice(){
@@ -545,43 +353,16 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
 
         //get the posts to generate embeddings for
-        $for_all_posts = get_option($this->get_prefix() . 'auto_generate_only_new_embeddings', false) ? 'new' : 'all';
-
-        //if we are generating all new embeddings, get all posts
-        if ($for_all_posts){
-            //get all posts
-            $posts = get_posts(array(
-                'post_type' => $post_types,
-                'numberposts' => -1,
-                'orderby' => 'post_type',
-                'order' => 'ASC'
-            ));
-        }
-        //otherwise, get the posts that do not have embeddings
-        else{
-            //get all posts that do not have embeddings
-            $posts = get_posts(array(
-                'post_type' => $post_types,
-                'numberposts' => -1,
-                'orderby' => 'post_type',
-                'order' => 'ASC',
-                'meta_query' => array(
-                    'relation' => 'OR',
-                    array(
-                        'key' => $this->get_prefix() . 'embeddings',
-                        'compare' => 'NOT EXISTS'
-                    ),
-                    array(
-                        'key' => $this->get_prefix() . 'embeddings',
-                        'value' => "a:0:{}",
-                        'compare' => '='
-                    )
-                )
-            ));
-        }
+        $for = get_option($this->get_prefix() . 'auto_generate_only_new_embeddings', false) ? 'not_embedded' : 'all';
 
         //generate embeddings for the posts
-        $this->generate_embeddings($posts);
+        $api = new ContentOracleApiConnection(
+            $this->get_prefix(), 
+            $this->get_base_url(), 
+            $this->get_base_dir(), 
+            $this->get_client_ip()
+        );
+        $api->bulk_generate_embeddings($for);
     }
 
 }
