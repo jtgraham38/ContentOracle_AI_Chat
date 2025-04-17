@@ -283,6 +283,12 @@ class ContentOracleApiConnection{
         //break the posts into chunks
         $chunked_posts = [];
         foreach ($posts as $post) {
+
+            //remove null entries from the posts array
+            if ($post == null){
+                continue;
+            }
+
             $chunked_post = $this->chunk_post($post);
 
             //add post titles and types to the beginning of each chunk
