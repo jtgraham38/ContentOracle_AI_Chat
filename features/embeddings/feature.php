@@ -480,6 +480,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     }
 
+
     //  \\  //  \\  //  \\  //  SHOW NOTICES TO PROMPT USER TO GENERATE EMBEDDINGS  //  \\  //  \\  //  \\  //  \\
     public function show_generate_embeddings_notice(){
         //check if the user has the capability to edit posts

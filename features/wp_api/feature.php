@@ -28,6 +28,7 @@ class ContentOracleApi extends PluginFeature{
     public function add_actions(){
         add_action('rest_api_init', array($this, 'register_search_rest_routes'));
         add_action('rest_api_init', array($this, 'register_healthcheck_rest_route'));
+        add_action('rest_api_init', array($this, 'register_bulk_generate_embeddings_route'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -132,6 +133,8 @@ class ContentOracleApi extends PluginFeature{
             )
         ));
     }
+
+    
 
     //streamed chat callback
     public function streamed_ai_chat($request){
@@ -466,6 +469,41 @@ class ContentOracleApi extends PluginFeature{
             'engineered_prompt' => $ai_engineered_input,
         ));
     }
+
+    // register the bulk generate embeddings route
+    public function register_bulk_generate_embeddings_route(){
+        register_rest_route('contentoracle-ai-chat/v1', '/content-embed', array(
+            'methods' => 'GET',//'POST',
+            // 'permission_callback' => function($request){
+            //     //add nonce check here
+            //     //TODO
+            // },
+            'callback' => array($this, 'bulk_generate_embeddings'),
+            // 'args' => array(
+            //     'post_ids' => array(
+            //         'required' => true,
+            //         'validate_callback' => function($param, $request, $key){
+            //             return is_array($param);
+            //         }
+            //     )
+            // ),
+            // 'sanitize_callback' => function($param, $request, $key){
+            //     return array_map('intval', $param);
+            // }
+        ));
+    }
+
+    //bulk generate embeddings
+    public function bulk_generate_embeddings($request){
+        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+        $result = $api->bulk_generate_embeddings();
+
+        return new WP_REST_Response(array(
+            'success' => $result['success'],
+            'message' => $result['message']
+        ), 200);
+    }
+
     //simple keyword search to find relevant posts
     function keyword_content_search($message){
         //tokenize the message

@@ -8,7 +8,16 @@ if (!defined('ABSPATH')) {
 //include the response exception class
 require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
 
+//include the util file
+require_once plugin_dir_path(__FILE__) . 'util.php';
+
+//include the vector table class
+require_once plugin_dir_path(__FILE__) . '../embeddings/VectorTable.php';
+
 class ContentOracleApiConnection{
+
+    use ContentOracleChunkingMixin;
+    use ContentOracleBulkContentEmbeddingMixin;
 
     private $prefix;
     private $base_url;
@@ -234,5 +243,61 @@ class ContentOracleApiConnection{
         }
 
         return $data;
+    }
+
+    //rest route to bulk generate embeddings
+    public function bulk_generate_embeddings(){
+        //get all the posts of the type to embed
+        $post_types = get_option($this->prefix . 'post_types');
+        $posts = get_posts(array(
+            'post_type' => $post_types,
+            'posts_per_page' => -1
+        ));
+        
+        //break the posts into chunks
+        $chunked_posts = [];
+        foreach ($posts as $post) {
+            $chunked_post = $this->chunk_post($post);
+
+            //add post titles and types to the beginning of each chunk
+            foreach ($chunked_post->chunks as $i => $chunk){
+                $chunked_post->chunks[$i] = array_merge(["Title: ". get_the_title($post->ID)],["Type: " . get_post_type($post->ID)], $chunk);
+            }
+
+            $chunked_posts[] = $chunked_post;
+        }
+
+        //send the chunks to the api
+        try{
+            $embeddings = $this->coai_api_generate_embeddings($chunked_posts);
+        } catch (Exception $e){
+            return new WP_Error('error', $e->getMessage());
+        }
+
+        
+        //save the embeddings to the database
+        $vt = new ContentOracle_VectorTable($this->prefix);
+        foreach ($embeddings as $post_id => $vectors){
+            $vectors = array_map(function($v){
+                return [
+                    'vector' => json_encode( $v['embedding'] ), 
+                    'vector_type' => get_option($this->prefix . 'chunking_method')
+                ];
+            }, $vectors);
+
+            //inserts them with the sequence numbers inserted in order
+            $embedding_ids = $vt->insert_all($post_id, $vectors);
+
+            //save the ids of generated embeddings as post meta
+            update_post_meta($post_id, $this->prefix . 'embeddings', $embedding_ids);
+            update_post_meta($post_id, $this->prefix . 'should_generate_embeddings', false);
+        }
+
+        //return success
+        return [
+            'success' => true,
+            'embedding_ids' => $embedding_ids,
+            'message' => 'Embeddings generated successfully.'
+        ];
     }
 }

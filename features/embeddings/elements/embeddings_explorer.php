@@ -15,6 +15,7 @@ $VT = new ContentOracle_VectorTable($this->get_prefix() ?? "coai_chat_");
 //$result = $VT->search(json_encode( $vector ));
 //this file shows an input, and uses it to display the raw embeddings values for a given post
 
+
 //set default values
 $post_id = null;
 $embeddings = [];
