@@ -1,15 +1,57 @@
-#coai_chat_embeddings_explorer table{
+#coai_chat_embeddings_explorer table {
     border-collapse: collapse;
     border-spacing: 0;
     margin-bottom: 20px;
 }
 
-#coai_chat_embeddings_explorer td, #coai_chat_embeddings_explorer th{
+#coai_chat_embeddings_explorer td,
+#coai_chat_embeddings_explorer th {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
 }
 
-#coai_chat_embeddings_explorer th{
+#coai_chat_embeddings_explorer th {
     background-color: #d2d2d2;
+}
+
+/* Bulk Generate Embeddings */
+.coai_chat_bulk_generate_embedding_result_container {
+    padding: 1rem;
+}
+
+.coai_chat_bulk_generate_embeddings_spinner {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 2px solid #000;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+.coai_chat_bulk_generate_embeddings_hidden {
+    display: none;
+}
+
+.coai_chat_bulk_generate_embeddings_show {
+    display: inline-block;
+}
+
+.coai_chat_bulk_embed_success_msg {
+    color: green;
+}
+
+.coai_chat_bulk_embed_error_msg {
+    color: red;
+}
+
+/* spin animation */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }

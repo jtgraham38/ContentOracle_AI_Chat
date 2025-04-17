@@ -1,29 +1,49 @@
 
-//this function calls the generate embeddings route
-async function coai_generate_embeddings(_for) {
+document.addEventListener('DOMContentLoaded', function () {
+    //get embeddings form
+    let generate_embeddings_form = document.getElementById('coai_chat_bulk_generate_embeddings_form');
 
-    //post a request to the bulk generate embeddings route
-    const embed_url = contentoracle_ai_chat_embeddings.api_base_url + 'contentoracle-ai-chat/v1/content-embed';
+    //add event listener to the form for submit
+    generate_embeddings_form.addEventListener('submit', async function (event) {
+        event.preventDefault();
 
-    //prepare the request body
-    const body = {
-        for: _for
-    }
-    console.log(JSON.stringify(body), "body");
+        //hide the success and error messages
+        let success_msg = document.getElementById('coai_chat_bulk_embed_success_msg');
+        success_msg.classList.add('coai_chat_bulk_generate_embeddings_hidden');
 
-    //send the request using xmlhttprequest with a very long timeout
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', embed_url, true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.timeout = 100000;
-    xhr.send(JSON.stringify(body));
+        let error_msg = document.getElementById('coai_chat_bulk_embed_error_msg');
+        error_msg.classList.add('coai_chat_bulk_generate_embeddings_hidden');
 
-    xhr.onload = function () {
-        console.log(xhr.responseText, "response");
-    }
+        //get the selected option
+        let selected_option = document.getElementById('bulk_generate_embeddings_select').value;
+
+        //show the spinner
+        let spinner = document.getElementById('coai_chat_bulk_generate_embeddings_spinner');
+        spinner.classList.remove('coai_chat_bulk_generate_embeddings_hidden');
+        spinner.classList.add('coai_chat_bulk_generate_embeddings_show');
+
+        //hide the form
+        generate_embeddings_form.classList.add('coai_chat_bulk_generate_embeddings_hidden');
 
 
-    //handle the response by refreshing the page
-    //window.location.reload();
+        //submit ajax to the generate embeddings
+        try {
+            const result = await coai_generate_embeddings(selected_option);
+            console.log(result, "result");
+            //show the success message
+            success_msg.classList.remove('coai_chat_bulk_generate_embeddings_hidden');
 
-}
+        } catch (error) {
+            console.error(error, "error");
+            //show the error message
+            error_msg.classList.remove('coai_chat_bulk_generate_embeddings_hidden');
+        } finally {
+            //hide the spinner
+            spinner.classList.remove('coai_chat_bulk_generate_embeddings_show');
+            spinner.classList.add('coai_chat_bulk_generate_embeddings_hidden');
+            //show the form
+            generate_embeddings_form.classList.remove('coai_chat_bulk_generate_embeddings_hidden');
+        }
+    });
+
+});

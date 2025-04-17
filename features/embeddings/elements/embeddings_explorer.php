@@ -309,29 +309,13 @@ $posts = get_posts(array(
         <h3>Bulk Generate Embeddings</h3>
         <p>Generate embeddings for many posts at once! <small>Note that this could take a while!</small></p>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function(){
-                //get embeddings form
-                let generate_embeddings_form = document.getElementById('<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_form');
-
-                //add event listener to the form for submit
-                generate_embeddings_form.addEventListener('submit', function(event){
-                    event.preventDefault();
-
-                    //get the selected option
-                    let selected_option = document.getElementById('bulk_generate_embeddings_select').value;
-
-                    //submit ajax to the generate embeddings
-                    coai_generate_embeddings(selected_option);
-                });
-            });
-        </script>
         <form 
             method="POST" 
             id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_form"
         >
         <label for="bulk_generate_embeddings_select">Bulk Options</label>
-            <div style="display: flex;">
+            <div style="display: flex;" >
+                
                 <select 
                     name="bulk_generate_embeddings_option" 
                     id="bulk_generate_embeddings_select" 
@@ -345,9 +329,28 @@ $posts = get_posts(array(
                 <input type="submit" value="Generate Embeddings" class="button-primary">
             </div>
             <input type="hidden" name="action" value="bulk_generate_embeddings">
+
+            
+            
+            
         </form>
+        
+        <!-- spinner, success, error -->
+        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_result_container" class="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_result_container" >
+            <span id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_spinner" 
+                class="
+                    <?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_spinner
+                    <?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_hidden
+            ">
+            </span>
+        </div>
+
+        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_embed_success_msg" class="<?php echo esc_attr($this->get_prefix()) ?>bulk_embed_success_msg <?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_hidden">
+            <p>Embeddings generated successfully!</p>
+        </div>
+
+        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_embed_error_msg" class="<?php echo esc_attr($this->get_prefix()) ?>bulk_embed_error_msg <?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_hidden">
+            <p>Error generating embeddings!</p>
+        </div>
     </div>
 </div>
-<br>
-<br>
-<small>Note: Generating embeddings may result in charges to your account.</small>

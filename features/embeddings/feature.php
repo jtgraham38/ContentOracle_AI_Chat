@@ -369,11 +369,12 @@ class ContentOracleEmbeddings extends PluginFeature{
             return;
         }
 
-        //enqueue the script
-        wp_enqueue_script('contentoracle-ai-chat-embeddings', plugin_dir_url(__FILE__) . 'assets/js/embedding_explorer.js');
+        //enqueue the scripts
+        wp_enqueue_script('contentoracle-ai-chat-embeddings-api', plugin_dir_url(__FILE__) . 'assets/js/api.js', []);
+        wp_enqueue_script('contentoracle-ai-chat-embeddings-page', plugin_dir_url(__FILE__) . 'assets/js/embedding_explorer.js', ['contentoracle-ai-chat-embeddings-api']);
 
-        //localize the script with the base url
-        wp_localize_script('contentoracle-ai-chat-embeddings', 'contentoracle_ai_chat_embeddings', array(
+        //localize the api script with the base url
+        wp_localize_script('contentoracle-ai-chat-embeddings-api', 'contentoracle_ai_chat_embeddings', array(
             'api_base_url' => rest_url()
         ));
     }
