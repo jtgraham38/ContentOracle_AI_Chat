@@ -309,9 +309,26 @@ $posts = get_posts(array(
         <h3>Bulk Generate Embeddings</h3>
         <p>Generate embeddings for many posts at once! <small>Note that this could take a while!</small></p>
 
+        <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                //get embeddings form
+                let generate_embeddings_form = document.getElementById('<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_form');
+
+                //add event listener to the form for submit
+                generate_embeddings_form.addEventListener('submit', function(event){
+                    event.preventDefault();
+
+                    //get the selected option
+                    let selected_option = document.getElementById('bulk_generate_embeddings_select').value;
+
+                    //submit ajax to the generate embeddings
+                    coai_generate_embeddings(selected_option);
+                });
+            });
+        </script>
         <form 
             method="POST" 
-            action="<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-ai-chat-embeddings" 
+            id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_form"
         >
         <label for="bulk_generate_embeddings_select">Bulk Options</label>
             <div style="display: flex;">
@@ -322,7 +339,7 @@ $posts = get_posts(array(
                     title="Select an option to generate embeddings for many posts at once.  This will only generate embeddings for posts of the types selected in the prompt settings, and only if a chunking method is set."    
                 >
                     <option value="" selected>Select an option...</option>
-                    <option value="unembedded">All Posts Without Embeddings</option>
+                    <option value="not_embedded">All Posts Without Embeddings</option>
                     <option value="all">All Posts</option>
                 </select>
                 <input type="submit" value="Generate Embeddings" class="button-primary">

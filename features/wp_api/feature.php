@@ -473,7 +473,7 @@ class ContentOracleApi extends PluginFeature{
     // register the bulk generate embeddings route
     public function register_bulk_generate_embeddings_route(){
         register_rest_route('contentoracle-ai-chat/v1', '/content-embed', array(
-            'methods' => 'GET',//'POST',
+            'methods' => 'POST',
             // 'permission_callback' => function($request){
             //     //add nonce check here
             //     //TODO
@@ -485,17 +485,23 @@ class ContentOracleApi extends PluginFeature{
                     'validate_callback' => function($param, $request, $key){
                         //check if it is in "all", "not_embedded", or a single post id
                         return in_array($param, ['all', 'not_embedded']) || is_numeric($param);
+                    },
+                    'sanitize_callback' => function($param, $request, $key){
+                        if (in_array($param, ['all', 'not_embedded'])){
+                            return sanitize_text_field($param);
+                        }
+                        else{
+                            return intval($param);
+                        }
                     }
                 )
-            ),
-            // 'sanitize_callback' => function($param, $request, $key){
-            //     return array_map('intval', $param);
-            // }
+            )
         ));
     }
 
     //bulk generate embeddings
     public function bulk_generate_embeddings($request){
+
         $api = new ContentOracleApiConnection(
             $this->get_prefix(), 
             $this->get_base_url(), 

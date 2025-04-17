@@ -32,6 +32,9 @@ class ContentOracleEmbeddings extends PluginFeature{
         
         //register styles
         add_action('admin_enqueue_scripts', array($this, 'register_styles'));
+
+        //register scripts
+        add_action('admin_enqueue_scripts', array($this, 'register_scripts'));
         
         //add meta box
         add_action('add_meta_boxes', array($this, 'add_embedding_meta_box'));
@@ -358,6 +361,21 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     public function render_page(){
         require_once plugin_dir_path(__FILE__) . 'elements/_inputs.php';
+    }
+
+    public function register_scripts(){
+        //if we are on the embeddings page
+        if (strpos(get_current_screen()->base, 'contentoracle-ai-chat-embeddings') === false) {
+            return;
+        }
+
+        //enqueue the script
+        wp_enqueue_script('contentoracle-ai-chat-embeddings', plugin_dir_url(__FILE__) . 'assets/js/embedding_explorer.js');
+
+        //localize the script with the base url
+        wp_localize_script('contentoracle-ai-chat-embeddings', 'contentoracle_ai_chat_embeddings', array(
+            'api_base_url' => rest_url()
+        ));
     }
 
     public function register_styles(){
