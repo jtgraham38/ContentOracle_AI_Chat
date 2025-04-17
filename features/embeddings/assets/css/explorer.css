@@ -16,11 +16,11 @@
 }
 
 /* Bulk Generate Embeddings */
-.coai_chat_bulk_generate_embedding_result_container {
+.coai_chat_generate_embeddings_result_container {
     padding: 1rem;
 }
 
-.coai_chat_bulk_generate_embeddings_spinner {
+.coai_chat_generate_embeddings_spinner {
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
@@ -29,19 +29,19 @@
     animation: spin 1s linear infinite;
 }
 
-.coai_chat_bulk_generate_embeddings_hidden {
+.coai_chat_generate_embeddings_hidden {
     display: none;
 }
 
-.coai_chat_bulk_generate_embeddings_show {
+.coai_chat_generate_embeddings_show {
     display: inline-block;
 }
 
-.coai_chat_bulk_embed_success_msg {
+.coai_chat_generate_embeddings_success_msg {
     color: green;
 }
 
-.coai_chat_bulk_embed_error_msg {
+.coai_chat_generate_embeddings_error_msg {
     color: red;
 }
 
