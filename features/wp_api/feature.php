@@ -479,14 +479,15 @@ class ContentOracleApi extends PluginFeature{
             //     //TODO
             // },
             'callback' => array($this, 'bulk_generate_embeddings'),
-            // 'args' => array(
-            //     'post_ids' => array(
-            //         'required' => true,
-            //         'validate_callback' => function($param, $request, $key){
-            //             return is_array($param);
-            //         }
-            //     )
-            // ),
+            'args' => array(
+                'for' => array(
+                    'required' => true,
+                    'validate_callback' => function($param, $request, $key){
+                        //check if it is in "all", "not_embedded", or a single post id
+                        return in_array($param, ['all', 'not_embedded']) || is_numeric($param);
+                    }
+                )
+            ),
             // 'sanitize_callback' => function($param, $request, $key){
             //     return array_map('intval', $param);
             // }
@@ -495,8 +496,14 @@ class ContentOracleApi extends PluginFeature{
 
     //bulk generate embeddings
     public function bulk_generate_embeddings($request){
-        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
-        $result = $api->bulk_generate_embeddings();
+        $api = new ContentOracleApiConnection(
+            $this->get_prefix(), 
+            $this->get_base_url(), 
+            $this->get_base_dir(), 
+            $this->get_client_ip()
+        );
+
+        $result = $api->bulk_generate_embeddings($request->get_param('for'));
 
         return new WP_REST_Response(array(
             'success' => $result['success'],
