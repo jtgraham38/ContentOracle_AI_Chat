@@ -470,6 +470,14 @@ class ContentOracleApi extends PluginFeature{
         ));
     }
 
+    //
+    ////
+    ////// todo: properly implement the permission callbacks on at least the bulk embed route
+    ////
+    //
+
+
+
     // register the bulk generate embeddings route
     public function register_bulk_generate_embeddings_route(){
         register_rest_route('contentoracle-ai-chat/v1', '/content-embed', array(
