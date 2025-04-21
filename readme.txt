@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.7.1  
-Stable tag: 1.6.0 
+Stable tag: 1.7.0 
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -87,6 +87,14 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.7.0 =
+* Built a dedicated REST api route to generate embeddings for content.
+* Improve UI for embedding generation.
+* Made embedding usage the default choice for the plugin.
+* Add nonce verification on all api routes.
+* Delete embeddings for posts that have been deleted.
+* Intuitively redesigned several elements of the administrative UI.
+
 = 1.6.0 =
 * Added a greeter section to help your visitors get the convesation started.
 * You can now configure suggested starting messages for your visitors.
@@ -139,6 +147,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.7.0 =
+Full compatibility, upgrade for improved UX
 
 = 1.6.0 =
 Full reverse compatibility, but upgrade for new features.
