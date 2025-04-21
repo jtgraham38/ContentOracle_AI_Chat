@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.7.1  
-Stable tag: 1.7.0 
+Stable tag: 1.7.1
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -87,6 +87,9 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.7.1 =
+* Fix a bug involving an incorrect id on embedding generation.
+
 = 1.7.0 =
 * Built a dedicated REST api route to generate embeddings for content.
 * Improve UI for embedding generation.
@@ -147,6 +150,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.7.1
+Update to fix a bug with bulk embedding generation.
 
 = 1.7.0 =
 Full compatibility, upgrade for improved UX
