@@ -299,7 +299,8 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //localize the api script with the base url
         wp_localize_script('contentoracle-ai-chat-embeddings-api', 'contentoracle_ai_chat_embeddings', array(
-            'api_base_url' => rest_url()
+            'api_base_url' => rest_url(),
+            'nonce' => wp_create_nonce('wp_rest')   //TODO: apply this to other rest api calls
         ));
     }
 
