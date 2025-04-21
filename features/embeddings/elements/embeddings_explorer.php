@@ -89,7 +89,7 @@ $posts = get_posts(array(
                 
                 <select 
                     name="bulk_generate_embeddings_option" 
-                    id="singular_generate_embeddings_select" 
+                    id="bulk_generate_embeddings_select" 
                     required
                     title="Select an option to generate embeddings for many posts at once.  This will only generate embeddings for posts of the types selected in the prompt settings, and only if a chunking method is set."    
                 >
