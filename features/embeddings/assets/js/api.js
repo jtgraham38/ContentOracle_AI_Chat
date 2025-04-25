@@ -1,3 +1,7 @@
+//log the nonce
+console.log(contentoracle_ai_chat_embeddings.nonce, 'nonce');
+
+
 //this function calls the generate embeddings route
 async function coai_generate_embeddings(_for) {
     const embed_url = contentoracle_ai_chat_embeddings.api_base_url + 'contentoracle-ai-chat/v1/content-embed';
@@ -7,6 +11,7 @@ async function coai_generate_embeddings(_for) {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', embed_url, true);
         xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('X-WP-Nonce', contentoracle_ai_chat_embeddings.nonce);
         xhr.timeout = 900000;
 
         xhr.onload = function () {

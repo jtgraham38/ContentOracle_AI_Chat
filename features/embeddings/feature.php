@@ -66,6 +66,9 @@ class ContentOracleEmbeddings extends PluginFeature{
         //auto generate embeddings
         add_action($this->get_prefix() . 'auto_generate_embeddings', array($this, 'auto_generate_embeddings'));
 
+        //delete embeddings when a post is deleted
+        add_action('delete_post', array($this, 'delete_embeddings_for_post'));
+
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -152,6 +155,20 @@ class ContentOracleEmbeddings extends PluginFeature{
 
 
     //  \\  //  \\  //  \\  //  \\ CALLBACKS NOT RELATED TO EMBEDDING GENERATION (DIRECTLY)  //  \\  //  \\  //  \\  // \\
+
+    //delete embeddings when a post is deleted
+    public function delete_embeddings_for_post($post_id){
+        //create vector table
+        $vt = new ContentOracle_VectorTable($this->get_prefix());
+
+        //get ids of all vectors for the post
+        $vectors = $vt->get_all_for_post($post_id);
+        
+        //delete the vectors
+        foreach ($vectors as $vector) {
+            $vt->delete($vector->id);
+        }
+    }
 
     //get the ip address of the client
     function get_client_ip(){
@@ -299,7 +316,8 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //localize the api script with the base url
         wp_localize_script('contentoracle-ai-chat-embeddings-api', 'contentoracle_ai_chat_embeddings', array(
-            'api_base_url' => rest_url()
+            'api_base_url' => rest_url(),
+            'nonce' => wp_create_nonce('wp_rest')   //TODO: apply this to other rest api calls
         ));
     }
 

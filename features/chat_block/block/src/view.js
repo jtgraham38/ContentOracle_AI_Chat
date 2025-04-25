@@ -110,7 +110,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		const url = this.apiBaseUrl + 'contentoracle-ai-chat/v1/chat';
 		const headers = {
 			'Content-Type': 'application/json',
-			'COAI-X-WP-Nonce': this.chatNonce
+			'X-WP-Nonce': this.chatNonce
 		}
 		const contextConversation = this.getConversationWithContext();
 		const data = {
@@ -213,7 +213,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 		//set the headers
 		xhr.setRequestHeader('Content-Type', 'application/json');
-		xhr.setRequestHeader('COAI-X-WP-Nonce', this.chatNonce);
+		xhr.setRequestHeader('X-WP-Nonce', this.chatNonce);
 
 		//set streaming handler
 		let finger = 0;

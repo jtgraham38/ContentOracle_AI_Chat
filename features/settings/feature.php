@@ -44,19 +44,7 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings'  // page (matches menu slug)
         );
 
-        // create the settings fields
-        add_settings_field(
-            $this->get_prefix() . "organization_name",    // id of the field
-            'Organization Name',   // title
-            function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/plugin/organization_name_input.php';
-            },
-            'contentoracle-ai-settings', // page (matches menu slug)
-            'coai_chat_plugin_settings',  // section
-            array(
-                'label_for' => $this->get_prefix() .'organization_name_input'
-            )
-        );
+        
 
         add_settings_field(
             $this->get_prefix() . "api_token",    // id of the field
@@ -68,20 +56,6 @@ class ContentOracleSettings extends PluginFeature{
             'coai_chat_plugin_settings',  // section
             array(
                 'label_for' => $this->get_prefix() .'api_token_input'
-            )
-        );
-
-        add_settings_field(
-            $this->get_prefix() . "ai_results_page",    // id of the field
-            'ContentOracle AI Search Results Page',   // title
-            function(){ // callback
-                require_once plugin_dir_path(__FILE__) . 'elements/plugin/ai_search_results_page_input.php';
-            },
-            'contentoracle-ai-settings', // page (matches menu slug)
-            'coai_chat_plugin_settings',  // section
-            array(
-                'label_for' => $this->get_prefix() .'ai_results_page_input',
-                'class' => 'contentoracle-ai-results-page-input'
             )
         );
 
@@ -128,30 +102,10 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_plugin_settings', // option group
-            $this->get_prefix() . 'organization_name',    // option name
-            array(  // args
-                'type' => 'string',
-                'default' => get_bloginfo('name') ?? 'Organization Name',
-                'sanitize_callback' => 'sanitize_text_field'
-            )
-        );
-
-        register_setting(
-            'coai_chat_plugin_settings', // option group
             $this->get_prefix() . 'api_token',    // option name
             array(  // args
                 'type' => 'string',
                 'default' => '',
-                'sanitize_callback' => 'sanitize_text_field'
-            )
-        );
-
-        register_setting(
-            'coai_chat_plugin_settings', // option group
-            $this->get_prefix() . 'ai_results_page',    // option name
-            array(  // args
-                'type' => 'string',
-                'default' => 'none',
                 'sanitize_callback' => 'sanitize_text_field'
             )
         );
@@ -251,6 +205,35 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings'  // page (matches menu slug)
         );
 
+        //add the organization name input
+        add_settings_field(
+            $this->get_prefix() . "organization_name",    // id of the field
+            'Organization Name',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/ai/organization_name_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'coai_chat_ai_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'organization_name_input'
+            )
+        );
+
+        //add the ai results page input
+        add_settings_field(
+            $this->get_prefix() . "ai_results_page",    // id of the field
+            'ContentOracle AI Search Results Page',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_search_results_page_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'coai_chat_ai_settings',  // section
+            array(
+                'label_for' => $this->get_prefix() .'ai_results_page_input',
+                'class' => 'contentoracle-ai-results-page-input'
+            )
+        );
+
         // create the settings fields
         add_settings_field(
             $this->get_prefix() . "post_types",    // id of the field
@@ -317,7 +300,28 @@ class ContentOracleSettings extends PluginFeature{
             )
         );
 
+        
         // create the settings themselves
+        register_setting(
+            'coai_chat_ai_settings', // option group
+            $this->get_prefix() . 'organization_name',    // option name
+            array(  // args
+                'type' => 'string',
+                'default' => get_bloginfo('name') ?? 'Organization Name',
+                'sanitize_callback' => 'sanitize_text_field'
+            )
+        );
+
+        register_setting(
+            'coai_chat_ai_settings', // option group
+            $this->get_prefix() . 'ai_results_page',    // option name
+            array(  // args
+                'type' => 'string',
+                'default' => 'none',
+                'sanitize_callback' => 'sanitize_text_field'
+            )
+        );
+
         register_setting(
             'coai_chat_ai_settings', // option group
             $this->get_prefix() . 'post_types',    // option name

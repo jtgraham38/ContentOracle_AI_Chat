@@ -187,6 +187,7 @@ class ContentOracle_VectorTable{
 
     }
 
+
     //get a vector by post id and sequence no
     public function get(int $post_id, int $sequence_no): object | null{
         global $wpdb;
@@ -197,6 +198,17 @@ class ContentOracle_VectorTable{
             $sequence_no
         ));
     }
+
+    //get all vectors for a post
+    public function get_all_for_post(int $post_id): array{
+        global $wpdb;
+
+        return $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM $this->table_name WHERE post_id = %d",
+            $post_id
+        ));
+    }
+    
 
     //get most recently generated vector for a post
     public function get_latest_updated(int $post_id): object | null{

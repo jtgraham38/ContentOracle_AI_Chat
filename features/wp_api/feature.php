@@ -38,13 +38,15 @@ class ContentOracleApi extends PluginFeature{
         //non-streamed route
         register_rest_route('contentoracle-ai-chat/v1', '/chat', array(
             'methods' => 'POST',
-            'permission_callback' => function($request){    //nonce validations
-                return true; //TODO: fix this one day!
-                $nonce = $request->get_header('COAI-X-WP-Nonce');
-                if (!wp_verify_nonce($nonce, 'contentoracle_chat_nonce')) {
-                    return new WP_Error('rest_invalid_nonce', 'Invalid nonce: contentoracle_chat_nonce', array('status' => 403));
+            'permission_callback' => function($request){
+                // Verify the nonce
+                $nonce = $request->get_header('X-WP-Nonce');
+                if (!wp_verify_nonce($nonce, 'wp_rest')) {
+                    return new WP_Error('rest_invalid_nonce', 'Invalid nonce', array('status' => 403));
                 }
-                return true;
+                
+                // Check user capabilities
+                return current_user_can('edit_posts');
             },
             'callback' => array($this, 'ai_chat'),
             'args' => array(
@@ -87,13 +89,15 @@ class ContentOracleApi extends PluginFeature{
         //streamed route
         register_rest_route('contentoracle-ai-chat/v1', '/chat/stream', array(
             'methods' => 'POST',             //TODO: change to post on going live
-            'permission_callback' => function($request){    //nonce validations
-                return true; //TODO: fix this one day!
-                $nonce = $request->get_header('COAI-X-WP-Nonce');
-                if (!wp_verify_nonce($nonce, 'contentoracle_chat_nonce')) {
-                    return new WP_Error('rest_invalid_nonce', 'Invalid nonce: contentoracle_chat_nonce', array('status' => 403));
+            'permission_callback' => function($request){
+                // Verify the nonce
+                $nonce = $request->get_header('X-WP-Nonce');
+                if (!wp_verify_nonce($nonce, 'wp_rest')) {
+                    return new WP_Error('rest_invalid_nonce', 'Invalid nonce', array('status' => 403));
                 }
-                return true;
+                
+                // Check user capabilities
+                return current_user_can('edit_posts');
             },
             'callback' => array($this, 'streamed_ai_chat'),
             'args' => array(
@@ -469,22 +473,20 @@ class ContentOracleApi extends PluginFeature{
         ));
     }
 
-    //
-    ////
-    ////// todo: properly implement the permission callbacks on at least the bulk embed route
-    ////
-    //
-
-
-
     // register the bulk generate embeddings route
     public function register_bulk_generate_embeddings_route(){
         register_rest_route('contentoracle-ai-chat/v1', '/content-embed', array(
             'methods' => 'POST',
-            // 'permission_callback' => function($request){
-            //     //add nonce check here
-            //     //TODO
-            // },
+            'permission_callback' => function($request){
+                // Verify the nonce
+                $nonce = $request->get_header('X-WP-Nonce');
+                if (!wp_verify_nonce($nonce, 'wp_rest')) {
+                    return new WP_Error('rest_invalid_nonce', 'Invalid nonce', array('status' => 403));
+                }
+                
+                // Check user capabilities
+                return current_user_can('edit_posts');
+            },
             'callback' => array($this, 'bulk_generate_embeddings'),
             'args' => array(
                 'for' => array(
