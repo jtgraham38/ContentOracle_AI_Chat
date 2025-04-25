@@ -264,12 +264,23 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
             >
                 <p>
                     <template coai-x-if="error.error_code == 'SUBSC_OUT_CHAT_USAGE' || error.error_code == 'SUBSC_OUT_EMBED_USAGE'">
+                        <div>
+                            <span>This site has reached its limit of AI chat requests.  Please try again later, and contact the site administrator to increase the limit.</span>
+                            <?php if ( current_user_can('manage_options') ){ ?>
+                                <span>
+                                    Head over to 
+                                    <a href="https://app.contentoracleai.com/dashboard" target="_blank" style="color: white;">
+                                        app.contentoracleai.com
+                                    </a>
+                                    to upgrade your subscription.
+                                </span>
+                            <?php } ?>
+                        </div>
                         <!-- <span coai-x-text="error.error_msg"></span> -->
-                        <span>This site has reached its limit of AI chat requests.  Please try again later, and contact the site administrator to increase the limit.</span>
                     </template>
                     <template coai-x-if="!( error.error_code == 'SUBSC_OUT_CHAT_USAGE' || error.error_code == 'SUBSC_OUT_EMBED_USAGE' )">
                         <div>
-                            <span>乁( ⁰͡ Ĺ̯ ⁰͡ ) ㄏ</span>
+                            <span>乁(⁰͡ Ĺ̯ ⁰͡ )ㄏ</span>
                             Sorry, something went wrong.  Please try again later.
                         </div>
                     </template>
