@@ -226,13 +226,6 @@ class ContentOracleApi extends PluginFeature{
         //send a request to the ai to generate a response
         $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
         $response = $api->streamed_ai_chat($message, $content, $conversation, 
-            // function($data){
-            //     echo $data . "\u{E000}";
-            //     flush();
-            //     ob_flush();
-            //     //ensure output is flushed
-            //     while (ob_get_level() > 0) ob_end_clean();
-            // }
             function($data){
                 //divider character, to separate the fragments of the response
                 $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
@@ -253,9 +246,10 @@ class ContentOracleApi extends PluginFeature{
                 //they will not be separated by the private use character
                 //so find them where json objects butt up against each other
                 $fragments = $this->get_json_fragments($full_data); 
+                
 
                 foreach ($fragments as $_fragment){
-
+                    
                     //attempt to parse the data from the output buffer
                     $parsed = json_decode($_fragment, true);
 
