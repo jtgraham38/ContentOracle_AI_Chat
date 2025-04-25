@@ -160,11 +160,13 @@ class ContentOracleApi extends PluginFeature{
             }
         }
         catch (ContentOracle_ResponseException $e){
+            $error_body = json_decode($e->response['body'], true);
+
             //returns the error response, with the raw error object, from the api
             return new Contentoracle_WPAPIErrorResponse(
                 $e->response,
-                $e->getMessage(),
-                'EMBED_ERR',
+                $e->getMessage() ?? $error_body['message'] ?? 'An error occurred while generating a response.',
+                $error_body['error'] ?? 'EMBED_ERR',
                 $e->error_source
             );
         } 
@@ -375,11 +377,12 @@ class ContentOracleApi extends PluginFeature{
             }
         } 
         catch (ContentOracle_ResponseException $e){
+            $error_body = json_decode($e->response['body'], true);
             //returns the error response, with the raw error object, from the api
             return new Contentoracle_WPAPIErrorResponse(
                 $e->response,
-                $e->getMessage(),
-                'EMBED_ERR',
+                $e->getMessage() ?? $error_body['message'] ?? 'An error occurred while generating a response.',
+                $error_body['error'] ?? 'EMBED_ERR',
                 $e->error_source
             );
         }
@@ -409,10 +412,12 @@ class ContentOracleApi extends PluginFeature{
         }
         catch (ContentOracle_ResponseException $e){
             //returns the error response, with the raw error object, from the api
+            $error_body = json_decode($e->response['body'], true);
+
             return new Contentoracle_WPAPIErrorResponse(
                 $e->response,
-                $e->getMessage(),
-                'AI_CHAT_ERR',
+                $e->getMessage() ?? $error_body['message'] ?? 'An error occurred while generating a response.',
+                $error_body['error'] ?? 'AI_CHAT_ERR',
                 $e->error_source
             );
         }

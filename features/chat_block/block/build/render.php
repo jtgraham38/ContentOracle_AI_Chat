@@ -263,8 +263,16 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                 class="contentoracle-ai_chat_bubble contentoracle-ai_chat_bubble_bot contentoracle-ai_chat_bubble_error"
             >
                 <p>
-                    <span>乁( ⁰͡ Ĺ̯ ⁰͡ ) ㄏ</span>
-                    Sorry, something went wrong.  Please try again later.
+                    <template coai-x-if="error.error_code == 'SUBSC_OUT_CHAT_USAGE' || error.error_code == 'SUBSC_OUT_EMBED_USAGE'">
+                        <!-- <span coai-x-text="error.error_msg"></span> -->
+                        <span>This site has reached its limit of AI chat requests.  Please try again later, and contact the site administrator to increase the limit.</span>
+                    </template>
+                    <template coai-x-if="!( error.error_code == 'SUBSC_OUT_CHAT_USAGE' || error.error_code == 'SUBSC_OUT_EMBED_USAGE' )">
+                        <div>
+                            <span>乁( ⁰͡ Ĺ̯ ⁰͡ ) ㄏ</span>
+                            Sorry, something went wrong.  Please try again later.
+                        </div>
+                    </template>
                 </p>
             </div>
         </template>
@@ -294,7 +302,8 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
         </button>
     </form>
     <?php if ( get_option('coai_chat_debug_mode', false) ){ ?>
-        <span style="color: red;" coai-x-text="error"></span>
+        <span style="color: red;" coai-x-text="error.error_code"></span>
+        <span style="color: red;" coai-x-text="error.error_msg"></span>
         <span style="color: red;">See the console for more debugging info!</span>
     <?php } ?>
     <?php if ( get_option('coai_chat_display_credit_link', false) ){ ?>
