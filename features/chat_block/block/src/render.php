@@ -267,13 +267,13 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
                         <div>
                             <span>This site has reached its limit of AI chat requests.  Please try again later, and contact the site administrator to increase the limit.</span>
                             <?php if ( current_user_can('manage_options') ){ ?>
-                                <span>
+                                <div>
                                     Head over to 
                                     <a href="https://app.contentoracleai.com/dashboard" target="_blank" style="color: white;">
                                         app.contentoracleai.com
                                     </a>
                                     to upgrade your subscription.
-                                </span>
+                            </div>
                             <?php } ?>
                         </div>
                         <!-- <span coai-x-text="error.error_msg"></span> -->
