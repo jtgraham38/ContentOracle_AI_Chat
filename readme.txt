@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.7.1  
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -87,6 +87,11 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.7.2 =
+* Fixed a bug that prevented non-authenticated users from chatting.
+* Fix a bug with error handling on streamed responses.
+* Show a notice when free users run out of trial usage.
+
 = 1.7.1 =
 * Fix a bug involving an incorrect id on embedding generation.
 
@@ -151,7 +156,10 @@ This plugin uses the following libraries:
 
 == Upgrade Notice ==
 
-= 1.7.1
+= 1.7.2 =
+Please upgrade to fix the permission callback to allow guests to chat.
+
+= 1.7.1 =
 Update to fix a bug with bulk embedding generation.
 
 = 1.7.0 =

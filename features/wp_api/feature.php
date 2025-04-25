@@ -46,7 +46,7 @@ class ContentOracleApi extends PluginFeature{
                 }
                 
                 // Check user capabilities
-                return current_user_can('edit_posts');
+                return true;
             },
             'callback' => array($this, 'ai_chat'),
             'args' => array(
@@ -97,7 +97,7 @@ class ContentOracleApi extends PluginFeature{
                 }
                 
                 // Check user capabilities
-                return current_user_can('edit_posts');
+                return true;
             },
             'callback' => array($this, 'streamed_ai_chat'),
             'args' => array(
