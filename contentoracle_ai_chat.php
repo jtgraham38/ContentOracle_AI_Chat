@@ -64,5 +64,10 @@ require_once plugin_dir_path(__FILE__) . 'features/analytics/feature.php';
 $feature = new ContentOracleAnalytics();
 $plugin->register_feature($feature);
 
+//register the shortcodes feature
+require_once plugin_dir_path(__FILE__) . 'features/shortcodes/feature.php';
+$feature = new ContentOracleShortcodes();
+$plugin->register_feature($feature);
+
 //init the plugin
 $plugin->init();
