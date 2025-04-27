@@ -31,20 +31,20 @@ class ContentOracleShortcodes extends PluginFeature{
     //register a custom post type, which can only contain coai chat blocks
     public function register_coai_chat_shortcode_post_type(){
         $labels = array(
-            'name'               => _x('Chat Shortcodes', 'post type general name', 'contentoracle-ai-chat'),
-            'singular_name'      => _x('Chat Shortcode', 'post type singular name', 'contentoracle-ai-chat'),
-            'menu_name'          => _x('Chat Shortcodes', 'admin menu', 'contentoracle-ai-chat'),
-            'name_admin_bar'     => _x('Chat Shortcode', 'add new on admin bar', 'contentoracle-ai-chat'),
-            'add_new'            => _x('Add New', 'chat shortcode', 'contentoracle-ai-chat'),
-            'add_new_item'       => __('Add New Chat Shortcode', 'contentoracle-ai-chat'),
-            'new_item'           => __('New Chat Shortcode', 'contentoracle-ai-chat'),
-            'edit_item'          => __('Edit Chat Shortcode', 'contentoracle-ai-chat'),
-            'view_item'          => __('View Chat Shortcode', 'contentoracle-ai-chat'),
-            'all_items'          => __('All Chat Shortcodes', 'contentoracle-ai-chat'),
-            'search_items'       => __('Search Chat Shortcodes', 'contentoracle-ai-chat'),
-            'parent_item_colon'  => __('Parent Chat Shortcodes:', 'contentoracle-ai-chat'),
-            'not_found'          => __('No chat shortcodes found.', 'contentoracle-ai-chat'),
-            'not_found_in_trash' => __('No chat shortcodes found in Trash.', 'contentoracle-ai-chat')
+            'name'               => _x('ContentOracle AI Chat Shortcodes', 'post type general name', 'contentoracle-ai-chat'),
+            'singular_name'      => _x('ContentOracle AI Chat Shortcode', 'post type singular name', 'contentoracle-ai-chat'),
+            'menu_name'          => _x('ContentOracle AI Chat Shortcodes', 'admin menu', 'contentoracle-ai-chat'),
+            'name_admin_bar'     => _x('ContentOracle AI Chat Shortcode', 'add new on admin bar', 'contentoracle-ai-chat'),
+            'add_new'            => _x('Add New', 'ContentOracle AI chat shortcode', 'contentoracle-ai-chat'),
+            'add_new_item'       => __('Add New ContentOracle AI Chat Shortcode', 'contentoracle-ai-chat'),
+            'new_item'           => __('New ContentOracle AI Chat Shortcode', 'contentoracle-ai-chat'),
+            'edit_item'          => __('Edit ContentOracle AI Chat Shortcode', 'contentoracle-ai-chat'),
+            'view_item'          => __('View ContentOracle AI Chat Shortcode', 'contentoracle-ai-chat'),
+            'all_items'          => __('All ContentOracle AI Chat Shortcodes', 'contentoracle-ai-chat'),
+            'search_items'       => __('Search ContentOracle AI Chat Shortcodes', 'contentoracle-ai-chat'),
+            'parent_item_colon'  => __('Parent ContentOracle AI Chat Shortcodes:', 'contentoracle-ai-chat'),
+            'not_found'          => __('No contentoracle AI chat shortcodes found.', 'contentoracle-ai-chat'),
+            'not_found_in_trash' => __('No Contentoracle AI chat shortcodes found in Trash.', 'contentoracle-ai-chat')
         );
 
         $args = array(
