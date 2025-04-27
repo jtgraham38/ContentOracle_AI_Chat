@@ -11,7 +11,10 @@ global $wpdb;
 $post_types = get_post_types(array(), 'objects');
 
 //exclude certain useless (for purposes of ai generation) post types
-$exclude = array('attachment', 'revision', 'nav_menu_item', 'custom_css', 'customize_changeset', 'oembed_cache', 'user_request', 'wp_block', 'acf-field-group', 'acf-field', 'wp_font_family', 'wp_font_face', 'wp_global_styles');
+$exclude = array(
+    'attachment', 'revision', 'nav_menu_item', 'custom_css', 'customize_changeset', 'oembed_cache', 'user_request', 'wp_block', 'acf-field-group', 'acf-field', 'wp_font_family', 'wp_font_face', 'wp_global_styles',
+    'coai_chat_shortcode'
+);
 foreach ($exclude as $ex){
     unset($post_types[$ex]);
 }
