@@ -20,6 +20,10 @@ class ContentOracleShortcodes extends PluginFeature{
     public function add_actions(){
         add_action('init', array($this, 'register_coai_chat_shortcode_post_type'));
         add_action('admin_menu', array($this, 'register_shortcodes_post_type_page'));
+        add_action('init', array($this, 'register_shortcodes'));
+        add_action('manage_coai_chat_shortcode_posts_columns', array($this, 'add_shortcode_column'));
+        add_action('manage_coai_chat_shortcode_posts_custom_column', array($this, 'display_shortcode_column'), 10, 2);
+        add_action('admin_footer', array($this, 'add_copy_script'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -55,7 +59,7 @@ class ContentOracleShortcodes extends PluginFeature{
             'has_archive'        => false,
             'hierarchical'       => false,
             'menu_position'      => null,
-            'supports'           => array('editor'),
+            'supports'           => array('editor', 'title'),
             'show_in_rest'       => true,
         );
 
@@ -111,5 +115,94 @@ class ContentOracleShortcodes extends PluginFeature{
             $settings['focusMode'] = true;
         }
         return $settings;
+    }
+
+    // Add shortcode column to the post list table
+    public function add_shortcode_column($columns) {
+        $new_columns = array();
+        foreach ($columns as $key => $value) {
+            $new_columns[$key] = $value;
+            if ($key === 'title') {
+                $new_columns['shortcode'] = __('Shortcode', 'contentoracle-ai-chat');
+            }
+        }
+        return $new_columns;
+    }
+
+    // Display shortcode in the custom column
+    public function display_shortcode_column($column, $post_id) {
+        if ($column === 'shortcode') {
+            $post = get_post($post_id);
+            $shortcode_name = 'coai_chat_' . sanitize_title($post->post_title);
+            echo '<code>[' . esc_html($shortcode_name) . ']</code>';
+            echo '<button class="button button-small copy-shortcode" data-shortcode="[' . esc_attr($shortcode_name) . ']" style="margin-left: 8px;">' . __('Copy', 'contentoracle-ai-chat') . '</button>';
+        }
+    }
+
+    // Register shortcodes for each custom post
+    public function register_shortcodes() {
+        // Get all published shortcode posts
+        $shortcodes = get_posts(array(
+            'post_type' => 'coai_chat_shortcode',
+            'post_status' => 'publish',
+            'numberposts' => -1
+        ));
+
+        // Register a shortcode for each post
+        foreach ($shortcodes as $shortcode) {
+            $shortcode_name = 'coai_chat_' . sanitize_title($shortcode->post_title);
+            add_shortcode($shortcode_name, function($atts) use ($shortcode) {
+                return $this->render_shortcode($shortcode);
+            });
+        }
+    }
+
+    // Render the shortcode content
+    private function render_shortcode($post) {
+        // Start output buffering
+        ob_start();
+        
+        // Get the post content
+        $content = $post->post_content;
+        
+        // Apply WordPress filters
+        $content = apply_filters('the_content', $content);
+        
+        // Output the content
+        echo $content;
+        
+        // Return the buffered content
+        return ob_get_clean();
+    }
+
+    // Add JavaScript for copy functionality
+    public function add_copy_script() {
+        // Only add script on the shortcodes list page
+        if (!isset($_GET['post_type']) || $_GET['post_type'] !== 'coai_chat_shortcode') {
+            return;
+        }
+        ?>
+        <script>
+        jQuery(document).ready(function($) {
+            $('.copy-shortcode').on('click', function(event) {
+                event.preventDefault();
+                var shortcode = $(this).data('shortcode');
+                var tempInput = $('<input>');
+                $('body').append(tempInput);
+                tempInput.val(shortcode).select();
+                document.execCommand('copy');
+                tempInput.remove();
+                
+                // Change button text temporarily
+                var $button = $(this);
+                var originalText = $button.text();
+                $button.text('<?php _e('Copied!', 'contentoracle-ai-chat'); ?>');
+                setTimeout(function() {
+                    $button.text(originalText);
+                }, 2000);
+            });
+        });
+        </script>
+        <?php
     }
 }
