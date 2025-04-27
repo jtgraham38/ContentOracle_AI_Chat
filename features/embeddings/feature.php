@@ -330,6 +330,11 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     //    \\    add meta box to post editor    //    \\
     public function add_embedding_meta_box(){
+        //only add the meta box if the post type is in the list of post types that are indexed by the AI
+        if (!in_array(get_post_type(), get_option($this->get_prefix() . 'post_types', []))) {
+            return;
+        }
+
         add_meta_box(
             'contentoracle-ai-chat-embeddings',
             'ContentOracle AI Embeddings',
