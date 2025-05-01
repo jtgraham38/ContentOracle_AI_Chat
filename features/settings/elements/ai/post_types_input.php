@@ -63,7 +63,12 @@ $post_types_setting = get_option($this->get_prefix() . 'post_types');
                                         id="<?php echo esc_attr($post_type) ?>_prompt_meta_keys" 
                                         title="Enter the meta keys of post meta for this post type that should be used by the ai to generate a response.  Separate multiple keys with commas." 
                                         name="<?php echo esc_attr($this->get_prefix() . $post_type); ?>_prompt_meta_keys" 
-                                        value="<?php echo esc_attr( implode( "," ,get_option( $this->get_prefix() . $post_type . '_prompt_meta_keys') ) ) ; ?>" 
+                                        <?php 
+                                            $value = get_option( $this->get_prefix() . $post_type . '_prompt_meta_keys');
+                                            $value = is_array($value) ? implode( "," ,$value) : $value;
+                                            $value = $value ? $value : '';
+                                        ?>
+                                        value="<?php echo esc_attr( $value ); ?>" 
                                         style="width: 100%;" 
                                     />
                                     <details>
