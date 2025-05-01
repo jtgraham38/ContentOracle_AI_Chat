@@ -53,6 +53,9 @@ $post_types_setting = get_option($this->get_prefix() . 'post_types');
                     <?php
                         if (count($post_types_setting) > 0):
                             foreach ($post_types_setting as $i=>$post_type):
+                                if ($post_type == ''):
+                                    continue;
+                                endif;
                             ?>
                                 <div style="padding: 0.2rem;">
                                     <label for="<?php echo esc_attr($post_type) ?>_prompt_meta_keys">
@@ -63,12 +66,11 @@ $post_types_setting = get_option($this->get_prefix() . 'post_types');
                                         id="<?php echo esc_attr($post_type) ?>_prompt_meta_keys" 
                                         title="Enter the meta keys of post meta for this post type that should be used by the ai to generate a response.  Separate multiple keys with commas." 
                                         name="<?php echo esc_attr($this->get_prefix() . $post_type); ?>_prompt_meta_keys" 
-                                        <?php 
-                                            $value = get_option( $this->get_prefix() . $post_type . '_prompt_meta_keys');
-                                            $value = is_array($value) ? implode( "," ,$value) : $value;
-                                            $value = $value ? $value : '';
-                                        ?>
-                                        value="<?php echo esc_attr( $value ); ?>" 
+                                        value="<?php echo esc_attr( 
+                                            implode( ",", is_array(get_option( $this->get_prefix() . $post_type . '_prompt_meta_keys') ) ? 
+                                                get_option( $this->get_prefix() . $post_type . '_prompt_meta_keys') : [ get_option( $this->get_prefix() . $post_type . '_prompt_meta_keys') ] 
+                                            )
+                                         ); ?>" 
                                         style="width: 100%;" 
                                     />
                                     <details>
