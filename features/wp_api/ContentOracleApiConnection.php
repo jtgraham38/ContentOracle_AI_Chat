@@ -293,6 +293,12 @@ class ContentOracleApiConnection{
 
             //add post titles and types to the beginning of each chunk
             foreach ($chunked_post->chunks as $i => $chunk){
+                //ensure chunk is an array
+                if (!is_array($chunk)){
+                    $chunk = [$chunk];
+                }
+
+                //merge the title and type with the chunk
                 $chunked_post->chunks[$i] = array_merge(
                     ["Title: ". get_the_title($post->ID)],
                     ["Type: " . get_post_type($post->ID)],
