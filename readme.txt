@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8  
-Stable tag: 1.7.2
+Stable tag: 1.8.0
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -87,6 +87,11 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.8.0 =
+* Fixed a bug in the bulk embedding route.
+* Fixed a bug in the post meta selector.
+* Added a way to place blocks on the site using shortcodes.
+
 = 1.7.2 =
 * Fixed a bug that prevented non-authenticated users from chatting.
 * Fix a bug with error handling on streamed responses.
@@ -155,6 +160,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+Upgrade for bug fixes and for shortcode support.
 
 = 1.7.2 =
 Please upgrade to fix the permission callback to allow guests to chat.
