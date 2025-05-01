@@ -510,7 +510,6 @@ class ContentOracleApi extends PluginFeature{
 
     //bulk generate embeddings
     public function bulk_generate_embeddings($request){
-
         $api = new ContentOracleApiConnection(
             $this->get_prefix(), 
             $this->get_base_url(), 
@@ -519,6 +518,14 @@ class ContentOracleApi extends PluginFeature{
         );
 
         $result = $api->bulk_generate_embeddings($request->get_param('for'));
+
+        //if the result is an error, return the error
+        if (is_wp_error($result)) {
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => $result->get_error_message()
+            ), 400);
+        }
 
         return new WP_REST_Response(array(
             'success' => $result['success'],

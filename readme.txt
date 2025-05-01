@@ -87,6 +87,9 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.8.1 =
+* Bug fix in bulk embed route.
+
 = 1.8.0 =
 * Fixed a bug in the bulk embedding route.
 * Fixed a bug in the post meta selector.
@@ -160,6 +163,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.8.1 =
+Fix bug in bulk embed route.
 
 = 1.8.0 =
 Upgrade for bug fixes and for shortcode support.
