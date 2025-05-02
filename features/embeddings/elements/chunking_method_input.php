@@ -18,7 +18,7 @@ $value =  get_option($this->get_prefix() . 'chunking_method', null);
         name="<?php echo esc_attr($this->get_prefix()) ?>chunking_method"
         title="Select the chunking method that should be used when generating embeddings of your post content.  This will determine how the content is broken up into smaller pieces for embedding generation.  If no chunking method is set, embeddings will not be generated, and keyword search will be used instead."
     >
-        <option value="" selected>None (Use keyword search).</option>
+        <option value="none" selected>None (Use keyword search).</option>
         <?php foreach ($options as $key => $value) { ?>
             <option value="<?php echo esc_attr($key) ?>" <?php echo esc_attr(get_option($this->get_prefix() . 'chunking_method', null)) == $key ? "selected" : "" ?>  ><?php echo esc_html($value) ?></option>
         <?php } ?>
