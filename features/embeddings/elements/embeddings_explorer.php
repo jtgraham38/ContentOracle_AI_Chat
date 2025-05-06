@@ -112,11 +112,11 @@ $posts = get_posts(array(
         </div>
 
         <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_success_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_success_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Embeddings generated successfully!</p>
+            <p>Posts enqueued for embedding generation.</p>
         </div>
 
         <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_error_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_error_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Error generating embeddings!</p>
+            <p>Error enqueuing posts for embedding generation!</p>
         </div>
     </div>
 
