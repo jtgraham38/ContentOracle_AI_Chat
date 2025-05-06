@@ -16,7 +16,6 @@ class VectorTableQueue {
         $this->plugin_prefix = $plugin_prefix;
         $this->table_name = $wpdb->prefix . $plugin_prefix . 'post_embed_queue';
         $this->db_version = '1.0';
-        $this->vector_length = $vector_length;
 
         //call initialize function
         $this->init();
@@ -267,5 +266,11 @@ class VectorTableQueue {
             array('%s', '%s', '%s'),
             array('%d')
         ) !== false;
+    }
+
+    //delete a post from the queue
+    public function delete_post($post_id) {
+        global $wpdb;
+        return $wpdb->delete($this->table_name, array('post_id' => $post_id), array('%d'));
     }
 } 

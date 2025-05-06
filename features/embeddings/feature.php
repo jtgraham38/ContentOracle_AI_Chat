@@ -125,7 +125,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         $queue = new VectorTableQueue($this->get_prefix());
         $queue->add_posts($post_ids);
     }
-    
+
     //enqueue all posts
     public function enqueue_all_posts(){
         //get all posts where
@@ -154,6 +154,10 @@ class ContentOracleEmbeddings extends PluginFeature{
         foreach ($vectors as $vector) {
             $vt->delete($vector->id);
         }
+
+        //delete the queue item
+        $queue = new VectorTableQueue($this->get_prefix());
+        $queue->delete_post($post_id);
     }
 
     //get the ip address of the client
