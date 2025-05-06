@@ -70,50 +70,6 @@ $queue_records = $Q->get_all_records();
 <div id="<?php echo esc_attr( $this->get_prefix() ) ?>embeddings_explorer">
 
     <div>
-        <h3>Bulk Generate Embeddings</h3>
-        <p>Generate embeddings for many posts at once!</p>
-
-        <form 
-            method="POST" 
-            id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_form"
-        >
-            <label for="bulk_generate_embeddings_select">Bulk Options</label>
-            <div style="display: flex;" >
-                
-                <select 
-                    name="bulk_generate_embeddings_option" 
-                    id="bulk_generate_embeddings_select" 
-                    required
-                    title="Select an option to generate embeddings for many posts at once.  This will only generate embeddings for posts of the types selected in the prompt settings, and only if a chunking method is set."    
-                >
-                    <option value="" selected>Select an option...</option>
-                    <option value="not_embedded">All Posts Without Embeddings</option>
-                    <option value="all">All Posts</option>
-                </select>
-                <input type="submit" value="Generate Embeddings" class="button-primary">
-            </div>
-        </form>
-
-        <!-- spinner, success, error -->
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_result_container" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_result_container" >
-            <span id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_spinner" 
-                class="
-                    <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_spinner
-                    <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden
-            ">
-            </span>
-        </div>
-
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_success_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_success_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Posts enqueued for embedding generation.</p>
-        </div>
-
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_error_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_error_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Error enqueuing posts for embedding generation!</p>
-        </div>
-    </div>
-
-    <div>
         <h3>Embedding Queue</h3>
         <p>In this table, you will find all the posts that are scheduled to have embeddings generated.</p>
 
@@ -153,6 +109,49 @@ $queue_records = $Q->get_all_records();
             </tbody>
             
         </table>
+    </div>
+
+    <div>
+        <h3>Schedule Posts for Embedding</h3>
+
+        <form 
+            method="POST" 
+            id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_form"
+        >
+            <label for="bulk_generate_embeddings_select">Schedule Options</label>
+            <div style="display: flex;" >
+                
+                <select 
+                    name="bulk_generate_embeddings_option" 
+                    id="bulk_generate_embeddings_select" 
+                    required
+                    title="Select an option to generate embeddings for many posts at once.  This will only generate embeddings for posts of the types selected in the prompt settings, and only if a chunking method is set."    
+                >
+                    <option value="" selected>Select an option...</option>
+                    <option value="not_embedded">All Posts Without Embeddings</option>
+                    <option value="all">All Posts</option>
+                </select>
+                <input type="submit" value="Generate Embeddings" class="button-primary">
+            </div>
+        </form>
+
+        <!-- spinner, success, error -->
+        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_result_container" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_result_container" >
+            <span id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_spinner" 
+                class="
+                    <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_spinner
+                    <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden
+            ">
+            </span>
+        </div>
+
+        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_success_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_success_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
+            <p>Posts enqueued for embedding generation.</p>
+        </div>
+
+        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_error_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_error_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
+            <p>Error enqueuing posts for embedding generation!</p>
+        </div>
     </div>
 
 </div>
