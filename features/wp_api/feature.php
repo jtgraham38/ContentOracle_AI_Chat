@@ -28,7 +28,6 @@ class ContentOracleApi extends PluginFeature{
     public function add_actions(){
         add_action('rest_api_init', array($this, 'register_search_rest_routes'));
         add_action('rest_api_init', array($this, 'register_healthcheck_rest_route'));
-        add_action('rest_api_init', array($this, 'register_bulk_generate_embeddings_route'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -137,8 +136,6 @@ class ContentOracleApi extends PluginFeature{
             )
         ));
     }
-
-    
 
     //streamed chat callback
     public function streamed_ai_chat($request){
@@ -471,66 +468,6 @@ class ContentOracleApi extends PluginFeature{
             'action' => $ai_action,
             'engineered_prompt' => $ai_engineered_input,
         ));
-    }
-
-    // register the bulk generate embeddings route
-    public function register_bulk_generate_embeddings_route(){
-        register_rest_route('contentoracle-ai-chat/v1', '/content-embed', array(
-            'methods' => 'POST',
-            'permission_callback' => function($request){
-                // Verify the nonce
-                $nonce = $request->get_header('X-WP-Nonce');
-                if (!wp_verify_nonce($nonce, 'wp_rest')) {
-                    return new WP_Error('rest_invalid_nonce', 'Invalid nonce', array('status' => 403));
-                }
-                
-                // Check user capabilities
-                return current_user_can('edit_posts');
-            },
-            'callback' => array($this, 'bulk_generate_embeddings'),
-            'args' => array(
-                'for' => array(
-                    'required' => true,
-                    'validate_callback' => function($param, $request, $key){
-                        //check if it is in "all", "not_embedded", or a single post id
-                        return in_array($param, ['all', 'not_embedded']) || is_numeric($param);
-                    },
-                    'sanitize_callback' => function($param, $request, $key){
-                        if (in_array($param, ['all', 'not_embedded'])){
-                            return sanitize_text_field($param);
-                        }
-                        else{
-                            return intval($param);
-                        }
-                    }
-                )
-            )
-        ));
-    }
-
-    //bulk generate embeddings
-    public function bulk_generate_embeddings($request){
-        $api = new ContentOracleApiConnection(
-            $this->get_prefix(), 
-            $this->get_base_url(), 
-            $this->get_base_dir(), 
-            $this->get_client_ip()
-        );
-
-        $result = $api->bulk_generate_embeddings($request->get_param('for'));
-
-        //if the result is an error, return the error
-        if (is_wp_error($result)) {
-            return new WP_REST_Response(array(
-                'success' => false,
-                'message' => $result->get_error_message()
-            ), 400);
-        }
-
-        return new WP_REST_Response(array(
-            'success' => $result['success'],
-            'message' => $result['message']
-        ), 200);
     }
 
     //simple keyword search to find relevant posts

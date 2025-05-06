@@ -11,6 +11,7 @@ use jtgraham38\jgwordpresskit\PluginFeature;
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 
 require_once plugin_dir_path(__FILE__) . 'VectorTable.php';
+require_once plugin_dir_path(__FILE__) . 'VectorQueueTable.php';
 require_once plugin_dir_path(__FILE__) . '../wp_api/ContentOracleApiConnection.php';
 
 class ContentOracleEmbeddings extends PluginFeature{
@@ -39,119 +40,104 @@ class ContentOracleEmbeddings extends PluginFeature{
         //add meta box
         add_action('add_meta_boxes', array($this, 'add_embedding_meta_box'));
 
-        
-        //register these only for the post types that are indexed by the AI
-        $post_types = get_option($this->get_prefix() . 'post_types', []);
-        foreach ($post_types as $post_type) {
-            //mark the post as needing new embeddings
-            add_action('save_post_' . $post_type, array($this, 'flag_post_for_embedding_generation'), 10, 3);  //this one runs before the generate_embeddings_on_save hook
-
-
-            //generate new embeddings for a saved post
-            //TODO: make this hook only register on the specific post types that are indexed by the AI
-            add_action('save_post_' . $post_type, array($this, 'generate_embeddings_on_save'), 20, 3);  //this one runs after the flag_post_for_embedding_generation hook
-    
-        }
-
         //show a notice to generate embeddings
         add_action('admin_notices', array($this, 'show_generate_embeddings_notice'));
 
-        //add a cron hook to hook into 
-        //check if the task is scheduled already (to prevent duplicate scheduling)
-        if (! wp_next_scheduled($this->get_prefix() . 'auto_generate_embeddings')) {            
-            //schedule the task
-            wp_schedule_event(time(), 'weekly', $this->get_prefix() . 'auto_generate_embeddings');
-        }
-
-        //auto generate embeddings
-        add_action($this->get_prefix() . 'auto_generate_embeddings', array($this, 'auto_generate_embeddings'));
 
         //delete embeddings when a post is deleted
         add_action('delete_post', array($this, 'delete_embeddings_for_post'));
+
+
+        //    \\    //    CREATE NEW SYSTEM FOR EMBEDDINGS    //    \\
+
+        //queue posts for embedding generation from the editor, based on the type of post
+        add_action('save_post', array($this, 'enqueue_embedding_from_editor'), 10, 3);
 
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
 
+    //  \\  //  \\  //  \\  //  \\ MANAGE QUEUE FOR POSTS REQUIRING EMBEDDINGS  //  \\  //  \\  //  \\  // \\
+    
+
+
+    //  \\  //  \\  //  \\  //  \\ ENQUEUE POSTS AT DIFFERENT TIMES  //  \\  //  \\  //  \\  // \\
+
     //callback that flags a post for embedding generation when the checkbox is checked
-    public function flag_post_for_embedding_generation($post_ID, $post, $update){
+    public function enqueue_embedding_from_editor($post_ID, $post, $update){
         // check if this is an autosave. If it is, our form has not been submitted, so we don't want to do anything.
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return;
         }
-
+        
         // check the user's permissions.
         if (!current_user_can('edit_post', $post_ID)) {
             return;
         }
-
+        
         //nonce verification
         if (!isset($_POST[$this->get_prefix() . 'generate_embeddings_nonce']) 
-            || 
-            !wp_verify_nonce($_POST[$this->get_prefix() . 'generate_embeddings_nonce'], $this->get_prefix() . 'save_generate_embeddings')
+        || 
+        !wp_verify_nonce($_POST[$this->get_prefix() . 'generate_embeddings_nonce'], $this->get_prefix() . 'save_generate_embeddings')
         ) {
             return;
         }
-
+        
         //check if the post is of the correct post type
         if (!in_array($post->post_type, get_option($this->get_prefix() . 'post_types', []))) {
+            return;
+        }
+
+        //check if the checkbox is checked
+        if (!isset($_POST[$this->get_prefix() . 'generate_embeddings'])) {
             return;
         }
         
         //update flag post meta for embedding generation if the checkbox is checked
-        if (isset($_POST[$this->get_prefix() . 'generate_embeddings'])) {
-            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', true);
-        }
-        else {
-            update_post_meta($post_ID, $this->get_prefix() . 'should_generate_embeddings', false);
-        }
+        $queue = new VectorTableQueue($this->get_prefix());
+        $queue->add_post($post_ID);
     }
 
-    // callback that generates embeddings for a post when it is saved, if the should_generate_embeddings flag is set
-    public function generate_embeddings_on_save($post_ID, $post, $update){
+    //enqueue all posts that are not already embedded
+    public function enqueue_all_posts_that_are_not_already_embedded(){
+        //get all posts that are:
+        // 1. not already embedded
+        // 2. of the correct post type
+        // 3. status is publish
 
-        // check if this is an autosave. If it is, our form has not been submitted, so we don't want to do anything.
-        if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
-            return;
-        }
+        //get all posts that are not already embedded
+        $posts = get_posts(array(
+            'post_type' => get_option($this->get_prefix() . 'post_types', []),
+            'post_status' => 'publish',
+            'meta_query' => array(
+                array(
+                    'key' => $this->get_prefix() . 'embeddings',
+                    'value' => '',
+                    'compare' => 'NOT EXISTS'
+                )
+            )
+        ));
+        $post_ids = array_map(function($post){
+            return $post->ID;
+        }, $posts);
 
-        // check the user's permissions.
-        if (!current_user_can('edit_post', $post->ID)) {
-            return;
-        }
-
-        //check if we should generate embeddings for this post by checking the prefix_should_generate_embeddings flag
-        if (get_post_meta($post->ID, $this->get_prefix() . 'should_generate_embeddings', true ) != true) {
-            return;
-        }
-
-        //check if the post is of the correct post type
-        if (!in_array($post->post_type, get_option($this->get_prefix() . 'post_types', []))) {
-            return;
-        }
-
-        //ensure the post is being published
-        if ($post->post_status != 'publish') {
-            return;
-        }
-
-        //check the chunking method setting (TODO: integrate this into the embedding generation process)
-        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
-        if ($chunking_method == 'none' || $chunking_method == '') {
-            return;
-        }
-
-        //generate the embeddings for the post
-        $api = new ContentOracleApiConnection(
-            $this->get_prefix(), 
-            $this->get_base_url(), 
-            $this->get_base_dir(), 
-            $this->get_client_ip()
-        );
-        $api->bulk_generate_embeddings($post->ID);
-        
-        return $post;
+        //enqueue the posts
+        $queue = new VectorTableQueue($this->get_prefix());
+        $queue->add_posts($post_ids);
     }
+    
+    //enqueue all posts
+    public function enqueue_all_posts(){
+        //get all posts where
+        // 1. of the correct post type
+        // 2. status is publish
+        $posts = get_posts(array(
+            'post_type' => get_option($this->get_prefix() . 'post_types', []),
+            'post_status' => 'publish'
+        ));
+    }
+
+
 
 
     //  \\  //  \\  //  \\  //  \\ CALLBACKS NOT RELATED TO EMBEDDING GENERATION (DIRECTLY)  //  \\  //  \\  //  \\  // \\
@@ -375,33 +361,6 @@ class ContentOracleEmbeddings extends PluginFeature{
             echo '<p>Visit <a href="' . esc_url($generate_embeddings_url) . '" >this page </a> to generate embeddings for your posts, or set the embedding chunking method to none.</p>';
             echo '</div>';
         }
-    }
-
-    //  \\  //  \\  //  \\  //  AUTO GENERATE EMBEDDINGS  //  \\  //  \\  //  \\  //  \\
-    public function auto_generate_embeddings(){
-
-        //check if the auto-generate embeddings setting is set
-        if (!get_option($this->get_prefix() . 'auto_generate_embeddings', false)) {
-            return;
-        }
-
-        //get the post types that are indexed by the AI
-        $post_types = get_option($this->get_prefix() . 'post_types', []);
-        if (empty($post_types)) {
-            return;
-        }
-
-        //get the posts to generate embeddings for
-        $for = get_option($this->get_prefix() . 'auto_generate_only_new_embeddings', false) ? 'not_embedded' : 'all';
-
-        //generate embeddings for the posts
-        $api = new ContentOracleApiConnection(
-            $this->get_prefix(), 
-            $this->get_base_url(), 
-            $this->get_base_dir(), 
-            $this->get_client_ip()
-        );
-        $api->bulk_generate_embeddings($for);
     }
 
 }
