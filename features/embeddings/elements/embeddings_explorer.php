@@ -6,12 +6,13 @@ if (!defined('ABSPATH')) {
 
 require_once plugin_dir_path(__FILE__) . '../../../vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . '../VectorTable.php';
+require_once plugin_dir_path(__FILE__) . '../VectorQueueTable.php';
 require_once plugin_dir_path(__FILE__) . '../chunk_getters.php';
 
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 //access to vector table
 $VT = new ContentOracle_VectorTable($this->get_prefix() ?? "coai_chat_");
-
+$Q = new VectorTableQueue($this->get_prefix() ?? "coai_chat_");
 //$result = $VT->search(json_encode( $vector ));
 //this file shows an input, and uses it to display the raw embeddings values for a given post
 
@@ -39,16 +40,8 @@ if (!is_array($embeddings)) {
     $embeddings = [];
 }
 
-//get the types of posts that are indexed by the AI
-$post_types = get_option('coai_chat_post_types');
-
-//get all posts of the indexed types
-$posts = get_posts(array(
-    'post_type' => $post_types,
-    'numberposts' => -1,
-    'orderby' => 'post_type',
-    'order' => 'ASC'
-));
+//get all the embedding queue records
+$queue_records = $Q->get_all_records();
 ?>
 <details>
     <summary>Tips</summary>
@@ -120,124 +113,46 @@ $posts = get_posts(array(
         </div>
     </div>
 
-    <br>
-    <hr>
-    <br>
-
     <div>
-        <h3>View Embeddings</h3>
-        <p>Select a post to view and re-generate its embeddings.</p>
+        <h3>Embedding Queue</h3>
+        <p>In this table, you will find all the posts that are scheduled to have embeddings generated.</p>
 
-        <label for="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector">Post</label>
-        <select 
-            name="post_id" 
-            required 
-            id="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector"
-            title="The embeddings shown in the table below are for the selected post.  Embeddings will be generated for this post if the button is pressed."
-        >
-            <option value="" selected>Select a post...</option>
-            <?php foreach ($posts as $post) { ?>
-                <option value="<?php echo esc_attr( $post->ID ); ?>" <?php selected( $post_id, $post->ID ); ?>><?php echo esc_html( $post->post_title ); ?> (<?php echo esc_attr( $post->post_type ) ?>)</option>
-            <?php } ?>
-        </select>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Tries remaining</th>
+                    <th>Queued At</th>
+                    <th>Started At</th>
+                    <th>Finished At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($queue_records as $status => $records) : ?>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function(){
-                let selector = document.getElementById('<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector');
-                console.log(selector, "selector");
-                selector.addEventListener('change', function(){
-                    window.location.href = '<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-ai-chat-embeddings&post_id=' + selector.value;
-                });
-            });
-        </script>
-
-        <br>
-        <br>
-
-            <?php
-                if ($post_id && intval($post_id) > 0) {
-                    //get the last time the embeddings were generated
-                    $most_recent_embedding = $VT->get_latest_updated($post_id);
-        
-                    if (isset($most_recent_embedding->updated_at)) {
-                        ?>
-                            Embeddings last generated at: <?php echo esc_html($most_recent_embedding->updated_at); ?>
-                        <?php
-                    }
-                }
-            ?>
-
-        <div
-        >
-            <form 
-                method="POST" 
-                id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_form"
-            >
-                <div
-                    style="max-width: 48rem; overflow-x: auto;"
-                >
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Content</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                            <?php if (isset($embeddings) && count($embeddings) > 0) { ?>
-                                <?php foreach ($embeddings as $i => $embedding) { ?>
-                                    <tr>
-    
-                                        <?php 
-                                            $section = token256_get_chunk($selected_post->post_content, $i);
-                                        ?>
-    
-                                        <td title="<?php echo esc_attr($section); ?>">
-                                            <?php 
-                                                $tokens = explode(' ', $section);
-                                                $display_section = implode(' ', array_slice($tokens, 0, 3)) . ' ... ' . implode(' ', array_slice($tokens, -3));
-                                                echo esc_html($display_section);
-                                            ?>
-                                        </td>
-                                        <td name="embeddings[]">
-                                            <details>
-                                                <summary>Click to view vector</summary>
-                                                <?php echo esc_html($embedding->vector); ?>
-                                            </details>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            <?php } else { ?>
-                                <tr>
-                                    <td colspan="2">No embeddings found.</td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-                <input type="hidden" name="post_id" id="post_id_input" value="<?php echo esc_attr( $post_id ) ?>">
-                <input type="submit" value="<?php echo count($embeddings) > 0 ? "Re-Generate Embeddings" : "Generate Embeddings"  ?>" class="button-primary">
-            </form>
-
-            <!-- spinner, success, error -->
-            <div id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_result_container" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_result_container" >
-                <span id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_spinner" 
-                    class="
-                        <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_spinner
-                        <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden
-            ">
-            </span>
-        </div>
-
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_success_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_success_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Embeddings generated successfully!</p>
-        </div>
-
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_error_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_error_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Error generating embeddings!</p>
-        </div>
-
+                    <?php foreach ($records as $record) : ?>
+                        <tr>
+                            <td>
+                                <a href="<?php echo esc_url(get_edit_post_link($record->post_id)); ?>">
+                                    <?php echo esc_html($record->post_title); ?>
+                                </a>
+                            </td>
+                            <td>
+                                <span class="coai_chat_queue_status <?php echo esc_attr($record->status); ?>">
+                                    <?php echo esc_html($record->status); ?>
+                                </span>
+                            </td>
+                            <td><?php echo esc_html( 3 - $record->error_count); ?></td>
+                            <td><?php echo esc_html($record->queued_time); ?></td>
+                            <td><?php echo esc_html($record->start_time ?? 'Not started'); ?></td>
+                            <td><?php echo esc_html($record->end_time ?? 'Not finished'); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
+            </tbody>
+            
+        </table>
     </div>
 
 </div>

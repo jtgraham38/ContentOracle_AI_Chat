@@ -273,4 +273,45 @@ class VectorTableQueue {
         global $wpdb;
         return $wpdb->delete($this->table_name, array('post_id' => $post_id), array('%d'));
     }
+
+    //get all records in the queue, grouped by status and ordered by queued_time
+    public function get_all_records() {
+        global $wpdb;
+        $posts_table = esc_sql($wpdb->posts);
+        $result = [
+                'pending' => $wpdb->get_results($wpdb->prepare(
+                    "SELECT {$this->table_name}.*, {$posts_table}.post_title 
+                    FROM {$this->table_name} 
+                    LEFT JOIN {$posts_table} ON {$this->table_name}.post_id = {$posts_table}.ID 
+                    WHERE {$this->table_name}.status = %s 
+                    ORDER BY {$this->table_name}.queued_time ASC",
+                    'pending'
+                )),
+                'processing' => $wpdb->get_results($wpdb->prepare(
+                    "SELECT {$this->table_name}.*, {$posts_table}.post_title 
+                    FROM {$this->table_name} 
+                    LEFT JOIN {$posts_table} ON {$this->table_name}.post_id = {$posts_table}.ID 
+                    WHERE {$this->table_name}.status = %s 
+                    ORDER BY {$this->table_name}.queued_time ASC",
+                    'processing'
+                )),
+                'completed' => $wpdb->get_results($wpdb->prepare(
+                    "SELECT {$this->table_name}.*, {$posts_table}.post_title 
+                    FROM {$this->table_name} 
+                    LEFT JOIN {$posts_table} ON {$this->table_name}.post_id = {$posts_table}.ID 
+                    WHERE {$this->table_name}.status = %s 
+                    ORDER BY {$this->table_name}.queued_time ASC",
+                    'completed'
+                )),
+                'failed' => $wpdb->get_results($wpdb->prepare(
+                    "SELECT {$this->table_name}.*, {$posts_table}.post_title 
+                    FROM {$this->table_name} 
+                    LEFT JOIN {$posts_table} ON {$this->table_name}.post_id = {$posts_table}.ID 
+                    WHERE {$this->table_name}.status = %s 
+                    ORDER BY {$this->table_name}.queued_time ASC",
+                    'failed'
+                )),
+            ];
+        return $result;
+    }
 } 
