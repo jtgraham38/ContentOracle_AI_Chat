@@ -361,8 +361,8 @@ class ContentOracleEmbeddings extends PluginFeature{
 
             $generate_embeddings_url = admin_url('admin.php?page=contentoracle-ai-chat-embeddings');
             echo '<div class="notice notice-info is-dismissible">';
-            echo '<h2>You must generate embeddings to use Semantic Search!</h2>';
-            echo '<p>Visit <a href="' . esc_url($generate_embeddings_url) . '" >this page </a> to generate embeddings for your posts, or set the embedding chunking method to none.</p>';
+            echo '<h2>You must generate embeddings for ContentOracle AI!</h2>';
+            echo '<p>Visit <a href="' . esc_url($generate_embeddings_url) . '" >this page </a> to generate embeddings for your posts, or switch to keyword search.</p>';
             echo '</div>';
         }
     }
