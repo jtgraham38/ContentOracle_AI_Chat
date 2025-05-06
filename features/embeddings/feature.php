@@ -48,16 +48,62 @@ class ContentOracleEmbeddings extends PluginFeature{
         add_action('delete_post', array($this, 'delete_embeddings_for_post'));
 
 
-        //    \\    //    CREATE NEW SYSTEM FOR EMBEDDINGS    //    \\
-
         //queue posts for embedding generation from the editor, based on the type of post
         add_action('save_post', array($this, 'enqueue_embedding_from_editor'), 10, 3);
+
+        //    \\    //    CREATE NEW SYSTEM FOR EMBEDDINGS    //    \\
+        //schedule the cron job
+        add_action('init', array($this, 'schedule_cron_jobs'));
+
+        //hook into the cron job, to consume a batch of posts from the queue
+        add_action($this->get_prefix() . 'embed_cron_hook', array($this, 'consume_batch_from_queue'));
+
+
 
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
 
     //  \\  //  \\  //  \\  //  \\ MANAGE QUEUE FOR POSTS REQUIRING EMBEDDINGS  //  \\  //  \\  //  \\  // \\
+    //schedule the cron job
+    public function schedule_cron_jobs(){
+        //schedule the cron job to consume a batch of posts from the queue every 15 seconds
+        if (!wp_next_scheduled($this->get_prefix() . 'embed_cron_hook')) {
+            wp_schedule_event(time(), 'every_minute', $this->get_prefix() . 'embed_cron_hook');
+        }
+    }
+
+
+    //get a batch of posts from the queue, and send it to the embedding service
+    public function consume_batch_from_queue(){
+        //get a batch of posts from the queue
+        $queue = new VectorTableQueue($this->get_prefix());
+        $post_ids = $queue->get_next_batch();
+        $posts = get_posts(array(
+            'post_type' => get_option($this->get_prefix() . 'post_types', []),
+            'post_status' => 'publish',
+            'post__in' => $post_ids
+        ));
+
+        //send the posts to the embedding service
+        try{
+            $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+            $api->bulk_generate_embeddings($posts);
+        } catch (Exception $e){
+            //log the error
+            error_log($e->getMessage());
+
+            //mark each post in the batch as failed
+            foreach ($posts as $post){
+                $queue->update_status($post_ids, 'failed', $e->getMessage());
+            }
+        }
+
+        //mark each post in the batch as completed
+        foreach ($posts as $post){
+            $queue->update_status($post_ids, 'completed');
+        }
+    }
     
 
 
@@ -99,6 +145,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     }
 
     //enqueue all posts that are not already embedded
+    //function here for future use, not currently used!
     public function enqueue_all_posts_that_are_not_already_embedded(){
         //get all posts that are:
         // 1. not already embedded
@@ -127,6 +174,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     }
 
     //enqueue all posts
+    //function here for future use, not currently used!
     public function enqueue_all_posts(){
         //get all posts where
         // 1. of the correct post type
@@ -140,7 +188,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
 
 
-    //  \\  //  \\  //  \\  //  \\ CALLBACKS NOT RELATED TO EMBEDDING GENERATION (DIRECTLY)  //  \\  //  \\  //  \\  // \\
+    //  \\  //  \\  //  \\  //  \\ EMBEDDING MAINTENANCE  //  \\  //  \\  //  \\  // \\
 
     //delete embeddings when a post is deleted
     public function delete_embeddings_for_post($post_id){
@@ -160,6 +208,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         $queue->delete_post($post_id);
     }
 
+    //  \\  //  \\  //  \\  //  \\ HELPERS  //  \\  //  \\  //  \\  // \\
     //get the ip address of the client
     function get_client_ip(){
         $ip = '';
