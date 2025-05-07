@@ -227,7 +227,7 @@ class VectorTableQueue {
 
         return $wpdb->query(
             "DELETE FROM {$this->table_name} 
-            WHERE (status = 'completed' AND end_time IS NOT NULL) 
+            WHERE (status = 'completed' AND end_time IS NOT NULL AND end_time < NOW() - INTERVAL 7 DAY) 
             OR (status = 'failed' AND error_count > 3)"
         );
     }

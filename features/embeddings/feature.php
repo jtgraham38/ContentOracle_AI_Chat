@@ -58,6 +58,9 @@ class ContentOracleEmbeddings extends PluginFeature{
         //hook into the cron job, to consume a batch of posts from the queue
         add_action($this->get_prefix() . 'embed_cron_hook', array($this, 'consume_batch_from_queue'));
 
+        //hook into the cron job, to clean the queue
+        add_action($this->get_prefix() . 'clean_queue_cron_hook', array($this, 'clean_queue'));
+
         //NOTE:
         /*
         It looks like all cron jobs are flawed on this dev site, which means
@@ -77,6 +80,11 @@ class ContentOracleEmbeddings extends PluginFeature{
         //schedule the cron job to consume a batch of posts from the queue every 15 seconds
         if (!wp_next_scheduled($this->get_prefix() . 'embed_cron_hook')) {
             wp_schedule_event(time(), 'every_minute', $this->get_prefix() . 'embed_cron_hook');
+        }
+
+        //schedule a daily cron job to remove posts that have been completed for more than 7 days
+        if (!wp_next_scheduled($this->get_prefix() . 'clean_queue_cron_hook')) {
+            wp_schedule_event(time(), 'daily', $this->get_prefix() . 'clean_queue_cron_hook');
         }
     }
 
@@ -106,6 +114,13 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //mark each post in the batch as completed
         $queue->update_status($post_ids, 'completed');
+    }
+
+    //clean the queue
+    public function clean_queue(){
+        //get the queue
+        $queue = new VectorTableQueue($this->get_prefix());
+        $queue->cleanup();
     }
     
 
