@@ -323,7 +323,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
             add_settings_field(
                 $this->get_prefix() . "auto_generate_embeddings_interval",    // id of the field
-                'Auto-generate Embeddings Weekly',   // title
+                'Auto-generate Text Embeddings Weekly',   // title
                 function(){ // callback
                     require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_embeddings_input.php';
                 },
