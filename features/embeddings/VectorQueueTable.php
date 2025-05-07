@@ -110,19 +110,27 @@ class VectorTableQueue {
         global $wpdb;
 
         // Get posts that are pending and haven't exceeded error count
+        //NOTE: including failed results here is temporary, get first pending posts, then get failed posts that have not exceeded error count
         $posts = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT post_id, chunk_count 
                 FROM {$this->table_name} 
                 WHERE status = 'pending'
-                AND error_count < 3 
-                ORDER BY queued_time ASC 
+                OR (status = 'failed' AND error_count < 3)
+                ORDER BY 
+                    CASE 
+                        WHEN status = 'pending' THEN 0 
+                        WHEN status = 'failed' AND error_count < 3 THEN 1 
+                        ELSE 2 
+                    END,
+                    queued_time ASC 
                 LIMIT %d",
                 $batch_size
             ),
             ARRAY_A
         );
 
+        //if there are no posts to process, return an empty array
         if (empty($posts)) {
             return array();
         }
@@ -225,6 +233,7 @@ class VectorTableQueue {
     public function cleanup() {
         global $wpdb;
 
+        //delete the records that are older than 7 days and complete or failed more than 3 times
         return $wpdb->query(
             "DELETE FROM {$this->table_name} 
             WHERE (status = 'completed' AND end_time IS NOT NULL AND end_time < NOW() - INTERVAL 7 DAY) 

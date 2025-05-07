@@ -278,12 +278,8 @@ class ContentOracleApiConnection{
             $chunked_posts[] = $chunked_post;
         }
 
-        //send the chunks to the api
-        try{
-            $embeddings = $this->coai_api_generate_embeddings($chunked_posts);
-        } catch (Exception $e){
-            return new WP_Error('error', $e->getMessage());
-        }
+        //send the chunks to the api (we are letting exceptions bubble up)
+        $embeddings = $this->coai_api_generate_embeddings($chunked_posts);
 
         
         //save the embeddings to the database

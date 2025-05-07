@@ -56,10 +56,13 @@ class ContentOracleEmbeddings extends PluginFeature{
         add_action('init', array($this, 'schedule_cron_jobs'));
 
         //hook into the cron job, to consume a batch of posts from the queue
-        add_action($this->get_prefix() . 'embed_cron_hook', array($this, 'consume_batch_from_queue'));
+        add_action($this->get_prefix() . 'embed_batch_cron_hook', array($this, 'consume_batch_from_queue'));
 
         //hook into the cron job, to clean the queue
         add_action($this->get_prefix() . 'clean_queue_cron_hook', array($this, 'clean_queue'));
+
+        //hook into the cron job, to enqueue posts for embedding generation if they are not already embedded
+        add_action($this->get_prefix() . 'auto_enqueue_embeddings_cron_hook', array($this, 'auto_enqueue_embeddings'));
 
         //NOTE:
         /*
@@ -78,13 +81,18 @@ class ContentOracleEmbeddings extends PluginFeature{
     //schedule the cron job
     public function schedule_cron_jobs(){
         //schedule the cron job to consume a batch of posts from the queue every 15 seconds
-        if (!wp_next_scheduled($this->get_prefix() . 'embed_cron_hook')) {
-            wp_schedule_event(time(), 'every_minute', $this->get_prefix() . 'embed_cron_hook');
+        if (!wp_next_scheduled($this->get_prefix() . 'embed_batch_cron_hook')) {
+            wp_schedule_event(time(), 'every_minute', $this->get_prefix() . 'embed_batch_cron_hook');
         }
 
         //schedule a daily cron job to remove posts that have been completed for more than 7 days
         if (!wp_next_scheduled($this->get_prefix() . 'clean_queue_cron_hook')) {
             wp_schedule_event(time(), 'daily', $this->get_prefix() . 'clean_queue_cron_hook');
+        }
+
+        //schedule a daily cron job to enqueue posts for embedding generation if they are not already embedded
+        if (!wp_next_scheduled($this->get_prefix() . 'auto_enqueue_embeddings_cron_hook')) {
+            wp_schedule_event(time(), 'daily', $this->get_prefix() . 'auto_enqueue_embeddings_cron_hook');
         }
     }
 
@@ -110,6 +118,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
             //mark each post in the batch as failed
             $queue->update_status($post_ids, 'failed', $e->getMessage());
+            return;
         }
 
         //mark each post in the batch as completed
@@ -122,7 +131,14 @@ class ContentOracleEmbeddings extends PluginFeature{
         $queue = new VectorTableQueue($this->get_prefix());
         $queue->cleanup();
     }
-    
+
+    //automoatically enqueue posts for embedding generation if they are not already embedded
+    public function auto_enqueue_embeddings(){
+        //get all posts that are not already embedded
+        if (get_option($this->get_prefix() . 'auto_generate_embeddings')){
+            $this->enqueue_all_posts_that_are_not_already_embedded();
+        }
+    }
 
 
     //  \\  //  \\  //  \\  //  \\ ENQUEUE POSTS AT DIFFERENT TIMES  //  \\  //  \\  //  \\  // \\
@@ -163,25 +179,33 @@ class ContentOracleEmbeddings extends PluginFeature{
     }
 
     //enqueue all posts that are not already embedded
-    //function here for future use, not currently used!
     public function enqueue_all_posts_that_are_not_already_embedded(){
         //get all posts that are:
         // 1. not already embedded
         // 2. of the correct post type
         // 3. status is publish
 
-        //get all posts that are not already embedded
+        $post_types = get_option($this->get_prefix() . 'post_types');
+
         $posts = get_posts(array(
-            'post_type' => get_option($this->get_prefix() . 'post_types', []),
-            'post_status' => 'publish',
-            'meta_query' => array(
-                array(
-                    'key' => $this->get_prefix() . 'embeddings',
-                    'value' => '',
-                    'compare' => 'NOT EXISTS'
-                )
-            )
-        ));
+                    'post_type' => $post_types,
+                    'post_status' => 'publish',
+                    'posts_per_page' => -1,
+                    'meta_query' => array(
+                        'relation' => 'OR',
+                        array(
+                            'key' => $this->prefix . 'embeddings',
+                            'compare' => 'NOT EXISTS'
+                        ),
+                        array(
+                            'key' => $this->prefix . 'embeddings',
+                            'value' => "a:0:{}",
+                            'compare' => '='
+                        )
+                    )
+                ));
+
+        //get post ids
         $post_ids = array_map(function($post){
             return $post->ID;
         }, $posts);
@@ -310,19 +334,6 @@ class ContentOracleEmbeddings extends PluginFeature{
                 )
             );
 
-            add_settings_field(
-                $this->get_prefix() . "auto_generate_only_new_embeddings",    // id of the field
-                'Auto-generate Embeddings Weekly for Posts that are not Already Embedded',   // title
-                function(){ // callback
-                    require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_only_new_embeddings_input.php';
-                },
-                'contentoracle-ai-settings', // page (matches menu slug)
-                'coai_chat_embeddings_settings',  // section
-                array(
-                'label_for' => $this->get_prefix() .'auto_generate_only_new_embeddings'
-                )
-            );
-
             // create the settings themselves
             register_setting(
                 'coai_chat_embeddings_settings', // option group
@@ -346,17 +357,11 @@ class ContentOracleEmbeddings extends PluginFeature{
                 )
             );
 
-            register_setting(
-                'coai_chat_embeddings_settings', // option group
-                $this->get_prefix() . 'auto_generate_only_new_embeddings',    // option name
-                array(  // args
-                    'type' => 'boolean',
-                    'default' => true,
-                    'sanitize_callback' => function($value){
-                        return $value ? true : false;
-                    }
-                )
-            );
+
+            //WE NO LONGER NEED THIS SETTING, SO UNREGISTER AND DELETE IT
+            //unregister and delete the extraneous setting
+            unregister_setting('coai_chat_embeddings_settings',$this->get_prefix() . 'auto_generate_only_new_embeddings');
+            $deleted = delete_option($this->get_prefix() . 'auto_generate_only_new_embeddings');
 
 
         }
