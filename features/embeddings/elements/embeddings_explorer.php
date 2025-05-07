@@ -289,26 +289,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
 }
 
 ?>
-<details>
-    <summary>Tips</summary>
-    <ul>
-        <li>
-            Select a post from the dropdown to view its embeddings.
-        </li>
-        <li>
-            Click "Generate Embeddings" to generate embeddings for the selected post.
-        </li>
-        <li>
-            Click "Re-Generate Embeddings" to re-generate embeddings for the selected post.
-        </li>
-        <li>
-            Click "Bulk Generate Embeddings" to generate embeddings for many posts at once.
-        </li>
-        <li>
-            If a post does not have any body saved to the database outside of block comments, no embeddings will be generated for it.
-        </li>
-    </ul>
-</details>
+
 <strong>Note: Embeddings will only be generated for posts of the types set in the "Prompt" settings.  They will also only be generated if a chunking method is set.</strong>
 <br>
 <br>
@@ -316,26 +297,48 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
 <div id="<?php echo esc_attr( $this->get_prefix() ) ?>embeddings_explorer">
 
     <div>
-        <h3>Embedding Queue</h3>
-        <p>In this table, you will find all the posts that are scheduled to have embeddings generated.</p>
-
-        <form method="post">
-            <?php 
-            wp_nonce_field('bulk-' . $table->_args['plural']);
-            $table->prepare_items();
-            $table->display(); 
-            ?>
-        </form>
+        <h2>Embedding Queue</h2>
+        <p>Below, you will find a queue of posts that are scheduled to have text embeddings generated for semantic text matching.</p>
+    
+        <details id="embeddings_queue_tips">
+            <summary>Tips</summary>
+            <ul>
+                <li>
+                    Use the "Add Posts to Queue" form to schedule posts to be embedded.
+                </li>
+                <li>
+                    Each queue entry has a status.  The four options are:
+                    <ul>
+                        <li>
+                            Pending: The post is scheduled to be embedded.
+                        </li>
+                        <li>
+                            Processing: The post is currently being embedded.
+                        </li>
+                        <li>
+                            Failed: The post failed to be embedded.  It will be retried up to 3 times.
+                        </li>
+                        <li>
+                            Completed: The post has been embedded.  It will be removed from the queue after 24 hours.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    Each post can only be in the queue once.  If it is already in the queue, you must remove it before adding it again.
+                </li>
+                <li>
+                    Use the bulk delete action or the inline dequeue button to remove posts from the queue.
+                </li>
+            </ul>
+        </details>
     </div>
 
     <div>
-        <h3>Schedule Posts for Embedding</h3>
-
         <form 
             method="POST" 
             id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_form"
         >
-            <label for="bulk_generate_embeddings_select">Schedule Options</label>
+            <label for="bulk_generate_embeddings_select">Add Posts to Queue</label>
             <div style="display: flex;" >
                 
                 <select 
@@ -369,6 +372,16 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
         <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_error_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_error_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
             <p>Error enqueuing posts for embedding generation!</p>
         </div>
+    </div>
+
+    <div>
+        <form method="post">
+            <?php 
+            wp_nonce_field('bulk-' . $table->_args['plural']);
+            $table->prepare_items();
+            $table->display(); 
+            ?>
+        </form>
     </div>
 
 </div>

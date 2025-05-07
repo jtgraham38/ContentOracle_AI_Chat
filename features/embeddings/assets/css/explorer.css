@@ -1,3 +1,4 @@
+/* Embeddings Queue Status */
 .coai_chat_queue_status {
     margin: 0.25rem;
     padding: 0.375rem;
@@ -31,6 +32,29 @@
     background-color: #dc3545;
     color: white;
 }
+
+/* Embeddings Queue Tips */
+#embeddings_queue_tips {
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+#embeddings_queue_tips summary {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#embeddings_queue_tips ul {
+    list-style-type: disc;
+    margin-left: 1rem;
+}
+
+#embeddings_queue_tips ul ul {
+    list-style-type: circle;
+    margin-left: 1rem;
+}
+
+
 
 
 
