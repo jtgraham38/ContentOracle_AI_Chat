@@ -43,6 +43,13 @@ document.addEventListener('DOMContentLoaded', function () {
             spinner.classList.add('coai_chat_generate_embeddings_hidden');
             //show the form
             bulk_generate_embeddings_form.classList.remove('coai_chat_generate_embeddings_hidden');
+
+
+            //sleep for 1 second
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            //reload the page
+            location.reload();
         }
     });
 
@@ -81,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
             success_msg.classList.remove('coai_chat_generate_embeddings_hidden');
 
             //sleep for 1 second
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             //reload the page
             location.reload();
