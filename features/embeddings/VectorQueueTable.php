@@ -162,22 +162,24 @@ class VectorTableQueue {
             'end_time' => current_time('mysql')
         );
 
-        if ($status === 'failed') {
-            $updates['error_count'] = $wpdb->get_var(
-                $wpdb->prepare(
-                    "SELECT error_count + 1 FROM {$this->table_name} WHERE post_id = %d",
-                    $post_ids[0]
-                )
-            );
-        }
+        foreach ($post_ids as $post_id) {
+            if ($status === 'failed') {
+                $updates['error_count'] = $wpdb->get_var(
+                    $wpdb->prepare(
+                        "SELECT error_count + 1 FROM {$this->table_name} WHERE post_id = %d",
+                        $post_id
+                    )
+                );
+            }
 
-        return $this->wpdb->update(
-            $this->table_name,
-            $updates,
-            array('post_id' => $post_ids[0]),
-            array('%s', '%s', '%d'),
-            array('%d')
-        ) !== false;
+            $wpdb->update(
+                $this->table_name,                  //table name
+                $updates,                          //updates
+                array('post_id' => $post_id),  //where clause
+                array('%s', '%s', '%d'),            //format
+                array('%d')                         //where format
+            ) !== false;
+        }
     }
 
     /**

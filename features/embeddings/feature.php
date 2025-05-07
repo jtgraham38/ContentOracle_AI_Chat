@@ -58,6 +58,13 @@ class ContentOracleEmbeddings extends PluginFeature{
         //hook into the cron job, to consume a batch of posts from the queue
         add_action($this->get_prefix() . 'embed_cron_hook', array($this, 'consume_batch_from_queue'));
 
+        //NOTE:
+        /*
+        It looks like all cron jobs are flawed on this dev site, which means
+        that there is a problem in my dev setup.  Debug this, don't worry about the plugin code
+        (for now)
+        */
+
 
 
     }
@@ -94,15 +101,11 @@ class ContentOracleEmbeddings extends PluginFeature{
             error_log($e->getMessage());
 
             //mark each post in the batch as failed
-            foreach ($posts as $post){
-                $queue->update_status($post_ids, 'failed', $e->getMessage());
-            }
+            $queue->update_status($post_ids, 'failed', $e->getMessage());
         }
 
         //mark each post in the batch as completed
-        foreach ($posts as $post){
-            $queue->update_status($post_ids, 'completed');
-        }
+        $queue->update_status($post_ids, 'completed');
     }
     
 
