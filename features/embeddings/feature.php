@@ -90,9 +90,9 @@ class ContentOracleEmbeddings extends PluginFeature{
             wp_schedule_event(time(), 'daily', $this->get_prefix() . 'clean_queue_cron_hook');
         }
 
-        //schedule a daily cron job to enqueue posts for embedding generation if they are not already embedded
+        //schedule a weekly cron job to enqueue posts for embedding generation if they are not already embedded
         if (!wp_next_scheduled($this->get_prefix() . 'auto_enqueue_embeddings_cron_hook')) {
-            wp_schedule_event(time(), 'daily', $this->get_prefix() . 'auto_enqueue_embeddings_cron_hook');
+            wp_schedule_event(time(), 'weekly', $this->get_prefix() . 'auto_enqueue_embeddings_cron_hook');
         }
     }
 
