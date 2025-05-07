@@ -43,6 +43,251 @@ if (!is_array($embeddings)) {
 //get all the embedding queue records
 $queue_records = $Q->get_all_records();
 
+
+if (!class_exists('WP_List_Table')) {
+    require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
+}
+
+//create a wordpress list table for the queue records
+class COAI_ChatEmbeddings_Explorer_Table extends WP_List_Table {
+
+    private $Q;
+
+    public function __construct($Q, $args = []) {
+        parent::__construct($args);
+        $this->Q = $Q;
+
+        //set column headers
+        $this->_column_headers = [
+            $this->get_columns(),
+            [],
+            $this->get_sortable_columns(),
+            'title'
+        ];
+    }
+
+    public function get_columns() {
+        return [
+            'cb' => '<input type="checkbox" />',
+            'title' => 'Title',
+            'type' => 'Type',
+            'status' => 'Status',
+            'tries_remaining' => 'Tries remaining',
+            'queued_at' => 'Queued at',
+            'started_at' => 'Started at',
+            'finished_at' => 'Finished at',
+        ];
+    }
+
+    public function get_sortable_columns() {
+        return [
+            'type' => ['type', false],
+            'status' => ['status', false],
+            'queued_at' => ['queued_at', false],
+            'started_at' => ['started_at', false],
+            'finished_at' => ['finished_at', false],
+        ];
+    }
+
+    public function process_bulk_action() {
+        if ('bulk-delete' === $this->current_action()) {
+            $nonce = isset($_REQUEST['_wpnonce']) ? $_REQUEST['_wpnonce'] : '';
+            
+            if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+                add_action('admin_notices', function() {
+                    echo '<div class="notice notice-error is-dismissible"><p>' . 
+                         __('Security check failed. Please try again.', 'contentoracle-ai-chat') . 
+                         '</p></div>';
+                });
+                return;
+            }
+
+            $post_ids = isset($_REQUEST['bulk-delete']) ? array_map('intval', $_REQUEST['bulk-delete']) : [];
+            
+            if (!empty($post_ids)) {
+                $success_count = 0;
+                foreach ($post_ids as $post_id) {
+                    if ($this->Q->delete_post($post_id)) {
+                        $success_count++;
+                    }
+                }
+
+                if ($success_count > 0) {
+                    add_action('admin_notices', function() use ($success_count) {
+                        echo '<div class="notice notice-success is-dismissible"><p>' . 
+                             sprintf(
+                                 _n(
+                                     '%d post removed from queue successfully.',
+                                     '%d posts removed from queue successfully.',
+                                     $success_count,
+                                     'contentoracle-ai-chat'
+                                 ),
+                                 $success_count
+                             ) . 
+                             '</p></div>';
+                    });
+                }
+
+                if ($success_count < count($post_ids)) {
+                    add_action('admin_notices', function() use ($success_count, $post_ids) {
+                        echo '<div class="notice notice-error is-dismissible"><p>' . 
+                             sprintf(
+                                 __('Failed to remove %d posts from queue.', 'contentoracle-ai-chat'),
+                                 count($post_ids) - $success_count
+                             ) . 
+                             '</p></div>';
+                    });
+                }
+            }
+        }
+    }
+
+    public function prepare_items() {
+        // Process bulk actions
+        $this->process_bulk_action();
+
+        //get all records
+        $queue_records = $this->Q->get_all_records();
+        
+        
+        // Combine all records into a single array
+        $all_records = [];
+        foreach (['pending', 'processing', 'failed', 'completed'] as $status) {
+            if (isset($queue_records[$status])) {
+                foreach ($queue_records[$status] as $record) {
+                    $all_records[] = $record;
+                }
+            }
+        }
+
+        // Set the items
+        $this->items = $all_records;
+
+        // Set up pagination if needed
+        $per_page = 20;
+        $current_page = $this->get_pagenum();
+        $total_items = count($all_records);
+
+        $this->set_pagination_args([
+            'total_items' => $total_items,
+            'per_page' => $per_page,
+            'total_pages' => ceil($total_items / $per_page)
+        ]);
+
+        // Slice the items for the current page
+        $this->items = array_slice($all_records, (($current_page - 1) * $per_page), $per_page);
+    }
+
+    public function column_default($item, $column_name) {
+        switch ($column_name) {
+            case 'title':
+                return sprintf(
+                    '<a href="%s">%s</a>',
+                    esc_url(get_edit_post_link($item->post_id)),
+                    esc_html($item->post_title)
+                );
+            case 'type':
+                return esc_html($item->post_type);
+            case 'status':
+                return sprintf(
+                    '<span class="coai_chat_queue_status %s">%s</span>',
+                    esc_attr($item->status),
+                    esc_html($item->status)
+                );
+            case 'tries_remaining':
+                return esc_html(3 - $item->error_count);
+            case 'queued_at':
+                return esc_html($item->queued_time);
+            case 'started_at':
+                return $item->start_time ? esc_html($item->start_time) : 'Not started';
+            case 'finished_at':
+                return $item->end_time ? esc_html($item->end_time) : 'Not finished';
+            default:
+                return isset($item->$column_name) ? esc_html($item->$column_name) : '';
+        }
+    }
+
+    public function column_cb($item) {
+        return sprintf(
+            '<input type="checkbox" name="bulk-delete[]" value="%s" />',
+            $item->post_id
+        );
+    }
+
+    public function get_bulk_actions() {
+        return [
+            'bulk-delete' => __('Delete', 'contentoracle-ai-chat')
+        ];
+    }
+
+    public function column_title($item) {
+        $actions = array(
+            'delete' => sprintf(
+                '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>',
+                wp_nonce_url(
+                    add_query_arg(
+                        array(
+                            'action' => 'delete',
+                            'post_id' => $item->post_id
+                        ),
+                        admin_url('admin.php?page=contentoracle-ai-chat-embeddings')
+                    ),
+                    'delete_queue_item_' . $item->post_id
+                ),
+                esc_js(__('Are you sure you want to delete this item from the queue?', 'contentoracle-ai-chat')),
+                __('Dequeue', 'contentoracle-ai-chat')
+            )
+        );
+
+        return sprintf(
+            '%1$s %2$s',
+            sprintf(
+                '<a href="%s">%s</a>',
+                esc_url(get_edit_post_link($item->post_id)),
+                esc_html($item->post_title)
+            ),
+            $this->row_actions($actions)
+        );
+    }
+}
+
+//create an instance of the table
+$table = new COAI_ChatEmbeddings_Explorer_Table($Q);
+
+// Handle queue removal
+if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_id'])) {
+    $post_id = intval($_GET['post_id']);
+    $nonce = isset($_GET['_wpnonce']) ? $_GET['_wpnonce'] : '';
+    
+    if (wp_verify_nonce($nonce, 'delete_queue_item_' . $post_id)) {
+        $result = $Q->delete_post($post_id);
+        
+        if ($result) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible"><p>' . 
+                     __('Post removed from queue successfully.', 'contentoracle-ai-chat') . 
+                     '</p></div>';
+            });
+        } else {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error is-dismissible"><p>' . 
+                     __('Failed to remove post from queue.', 'contentoracle-ai-chat') . 
+                     '</p></div>';
+            });
+        }
+        
+        // Redirect to remove query args
+        wp_redirect(remove_query_arg(['action', 'post_id', '_wpnonce']));
+        exit;
+    } else {
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-error is-dismissible"><p>' . 
+                 __('Security check failed. Please try again.', 'contentoracle-ai-chat') . 
+                 '</p></div>';
+        });
+    }
+}
+
 ?>
 <details>
     <summary>Tips</summary>
@@ -74,52 +319,13 @@ $queue_records = $Q->get_all_records();
         <h3>Embedding Queue</h3>
         <p>In this table, you will find all the posts that are scheduled to have embeddings generated.</p>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Tries remaining</th>
-                    <th>Queued At</th>
-                    <th>Started At</th>
-                    <th>Finished At</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($queue_records)) : ?>
-                    <tr>
-                        <td colspan="7">No posts in the queue.</td>
-                    </tr>
-                <?php else : ?>
-                    <?php foreach ($queue_records as $status => $records) : ?>
-
-                    <?php foreach ($records as $record) : ?>
-                        <tr>
-                            <td>
-                                <a href="<?php echo esc_url(get_edit_post_link($record->post_id)); ?>">
-                                    <?php echo esc_html($record->post_title); ?>
-                                </a>
-                            </td>
-                            <td>
-                                <?php echo esc_html($record->post_type); ?>
-                            </td>
-                            <td>
-                                <span class="coai_chat_queue_status <?php echo esc_attr($record->status); ?>">
-                                    <?php echo esc_html($record->status); ?>
-                                </span>
-                            </td>
-                            <td><?php echo esc_html( 3 - $record->error_count); ?></td>
-                            <td><?php echo esc_html($record->queued_time); ?></td>
-                            <td><?php echo esc_html($record->start_time ?? 'Not started'); ?></td>
-                            <td><?php echo esc_html($record->end_time ?? 'Not finished'); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-            
-        </table>
+        <form method="post">
+            <?php 
+            wp_nonce_field('bulk-' . $table->_args['plural']);
+            $table->prepare_items();
+            $table->display(); 
+            ?>
+        </form>
     </div>
 
     <div>

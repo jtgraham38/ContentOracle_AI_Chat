@@ -285,6 +285,12 @@ class VectorTableQueue {
         return $wpdb->delete($this->table_name, array('post_id' => $post_id), array('%d'));
     }
 
+    //delete a record by id
+    public function delete_record($id) {
+        global $wpdb;
+        return $wpdb->delete($this->table_name, array('id' => $id), array('%d'));
+    }
+
     //get all records in the queue, grouped by status and ordered by queued_time
     public function get_all_records() {
         global $wpdb;
