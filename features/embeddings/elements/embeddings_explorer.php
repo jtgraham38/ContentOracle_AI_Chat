@@ -42,6 +42,7 @@ if (!is_array($embeddings)) {
 
 //get all the embedding queue records
 $queue_records = $Q->get_all_records();
+
 ?>
 <details>
     <summary>Tips</summary>
@@ -77,6 +78,7 @@ $queue_records = $Q->get_all_records();
             <thead>
                 <tr>
                     <th>Title</th>
+                    <th>Type</th>
                     <th>Status</th>
                     <th>Tries remaining</th>
                     <th>Queued At</th>
@@ -85,7 +87,12 @@ $queue_records = $Q->get_all_records();
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($queue_records as $status => $records) : ?>
+                <?php if (empty($queue_records)) : ?>
+                    <tr>
+                        <td colspan="7">No posts in the queue.</td>
+                    </tr>
+                <?php else : ?>
+                    <?php foreach ($queue_records as $status => $records) : ?>
 
                     <?php foreach ($records as $record) : ?>
                         <tr>
@@ -93,6 +100,9 @@ $queue_records = $Q->get_all_records();
                                 <a href="<?php echo esc_url(get_edit_post_link($record->post_id)); ?>">
                                     <?php echo esc_html($record->post_title); ?>
                                 </a>
+                            </td>
+                            <td>
+                                <?php echo esc_html($record->post_type); ?>
                             </td>
                             <td>
                                 <span class="coai_chat_queue_status <?php echo esc_attr($record->status); ?>">
@@ -104,8 +114,9 @@ $queue_records = $Q->get_all_records();
                             <td><?php echo esc_html($record->start_time ?? 'Not started'); ?></td>
                             <td><?php echo esc_html($record->end_time ?? 'Not finished'); ?></td>
                         </tr>
+                        <?php endforeach; ?>
                     <?php endforeach; ?>
-                <?php endforeach; ?>
+                <?php endif; ?>
             </tbody>
             
         </table>

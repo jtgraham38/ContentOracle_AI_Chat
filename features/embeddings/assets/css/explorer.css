@@ -32,10 +32,35 @@
     color: white;
 }
 
+#coai_chat_embeddings_explorer {
+    position: relative;
+}
+
 #coai_chat_embeddings_explorer table {
     border-collapse: collapse;
     border-spacing: 0;
     margin-bottom: 20px;
+    width: 100%;
+}
+
+#coai_chat_embeddings_explorer thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #d2d2d2;
+}
+
+#coai_chat_embeddings_explorer tbody {
+    max-height: 30rem;
+    overflow-y: auto;
+    display: block;
+}
+
+#coai_chat_embeddings_explorer thead tr,
+#coai_chat_embeddings_explorer tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
 }
 
 #coai_chat_embeddings_explorer td,
@@ -43,10 +68,6 @@
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
-}
-
-#coai_chat_embeddings_explorer th {
-    background-color: #d2d2d2;
 }
 
 /* Bulk Generate Embeddings */

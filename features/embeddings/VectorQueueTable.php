@@ -106,7 +106,7 @@ class VectorTableQueue {
      * @param int $batch_size Maximum number of chunks to process
      * @return array Array of post IDs to process
      */
-    public function get_next_batch($batch_size = 3) {
+    public function get_next_batch($batch_size = 15) {
         global $wpdb;
 
         // Get posts that are pending and haven't exceeded error count
@@ -280,40 +280,27 @@ class VectorTableQueue {
     public function get_all_records() {
         global $wpdb;
         $posts_table = esc_sql($wpdb->posts);
-        $result = [
-                'pending' => $wpdb->get_results($wpdb->prepare(
-                    "SELECT {$this->table_name}.*, {$posts_table}.post_title 
-                    FROM {$this->table_name} 
-                    LEFT JOIN {$posts_table} ON {$this->table_name}.post_id = {$posts_table}.ID 
-                    WHERE {$this->table_name}.status = %s 
-                    ORDER BY {$this->table_name}.queued_time ASC",
-                    'pending'
-                )),
-                'processing' => $wpdb->get_results($wpdb->prepare(
-                    "SELECT {$this->table_name}.*, {$posts_table}.post_title 
-                    FROM {$this->table_name} 
-                    LEFT JOIN {$posts_table} ON {$this->table_name}.post_id = {$posts_table}.ID 
-                    WHERE {$this->table_name}.status = %s 
-                    ORDER BY {$this->table_name}.queued_time ASC",
-                    'processing'
-                )),
-                'completed' => $wpdb->get_results($wpdb->prepare(
-                    "SELECT {$this->table_name}.*, {$posts_table}.post_title 
-                    FROM {$this->table_name} 
-                    LEFT JOIN {$posts_table} ON {$this->table_name}.post_id = {$posts_table}.ID 
-                    WHERE {$this->table_name}.status = %s 
-                    ORDER BY {$this->table_name}.queued_time ASC",
-                    'completed'
-                )),
-                'failed' => $wpdb->get_results($wpdb->prepare(
-                    "SELECT {$this->table_name}.*, {$posts_table}.post_title 
-                    FROM {$this->table_name} 
-                    LEFT JOIN {$posts_table} ON {$this->table_name}.post_id = {$posts_table}.ID 
-                    WHERE {$this->table_name}.status = %s 
-                    ORDER BY {$this->table_name}.queued_time ASC",
-                    'failed'
-                )),
-            ];
-        return $result;
+
+        //prepare the sql query
+        $sql = "SELECT * FROM {$this->table_name} WHERE status = %s ORDER BY queued_time ASC";
+        $statuses = ['pending', 'processing', 'failed', 'completed'];
+        $results = [];
+
+        //get all the data we need
+        foreach ($statuses as $status) {
+            $queue_records = $wpdb->get_results($wpdb->prepare($sql, $status));
+
+            //get the post title and post type for each record
+            foreach ($queue_records as $record) {
+                $record->post_title = get_the_title($record->post_id);
+                $record->post_type = get_post_type($record->post_id);
+            }
+
+            //add the records to the results
+            $results[$status] = $queue_records;
+        }
+
+
+        return $results;
     }
 } 

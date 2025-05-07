@@ -522,17 +522,20 @@ class ContentOracleApi extends PluginFeature{
 
         //get the posts based on the parameter
         $posts = [];
+
+        $post_types = get_option($this->get_prefix() . 'post_types');
         switch ($for){
             case 'all':
                 $posts = get_posts(array(
-                    'post_type' => get_option($this->prefix . 'post_types'),
+                    'post_type' => $post_types,
                     'post_status' => 'publish',
                     'posts_per_page' => -1
                 ));
+
                 break;
             case 'not_embedded':
                 $posts = get_posts(array(
-                    'post_type' => get_option($this->prefix . 'post_types'),
+                    'post_type' => $post_types,
                     'post_status' => 'publish',
                     'posts_per_page' => -1,
                     'meta_query' => array(
