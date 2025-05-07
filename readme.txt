@@ -73,6 +73,7 @@ This plugin uses the following libraries:
 - **PHP NLP Tools**: Natural language processing ([GitHub](https://github.com/angeloskath/php-nlp-tools))  
 - **Marked**: Markdown to HTML parser  
 - **DOMPurify**: HTML XSS sanitizer  
+- ** WP Queued Jobs ** A Laravel-like job scheduler for WordPress. ([Github](https://github.com/SebKay/wp-queued-jobs))
 
 == Screenshots ==
 
