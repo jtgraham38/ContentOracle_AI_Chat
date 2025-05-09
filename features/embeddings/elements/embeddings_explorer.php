@@ -189,11 +189,15 @@ class COAI_ChatEmbeddings_Explorer_Table extends WP_List_Table {
             case 'type':
                 return esc_html($item->post_type);
             case 'status':
-                return sprintf(
-                    '<span class="coai_chat_queue_status %s">%s</span>',
-                    esc_attr($item->status),
-                    esc_html($item->status)
-                );
+
+                $string = '<span class="coai_chat_queue_status ' . esc_attr($item->status) . '">' . esc_html($item->status) . '</span>';
+
+                //if failed, create a dropdown with the error message
+                if ($item->status === 'failed') {
+                    $string = '<details><summary>' . $string . '</summary>' . esc_html($item->error_message) . '</details>';
+                }
+
+                return $string;
             case 'tries_remaining':
                 return esc_html(3 - $item->error_count);
             case 'queued_at':

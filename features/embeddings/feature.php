@@ -13,8 +13,10 @@ use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 require_once plugin_dir_path(__FILE__) . 'VectorTable.php';
 require_once plugin_dir_path(__FILE__) . 'VectorQueueTable.php';
 require_once plugin_dir_path(__FILE__) . '../wp_api/ContentOracleApiConnection.php';
+require_once plugin_dir_path(__FILE__) . '../wp_api/util.php';
 
 class ContentOracleEmbeddings extends PluginFeature{
+    use ContentOracleChunkingMixin;
 
     private string $UPDATE_TAG = '<!-- coai:generate embeddings -->';
     private int $CHUNK_SIZE = 256;
@@ -97,6 +99,18 @@ class ContentOracleEmbeddings extends PluginFeature{
     }
 
 
+    /*
+    TODO LIST:
+
+    - FIX ISSUE CAUSING EMBEDS TO FAIL
+    - devise a way for the plugin to stop trying to embed after it runs out of embed usage
+    ^^IT IS SOMETHING IN THE JOB, because chat embeds work.
+    - only show the embeddings ui if the chunking method is set to something other than none!!!
+    - show error messages when posts fail \/
+    - don't try to embed posts with no chunks \/
+    - don't automatically enqueue posts for embedding generation if they do not have any chunks \/
+    */
+
     //get a batch of posts from the queue, and send it to the embedding service
     public function consume_batch_from_queue(){
         //get a batch of posts from the queue
@@ -108,6 +122,23 @@ class ContentOracleEmbeddings extends PluginFeature{
             'post__in' => $post_ids
         ));
 
+        //return if there are no posts
+        if (empty($posts)) {
+            return;
+        }
+
+        //return if there are no chunks in any of the posts
+        $chunks_exist = false;
+        foreach ($posts as $post) {
+            $chunks = $this->chunk_post($post);
+            if (!empty($chunks)) {
+                $chunks_exist = true;
+            }
+        }
+        if (!$chunks_exist) {
+            return;
+        }
+
         //send the posts to the embedding service
         try{
             $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
@@ -115,6 +146,9 @@ class ContentOracleEmbeddings extends PluginFeature{
         } catch (Exception $e){
             //log the error
             error_log($e->getMessage());
+
+            //save the error to the database
+            update_option("COAI_ERROR", $e->getMessage());
 
             //mark each post in the batch as failed
             $queue->update_status($post_ids, 'failed', $e->getMessage());
@@ -205,6 +239,14 @@ class ContentOracleEmbeddings extends PluginFeature{
                     )
                 ));
 
+
+        //remove posts that have no chunks
+        $posts = array_filter($posts, function($post){
+            $chunks = $this->chunk_post($post);
+            return !empty($chunks);
+        });
+
+
         //get post ids
         $post_ids = array_map(function($post){
             return $post->ID;
@@ -225,8 +267,22 @@ class ContentOracleEmbeddings extends PluginFeature{
             'post_type' => get_option($this->get_prefix() . 'post_types', []),
             'post_status' => 'publish'
         ));
-    }
 
+        //remove posts that have no chunks
+        $posts = array_filter($posts, function($post){
+            $chunks = $this->chunk_post($post);
+            return !empty($chunks);
+        });
+
+        //get post ids
+        $post_ids = array_map(function($post){
+            return $post->ID;
+        }, $posts);
+
+        //enqueue the posts
+        $queue = new VectorTableQueue($this->get_prefix());
+        $queue->add_posts($post_ids);
+    }
 
 
 

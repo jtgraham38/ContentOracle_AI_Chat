@@ -49,7 +49,8 @@ class VectorTableQueue {
             queued_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             start_time TIMESTAMP,
             end_time TIMESTAMP,
-            error_count INTEGER DEFAULT 0
+            error_count INTEGER DEFAULT 0,
+            error_message TEXT DEFAULT NULL
         );";
 
         //execute the query
@@ -106,7 +107,7 @@ class VectorTableQueue {
      * @param int $batch_size Maximum number of chunks to process
      * @return array Array of post IDs to process
      */
-    public function get_next_batch($batch_size = 15) {
+    public function get_next_batch($batch_size = 25) {
         global $wpdb;
 
         // Get posts that are pending and haven't exceeded error count
@@ -167,7 +168,8 @@ class VectorTableQueue {
 
         $updates = array(
             'status' => $status,
-            'end_time' => current_time('mysql')
+            'end_time' => current_time('mysql'),
+            'error_message' => $error_message
         );
 
         foreach ($post_ids as $post_id) {
@@ -184,9 +186,9 @@ class VectorTableQueue {
                 $this->table_name,                  //table name
                 $updates,                          //updates
                 array('post_id' => $post_id),  //where clause
-                array('%s', '%s', '%d'),            //format
+                array('%s', '%s', '%s', '%d'),     //format for status, end_time, error_message, error_count
                 array('%d')                         //where format
-            ) !== false;
+            );
         }
     }
 
