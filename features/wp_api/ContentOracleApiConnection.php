@@ -19,10 +19,10 @@ class ContentOracleApiConnection{
     use ContentOracleChunkingMixin;
     use ContentOracleBulkContentEmbeddingMixin;
 
-    private $prefix;
-    private $base_url;
-    private $base_dir;
-    private $client_ip;
+    protected $prefix;
+    protected $base_url;
+    protected $base_dir;
+    protected $client_ip;
 
     public function __construct($prefix, $base_url, $base_dir, $client_ip){
         $this->prefix = $prefix;
