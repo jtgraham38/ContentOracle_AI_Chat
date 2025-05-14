@@ -19,7 +19,7 @@ class ContentOracleApiConnection{
     use ContentOracleChunkingMixin;
     use ContentOracleBulkContentEmbeddingMixin;
 
-    private $prefix;
+    protected $prefix;
     private $base_url;
     private $base_dir;
     private $client_ip;
@@ -34,6 +34,11 @@ class ContentOracleApiConnection{
     //static function to get the base url
     public static function get_base_url(){
         return get_option('coai_chat_api_url', 'https://app.contentoracleai.com/api') ?? 'https://app.contentoracleai.com/api';
+    }
+
+    //getter for the prefix
+    public function get_prefix(){
+        return $this->prefix;
     }
 
     //get a chat response from content oracle api
