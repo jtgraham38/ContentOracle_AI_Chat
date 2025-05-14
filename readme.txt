@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8  
-Stable tag: 1.8.0
+Stable tag: 1.9.0
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -23,6 +23,17 @@ https://youtu.be/W9pr_weJHWA
 The internet is changing. Millions of people every day ask artificial intelligence for recommendations, facts, and how-to knowledge. However, AI lacks the specialist knowledge that many online content creators and businesses provide.  
 
 ContentOracle AI Chat bridges this gap by combining your unique content with AI's capabilities. It delivers tailored answers based on your content, recommends relevant posts, products, and events, and provides analytics to enhance your site's user experience.
+
+== Features ==
+* Content-aware, retrieval augmented ai chat for site visitors.
+* Semantic text matching using text embeddings.
+* Chatbot cites it's sources in its messages.
+* Inline content recommendations in chat bubbles.
+* Full support and customizability with the block editor.
+* No code or third-party integrations required!
+* Compatible with major page builders.
+* AI agent speec habits customizable.
+
 
 == Installation ==
 
@@ -86,6 +97,12 @@ This plugin uses the following libraries:
 8. Customized block on the frontend.
 
 == Changelog ==
+
+= 1.9.0 =
+* Revamped the ui on the embeddings admin tab.
+* Overhauled the system for embedding site content.
+* Added more options for ai tone and jargon.
+* Bug fixes.
 
 = 1.8.1 =
 * Bug fix in bulk embed route.
@@ -163,6 +180,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.9.0 =
+Support for embedding massive content libraries added.
 
 = 1.8.1 =
 Fix bug in bulk embed route.
