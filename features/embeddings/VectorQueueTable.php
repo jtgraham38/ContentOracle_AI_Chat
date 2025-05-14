@@ -107,7 +107,7 @@ class VectorTableQueue {
      * @param int $batch_size Maximum number of chunks to process
      * @return array Array of post IDs to process
      */
-    public function get_next_batch($batch_size = 25) {
+    public function get_next_batch($batch_size = 3) {
         global $wpdb;
 
         // Get posts that are pending and haven't exceeded error count
