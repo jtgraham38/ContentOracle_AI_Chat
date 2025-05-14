@@ -78,7 +78,7 @@ class ContentOracleEmbeddings extends PluginFeature{
             wp_schedule_event(time(), 'every_minute', $this->get_prefix() . 'embed_batch_cron_hook');
         }
 
-        //schedule a daily cron job to remove posts that have been completed for more than 7 days
+        //schedule a daily cron job to remove posts that have been completed for more than 3 days
         if (!wp_next_scheduled($this->get_prefix() . 'clean_queue_cron_hook')) {
             wp_schedule_event(time(), 'daily', $this->get_prefix() . 'clean_queue_cron_hook');
         }

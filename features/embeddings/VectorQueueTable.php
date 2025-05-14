@@ -235,10 +235,23 @@ class VectorTableQueue {
     public function cleanup() {
         global $wpdb;
 
+        //if a record has been started more than 15 minutes ago and its status is processing, set it as a failure
+        $wpdb->query(
+            "UPDATE {$this->table_name} 
+            SET status = 'failed', 
+            error_count = error_count + 1,
+            end_time = NOW(),
+            error_message = 'Processing time exceeded 15 minutes.'
+            WHERE status = 'processing' 
+            AND start_time < NOW() - INTERVAL 15 MINUTE
+            AND end_time IS NULL
+            "
+        );
+
         //delete the records that are older than 7 days and complete or failed more than 3 times
         return $wpdb->query(
             "DELETE FROM {$this->table_name} 
-            WHERE (status = 'completed' AND end_time IS NOT NULL AND end_time < NOW() - INTERVAL 7 DAY) 
+            WHERE (status = 'completed' AND end_time IS NOT NULL AND end_time < NOW() - INTERVAL 3 DAY) 
             OR (status = 'failed' AND error_count > 3)"
         );
     }
