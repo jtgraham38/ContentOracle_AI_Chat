@@ -14,6 +14,7 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . 'ContentOracleApiConnection.php';
 require_once plugin_dir_path(__FILE__) . '../embeddings/VectorTable.php';
+require_once plugin_dir_path(__FILE__) . '../embeddings/VectorQueueTable.php';
 require_once plugin_dir_path(__FILE__) . '../embeddings/chunk_getters.php';
 require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
 require_once plugin_dir_path(__FILE__) . 'WPAPIErrorResponse.php';
@@ -21,6 +22,8 @@ require_once plugin_dir_path(__FILE__) . 'WPAPIErrorResponse.php';
 use jtgraham38\jgwordpresskit\PluginFeature;
 
 class ContentOracleApi extends PluginFeature{
+    use ContentOracleChunkingMixin;
+    
     public function add_filters(){
         add_filter('posts_clauses', array($this, 'find_relevant_content_by_score'), 10, 2);
     }
@@ -517,19 +520,84 @@ class ContentOracleApi extends PluginFeature{
             $this->get_client_ip()
         );
 
-        $result = $api->bulk_generate_embeddings($request->get_param('for'));
+        $for = $request->get_param('for');
 
-        //if the result is an error, return the error
-        if (is_wp_error($result)) {
+        //get the posts based on the parameter
+        $posts = [];
+
+        $post_types = get_option($this->get_prefix() . 'post_types');
+        switch ($for){
+            case 'all':
+                $posts = get_posts(array(
+                    'post_type' => $post_types,
+                    'post_status' => 'publish',
+                    'posts_per_page' => -1
+                ));
+
+                //remove posts with no chunks
+                $posts = array_filter($posts, function($post){
+                    $chunked_post = $this->chunk_post($post);
+                    return !empty($chunked_post->chunks);
+                });
+
+                break;
+            case 'not_embedded':
+
+                //get ids of posts that have embeddings
+                $VT = new ContentOracle_VectorTable($this->get_prefix());
+                $vecs = $VT->get_all();
+                $embedded_ids = array_map(function($vec){
+                    return $vec->post_id;
+                }, $vecs);
+
+                //get posts
+                $posts = get_posts(array(
+                    'post_type' => $post_types,
+                    'post_status' => 'publish',
+                    'posts_per_page' => -1,
+                    'post__not_in' => $embedded_ids,
+                ));
+
+                //remove posts with no chunks
+                $posts = array_filter($posts, function($post){
+                    $chunked_post = $this->chunk_post($post);
+                    return !empty($chunked_post->chunks);
+                });
+
+                break;
+            case is_numeric($for):
+                $posts[] = get_post($for);
+                break;
+        }
+
+        //get the post ids of the posts
+        $post_ids = array_filter(
+            array_map(
+                function($post){
+                    return $post->ID;
+                }, 
+            $posts
+        ), 
+            function($post_id){
+                return $post_id !== null;
+            }
+        );
+
+        //enqueue the posts for embedding generation
+        try{
+            $queue = new VectorTableQueue($this->get_prefix());
+            $queue->add_posts($post_ids);
+        }
+        catch (Exception $e){
             return new WP_REST_Response(array(
                 'success' => false,
-                'message' => $result->get_error_message()
-            ), 400);
+                'message' => $e->getMessage()
+            ), 500);
         }
 
         return new WP_REST_Response(array(
-            'success' => $result['success'],
-            'message' => $result['message']
+            'success' => true,
+            'message' => "Posts enqueued for embedding generation."
         ), 200);
     }
 

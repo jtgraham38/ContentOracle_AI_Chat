@@ -19,10 +19,10 @@ class ContentOracleApiConnection{
     use ContentOracleChunkingMixin;
     use ContentOracleBulkContentEmbeddingMixin;
 
-    private $prefix;
-    private $base_url;
-    private $base_dir;
-    private $client_ip;
+    protected $prefix;
+    protected $base_url;
+    protected $base_dir;
+    protected $client_ip;
 
     public function __construct($prefix, $base_url, $base_dir, $client_ip){
         $this->prefix = $prefix;
@@ -34,6 +34,11 @@ class ContentOracleApiConnection{
     //static function to get the base url
     public static function get_base_url(){
         return get_option('coai_chat_api_url', 'https://app.contentoracleai.com/api') ?? 'https://app.contentoracleai.com/api';
+    }
+
+    //getter for the prefix
+    public function get_prefix(){
+        return $this->prefix;
     }
 
     //get a chat response from content oracle api
@@ -246,39 +251,8 @@ class ContentOracleApiConnection{
     }
 
     //rest route to bulk generate embeddings
-    public function bulk_generate_embeddings($for){
+    public function bulk_generate_embeddings($posts){
         //get all the posts of the type to embed
-        $posts = [];
-        switch ($for){
-            case 'all':
-                $posts = get_posts(array(
-                    'post_type' => get_option($this->prefix . 'post_types'),
-                    'post_status' => 'publish',
-                    'posts_per_page' => -1
-                ));
-                break;
-            case 'not_embedded':
-                $posts = get_posts(array(
-                    'post_type' => get_option($this->prefix . 'post_types'),
-                    'post_status' => 'publish',
-                    'posts_per_page' => -1,
-                    'meta_query' => array(
-                        'relation' => 'OR',
-                        array(
-                            'key' => $this->prefix . 'embeddings',
-                            'compare' => 'NOT EXISTS'
-                        ),
-                        array(
-                            'key' => $this->prefix . 'embeddings',
-                            'value' => "a:0:{}",
-                            'compare' => '='
-                        )
-                    )
-                ));
-            case is_numeric($for):
-                $posts[] = get_post($for);
-                break;
-        }
 
         //break the posts into chunks
         $chunked_posts = [];
@@ -309,12 +283,8 @@ class ContentOracleApiConnection{
             $chunked_posts[] = $chunked_post;
         }
 
-        //send the chunks to the api
-        try{
-            $embeddings = $this->coai_api_generate_embeddings($chunked_posts);
-        } catch (Exception $e){
-            return new WP_Error('error', $e->getMessage());
-        }
+        //send the chunks to the api (we are letting exceptions bubble up)
+        $embeddings = $this->coai_api_generate_embeddings($chunked_posts);
 
         
         //save the embeddings to the database

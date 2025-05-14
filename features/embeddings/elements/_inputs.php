@@ -21,5 +21,14 @@ if (!defined('ABSPATH')) {
 
     <hr>
 
-    <?php require_once plugin_dir_path(__FILE__) . 'embeddings_explorer.php'; ?>
+
+    <?php
+    //get the embeddings method
+    $embeddings_method = get_option($this->get_prefix() . 'chunking_method');
+    if ($embeddings_method != 'none' && $embeddings_method != '') {
+        require_once plugin_dir_path(__FILE__) . 'embeddings_explorer.php';
+    } else{
+        echo '<p>Select a content embedding method to enable embeddings.</p>';
+    }
+     ?>
 </div>

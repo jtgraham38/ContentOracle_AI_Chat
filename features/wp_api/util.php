@@ -18,7 +18,7 @@ trait ContentOracleChunkingMixin {
 	 */
 	public function chunk_post($post) {
 		$post_id = $post->ID;
-		$chunking_method = get_option($this->prefix . 'chunking_method', 'none');
+		$chunking_method = get_option($this->get_prefix() . 'chunking_method', 'none');
 		
 		switch ($chunking_method) {
 			case 'token:256':
@@ -136,7 +136,8 @@ trait ContentOracleBulkContentEmbeddingMixin {
 
         //ensure the response is valid
         if (empty($data['embeddings'])) {
-            throw new Exception('Invalid response from ContentOracle AI: embeddings key not set');
+            $msg = $data['error'] . ": " . $data['message'] ?? 'Invalid response from ContentOracle AI: embeddings key not set';
+            throw new Exception($msg);
         }
 
         return $data['embeddings'];

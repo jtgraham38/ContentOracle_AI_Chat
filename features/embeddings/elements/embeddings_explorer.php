@@ -6,12 +6,13 @@ if (!defined('ABSPATH')) {
 
 require_once plugin_dir_path(__FILE__) . '../../../vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . '../VectorTable.php';
+require_once plugin_dir_path(__FILE__) . '../VectorQueueTable.php';
 require_once plugin_dir_path(__FILE__) . '../chunk_getters.php';
 
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 //access to vector table
 $VT = new ContentOracle_VectorTable($this->get_prefix() ?? "coai_chat_");
-
+$Q = new VectorTableQueue($this->get_prefix() ?? "coai_chat_");
 //$result = $VT->search(json_encode( $vector ));
 //this file shows an input, and uses it to display the raw embeddings values for a given post
 
@@ -39,37 +40,260 @@ if (!is_array($embeddings)) {
     $embeddings = [];
 }
 
-//get the types of posts that are indexed by the AI
-$post_types = get_option('coai_chat_post_types');
+//get all the embedding queue records
+$queue_records = $Q->get_all_records();
 
-//get all posts of the indexed types
-$posts = get_posts(array(
-    'post_type' => $post_types,
-    'numberposts' => -1,
-    'orderby' => 'post_type',
-    'order' => 'ASC'
-));
+
+if (!class_exists('WP_List_Table')) {
+    require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
+}
+
+//create a wordpress list table for the queue records
+class COAI_ChatEmbeddings_Explorer_Table extends WP_List_Table {
+
+    private $Q;
+
+    public function __construct($Q, $args = []) {
+        parent::__construct($args);
+        $this->Q = $Q;
+
+        //set column headers
+        $this->_column_headers = [
+            $this->get_columns(),
+            [],
+            $this->get_sortable_columns(),
+            'title'
+        ];
+    }
+
+    public function get_columns() {
+        return [
+            'cb' => '<input type="checkbox" />',
+            'title' => 'Title',
+            'type' => 'Type',
+            'status' => 'Status',
+            'tries_remaining' => 'Tries remaining',
+            'queued_at' => 'Queued at',
+            'started_at' => 'Started at',
+            'finished_at' => 'Finished at',
+        ];
+    }
+
+    public function get_sortable_columns() {
+        return [
+            'type' => ['type', false],
+            'status' => ['status', false],
+            'queued_at' => ['queued_at', false],
+            'started_at' => ['started_at', false],
+            'finished_at' => ['finished_at', false],
+        ];
+    }
+
+    public function process_bulk_action() {
+        if ('bulk-delete' === $this->current_action()) {
+            $nonce = isset($_REQUEST['_wpnonce']) ? $_REQUEST['_wpnonce'] : '';
+            
+            if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+                add_action('admin_notices', function() {
+                    echo '<div class="notice notice-error is-dismissible"><p>' . 
+                         __('Security check failed. Please try again.', 'contentoracle-ai-chat') . 
+                         '</p></div>';
+                });
+                return;
+            }
+
+            $post_ids = isset($_REQUEST['bulk-delete']) ? array_map('intval', $_REQUEST['bulk-delete']) : [];
+            
+            if (!empty($post_ids)) {
+                $success_count = 0;
+                foreach ($post_ids as $post_id) {
+                    if ($this->Q->delete_post($post_id)) {
+                        $success_count++;
+                    }
+                }
+
+                if ($success_count > 0) {
+                    add_action('admin_notices', function() use ($success_count) {
+                        echo '<div class="notice notice-success is-dismissible"><p>' . 
+                             sprintf(
+                                 _n(
+                                     '%d post removed from queue successfully.',
+                                     '%d posts removed from queue successfully.',
+                                     $success_count,
+                                     'contentoracle-ai-chat'
+                                 ),
+                                 $success_count
+                             ) . 
+                             '</p></div>';
+                    });
+                }
+
+                if ($success_count < count($post_ids)) {
+                    add_action('admin_notices', function() use ($success_count, $post_ids) {
+                        echo '<div class="notice notice-error is-dismissible"><p>' . 
+                             sprintf(
+                                 __('Failed to remove %d posts from queue.', 'contentoracle-ai-chat'),
+                                 count($post_ids) - $success_count
+                             ) . 
+                             '</p></div>';
+                    });
+                }
+            }
+        }
+    }
+
+    public function prepare_items() {
+        // Process bulk actions
+        $this->process_bulk_action();
+
+        //get all records
+        $queue_records = $this->Q->get_all_records();
+        
+        
+        // Combine all records into a single array
+        $all_records = [];
+        foreach (['pending', 'processing', 'failed', 'completed'] as $status) {
+            if (isset($queue_records[$status])) {
+                foreach ($queue_records[$status] as $record) {
+                    $all_records[] = $record;
+                }
+            }
+        }
+
+        // Set the items
+        $this->items = $all_records;
+
+        // Set up pagination if needed
+        $per_page = 20;
+        $current_page = $this->get_pagenum();
+        $total_items = count($all_records);
+
+        $this->set_pagination_args([
+            'total_items' => $total_items,
+            'per_page' => $per_page,
+            'total_pages' => ceil($total_items / $per_page)
+        ]);
+
+        // Slice the items for the current page
+        $this->items = array_slice($all_records, (($current_page - 1) * $per_page), $per_page);
+    }
+
+    public function column_default($item, $column_name) {
+        switch ($column_name) {
+            case 'title':
+                return sprintf(
+                    '<a href="%s">%s</a>',
+                    esc_url(get_edit_post_link($item->post_id)),
+                    esc_html($item->post_title)
+                );
+            case 'type':
+                return esc_html($item->post_type);
+            case 'status':
+
+                $string = '<span class="coai_chat_queue_status ' . esc_attr($item->status) . '">' . esc_html($item->status) . '</span>';
+
+                //if failed, create a dropdown with the error message
+                if ($item->status === 'failed') {
+                    $string = '<details><summary>' . $string . '</summary>' . esc_html($item->error_message) . '</details>';
+                }
+
+                return $string;
+            case 'tries_remaining':
+                return esc_html(3 - $item->error_count);
+            case 'queued_at':
+                return esc_html($item->queued_time);
+            case 'started_at':
+                return $item->start_time ? esc_html($item->start_time) : 'Not started';
+            case 'finished_at':
+                return $item->end_time ? esc_html($item->end_time) : 'Not finished';
+            default:
+                return isset($item->$column_name) ? esc_html($item->$column_name) : '';
+        }
+    }
+
+    public function column_cb($item) {
+        return sprintf(
+            '<input type="checkbox" name="bulk-delete[]" value="%s" />',
+            $item->post_id
+        );
+    }
+
+    public function get_bulk_actions() {
+        return [
+            'bulk-delete' => __('Delete', 'contentoracle-ai-chat')
+        ];
+    }
+
+    public function column_title($item) {
+        $actions = array(
+            'delete' => sprintf(
+                '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>',
+                wp_nonce_url(
+                    add_query_arg(
+                        array(
+                            'action' => 'delete',
+                            'post_id' => $item->post_id
+                        ),
+                        admin_url('admin.php?page=contentoracle-ai-chat-embeddings')
+                    ),
+                    'delete_queue_item_' . $item->post_id
+                ),
+                esc_js(__('Are you sure you want to delete this item from the queue?', 'contentoracle-ai-chat')),
+                __('Dequeue', 'contentoracle-ai-chat')
+            )
+        );
+
+        return sprintf(
+            '%1$s %2$s',
+            sprintf(
+                '<a href="%s">%s</a>',
+                esc_url(get_edit_post_link($item->post_id)),
+                esc_html($item->post_title)
+            ),
+            $this->row_actions($actions)
+        );
+    }
+}
+
+//create an instance of the table
+$table = new COAI_ChatEmbeddings_Explorer_Table($Q);
+
+// Handle queue removal
+if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_id'])) {
+    $post_id = intval($_GET['post_id']);
+    $nonce = isset($_GET['_wpnonce']) ? $_GET['_wpnonce'] : '';
+    
+    if (wp_verify_nonce($nonce, 'delete_queue_item_' . $post_id)) {
+        $result = $Q->delete_post($post_id);
+        
+        if ($result) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible"><p>' . 
+                     __('Post removed from queue successfully.', 'contentoracle-ai-chat') . 
+                     '</p></div>';
+            });
+        } else {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error is-dismissible"><p>' . 
+                     __('Failed to remove post from queue.', 'contentoracle-ai-chat') . 
+                     '</p></div>';
+            });
+        }
+        
+        // Redirect to remove query args
+        wp_redirect(remove_query_arg(['action', 'post_id', '_wpnonce']));
+        exit;
+    } else {
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-error is-dismissible"><p>' . 
+                 __('Security check failed. Please try again.', 'contentoracle-ai-chat') . 
+                 '</p></div>';
+        });
+    }
+}
+
 ?>
-<details>
-    <summary>Tips</summary>
-    <ul>
-        <li>
-            Select a post from the dropdown to view its embeddings.
-        </li>
-        <li>
-            Click "Generate Embeddings" to generate embeddings for the selected post.
-        </li>
-        <li>
-            Click "Re-Generate Embeddings" to re-generate embeddings for the selected post.
-        </li>
-        <li>
-            Click "Bulk Generate Embeddings" to generate embeddings for many posts at once.
-        </li>
-        <li>
-            If a post does not have any body saved to the database outside of block comments, no embeddings will be generated for it.
-        </li>
-    </ul>
-</details>
+
 <strong>Note: Embeddings will only be generated for posts of the types set in the "Prompt" settings.  They will also only be generated if a chunking method is set.</strong>
 <br>
 <br>
@@ -77,14 +301,51 @@ $posts = get_posts(array(
 <div id="<?php echo esc_attr( $this->get_prefix() ) ?>embeddings_explorer">
 
     <div>
-        <h3>Bulk Generate Embeddings</h3>
-        <p>Generate embeddings for many posts at once!</p>
+        <h2>Embedding Queue</h2>
+        <p>Below, you will find a queue of posts that are scheduled to have text embeddings generated for semantic text matching.</p>
+    
+        <details id="embeddings_queue_tips">
+            <summary>Tips</summary>
+            <ul>
+                <li>
+                    Use the "Add Posts to Queue" form to schedule posts to be embedded.
+                </li>
+                <li>
+                    Each queue entry has a status.  The four options are:
+                    <ul>
+                        <li>
+                            Pending: The post is scheduled to be embedded.
+                        </li>
+                        <li>
+                            Processing: The post is currently being embedded.
+                        </li>
+                        <li>
+                            Failed: The post failed to be embedded.  It will be retried up to 3 times.
+                        </li>
+                        <li>
+                            Completed: The post has been embedded.  It will be removed from the queue after 24 hours.
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    Each post can only be in the queue once.  If it is already in the queue, you must remove it before adding it again.
+                </li>
+                <li>
+                    Use the bulk delete action or the inline dequeue button to remove posts from the queue.
+                </li>
+                <li>
+                    Note that if a post does not appear in the queue after adding all posts, it may be because it does not have any embeddable content.
+                </li>
+            </ul>
+        </details>
+    </div>
 
+    <div>
         <form 
             method="POST" 
             id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_form"
         >
-            <label for="bulk_generate_embeddings_select">Bulk Options</label>
+            <label for="bulk_generate_embeddings_select">Add Posts to Queue</label>
             <div style="display: flex;" >
                 
                 <select 
@@ -112,132 +373,22 @@ $posts = get_posts(array(
         </div>
 
         <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_success_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_success_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Embeddings generated successfully!</p>
+            <p>Posts enqueued for embedding generation.</p>
         </div>
 
         <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_error_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_error_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Error generating embeddings!</p>
+            <p>Error enqueuing posts for embedding generation!</p>
         </div>
     </div>
 
-    <br>
-    <hr>
-    <br>
-
     <div>
-        <h3>View Embeddings</h3>
-        <p>Select a post to view and re-generate its embeddings.</p>
-
-        <label for="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector">Post</label>
-        <select 
-            name="post_id" 
-            required 
-            id="<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector"
-            title="The embeddings shown in the table below are for the selected post.  Embeddings will be generated for this post if the button is pressed."
-        >
-            <option value="" selected>Select a post...</option>
-            <?php foreach ($posts as $post) { ?>
-                <option value="<?php echo esc_attr( $post->ID ); ?>" <?php selected( $post_id, $post->ID ); ?>><?php echo esc_html( $post->post_title ); ?> (<?php echo esc_attr( $post->post_type ) ?>)</option>
-            <?php } ?>
-        </select>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function(){
-                let selector = document.getElementById('<?php echo esc_attr($this->get_prefix()) ?>post_embedding_selector');
-                console.log(selector, "selector");
-                selector.addEventListener('change', function(){
-                    window.location.href = '<?php echo esc_url($_SERVER['PHP_SELF']); ?>?page=contentoracle-ai-chat-embeddings&post_id=' + selector.value;
-                });
-            });
-        </script>
-
-        <br>
-        <br>
-
-            <?php
-                if ($post_id && intval($post_id) > 0) {
-                    //get the last time the embeddings were generated
-                    $most_recent_embedding = $VT->get_latest_updated($post_id);
-        
-                    if (isset($most_recent_embedding->updated_at)) {
-                        ?>
-                            Embeddings last generated at: <?php echo esc_html($most_recent_embedding->updated_at); ?>
-                        <?php
-                    }
-                }
+        <form method="post">
+            <?php 
+            wp_nonce_field('bulk-' . $table->_args['plural']);
+            $table->prepare_items();
+            $table->display(); 
             ?>
-
-        <div
-        >
-            <form 
-                method="POST" 
-                id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_form"
-            >
-                <div
-                    style="max-width: 48rem; overflow-x: auto;"
-                >
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Content</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                            <?php if (isset($embeddings) && count($embeddings) > 0) { ?>
-                                <?php foreach ($embeddings as $i => $embedding) { ?>
-                                    <tr>
-    
-                                        <?php 
-                                            $section = token256_get_chunk($selected_post->post_content, $i);
-                                        ?>
-    
-                                        <td title="<?php echo esc_attr($section); ?>">
-                                            <?php 
-                                                $tokens = explode(' ', $section);
-                                                $display_section = implode(' ', array_slice($tokens, 0, 3)) . ' ... ' . implode(' ', array_slice($tokens, -3));
-                                                echo esc_html($display_section);
-                                            ?>
-                                        </td>
-                                        <td name="embeddings[]">
-                                            <details>
-                                                <summary>Click to view vector</summary>
-                                                <?php echo esc_html($embedding->vector); ?>
-                                            </details>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            <?php } else { ?>
-                                <tr>
-                                    <td colspan="2">No embeddings found.</td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-                <input type="hidden" name="post_id" id="post_id_input" value="<?php echo esc_attr( $post_id ) ?>">
-                <input type="submit" value="<?php echo count($embeddings) > 0 ? "Re-Generate Embeddings" : "Generate Embeddings"  ?>" class="button-primary">
-            </form>
-
-            <!-- spinner, success, error -->
-            <div id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_result_container" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_result_container" >
-                <span id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_spinner" 
-                    class="
-                        <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_spinner
-                        <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden
-            ">
-            </span>
-        </div>
-
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_success_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_success_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Embeddings generated successfully!</p>
-        </div>
-
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>singular_generate_embeddings_error_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_error_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
-            <p>Error generating embeddings!</p>
-        </div>
-
+        </form>
     </div>
 
 </div>
