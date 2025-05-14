@@ -136,7 +136,8 @@ trait ContentOracleBulkContentEmbeddingMixin {
 
         //ensure the response is valid
         if (empty($data['embeddings'])) {
-            throw new Exception('Invalid response from ContentOracle AI: embeddings key not set');
+            $msg = $data['error'] . ": " . $data['message'] ?? 'Invalid response from ContentOracle AI: embeddings key not set';
+            throw new Exception($msg);
         }
 
         return $data['embeddings'];

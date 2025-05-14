@@ -89,20 +89,6 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
     }
 
-
-    /*
-    TODO LIST:
-
-    - FIX ISSUE CAUSING EMBEDS TO FAIL
-    - devise a way for the plugin to stop trying to embed after it runs out of embed usage
-    ^^IT IS SOMETHING IN THE JOB, because chat embeds work.
-    - only show the embeddings ui if the chunking method is set to something other than none!!!
-    - mark the quue item as failed if the start time was longer than 15 minutes ago
-    - show error messages when posts fail \/
-    - don't try to embed posts with no chunks \/
-    - don't automatically enqueue posts for embedding generation if they do not have any chunks \/
-    */
-
     //get a batch of posts from the queue, and send it to the embedding service
     public function consume_batch_from_queue(){
         //get a batch of posts from the queue
