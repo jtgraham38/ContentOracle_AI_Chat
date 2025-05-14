@@ -66,8 +66,6 @@ class ContentOracleEmbeddings extends PluginFeature{
         //hook into the cron job, to enqueue posts for embedding generation if they are not already embedded
         add_action($this->get_prefix() . 'auto_enqueue_embeddings_cron_hook', array($this, 'auto_enqueue_embeddings'));
 
-        //hook to test enquweing all posts no0t embedded
-        add_action('init', array($this, 'enqueue_all_posts_that_are_not_already_embedded'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -140,9 +138,6 @@ class ContentOracleEmbeddings extends PluginFeature{
         } catch (Exception $e){
             //log the error
             error_log($e->getMessage());
-
-            //save the error to the database
-            update_option("COAI_ERROR", $e->getMessage());
 
             //mark each post in the batch as failed
             $queue->update_status($post_ids, 'failed', $e->getMessage());
@@ -383,7 +378,7 @@ class ContentOracleEmbeddings extends PluginFeature{
             );
 
             add_settings_field(
-                $this->get_prefix() . "auto_generate_embeddings_interval",    // id of the field
+                $this->get_prefix() . "auto_generate_embeddings",    // id of the field
                 'Auto-generate Text Embeddings Weekly',   // title
                 function(){ // callback
                     require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_embeddings_input.php';

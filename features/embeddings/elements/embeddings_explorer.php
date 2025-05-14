@@ -333,6 +333,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
                 <li>
                     Use the bulk delete action or the inline dequeue button to remove posts from the queue.
                 </li>
+                <li>
+                    Note that if a post does not appear in the queue after adding all posts, it may be because it does not have any embeddable content.
+                </li>
             </ul>
         </details>
     </div>
