@@ -9,7 +9,14 @@ if (!defined('ABSPATH')) {
 $options = [
     'formal' => 'Formal',
     'casual' => 'Casual',
-    'neutral' => 'Neutral'
+    'neutral' => 'Neutral',
+    'friendly' => 'Friendly',
+    'professional' => 'Professional',
+    'humorous' => 'Humorous',
+    'empathetic' => 'Empathetic',
+    'confident' => 'Confident',
+    'concise' => 'Concise',
+    'enthusiastic' => 'Enthusiastic',
 ];
 
 ?>

@@ -13,7 +13,16 @@ $options = [
     'tech' => 'Tech',
     'education' => 'Education',
     'general' => 'General',
-    'none' => 'None'
+    'engineering' => 'Engineering',
+    'marketing' => 'Marketing',
+    'retail' => 'Retail',
+    'construction' => 'Construction',
+    'hospitality' => 'Hospitality',
+    'aviation' => 'Aviation',
+    'energy' => 'Energy',
+    'agriculture' => 'Agriculture',
+    'horticulture' => 'Horticulture',
+    'none' => 'None',
 ];
 
 ?>
