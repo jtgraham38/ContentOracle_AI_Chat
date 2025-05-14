@@ -18,7 +18,7 @@ trait ContentOracleChunkingMixin {
 	 */
 	public function chunk_post($post) {
 		$post_id = $post->ID;
-		$chunking_method = get_option($this->prefix . 'chunking_method', 'none');
+		$chunking_method = get_option($this->get_prefix() . 'chunking_method', 'none');
 		
 		switch ($chunking_method) {
 			case 'token:256':

@@ -36,6 +36,11 @@ class ContentOracleApiConnection{
         return get_option('coai_chat_api_url', 'https://app.contentoracleai.com/api') ?? 'https://app.contentoracleai.com/api';
     }
 
+    //getter for the prefix
+    public function get_prefix(){
+        return $this->prefix;
+    }
+
     //get a chat response from content oracle api
     public function ai_chat(string $query, array $content, array $conversation){
         //build the request

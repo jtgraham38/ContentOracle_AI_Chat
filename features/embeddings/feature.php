@@ -65,6 +65,9 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //hook into the cron job, to enqueue posts for embedding generation if they are not already embedded
         add_action($this->get_prefix() . 'auto_enqueue_embeddings_cron_hook', array($this, 'auto_enqueue_embeddings'));
+
+        //hook to test enquweing all posts no0t embedded
+        add_action('init', array($this, 'enqueue_all_posts_that_are_not_already_embedded'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -96,6 +99,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     - devise a way for the plugin to stop trying to embed after it runs out of embed usage
     ^^IT IS SOMETHING IN THE JOB, because chat embeds work.
     - only show the embeddings ui if the chunking method is set to something other than none!!!
+    - mark the quue item as failed if the start time was longer than 15 minutes ago
     - show error messages when posts fail \/
     - don't try to embed posts with no chunks \/
     - don't automatically enqueue posts for embedding generation if they do not have any chunks \/
@@ -209,32 +213,43 @@ class ContentOracleEmbeddings extends PluginFeature{
         // 2. of the correct post type
         // 3. status is publish
 
+        //get post types
         $post_types = get_option($this->get_prefix() . 'post_types');
 
+        //get ids of posts that have embeddings
+        $VT = new ContentOracle_VectorTable($this->get_prefix());
+        $vecs = $VT->get_all();
+        $embedded_ids = array_map(function($vec){
+            return $vec->post_id;
+        }, $vecs);
+
+        //get posts
         $posts = get_posts(array(
                     'post_type' => $post_types,
                     'post_status' => 'publish',
                     'posts_per_page' => -1,
-                    'meta_query' => array(
-                        'relation' => 'OR',
-                        array(
-                            'key' => $this->prefix . 'embeddings',
-                            'compare' => 'NOT EXISTS'
-                        ),
-                        array(
-                            'key' => $this->prefix . 'embeddings',
-                            'value' => "a:0:{}",
-                            'compare' => '='
-                        )
-                    )
+                    'post__not_in' => $embedded_ids,
+                //NOTE: THIS META QUERY IS BROKEN, RETURNS POSTS THAT HAVE EMBEDDINGS
+                    // 'meta_query' => array(
+                    //     'relation' => 'OR',
+                    //     array(
+                    //         'key' => $this->get_prefix() . 'embeddings',
+                    //         'compare' => 'NOT EXISTS'
+                    //     ),
+                    //     array(
+                    //         'key' => $this->get_prefix() . 'embeddings',
+                    //         'value' => "a:0:{}",
+                    //         'compare' => '='
+                    //     )
+                    // )
                 ));
-
 
         //remove posts that have no chunks
         $posts = array_filter($posts, function($post){
-            $chunks = $this->chunk_post($post);
-            return !empty($chunks);
+            $chunked_post = $this->chunk_post($post);
+            return !empty($chunked_post->chunks);
         });
+
 
 
         //get post ids
@@ -260,8 +275,8 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //remove posts that have no chunks
         $posts = array_filter($posts, function($post){
-            $chunks = $this->chunk_post($post);
-            return !empty($chunks);
+            $chunked_post = $this->chunk_post($post);
+            return !empty($chunked_post->chunks);
         });
 
         //get post ids

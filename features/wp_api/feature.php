@@ -22,6 +22,8 @@ require_once plugin_dir_path(__FILE__) . 'WPAPIErrorResponse.php';
 use jtgraham38\jgwordpresskit\PluginFeature;
 
 class ContentOracleApi extends PluginFeature{
+    use ContentOracleChunkingMixin;
+    
     public function add_filters(){
         add_filter('posts_clauses', array($this, 'find_relevant_content_by_score'), 10, 2);
     }
@@ -532,25 +534,37 @@ class ContentOracleApi extends PluginFeature{
                     'posts_per_page' => -1
                 ));
 
+                //remove posts with no chunks
+                $posts = array_filter($posts, function($post){
+                    $chunked_post = $this->chunk_post($post);
+                    return !empty($chunked_post->chunks);
+                });
+
                 break;
             case 'not_embedded':
+
+                //get ids of posts that have embeddings
+                $VT = new ContentOracle_VectorTable($this->get_prefix());
+                $vecs = $VT->get_all();
+                $embedded_ids = array_map(function($vec){
+                    return $vec->post_id;
+                }, $vecs);
+
+                //get posts
                 $posts = get_posts(array(
                     'post_type' => $post_types,
                     'post_status' => 'publish',
                     'posts_per_page' => -1,
-                    'meta_query' => array(
-                        'relation' => 'OR',
-                        array(
-                            'key' => $this->prefix . 'embeddings',
-                            'compare' => 'NOT EXISTS'
-                        ),
-                        array(
-                            'key' => $this->prefix . 'embeddings',
-                            'value' => "a:0:{}",
-                            'compare' => '='
-                        )
-                    )
+                    'post__not_in' => $embedded_ids,
                 ));
+
+                //remove posts with no chunks
+                $posts = array_filter($posts, function($post){
+                    $chunked_post = $this->chunk_post($post);
+                    return !empty($chunked_post->chunks);
+                });
+
+                break;
             case is_numeric($for):
                 $posts[] = get_post($for);
                 break;
