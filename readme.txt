@@ -2,8 +2,8 @@
 Contributors: jtgraham38  
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
-Tested up to: 6.8  
-Stable tag: 1.9.0
+Tested up to: 6.8.1
+Stable tag: 1.9.1
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -98,6 +98,9 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.9.1 =
+* Fixed a bug that caused embeddings to be consumed without use.
+
 = 1.9.0 =
 * Revamped the ui on the embeddings admin tab.
 * Overhauled the system for embedding site content.
@@ -180,6 +183,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.9.1 =
+Update to preserve your free embedding usage.
 
 = 1.9.0 =
 Support for embedding massive content libraries added.
