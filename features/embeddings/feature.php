@@ -96,8 +96,6 @@ class ContentOracleEmbeddings extends PluginFeature{
         $queue = new VectorTableQueue($this->get_prefix());
         $post_ids = $queue->get_next_batch();
 
-        var_dump($post_ids);
-
         //get all posts with the indicated ids
         $post_types = '"' . implode('","', get_option($this->get_prefix() . 'post_types', [])) . '"';
         $post_ids = implode(',', $post_ids);
