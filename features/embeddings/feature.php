@@ -91,14 +91,24 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     //get a batch of posts from the queue, and send it to the embedding service
     public function consume_batch_from_queue(){
+        global $wpdb;
         //get a batch of posts from the queue
         $queue = new VectorTableQueue($this->get_prefix());
         $post_ids = $queue->get_next_batch();
-        $posts = get_posts(array(
-            'post_type' => get_option($this->get_prefix() . 'post_types', []),
-            'post_status' => 'publish',
-            'post__in' => $post_ids
-        ));
+
+        var_dump($post_ids);
+
+        //get all posts with the indicated ids
+        $post_types = '"' . implode('","', get_option($this->get_prefix() . 'post_types', [])) . '"';
+        $post_ids = implode(',', $post_ids);
+
+        //return if there are no post types or post ids
+        if ($post_types == '' || $post_ids == ''){
+            return;
+        }
+
+        //get the posts
+        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->posts} WHERE ID IN ($post_ids) AND post_status = 'publish' AND post_type IN ($post_types)");
 
         //return if there are no posts
         if (empty($posts)) {
