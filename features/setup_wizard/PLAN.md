@@ -21,6 +21,7 @@ The setup wizard will guide users through a step-by-step process to configure th
 
 **Implementation Details:**
 - Create `setup-wizard-step1.php` template
+- Link to the api for login/register
 - Add validation to ensure user acknowledges account creation
 - Store completion status in WordPress options
 
@@ -34,6 +35,7 @@ The setup wizard will guide users through a step-by-step process to configure th
 **Implementation Details:**
 - Create `setup-wizard-step2.php` template
 - Implement API token validation
+- Input to paste token into.
 - Securely store token in WordPress options
 - Add token refresh/regenerate option
 
@@ -64,6 +66,8 @@ The setup wizard will guide users through a step-by-step process to configure th
 - Create `setup-wizard-step4.php` template
 - Implement embeddings settings storage
 - Add validation for embeddings settings
+- Input to select post types
+- Button to add all posts to embedding queue
 - Include performance impact information
 
 ### 6. Step 5: Usage Instructions
@@ -84,10 +88,11 @@ The setup wizard will guide users through a step-by-step process to configure th
 
 ### Database
 - Create new WordPress options:
-  - `contentoracle_wizard_completed`
-  - `contentoracle_api_token`
-  - `contentoracle_prompt_settings`
-  - `contentoracle_embeddings_settings`
+  - `coai_chat_step1_complete` (bool)
+  - `coai_chat_step2_complete` (bool)
+  - `coai_chat_step3_complete` (bool)
+  - `coai_chat_step4_complete` (bool)
+  - `coai_chat_step5_complete` (bool)
 
 ### Security
 - Implement nonce verification for all form submissions

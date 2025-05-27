@@ -1,0 +1,26 @@
+/* outer container */
+.coai_chat-setup-wizard {}
+
+/* inner slide container */
+.coai_chat-setup-wizard-slide-container {
+    display: grid;
+    place-items: center;
+    min-height: 80vh;
+}
+
+/* paragraphs inside the inner slide container */
+.coai_chat-setup-wizard-slide-container p {
+    margin-bottom: 1rem;
+    font-size: larger;
+}
+
+/* success and error messages */
+.coai_chat-setup-wizard-slide-container .success-msg {
+    font-size: smaller;
+    color: green;
+}
+
+.coai_chat-setup-wizard-slide-container .error-msg {
+    font-size: smaller;
+    color: red;
+}
