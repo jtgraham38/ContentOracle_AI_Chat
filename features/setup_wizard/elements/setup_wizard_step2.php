@@ -47,8 +47,8 @@ $current_token = get_option($this->get_prefix() . 'api_token');
 
     <form action="" method="POST" id="<?php echo $this->get_prefix(); ?>step2-form">
 
-        <label for="<?php echo $this->get_prefix(); ?>api_token">API Token</label>
-        <input type="text" id="<?php echo $this->get_prefix(); ?>api_token" name="token" placeholder="API Token" required value="<?php echo $current_token; ?>">
+        <label for="<?php echo $this->get_prefix(); ?>api_token_input">API Token</label>
+        <input type="text" id="<?php echo $this->get_prefix(); ?>api_token_input" name="token" placeholder="API Token" required value="<?php echo $current_token; ?>">
         <input type="hidden" name="nonce" value="<?php echo wp_create_nonce($this->get_prefix() . 'setup_wizard_step2'); ?>">
         <button type="submit" class="button button-primary">Save Token</button>
     </form>
