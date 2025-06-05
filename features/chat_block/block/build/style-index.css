@@ -129,6 +129,24 @@
   text-decoration: none;
   padding: 1rem;
 }
+@media screen and (max-width: 782px) {
+  .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .coai_chat-featured_content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .coai_chat-featured_content .coai_chat-featured_content_inner {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+  .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .coai_chat-featured_content .coai_chat-featured_content_inner img {
+    max-width: 90%;
+  }
+  .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .coai_chat-featured_content .coai_chat-featured_content_btn {
+    max-width: 90%;
+  }
+}
 .contentoracle-ai_chat_root .contentoracle-ai_chat_conversation .contentoracle-ai_chat_bubble .contentoracle-source_list {
   width: 100%;
 }
