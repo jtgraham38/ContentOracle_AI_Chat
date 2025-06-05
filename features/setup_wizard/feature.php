@@ -20,6 +20,11 @@ class ContentOracleSetupWizard extends PluginFeature{
 
         //enqueue styles and scripts
         add_action('admin_enqueue_scripts', array($this, 'enqueue_styles_and_scripts'));
+
+        //when the plugin activates, run the setup wizard
+        add_action('admin_init', array($this, 'run_setup_wizard'));
+
+
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -52,4 +57,21 @@ class ContentOracleSetupWizard extends PluginFeature{
         }
     }
 
+    //when the plugin activates, run the setup wizard
+    public function run_setup_wizard(){
+        //check if the user is an admin
+        if (!current_user_can('manage_options')){
+            return;
+        }
+
+        //check if the transient is set
+        if (get_transient($this->get_prefix() . "plugin_activated")){
+            //delete the transient
+            delete_transient($this->get_prefix() . "plugin_activated");
+
+            //redirect to the setup wizard page
+            wp_redirect(admin_url('admin.php?page=contentoracle-ai-chat-setup-wizard&step=1'));
+            exit;
+        }
+    }
 }

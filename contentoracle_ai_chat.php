@@ -25,7 +25,8 @@ use jtgraham38\jgwordpresskit\Plugin;
 
 
 //create a new plugin manager
-$plugin = new Plugin("coai_chat_", plugin_dir_path( __FILE__ ), plugin_dir_url( __FILE__ ));
+$prefix = "coai_chat_";
+$plugin = new Plugin($prefix, plugin_dir_path( __FILE__ ), plugin_dir_url( __FILE__ ));
 
 //register features with the plugin manager here...
 
@@ -74,5 +75,12 @@ require_once plugin_dir_path(__FILE__) . 'features/setup_wizard/feature.php';
 $feature = new ContentOracleSetupWizard();
 $plugin->register_feature($feature);
 
+
+
 //init the plugin
 $plugin->init();
+
+//register a transient to denote that the plugin was just activated
+register_activation_hook(__FILE__, function() use ($prefix) {
+    set_transient($prefix . "plugin_activated", true, 30);
+});
