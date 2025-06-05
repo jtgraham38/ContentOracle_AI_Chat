@@ -25,6 +25,7 @@ $current_step = isset($_GET['step']) ? intval($_GET['step']) : $last_completed_s
 //create the next step url
 $next_step_url = '/wp-admin/admin.php?page=contentoracle-ai-chat-setup-wizard&complete=' . $current_step . '&step=' . ($current_step + 1);
 $prev_step_url = '/wp-admin/admin.php?page=contentoracle-ai-chat-setup-wizard&complete=' . $current_step - 1 . '&step=' . ($current_step - 1);
+$finish_url
 
 ?>
 <div class="wrap coai_chat-setup-wizard">
@@ -49,6 +50,9 @@ $prev_step_url = '/wp-admin/admin.php?page=contentoracle-ai-chat-setup-wizard&co
                 case 5:
                     require_once plugin_dir_path(__FILE__) . 'setup_wizard_step5.php';
                     break;
+                case 6:
+                    require_once plugin_dir_path(__FILE__) . 'setup_wizard_step6.php';
+                    break;
                 default:
                     require_once plugin_dir_path(__FILE__) . 'setup_wizard_step1.php';
                     break;
@@ -60,7 +64,14 @@ $prev_step_url = '/wp-admin/admin.php?page=contentoracle-ai-chat-setup-wizard&co
             <?php if ($current_step > 1) { ?>
                 <a href="<?php echo esc_url($prev_step_url); ?>" class="button button-secondary">Previous Step</a>
             <?php } ?>
-            <a href="<?php echo esc_url($next_step_url); ?>" class="button button-primary">Next Step</a>
+
+                <a href="<?php echo esc_url($next_step_url); ?>" class="button button-primary">
+                    <?php if ($current_step < 6) { ?>
+                        Next Step
+                    <?php } else { ?>
+                        Finish
+                    <?php } ?>
+                </a>
         </div>
     </div>
 

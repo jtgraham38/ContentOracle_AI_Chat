@@ -3,21 +3,6 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-/*
-### 6. Step 5: Usage Instructions
-**UI Components:**
-- Instructions for using the block editor
-- Instructions for using shortcodes
-- Example shortcode snippets
-- Link to documentation
-- Finish button
-
-**Implementation Details:**
-- Create `setup-wizard-step5.php` template
-- Add interactive examples
-- Include documentation links
-- Mark wizard as complete when finished
-*/
 
 // Check if search results page exists
 $search_page_id = get_option($this->get_prefix() . 'search_results_page_id');
@@ -97,6 +82,6 @@ $search_page_url = $search_page_id ? get_edit_post_link($search_page_id) : admin
         <li>Consider adding the search block in your header or footer to help visitors find your ai chat agent more easily.</li>
     </ul>
     <p>
-        Remember, ou can always adjust your settings later through the ContentOracle AI Chat menu in your WordPress admin panel.
+        Remember, you can always adjust your settings later through the ContentOracle AI Chat menu in your WordPress admin panel.
     </p>
 </div>

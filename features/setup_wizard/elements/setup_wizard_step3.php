@@ -148,7 +148,7 @@ $extra_info_setting = get_option($this->get_prefix() . 'ai_extra_info_prompt');
 ?>
 
 <div>
-    <h1>Step 3</h1>
+    <h1>Step 3: Customize the Prompt</h1>
 
     <p>Now, you will customize the prompt settings for your AI assistant.</p>
     <p>This will affect the way your AI assistant will respond to your visitors.</p>

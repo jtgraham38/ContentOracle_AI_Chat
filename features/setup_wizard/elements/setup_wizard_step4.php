@@ -32,7 +32,7 @@ endif;
 ?>
 
 <div>
-    <h1>Step 4</h1>
+    <h1>Step 4: Generate Embeddings</h1>
     <?php if (get_option($this->get_prefix() . 'chunking_method') != 'none'): ?>
         <p>
             Now, we need to generate text embeddings for all of your posts so that the AI agent can use semantic search to match user queries with the most relevant content.

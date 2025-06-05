@@ -29,7 +29,7 @@ $register_url = $base_url . '/register';
 
 <div>
 
-    <h1>Step 1</h1>
+    <h1>Step 1: Create an Account</h1>
     
     <p>Welcome to ContentOracle AI Chat!  We are excited to have you on board!</p>
     

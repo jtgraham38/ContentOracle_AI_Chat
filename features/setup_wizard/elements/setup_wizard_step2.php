@@ -31,7 +31,7 @@ $current_token = get_option($this->get_prefix() . 'api_token');
 ?>
 
 <div>
-    <h1>Step 2</h1>
+    <h1>Step 2: Generate an API Token</h1>
 
     <p>
         After you have logged in to your ContentOracle AI account, you can generate an API token.  
