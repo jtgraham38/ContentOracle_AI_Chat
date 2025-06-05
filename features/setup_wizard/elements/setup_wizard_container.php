@@ -10,11 +10,11 @@ if ($step_completed) {
     update_option($this->get_prefix() . 'setup_wizard_latest_step_completed', $step_completed);
 }
 
-echo "latest step completed";
-echo "<br>";
-echo $this->get_prefix() . 'setup_wizard_latest_step_completed';
-echo "<br>";
-echo get_option($this->get_prefix() . 'setup_wizard_latest_step_completed');
+// echo "latest step completed";
+// echo "<br>";
+// echo $this->get_prefix() . 'setup_wizard_latest_step_completed';
+// echo "<br>";
+// echo get_option($this->get_prefix() . 'setup_wizard_latest_step_completed');
 
 //get the current step from the url
 //or, if it is not set there, get it from the latest step completed
@@ -30,9 +30,9 @@ $finish_url
 ?>
 <div class="wrap coai_chat-setup-wizard">
 
-    <div class="coai_chat-setup-wizard-slide-container">
+    <div class="coai_chat-setup-wizard-slide-container postbox">
         
-        <div>    
+        <div class="coai_chat-setup-wizard-slide-container-content">    
             <?php
             switch($current_step){
                 case 1:
@@ -60,20 +60,20 @@ $finish_url
             ?>
         </div>
 
-        <div class="coai_chat-setup-wizard-slide-container-buttons">
-            <?php if ($current_step > 1) { ?>
-                <a href="<?php echo esc_url($prev_step_url); ?>" class="button button-secondary">Previous Step</a>
-            <?php } ?>
-
-                <a href="<?php echo esc_url($next_step_url); ?>" class="button button-primary">
-                    <?php if ($current_step < 6) { ?>
-                        Next Step
-                    <?php } else { ?>
-                        Finish
-                    <?php } ?>
-                </a>
-        </div>
     </div>
+    
+    <div class="coai_chat-setup-wizard-slide-container-buttons">
+        <?php if ($current_step > 1) { ?>
+            <a href="<?php echo esc_url($prev_step_url); ?>" class="button button-secondary">Previous Step</a>
+        <?php } ?>
 
+            <a href="<?php echo esc_url($next_step_url); ?>" class="button button-primary">
+                <?php if ($current_step < 6) { ?>
+                    Next Step
+                <?php } else { ?>
+                    Finish
+                <?php } ?>
+            </a>
+    </div>
 
 </div>
