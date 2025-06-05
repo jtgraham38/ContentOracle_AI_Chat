@@ -24,7 +24,9 @@ class ContentOracleSetupWizard extends PluginFeature{
         //when the plugin activates, run the setup wizard
         add_action('admin_init', array($this, 'run_setup_wizard'));
 
-
+        //show an admin notice to complete plugin setup if the wizard was not completed
+        add_action('admin_notices', array($this, 'show_admin_notice'));
+        
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -57,6 +59,7 @@ class ContentOracleSetupWizard extends PluginFeature{
         }
     }
 
+
     //when the plugin activates, run the setup wizard
     public function run_setup_wizard(){
         //check if the user is an admin
@@ -72,6 +75,13 @@ class ContentOracleSetupWizard extends PluginFeature{
             //redirect to the setup wizard page
             wp_redirect(admin_url('admin.php?page=contentoracle-ai-chat-setup-wizard&step=1'));
             exit;
+        }
+    }
+
+    //create an admin notice to complete plugin setup if the wizard was not completed
+    public function show_admin_notice(){
+        if (get_option($this->get_prefix() . "setup_wizard_latest_step_completed") < 5){
+            echo '<div class="notice notice-warning is-dismissible"><p>You did not finish the setup process for ContentOracle AI Chat.  Finish it to ensure your ai agent works properly. <a href="' . admin_url('admin.php?page=contentoracle-ai-chat-setup-wizard') . '">Go to setup wizard</a></p></div>';
         }
     }
 }
