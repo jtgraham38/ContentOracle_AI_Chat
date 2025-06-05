@@ -210,7 +210,7 @@ $extra_info_setting = get_option($this->get_prefix() . 'ai_extra_info_prompt');
 
     <div class="postbox" style="padding: 0.25rem;">
         <h2>Prompt Settings</h2>
-    <form action="" method="post"  style="padding: 0.5rem;">
+    <form action="" method="POST"  style="padding: 0.5rem;">
         <?php wp_nonce_field($this->get_prefix() . 'setup_wizard_step3', 'nonce'); ?>
         <input type="hidden" name="action" value="setup_wizard_step3">
 
