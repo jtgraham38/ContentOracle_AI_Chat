@@ -30,7 +30,7 @@ class VectorTableQueue {
     }
 
     //delete the table
-    public function delete_table(): void{
+    public function drop_table(): void{
         global $wpdb;
         $wpdb->query("DROP TABLE IF EXISTS $this->table_name");
     }
