@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.10.0
+Stable tag: 1.10.1
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -98,6 +98,11 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.10.1 =
+* Fixed a bug that prevented posts in the embedding queue from showing a completed status.
+* Fixed ordering in embedding queue.
+* Fixed a bug that would enqueue posts with no body for embedding generation.
+
 = 1.10.0 =
 * Added a setup wizard to make getting started a breeze.
 * Made a host of upgrades to the bulk embedding system to make it scale to huge content libraries.
@@ -190,6 +195,9 @@ This plugin uses the following libraries:
 
 == Upgrade Notice ==
 
+= 1.10.1 =
+Upgrade to ensure embeddings are only generated for posts with a body.
+
 = 1.10.0 =
 Upgrade now for a setup wizard, and improvements to the embedding system and frontend ui.
 
@@ -197,7 +205,7 @@ Upgrade now for a setup wizard, and improvements to the embedding system and fro
 Update to preserve your free embedding usage.
 
 = 1.9.0 =
-Support for embedding massive content libraries added.
+Support for embedding large content libraries added.
 
 = 1.8.1 =
 Fix bug in bulk embed route.
