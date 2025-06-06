@@ -102,6 +102,11 @@ class VectorTableQueue {
         global $wpdb;
         $results = array();
 
+        //return if array is empty
+        if (empty($post_ids)) {
+            return array();
+        }
+
         //create the first sql clause
         $sql = "INSERT INTO {$this->table_name} (post_id, chunk_count, status, queued_time, error_count) VALUES ";
 

@@ -223,7 +223,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         $posts = get_posts(array(
                     'post_type' => $post_types,
                     'post_status' => 'publish',
-                    'posts_per_page' => -1,
+                    'posts_per_page' => 500,    //limit to 500 at a time for scalability
                     'post__not_in' => $embedded_ids,
                 //NOTE: THIS META QUERY IS BROKEN, RETURNS POSTS THAT HAVE EMBEDDINGS
                     // 'meta_query' => array(
@@ -246,7 +246,10 @@ class ContentOracleEmbeddings extends PluginFeature{
             return !empty($chunked_post->chunks);
         });
 
-
+        //return if there are no posts
+        if (empty($posts)) {
+            return;
+        }
 
         //get post ids
         $post_ids = array_map(function($post){
@@ -266,7 +269,8 @@ class ContentOracleEmbeddings extends PluginFeature{
         // 2. status is publish
         $posts = get_posts(array(
             'post_type' => get_option($this->get_prefix() . 'post_types', []),
-            'post_status' => 'publish'
+            'post_status' => 'publish',
+            'posts_per_page' => 500,    //limit to 500 at a time for scalability
         ));
 
         //remove posts that have no chunks
@@ -274,6 +278,11 @@ class ContentOracleEmbeddings extends PluginFeature{
             $chunked_post = $this->chunk_post($post);
             return !empty($chunked_post->chunks);
         });
+
+        //return if there are no posts
+        if (empty($posts)) {
+            return;
+        }
 
         //get post ids
         $post_ids = array_map(function($post){
