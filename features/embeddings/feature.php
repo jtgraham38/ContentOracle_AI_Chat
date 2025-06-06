@@ -97,16 +97,16 @@ class ContentOracleEmbeddings extends PluginFeature{
         $post_ids = $queue->get_next_batch();
 
         //get all posts with the indicated ids
-        $post_types = '"' . implode('","', get_option($this->get_prefix() . 'post_types', [])) . '"';
-        $post_ids = implode(',', $post_ids);
+        $post_types_str = '"' . implode('","', get_option($this->get_prefix() . 'post_types', [])) . '"';
+        $post_ids_str = implode(',', $post_ids);
 
         //return if there are no post types or post ids
-        if ($post_types == '' || $post_ids == ''){
+        if ($post_types_str == '' || $post_ids_str == ''){
             return;
         }
 
         //get the posts
-        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->posts} WHERE ID IN ($post_ids) AND post_status = 'publish' AND post_type IN ($post_types)");
+        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->posts} WHERE ID IN ($post_ids_str) AND post_status = 'publish' AND post_type IN ($post_types_str)");
 
         //return if there are no posts
         if (empty($posts)) {
@@ -134,7 +134,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         //send the posts to the embedding service
         try{
             $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
-            $api->bulk_generate_embeddings($filtered_posts);
+            $result = $api->bulk_generate_embeddings($filtered_posts);
         } catch (Exception $e){
             //log the error
             error_log($e->getMessage());
@@ -143,6 +143,7 @@ class ContentOracleEmbeddings extends PluginFeature{
             $queue->update_status($post_ids, 'failed', $e->getMessage());
             return;
         }
+
 
         //mark each post in the batch as completed
         $queue->update_status($post_ids, 'completed');

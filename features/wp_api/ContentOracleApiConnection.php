@@ -285,7 +285,6 @@ class ContentOracleApiConnection{
 
         //send the chunks to the api (we are letting exceptions bubble up)
         $embeddings = $this->coai_api_generate_embeddings($chunked_posts);
-
         
         //save the embeddings to the database
         $vt = new ContentOracle_VectorTable($this->prefix);
