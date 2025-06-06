@@ -115,21 +115,26 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //return if there are no chunks in any of the posts
         $chunks_exist = false;
+        $filtered_posts = [];
         foreach ($posts as $post) {
             $chunks = $this->chunk_post($post);
             if (!empty($chunks)) {
                 $chunks_exist = true;
+                $filtered_posts[] = $post;
+            } else {
+                $queue->delete_post($post->ID);
             }
-            //TODO: remove the entry from the queue if there are no chunks
         }
         if (!$chunks_exist) {
             return;
         }
 
+        //at this point we only have posts that have chunks
+
         //send the posts to the embedding service
         try{
             $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
-            $api->bulk_generate_embeddings($posts);
+            $api->bulk_generate_embeddings($filtered_posts);
         } catch (Exception $e){
             //log the error
             error_log($e->getMessage());
