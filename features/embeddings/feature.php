@@ -120,6 +120,7 @@ class ContentOracleEmbeddings extends PluginFeature{
             if (!empty($chunks)) {
                 $chunks_exist = true;
             }
+            //TODO: remove the entry from the queue if there are no chunks
         }
         if (!$chunks_exist) {
             return;

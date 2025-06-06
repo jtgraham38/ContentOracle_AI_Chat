@@ -27,7 +27,12 @@ class VectorTableQueue {
         if ($this->table_exists() == false){
             $this->create_table();
         }
+    }
 
+    //delete the table
+    public function delete_table(): void{
+        global $wpdb;
+        $wpdb->query("DROP TABLE IF EXISTS $this->table_name");
     }
 
     //check if the table exists
@@ -88,17 +93,40 @@ class VectorTableQueue {
     }
 
     /**
-     * Add multiple posts to the queue
+     * Add multiple posts to the queue in a single query
      * 
      * @param array $post_ids Array of post IDs to add
      * @return array Array of results for each post
      */
     public function add_posts($post_ids) {
+        global $wpdb;
         $results = array();
+
+        //create the first sql clause
+        $sql = "INSERT INTO {$this->table_name} (post_id, chunk_count, status, queued_time, error_count) VALUES ";
+
+        //create the values clause for each post id
+        $values = array();
+        $placeholders = array();
         foreach ($post_ids as $post_id) {
-            $results[$post_id] = $this->add_post($post_id);
+            //add to placeholders
+            $placeholders[] = "(%d, 0, 'pending', NOW(), 0)";
+            //add to values
+            $values[] = $post_id;
         }
-        return $results;
+
+        //add the values to the sql query
+        $sql .= implode(',', $placeholders);
+
+        //add the posts to the queue
+        $num_added = $wpdb->query(
+            $wpdb->prepare(
+                $sql,
+                $values
+            )
+        );
+
+        return $num_added;
     }
 
     /**
@@ -172,6 +200,7 @@ class VectorTableQueue {
             'error_message' => $error_message
         );
 
+        //todo: make this a single query
         foreach ($post_ids as $post_id) {
             if ($status === 'failed') {
                 $updates['error_count'] = $wpdb->get_var(
@@ -306,31 +335,45 @@ class VectorTableQueue {
         return $wpdb->delete($this->table_name, array('id' => $id), array('%d'));
     }
 
-    //get all records in the queue, grouped by status and ordered by queued_time
-    public function get_all_records() {
+    //get a page of records from the queue
+    public function get_page_of_records($page = 1, $per_page = 25) {
         global $wpdb;
         $posts_table = esc_sql($wpdb->posts);
 
-        //prepare the sql query
-        $sql = "SELECT * FROM {$this->table_name} WHERE status = %s ORDER BY queued_time ASC";
+        //calculate the offset
+        $offset = ($page - 1) * $per_page;
+
+        //prepare the sql query to get the records from the queue, along with the post title and post type
+        //order them by processing, pending, failed, completed
         $statuses = ['pending', 'processing', 'failed', 'completed'];
-        $results = [];
+        $sql = $wpdb->prepare(
+            "SELECT * FROM {$this->table_name} 
+            LEFT JOIN {$posts_table} ON {$this->table_name}.post_id = {$posts_table}.ID 
+            WHERE status IN ('%s', '%s', '%s', '%s')
+            ORDER BY status,
+                CASE 
+                    WHEN status = 'pending' THEN 0 
+                    WHEN status = 'processing' THEN 1 
+                    WHEN status = 'failed' THEN 2 
+                    WHEN status = 'completed' THEN 3 
+                END,
+            queued_time ASC
+            LIMIT %d OFFSET %d",
+            array_merge(
+                $statuses,
+                array($per_page, $offset)
+            )
+        );
 
         //get all the data we need
-        foreach ($statuses as $status) {
-            $queue_records = $wpdb->get_results($wpdb->prepare($sql, $status));
-
-            //get the post title and post type for each record
-            foreach ($queue_records as $record) {
-                $record->post_title = get_the_title($record->post_id);
-                $record->post_type = get_post_type($record->post_id);
-            }
-
-            //add the records to the results
-            $results[$status] = $queue_records;
-        }
-
+        $results = $wpdb->get_results($sql);
 
         return $results;
+    }
+
+    //get the total number of records in the queue
+    public function get_total_records() {
+        global $wpdb;
+        return $wpdb->get_var("SELECT COUNT(*) FROM {$this->table_name}");
     }
 } 

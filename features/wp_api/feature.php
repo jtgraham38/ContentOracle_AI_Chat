@@ -513,6 +513,7 @@ class ContentOracleApi extends PluginFeature{
 
     //bulk generate embeddings
     public function bulk_generate_embeddings($request){
+        global $wpdb;
         $api = new ContentOracleApiConnection(
             $this->get_prefix(), 
             $this->get_base_url(), 
@@ -528,17 +529,18 @@ class ContentOracleApi extends PluginFeature{
         $post_types = get_option($this->get_prefix() . 'post_types');
         switch ($for){
             case 'all':
-                $posts = get_posts(array(
-                    'post_type' => $post_types,
-                    'post_status' => 'publish',
-                    'posts_per_page' => -1
-                ));
-
-                //remove posts with no chunks
-                $posts = array_filter($posts, function($post){
-                    $chunked_post = $this->chunk_post($post);
-                    return !empty($chunked_post->chunks);
-                });
+                //get the ids of all posts of the correct post type that are published
+                //and where the body has no chunks, in pages of 10
+                //with a prepared statement
+                $results = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT ID FROM {$wpdb->posts} 
+                        WHERE post_type IN ('" . implode("', '", $post_types) . "') 
+                        AND post_status = 'publish'
+                        "
+                    ),
+                    OBJECT
+                );
 
                 break;
             case 'not_embedded':
@@ -550,38 +552,38 @@ class ContentOracleApi extends PluginFeature{
                     return $vec->post_id;
                 }, $vecs);
 
-                //get posts
-                $posts = get_posts(array(
-                    'post_type' => $post_types,
-                    'post_status' => 'publish',
-                    'posts_per_page' => -1,
-                    'post__not_in' => $embedded_ids,
-                ));
-
-                //remove posts with no chunks
-                $posts = array_filter($posts, function($post){
-                    $chunked_post = $this->chunk_post($post);
-                    return !empty($chunked_post->chunks);
-                });
+                //get posts ids of posts of the correct type that have no embeddings
+                //that have chunks
+                //with a prepared statement
+                $results = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT ID FROM {$wpdb->posts} 
+                        WHERE post_type IN ('" . implode("', '", $post_types) . "') 
+                        AND post_status = 'publish'
+                        AND ID NOT IN (" . implode(",", $embedded_ids) . ")"
+                    ),
+                    OBJECT
+                );
 
                 break;
             case is_numeric($for):
-                $posts[] = get_post($for);
+                
+                $results = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT ID FROM {$wpdb->posts} 
+                        WHERE ID = %d",
+                        $for
+                    ),
+                    OBJECT
+                );
                 break;
         }
 
-        //get the post ids of the posts
-        $post_ids = array_filter(
-            array_map(
-                function($post){
-                    return $post->ID;
-                }, 
-            $posts
-        ), 
-            function($post_id){
-                return $post_id !== null;
-            }
-        );
+        //read the post ids off of the objects
+        $post_ids = array_map(function($result){
+            return $result->ID;
+        }, $results);
+        
 
         //enqueue the posts for embedding generation
         try{

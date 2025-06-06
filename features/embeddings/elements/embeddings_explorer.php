@@ -40,9 +40,6 @@ if (!is_array($embeddings)) {
     $embeddings = [];
 }
 
-//get all the embedding queue records
-$queue_records = $Q->get_all_records();
-
 
 if (!class_exists('WP_List_Table')) {
     require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
@@ -146,36 +143,23 @@ class COAI_ChatEmbeddings_Explorer_Table extends WP_List_Table {
         // Process bulk actions
         $this->process_bulk_action();
 
-        //get all records
-        $queue_records = $this->Q->get_all_records();
-        
-        
-        // Combine all records into a single array
-        $all_records = [];
-        foreach (['pending', 'processing', 'failed', 'completed'] as $status) {
-            if (isset($queue_records[$status])) {
-                foreach ($queue_records[$status] as $record) {
-                    $all_records[] = $record;
-                }
-            }
-        }
-
-        // Set the items
-        $this->items = $all_records;
-
         // Set up pagination if needed
         $per_page = 20;
         $current_page = $this->get_pagenum();
-        $total_items = count($all_records);
+        $total_items = $this->Q->get_total_records();
+        
+        //get all records
+        $queue_records = $this->Q->get_page_of_records($current_page, $per_page);
+
+        
+        // Set the items
+        $this->items = $queue_records;
 
         $this->set_pagination_args([
             'total_items' => $total_items,
             'per_page' => $per_page,
             'total_pages' => ceil($total_items / $per_page)
         ]);
-
-        // Slice the items for the current page
-        $this->items = array_slice($all_records, (($current_page - 1) * $per_page), $per_page);
     }
 
     public function column_default($item, $column_name) {
