@@ -52,6 +52,8 @@
   border-radius: 0.5rem;
   max-width: 85%;
   clear: both;
+  overflow-x: auto;
+  /* allow horizontal scrolling, to handle overflowing code blocks gracefully */
   /* responsive design on narrow screens*/
   /* citations */
   /* featured content */
