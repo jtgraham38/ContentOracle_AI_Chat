@@ -2247,6 +2247,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    //remove the hidden class from the notice element
+    noticeEl.classList.remove('contentoracle-ai_search_notice_hidden');
+
     //find the floating notice element and arrow
     const cleanUp = (0,_floating_ui_dom__WEBPACK_IMPORTED_MODULE_0__.autoUpdate)(searchbarEl, noticeEl, () => {
       updateNoticePosition(searchbarEl);

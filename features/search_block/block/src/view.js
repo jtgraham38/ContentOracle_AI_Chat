@@ -37,8 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
+		//remove the hidden class from the notice element
+		noticeEl.classList.remove('contentoracle-ai_search_notice_hidden');
+
 		//find the floating notice element and arrow
-		const cleanUp = autoUpdate(searchbarEl, noticeEl, () => { updateNoticePosition(searchbarEl) } )
+		const cleanUp = autoUpdate(searchbarEl, noticeEl, () => { updateNoticePosition(searchbarEl) })
 		console.log(cleanUp);
 
 		//add event listener to remove notice and clean up
@@ -55,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			document.cookie = `contentoracle_ai_notice=1; expires=${date.toUTCString()}; path=/`;
 		});
 	});
-		
-		
+
+
 
 });
 
@@ -83,7 +86,7 @@ function updateNoticePosition(searchbarEl) {
 
 		//get arrow location
 		const { x: arrowX, y: arrowY } = middlewareData.arrow;
-		
+
 		//update the arrow's position
 		const staticSide = {
 			top: 'bottom',
@@ -91,7 +94,7 @@ function updateNoticePosition(searchbarEl) {
 			bottom: 'top',
 			left: 'right',
 		}[placement.split('-')[0]];
-		
+
 		Object.assign(arrowEl.style, {
 			left: arrowX != null ? `${arrowX}px` : '',
 			top: arrowY != null ? `${arrowY}px` : '',

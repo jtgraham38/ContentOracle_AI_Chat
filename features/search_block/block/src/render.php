@@ -51,7 +51,7 @@ if ( ! empty( $attributes['width'] ) ) {
 }
 
 //create styles for the notice element
-$notice_classes = 'contentoracle-ai_search_notice';
+$notice_classes = 'contentoracle-ai_search_notice contentoracle-ai_search_notice_hidden';
 $notice_styles = [];
 
 //apply the text color to the notice
