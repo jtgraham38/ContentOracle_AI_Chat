@@ -86,7 +86,7 @@ trait ContentOracleBulkContentEmbeddingMixin {
             //skip generation if no chunks exist
             if (empty($_chunks)) {
                 //unset the generate embedding post meta
-                update_post_meta($cp->post_id, $this->prefix . 'should_generate_embeddings', false);
+                update_post_meta($cp->post_id, $this->get_prefix() . 'should_generate_embeddings', false);
                 continue;
             }
 
@@ -109,12 +109,12 @@ trait ContentOracleBulkContentEmbeddingMixin {
         //create an array of content to send to the coai api
         $payload = [
             'headers' => array(
-                'Authorization' => 'Bearer ' . get_option($this->prefix . 'api_token'),
+                'Authorization' => 'Bearer ' . get_option($this->get_prefix() . 'api_token'),
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json'
             ),
             'body' => json_encode([
-                'chunking_method' => get_option($this->prefix . 'chunking_method', 'none'),
+                'chunking_method' => get_option($this->get_prefix() . 'chunking_method', 'none'),
                 'client_ip' => $this->get_client_ip(),
                 'content' => $content
             ]),
