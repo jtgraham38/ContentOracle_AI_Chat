@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.10.1
+Stable tag: 1.10.2
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -97,6 +97,10 @@ This plugin uses the following libraries:
 8. Customized block on the frontend.
 
 == Changelog ==
+
+= 1.10.2 =
+* Adjusted the ordering of posts shown in the embedding queue table.
+* Bug fixes for the bulk embedding process.
 
 = 1.10.1 =
 * Fixed a bug that prevented posts in the embedding queue from showing a completed status.
@@ -194,6 +198,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.10.2 =
+Bug fixes and quality-of-life improvements.
 
 = 1.10.1 =
 Upgrade to ensure embeddings are only generated for posts with a body.
