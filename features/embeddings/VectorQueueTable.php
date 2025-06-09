@@ -361,6 +361,7 @@ class VectorTableQueue {
                     WHEN status = 'completed' THEN 1
                     WHEN status = 'failed' THEN 2
                     WHEN status = 'processing' THEN 3 
+                    ELSE 4
                 END,
             queued_time ASC
             LIMIT %d OFFSET %d",
