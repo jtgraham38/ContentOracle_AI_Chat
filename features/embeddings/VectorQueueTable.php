@@ -358,9 +358,9 @@ class VectorTableQueue {
             ORDER BY status DESC,
                 CASE 
                     WHEN status = 'pending' THEN 0 
-                    WHEN status = 'completed' THEN 3 
-                    WHEN status = 'processing' THEN 1 
-                    WHEN status = 'failed' THEN 2 
+                    WHEN status = 'completed' THEN 1
+                    WHEN status = 'failed' THEN 2
+                    WHEN status = 'processing' THEN 3 
                 END,
             queued_time ASC
             LIMIT %d OFFSET %d",
