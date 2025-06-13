@@ -5,8 +5,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-global $wpdb;
-
 //get all post types
 $post_types = get_post_types(array(), 'objects');
 
@@ -73,50 +71,6 @@ $post_types_setting = get_option($this->get_prefix() . 'post_types');
                                          ); ?>" 
                                         style="width: 100%;" 
                                     />
-                                    <details>
-                                        <summary>Options:</summary>
-                                        <ul>
-                                            <?php
-                                                //get all possible values for the post meta for this post type
-                                                //Optimize query to be more memory efficient
-                                                $meta_keys = $wpdb->get_results(
-                                                    $wpdb->prepare(
-                                                        "SELECT DISTINCT pm.meta_key 
-                                                        FROM {$wpdb->postmeta} pm 
-                                                        INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id 
-                                                        WHERE p.post_type = %s 
-                                                        AND p.post_status = 'publish'
-                                                        LIMIT 5000",
-                                                        $post_type
-                                                    ),
-                                                    ARRAY_A
-                                                );
-                                                
-                                                //remove contentoracle ai chat specific keys
-                                                $exclude = array('coai_chat_embeddings', 'coai_chat_should_generate_embeddings');
-                                                $meta_keys = array_filter($meta_keys, function($meta_key) use ($exclude){
-                                                    return !in_array($meta_key['meta_key'], $exclude);
-                                                });
-                                                
-                                                //show the meta keys
-                                                if (!empty($meta_keys)):
-                                                    foreach ($meta_keys as $meta_key):
-                                                ?>
-                                                    <li>
-                                                        <code>
-                                                        <?php echo esc_html($meta_key['meta_key']); ?>
-                                                        </code>
-                                                    </li>
-                                                <?php
-                                                    endforeach;
-                                                else:
-                                                ?>
-                                                    <li><em>No meta keys found for this post type</em></li>
-                                                <?php
-                                                endif;
-                                            ?>
-                                        </ul>
-                                    </details>
                                 </div>
                             <?php
                             endforeach;
