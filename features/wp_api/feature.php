@@ -567,7 +567,7 @@ class ContentOracleApi extends PluginFeature{
 
                 break;
             case is_numeric($for):
-                
+                //TODO: possibly check to make sure the post exists
                 $results = $wpdb->get_results(
                     $wpdb->prepare(
                         "SELECT ID FROM {$wpdb->posts} 
@@ -587,7 +587,7 @@ class ContentOracleApi extends PluginFeature{
 
         //enqueue the posts for embedding generation
         try{
-            $queue = new VectorTableQueue($this->get_prefix());
+            $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
             $queue->add_posts($post_ids);
         }
         catch (Exception $e){
@@ -731,6 +731,7 @@ class ContentOracleApi extends PluginFeature{
 
             //add an order_by clause for the coai_score
             $clauses['orderby'] = "coai_score DESC";
+            
         }
 
         return $clauses;

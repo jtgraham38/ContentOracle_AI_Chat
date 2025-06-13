@@ -93,7 +93,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     public function consume_batch_from_queue(){
         global $wpdb;
         //get a batch of posts from the queue
-        $queue = new VectorTableQueue($this->get_prefix());
+        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
         $post_ids = $queue->get_next_batch();
 
         //get all posts with the indicated ids
@@ -106,7 +106,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
 
         //get the posts
-        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->posts} WHERE ID IN ($post_ids_str) AND post_status = 'publish' AND post_type IN ($post_types_str)");
+        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->posts} WHERE ID IN ($post_ids_str) AND post_status = 'publish' AND post_type IN ($post_types_str) LIMIT 1000");
 
         //return if there are no posts
         if (empty($posts)) {
@@ -152,7 +152,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     //clean the queue
     public function clean_queue(){
         //get the queue
-        $queue = new VectorTableQueue($this->get_prefix());
+        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
         $queue->cleanup();
     }
 
@@ -198,7 +198,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
         
         //update flag post meta for embedding generation if the checkbox is checked
-        $queue = new VectorTableQueue($this->get_prefix());
+        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
         $queue->add_post($post_ID);
     }
 
@@ -257,7 +257,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }, $posts);
 
         //enqueue the posts
-        $queue = new VectorTableQueue($this->get_prefix());
+        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
         $queue->add_posts($post_ids);
     }
 
@@ -290,7 +290,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }, $posts);
 
         //enqueue the posts
-        $queue = new VectorTableQueue($this->get_prefix());
+        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
         $queue->add_posts($post_ids);
     }
 
@@ -312,7 +312,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
 
         //delete the queue item
-        $queue = new VectorTableQueue($this->get_prefix());
+        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
         $queue->delete_post($post_id);
     }
 

@@ -72,10 +72,10 @@ class ContentOracle_VectorTable{
             return "'$post_type'";
         }, $post_types);
         $post_types = implode(',', $post_types);
-        $candidate_posts_query = "SELECT ID from $wpdb->posts WHERE post_type IN ($post_types) AND post_status = 'publish'";
+        $candidate_posts_query = "SELECT ID from $wpdb->posts WHERE post_type IN ($post_types) AND post_status = 'publish' LIMIT 1000000";
 
         //get all the vectors for the candidate posts
-        $candidates_query = "select id, binary_code from $this->table_name WHERE post_id IN ($candidate_posts_query)";
+        $candidates_query = "select id, binary_code from $this->table_name WHERE post_id IN ($candidate_posts_query) LIMIT 1000000";
 
         $embeddings = $wpdb->get_results($candidates_query);
 
@@ -115,7 +115,8 @@ class ContentOracle_VectorTable{
         $reranked_candidates = new ContentOracleRerankMaxHeap();
         
         //get all the candidates
-        $sql = "SELECT id, magnitude, vector FROM $this->table_name WHERE id IN ($candidates_str)";
+        //100000 should be more than enough to cover the 4n candidates
+        $sql = "SELECT id, magnitude, vector FROM $this->table_name WHERE id IN ($candidates_str) LIMIT 100000";
         $candidates = $wpdb->get_results($sql);
 
         //parse the vector
@@ -224,8 +225,9 @@ class ContentOracle_VectorTable{
     public function get_all(): array{
         global $wpdb;
 
+        //TODO: I need to paginate this eventually
         return $wpdb->get_results(
-            "SELECT * FROM $this->table_name"
+            "SELECT * FROM $this->table_name LIMIT 100000"
         );
     }
 
@@ -298,6 +300,7 @@ class ContentOracle_VectorTable{
         $inserted_ids = [];
 
         //insert the new vectors
+        //TODO: make this a single query enventually, should be find for small arrays of vectors though
         foreach ($vectors as $sequence_no => $vector){
             $inserted_ids[] = $this->upsert($post_id, $sequence_no, $vector['vector'], $vector['vector_type']);
         }

@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class VectorTableQueue {
+class ContentOracle_VectorTableQueue {
     private $table_name;
     private $db_version;
     private $plugin_prefix;
@@ -302,7 +302,9 @@ class VectorTableQueue {
             "SELECT post_id 
             FROM {$this->table_name} 
             WHERE status = 'failed' 
-            AND error_count < 3"
+            AND error_count < 3
+            LIMIT 25000
+            "
         );
     }
 
