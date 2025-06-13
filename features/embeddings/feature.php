@@ -492,8 +492,8 @@ class ContentOracleEmbeddings extends PluginFeature{
 
             //check if embeddings have been generated
             $vt = new ContentOracle_VectorTable($this->get_prefix());
-            $embeddings = $vt->get_all();
-            if (!empty($embeddings)) {
+            $embedding_count = $vt->get_vector_count();
+            if ($embedding_count > 0) {
                 return;
             }
 

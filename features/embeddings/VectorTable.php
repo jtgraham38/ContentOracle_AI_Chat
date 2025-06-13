@@ -323,6 +323,13 @@ class ContentOracle_VectorTable{
         );
     }
 
+    //get the number of vectors in the table
+    public function get_vector_count(): int{
+        global $wpdb;
+
+        return $wpdb->get_var("SELECT COUNT(*) FROM $this->table_name");
+    }
+
     //  \\  //  \\  //  \\ MANAGE SQL TABLES/FUNCS //  \\  //  \\  //  \\
     //create the table
     public function create_table(): void{

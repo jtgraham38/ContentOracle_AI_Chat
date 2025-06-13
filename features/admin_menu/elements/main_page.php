@@ -35,7 +35,7 @@ $support_url = 'https://contentoracleai.com/contact';
     </div>
     <div class="grid-item postbox">
         <h2>Analytics</h2>
-        <i>Gain insights on you ai's conversations.</i>
+        <i>Gain insights on your ai's conversations.</i>
         <div class="button-container">
             <a href="<?php echo esc_url($analytics_url) ?>" class="button" disabled>Go to Analytics</a>
         </div>
