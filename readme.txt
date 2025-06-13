@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.10.2
+Stable tag: 1.10.3
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -97,6 +97,9 @@ This plugin uses the following libraries:
 8. Customized block on the frontend.
 
 == Changelog ==
+
+= 1.10.3 =
+* Optimizations for large content libraries.
 
 = 1.10.2 =
 * Adjusted the ordering of posts shown in the embedding queue table.
@@ -198,6 +201,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.10.3 = 
+Better support for large content libraries.
 
 = 1.10.2 =
 Bug fixes and quality-of-life improvements.
