@@ -32,7 +32,7 @@ ContentOracle AI Chat bridges this gap by combining your unique content with AI'
 * Full support and customizability with the block editor.
 * No code or third-party integrations required!
 * Compatible with major page builders.
-* AI agent speec habits customizable.
+* AI agent speech habits customizable.
 
 
 == Installation ==
