@@ -84,4 +84,9 @@ class ContentOracleSetupWizard extends PluginFeature{
             echo '<div class="notice notice-warning is-dismissible"><p>You did not finish the setup process for ContentOracle AI Chat.  Finish it to ensure your ai agent works properly. <a href="' . admin_url('admin.php?page=contentoracle-ai-chat-setup-wizard') . '">Go to setup wizard</a></p></div>';
         }
     }
+
+    //placeholder uninstall method to identify this feature
+    public function uninstall(){
+        echo "ContentOracle Setup Wizard Feature uninstalling...";
+    }
 }

@@ -87,6 +87,9 @@ $plugin->register_feature('setup_wizard', $feature);
 //init the plugin
 $plugin->init();
 
+//register the deactivation hook, which will call the uninstall method for each feature
+register_deactivation_hook(__FILE__, array($plugin, 'uninstall'));
+
 //register a transient to denote that the plugin was just activated
 register_activation_hook(__FILE__, function() use ($prefix) {
     set_transient($prefix . "plugin_activated", true, 30);

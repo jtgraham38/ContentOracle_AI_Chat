@@ -36,5 +36,8 @@ class ContentOracleAnalytics extends PluginFeature{
         echo esc_html("<h1>Analytics</h1> <strong>Coming soon...</strong>");
     }
 
-
+    //placeholder uninstall method to identify this feature
+    public function uninstall(){
+        echo "ContentOracle Analytics Feature uninstalling...";
+    }
 }

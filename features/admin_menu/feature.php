@@ -37,4 +37,9 @@ class ContentOracleMenu extends PluginFeature{
     public function enqueue_icon_style(){
         wp_enqueue_style('contentoracle-icon', plugin_dir_url( __FILE__ ) . '/assets/css/icon.css');
     }
+
+    //placeholder uninstall method to identify this feature
+    public function uninstall(){
+        echo "ContentOracle Admin Menu Feature uninstalling...";
+    }
 }

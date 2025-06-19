@@ -425,7 +425,7 @@ class ContentOracleSettings extends PluginFeature{
         if (strpos($_SERVER['REQUEST_URI'], 'contentoracle') === false){
             return;
         }
-        wp_enqueue_style('contentoracle-ai-chat-settings', plugin_dir_url(__FILE__) . 'assets/css/admin.css');
+        wp_enqueue_style('contentoracle-ai-chat-settings', plugin_dir_url(__FILE__) . 'assets/css/settings.css');
     }
 
     //register the url of coai api (so it can be changed for testing)
@@ -434,5 +434,10 @@ class ContentOracleSettings extends PluginFeature{
         if (!$api_url){
             update_option($this->get_prefix() . 'api_url', 'https://app.contentoracleai.com/api');
         }
+    }
+
+    //placeholder uninstall method to identify this feature
+    public function uninstall(){
+        echo "ContentOracle Settings Feature uninstalling...";
     }
 }
