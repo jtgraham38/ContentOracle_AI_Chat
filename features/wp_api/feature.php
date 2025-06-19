@@ -233,7 +233,14 @@ class ContentOracleApi extends PluginFeature{
 
 
         //send a request to the ai to generate a response
-        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
+        $api = new ContentOracleApiConnection(
+            $this->get_prefix(), 
+            $this->get_base_url(), 
+            $this->get_base_dir(), 
+            $client_ip,
+            $this->config('chat_timeout'),
+            $this->config('embed_timeout')
+        );
         $response = $api->streamed_ai_chat($message, $content, $conversation, 
             function($data){
                 //divider character, to separate the fragments of the response
@@ -412,7 +419,14 @@ class ContentOracleApi extends PluginFeature{
         $client_ip = $this->get_client_ip();
         
         //send a request to the ai to generate a response
-        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
+        $api = new ContentOracleApiConnection(
+            $this->get_prefix(), 
+            $this->get_base_url(), 
+            $this->get_base_dir(), 
+            $client_ip,
+            $this->config('chat_timeout'),
+            $this->config('embed_timeout')
+        );
         try{
             //get an ai response
             $response = $api->ai_chat($message, $content, $conversation);
@@ -518,7 +532,9 @@ class ContentOracleApi extends PluginFeature{
             $this->get_prefix(), 
             $this->get_base_url(), 
             $this->get_base_dir(), 
-            $this->get_client_ip()
+            $this->get_client_ip(),
+            $this->config('chat_timeout'),
+            $this->config('embed_timeout')
         );
 
         $for = $request->get_param('for');
@@ -771,7 +787,14 @@ class ContentOracleApi extends PluginFeature{
     //token:256 embedding search
     function token256_content_search($message){
         //begin by embedding the user's message
-        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+        $api = new ContentOracleApiConnection(
+            $this->get_prefix(), 
+            $this->get_base_url(), 
+            $this->get_base_dir(), 
+            $this->get_client_ip(),
+            $this->config('chat_timeout'),
+            $this->config('embed_timeout')
+        );
 
         //get the embedding from the ai
         $response = $api->query_vector($message);

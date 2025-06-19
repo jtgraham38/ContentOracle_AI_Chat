@@ -133,7 +133,14 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //send the posts to the embedding service
         try{
-            $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+            $api = new ContentOracleApiConnection(
+                $this->get_prefix(), 
+                $this->get_base_url(), 
+                $this->get_base_dir(), 
+                $this->get_client_ip(),
+                $this->config('chat_timeout'),
+                $this->config('embed_timeout')
+            );
             $result = $api->bulk_generate_embeddings($filtered_posts);
         } catch (Exception $e){
             //log the error

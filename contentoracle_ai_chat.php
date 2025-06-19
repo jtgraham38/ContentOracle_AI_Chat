@@ -23,10 +23,15 @@ require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 // Use statements for namespaced classes
 use jtgraham38\jgwordpresskit\Plugin;
 
+//create config for the plugin
+$config = [
+    'chat_timeout' => 10,       //10 seconds
+    'embed_timeout' => 7200,    //2 hours because of wait in coai api to avoid request limit
+];
 
 //create a new plugin manager
 $prefix = "coai_chat_";
-$plugin = new Plugin($prefix, plugin_dir_path( __FILE__ ), plugin_dir_url( __FILE__ ));
+$plugin = new Plugin($prefix, plugin_dir_path( __FILE__ ), plugin_dir_url( __FILE__ ), $config);
 
 //register features with the plugin manager here...
 
