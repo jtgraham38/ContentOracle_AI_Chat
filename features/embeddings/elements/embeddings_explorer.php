@@ -5,14 +5,15 @@ if (!defined('ABSPATH')) {
 }
 
 require_once plugin_dir_path(__FILE__) . '../../../vendor/autoload.php';
-require_once plugin_dir_path(__FILE__) . '../VectorTable.php';
-require_once plugin_dir_path(__FILE__) . '../VectorQueueTable.php';
 require_once plugin_dir_path(__FILE__) . '../chunk_getters.php';
 
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
+use jtgraham38\wpvectordb\VectorTable;
+use jtgraham38\wpvectordb\VectorTableQueue;
+
 //access to vector table
-$VT = new ContentOracle_VectorTable($this->get_prefix() ?? "coai_chat_");
-$Q = new ContentOracle_VectorTableQueue($this->get_prefix() ?? "coai_chat_");
+$VT = new VectorTable($this->get_prefix() ?? "coai_chat_");
+$Q = new VectorTableQueue($this->get_prefix() ?? "coai_chat_");
 //$result = $VT->search(json_encode( $vector ));
 //this file shows an input, and uses it to display the raw embeddings values for a given post
 

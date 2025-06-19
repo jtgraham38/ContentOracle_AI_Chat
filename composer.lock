@@ -4,14 +4,14 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "975e86e64ac1e793ea57fd8a69ea727f",
+    "content-hash": "a6c65b20de7e9f1bb69fb64b43ffe77d",
     "packages": [
         {
             "name": "jtgraham38/jgwordpressblockstyle",
             "version": "0.1.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jtgraham38/JGWPBlockStyles.git",
+                "url": "git@github.com:jtgraham38/JGWPBlockStyles.git",
                 "reference": "3173a2b827a88b7736ae93143d5ec80237c9f978"
             },
             "dist": {
@@ -40,10 +40,6 @@
                 }
             ],
             "description": "A set of utility functions for extracting style values from a block's attributes object.",
-            "support": {
-                "source": "https://github.com/jtgraham38/JGWPBlockStyles/tree/0.1.2",
-                "issues": "https://github.com/jtgraham38/JGWPBlockStyles/issues"
-            },
             "time": "2025-05-14T18:58:24+00:00"
         },
         {
@@ -51,7 +47,7 @@
             "version": "1.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jtgraham38/JGWordPressKit.git",
+                "url": "git@github.com:jtgraham38/JGWordPressKit.git",
                 "reference": "7a14c894d5012be6b86c3064778712f4caf99bb9"
             },
             "dist": {
@@ -79,11 +75,42 @@
                 }
             ],
             "description": "A very simple, modular framework for developing WordPress plugins.",
-            "support": {
-                "source": "https://github.com/jtgraham38/JGWordPressKit/tree/1.1.0",
-                "issues": "https://github.com/jtgraham38/JGWordPressKit/issues"
-            },
             "time": "2024-08-07T15:26:23+00:00"
+        },
+        {
+            "name": "jtgraham38/wpvectordb",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:jtgraham38/WPVectorDb.git",
+                "reference": "813fb64ed7523cb25f3c9ba97f3b38cbe006b0ec"
+            },
+            "dist": {
+                "type": "tar",
+                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/wpvectordb/jtgraham38-wpvectordb-813fb64ed7523cb25f3c9ba97f3b38cbe006b0ec-zip-b47409.tar",
+                "reference": "813fb64ed7523cb25f3c9ba97f3b38cbe006b0ec",
+                "shasum": "01d26405f3c712c3baf16e204c02eaf7d899c5b6"
+            },
+            "require": {
+                "php": ">=7.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "jtgraham38\\wpvectordb\\": "src/"
+                }
+            },
+            "license": [
+                "GPLv3"
+            ],
+            "authors": [
+                {
+                    "name": "Jacob Graham",
+                    "email": "jtgraham38@gmail.com"
+                }
+            ],
+            "description": "Utitlities for managing a vector database in MySQL for use within WordPress plugins.",
+            "time": "2025-06-19T14:56:32+00:00"
         },
         {
             "name": "nlp-tools/nlp-tools",

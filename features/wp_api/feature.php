@@ -13,13 +13,13 @@ if (!defined('ABSPATH')) {
 
 require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . 'ContentOracleApiConnection.php';
-require_once plugin_dir_path(__FILE__) . '../embeddings/VectorTable.php';
-require_once plugin_dir_path(__FILE__) . '../embeddings/VectorQueueTable.php';
 require_once plugin_dir_path(__FILE__) . '../embeddings/chunk_getters.php';
 require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
 require_once plugin_dir_path(__FILE__) . 'WPAPIErrorResponse.php';
 
 use jtgraham38\jgwordpresskit\PluginFeature;
+use jtgraham38\wpvectordb\VectorTable;
+use jtgraham38\wpvectordb\VectorTableQueue;
 
 class ContentOracleApi extends PluginFeature{
     use ContentOracleChunkingMixin;
@@ -546,7 +546,7 @@ class ContentOracleApi extends PluginFeature{
             case 'not_embedded':
 
                 //get ids of posts that have embeddings
-                $VT = new ContentOracle_VectorTable($this->get_prefix());
+                $VT = new VectorTable($this->get_prefix());
                 $vecs = $VT->get_all();
                 $embedded_ids = array_map(function($vec){
                     return $vec->post_id;
@@ -587,7 +587,7 @@ class ContentOracleApi extends PluginFeature{
 
         //enqueue the posts for embedding generation
         try{
-            $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
+            $queue = new VectorTableQueue($this->get_prefix());
             $queue->add_posts($post_ids);
         }
         catch (Exception $e){
@@ -785,11 +785,12 @@ class ContentOracleApi extends PluginFeature{
         }
 
         $embedding = $response['embeddings'][0]['embedding'];
+
         
         //then, find the most similar vectors in the database table
-        $vt = new ContentOracle_VectorTable( $this->get_prefix() );
+        $vt = new VectorTable( $this->get_prefix() );
         $ordered_vec_ids = $vt->search( $embedding, 20 );
-
+        
         //then, get the posts and sections each vector corresponds to
         $vecs = $vt->ids( $ordered_vec_ids );
 

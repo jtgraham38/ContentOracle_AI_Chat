@@ -5,14 +5,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+//autoloader
+require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
+
+use jtgraham38\wpvectordb\VectorTable;
+
 //include the response exception class
 require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
 
 //include the util file
 require_once plugin_dir_path(__FILE__) . 'util.php';
-
-//include the vector table class
-require_once plugin_dir_path(__FILE__) . '../embeddings/VectorTable.php';
 
 class ContentOracleApiConnection{
 
@@ -287,7 +289,7 @@ class ContentOracleApiConnection{
         $embeddings = $this->coai_api_generate_embeddings($chunked_posts);
         
         //save the embeddings to the database
-        $vt = new ContentOracle_VectorTable($this->prefix);
+        $vt = new VectorTable($this->prefix);
         foreach ($embeddings as $post_id => $vectors){
             $vectors = array_map(function($v){
                 return [

@@ -8,10 +8,10 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
 
 use jtgraham38\jgwordpresskit\PluginFeature;
+use jtgraham38\wpvectordb\VectorTable;
+use jtgraham38\wpvectordb\VectorTableQueue;
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 
-require_once plugin_dir_path(__FILE__) . 'VectorTable.php';
-require_once plugin_dir_path(__FILE__) . 'VectorQueueTable.php';
 require_once plugin_dir_path(__FILE__) . '../wp_api/ContentOracleApiConnection.php';
 require_once plugin_dir_path(__FILE__) . '../wp_api/util.php';
 
@@ -93,7 +93,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     public function consume_batch_from_queue(){
         global $wpdb;
         //get a batch of posts from the queue
-        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
+        $queue = new VectorTableQueue($this->get_prefix());
         $post_ids = $queue->get_next_batch();
 
         //get all posts with the indicated ids
@@ -152,7 +152,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     //clean the queue
     public function clean_queue(){
         //get the queue
-        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
+        $queue = new VectorTableQueue($this->get_prefix());
         $queue->cleanup();
     }
 
@@ -198,7 +198,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
         
         //update flag post meta for embedding generation if the checkbox is checked
-        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
+        $queue = new VectorTableQueue($this->get_prefix());
         $queue->add_post($post_ID);
     }
 
@@ -213,7 +213,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         $post_types = get_option($this->get_prefix() . 'post_types');
 
         //get ids of posts that have embeddings
-        $VT = new ContentOracle_VectorTable($this->get_prefix());
+        $VT = new VectorTable($this->get_prefix());
         $vecs = $VT->get_all();
         $embedded_ids = array_map(function($vec){
             return $vec->post_id;
@@ -257,7 +257,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }, $posts);
 
         //enqueue the posts
-        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
+        $queue = new VectorTableQueue($this->get_prefix());
         $queue->add_posts($post_ids);
     }
 
@@ -290,7 +290,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }, $posts);
 
         //enqueue the posts
-        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
+        $queue = new VectorTableQueue($this->get_prefix());
         $queue->add_posts($post_ids);
     }
 
@@ -301,7 +301,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     //delete embeddings when a post is deleted
     public function delete_embeddings_for_post($post_id){
         //create vector table
-        $vt = new ContentOracle_VectorTable($this->get_prefix());
+        $vt = new VectorTable($this->get_prefix());
 
         //get ids of all vectors for the post
         $vectors = $vt->get_all_for_post($post_id);
@@ -312,7 +312,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
 
         //delete the queue item
-        $queue = new ContentOracle_VectorTableQueue($this->get_prefix());
+        $queue = new VectorTableQueue($this->get_prefix());
         $queue->delete_post($post_id);
     }
 
@@ -491,7 +491,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         if (get_option($this->get_prefix() . 'chunking_method') != 'none') {
 
             //check if embeddings have been generated
-            $vt = new ContentOracle_VectorTable($this->get_prefix());
+            $vt = new VectorTable($this->get_prefix());
             $embedding_count = $vt->get_vector_count();
             if ($embedding_count > 0) {
                 return;
