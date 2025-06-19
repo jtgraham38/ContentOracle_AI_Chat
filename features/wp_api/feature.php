@@ -531,21 +531,26 @@ class ContentOracleApi extends PluginFeature{
 
         $for = $request->get_param('for');
 
+        //create a queue
+        $queue = new VectorTableQueue($this->get_prefix());
+
         //get the posts based on the parameter
         $posts = [];
 
         $post_types = get_option($this->get_prefix() . 'post_types');
+        $post_types_str = "'" . implode("','", $post_types) . "'";
         switch ($for){
             case 'all':
                 //get the ids of all posts of the correct post type that are published
                 //and where the body has no chunks
+                //and are not in the embed queue
                 //with a prepared statement
                 $results = $wpdb->get_results(
                     $wpdb->prepare(
                         "SELECT ID FROM {$wpdb->posts} 
-                        WHERE post_type IN ('" . implode("', '", $post_types) . "') 
+                        WHERE post_type IN ($post_types_str) 
                         AND post_status = 'publish'
-                        "
+                        AND ID NOT IN (SELECT post_id FROM {$queue->get_table_name()})"
                     ),
                     OBJECT
                 );
@@ -557,33 +562,22 @@ class ContentOracleApi extends PluginFeature{
                 $VT = new VectorTable($this->get_prefix());
                 $vecs = $VT->get_all();
                 $embedded_ids = array_map(function($vec){
-                    return $vec->post_id;
+                    return intval($vec->post_id);
                 }, $vecs);
+                $embedded_ids[] = -1;
 
                 //get posts ids of posts of the correct type that have no embeddings
                 //include a where not in clause if there are embedded ids, otherwise exclude it
-                if (empty($embedded_ids)) {
-                    // If no posts are embedded yet, get all posts of the correct type
-                    $results = $wpdb->get_results(
-                        $wpdb->prepare(
-                            "SELECT ID FROM {$wpdb->posts} 
-                            WHERE post_type IN ('" . implode("', '", $post_types) . "') 
-                            AND post_status = 'publish'"
-                        ),
-                        OBJECT
-                    );
-                } else {
-                    // If some posts are embedded, exclude them
-                    $results = $wpdb->get_results(
-                        $wpdb->prepare(
-                            "SELECT ID FROM {$wpdb->posts} 
-                            WHERE post_type IN ('" . implode("', '", $post_types) . "') 
-                            AND post_status = 'publish'
-                            AND ID NOT IN (" . implode(",", $embedded_ids) . ")"
-                        ),
-                        OBJECT
-                    );
-                }
+                $results = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT ID FROM {$wpdb->posts} 
+                        WHERE post_type IN ($post_types_str) 
+                        AND post_status = 'publish'
+                        AND ID NOT IN (" . implode(',', $embedded_ids) . ")
+                        AND ID NOT IN (SELECT post_id FROM {$queue->get_table_name()})"
+                    ),
+                    OBJECT
+                );
 
                 break;
             case is_numeric($for):
@@ -607,7 +601,6 @@ class ContentOracleApi extends PluginFeature{
 
         //enqueue the posts for embedding generation
         try{
-            $queue = new VectorTableQueue($this->get_prefix());
             $queue->add_posts($post_ids);
         }
         catch (Exception $e){

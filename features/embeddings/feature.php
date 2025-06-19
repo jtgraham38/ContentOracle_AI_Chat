@@ -65,7 +65,6 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //hook into the cron job, to enqueue posts for embedding generation if they are not already embedded
         add_action($this->get_prefix() . 'auto_enqueue_embeddings_cron_hook', array($this, 'auto_enqueue_embeddings'));
-
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -212,52 +211,52 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     //enqueue all posts that are not already embedded
     public function enqueue_all_posts_that_are_not_already_embedded(){
+        global $wpdb;
         //get all posts that are:
         // 1. not already embedded
         // 2. of the correct post type
         // 3. status is publish
+        // 4. are not in the embed queue
 
         //get post types
         $post_types = get_option($this->get_prefix() . 'post_types');
+        $post_types_str = "'" . implode("','", $post_types) . "'";
 
         
 
         //get ids of posts that have embeddings
         $VT = new VectorTable($this->get_prefix());
+        $queue = new VectorTableQueue($this->get_prefix());
+        
         $vecs = $VT->get_all();
         $embedded_ids = array_map(function($vec){
             return $vec->post_id;
         }, $vecs);
+        $embedded_ids = array_map('intval', $embedded_ids);
+        $embedded_ids[] = -1;
 
-        //get posts
-        $posts = get_posts(array(
-                    'post_type' => $post_types,
-                    'post_status' => 'publish',
-                    'posts_per_page' => 500,    //limit to 500 at a time for scalability
-                    'post__not_in' => $embedded_ids,
-                //NOTE: THIS META QUERY IS BROKEN, RETURNS POSTS THAT HAVE EMBEDDINGS
-                    // 'meta_query' => array(
-                    //     'relation' => 'OR',
-                    //     array(
-                    //         'key' => $this->get_prefix() . 'embeddings',
-                    //         'compare' => 'NOT EXISTS'
-                    //     ),
-                    //     array(
-                    //         'key' => $this->get_prefix() . 'embeddings',
-                    //         'value' => "a:0:{}",
-                    //         'compare' => '='
-                    //     )
-                    // )
-                ));
-            
+        //get posts in post types, that are published, that are not already embedded, and that are not in the embed queue
+        //ordered by the most recently published post
+        $posts = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->posts} 
+                WHERE post_type IN ($post_types_str) 
+                AND post_status = 'publish'
+                AND ID NOT IN (" . implode(',', $embedded_ids) . ")
+                AND ID NOT IN (SELECT post_id FROM {$queue->get_table_name()})
+                ORDER BY post_date DESC
+                LIMIT 500"
+            ),
+            OBJECT
+        );
 
-
+        
         //remove posts that have no chunks
         $posts = array_filter($posts, function($post){
             $chunked_post = $this->chunk_post($post);
             return !empty($chunked_post->chunks);
         });
-
+        
         //return if there are no posts
         if (empty($posts)) {
             return;
@@ -269,21 +268,28 @@ class ContentOracleEmbeddings extends PluginFeature{
         }, $posts);
 
         //enqueue the posts
-        $queue = new VectorTableQueue($this->get_prefix());
         $queue->add_posts($post_ids);
     }
 
     //enqueue all posts
     //function here for future use, not currently used!
     public function enqueue_all_posts(){
+        global $wpdb;
         //get all posts where
         // 1. of the correct post type
         // 2. status is publish
-        $posts = get_posts(array(
-            'post_type' => get_option($this->get_prefix() . 'post_types', []),
-            'post_status' => 'publish',
-            'posts_per_page' => 500,    //limit to 500 at a time for scalability
-        ));
+        // 3. are not in the embed queue
+
+        $posts = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->posts} 
+                WHERE post_type IN ($post_types_str) 
+                AND post_status = 'publish'
+                AND ID NOT IN (SELECT post_id FROM {$queue->get_table_name()})"
+            ),
+            OBJECT
+        );
+
 
         //remove posts that have no chunks
         $posts = array_filter($posts, function($post){
