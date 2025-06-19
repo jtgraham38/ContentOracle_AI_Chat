@@ -25,8 +25,10 @@ use jtgraham38\jgwordpresskit\Plugin;
 
 //create config for the plugin
 $config = [
-    'chat_timeout' => 10,       //10 seconds
-    'embed_timeout' => 7200,    //2 hours because of wait in coai api to avoid request limit
+    'chat_timeout' => 10,               //10 seconds
+    'embed_timeout' => 30,              //30 seconds
+    'token_256_content_limit' => 10,    //10 chunks
+    'token_512_content_limit' => 3      //3 chunks
 ];
 
 //create a new plugin manager

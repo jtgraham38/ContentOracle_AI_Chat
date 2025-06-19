@@ -105,8 +105,8 @@ class ContentOracleEmbeddings extends PluginFeature{
             return;
         }
 
-        //get the posts
-        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->posts} WHERE ID IN ($post_ids_str) AND post_status = 'publish' AND post_type IN ($post_types_str) LIMIT 1000");
+        //get the posts (no limit needed here because $queue->get_next_batch() already limits the number of posts)
+        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->posts} WHERE ID IN ($post_ids_str) AND post_status = 'publish' AND post_type IN ($post_types_str)");
 
         //return if there are no posts
         if (empty($posts)) {
@@ -133,6 +133,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //send the posts to the embedding service
         try{
+
             $api = new ContentOracleApiConnection(
                 $this->get_prefix(), 
                 $this->get_base_url(), 
@@ -219,6 +220,8 @@ class ContentOracleEmbeddings extends PluginFeature{
         //get post types
         $post_types = get_option($this->get_prefix() . 'post_types');
 
+        
+
         //get ids of posts that have embeddings
         $VT = new VectorTable($this->get_prefix());
         $vecs = $VT->get_all();
@@ -246,6 +249,8 @@ class ContentOracleEmbeddings extends PluginFeature{
                     //     )
                     // )
                 ));
+            
+
 
         //remove posts that have no chunks
         $posts = array_filter($posts, function($post){

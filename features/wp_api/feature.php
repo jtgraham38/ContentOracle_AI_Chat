@@ -158,11 +158,11 @@ class ContentOracleApi extends PluginFeature{
             switch ($chunking_method){
                 case 'token:256':
                     $content = $this->token256_content_search($message);
-                    $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, $this->config('token:256_content_limit')); //NOTE: magic number, make it configurable later!
                     break;
                 default:
                     $content = $this->keyword_content_search($message);
-                    $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, $this->config('keyword_content_limit')); //NOTE: magic number, make it configurable later!
                     break;
             }
         }
@@ -382,11 +382,11 @@ class ContentOracleApi extends PluginFeature{
             switch ($chunking_method){
                 case 'token:256':
                     $content = $this->token256_content_search($message);
-                    $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, $this->config('token:256_content_limit')); //NOTE: magic number, make it configurable later!
                     break;
                 default:
                     $content = $this->keyword_content_search($message);
-                    $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, $this->config('keyword_content_limit')); //NOTE: magic number, make it configurable later!
                     break;
             }
         } 
@@ -528,14 +528,6 @@ class ContentOracleApi extends PluginFeature{
     //bulk generate embeddings
     public function bulk_generate_embeddings($request){
         global $wpdb;
-        $api = new ContentOracleApiConnection(
-            $this->get_prefix(), 
-            $this->get_base_url(), 
-            $this->get_base_dir(), 
-            $this->get_client_ip(),
-            $this->config('chat_timeout'),
-            $this->config('embed_timeout')
-        );
 
         $for = $request->get_param('for');
 
@@ -546,7 +538,7 @@ class ContentOracleApi extends PluginFeature{
         switch ($for){
             case 'all':
                 //get the ids of all posts of the correct post type that are published
-                //and where the body has no chunks, in pages of 10
+                //and where the body has no chunks
                 //with a prepared statement
                 $results = $wpdb->get_results(
                     $wpdb->prepare(
@@ -569,17 +561,29 @@ class ContentOracleApi extends PluginFeature{
                 }, $vecs);
 
                 //get posts ids of posts of the correct type that have no embeddings
-                //that have chunks
-                //with a prepared statement
-                $results = $wpdb->get_results(
-                    $wpdb->prepare(
-                        "SELECT ID FROM {$wpdb->posts} 
-                        WHERE post_type IN ('" . implode("', '", $post_types) . "') 
-                        AND post_status = 'publish'
-                        AND ID NOT IN (" . implode(",", $embedded_ids) . ")"
-                    ),
-                    OBJECT
-                );
+                //include a where not in clause if there are embedded ids, otherwise exclude it
+                if (empty($embedded_ids)) {
+                    // If no posts are embedded yet, get all posts of the correct type
+                    $results = $wpdb->get_results(
+                        $wpdb->prepare(
+                            "SELECT ID FROM {$wpdb->posts} 
+                            WHERE post_type IN ('" . implode("', '", $post_types) . "') 
+                            AND post_status = 'publish'"
+                        ),
+                        OBJECT
+                    );
+                } else {
+                    // If some posts are embedded, exclude them
+                    $results = $wpdb->get_results(
+                        $wpdb->prepare(
+                            "SELECT ID FROM {$wpdb->posts} 
+                            WHERE post_type IN ('" . implode("', '", $post_types) . "') 
+                            AND post_status = 'publish'
+                            AND ID NOT IN (" . implode(",", $embedded_ids) . ")"
+                        ),
+                        OBJECT
+                    );
+                }
 
                 break;
             case is_numeric($for):
@@ -665,7 +669,7 @@ class ContentOracleApi extends PluginFeature{
             'post_type' => $post_types,
             //'s' => implode(' ', $message_words),
             'coai_search' => $stems,
-            'posts_per_page' => 10,   //NOTE: magic number, make it configurable later!
+            'posts_per_page' => $this->config('keyword_content_limit'),   //NOTE: magic number, make it configurable later!
             'post_status' => 'publish',
             'orderby' => 'relevance'
         ));
@@ -673,7 +677,7 @@ class ContentOracleApi extends PluginFeature{
         //NOTE: currently, the api only returns content used in the response.  I plan to change this to flag used content when I revamp the api
         //NOTE: to return an ai-generated json object.  FOr now, some content that is supplied to the ai is not returned in the response.
 
-        //locate the 10 most relavent posts, prioritizing the user's goals
+        //locate the n most relavent posts, prioritizing the user's goals
         //NOTE: this is a placeholder for now, will be replaced with a call to the ai
         $content = [];
         while ($wp_query->have_posts()){
