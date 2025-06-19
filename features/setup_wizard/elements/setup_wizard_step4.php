@@ -5,9 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 //import the embeedings feature object, so we can use it to enqueue posts for embedding
-require_once(plugin_dir_path(__FILE__) . '../../embeddings/feature.php');
-$embeddings_feature = new ContentOracleEmbeddings();
-$embeddings_feature->plugin = $this->plugin;
+$embeddings_feature = $this->get_feature('embeddings');
 
 //handle form submission
 $error_msg = '';
