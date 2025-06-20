@@ -438,6 +438,6 @@ class ContentOracleSettings extends PluginFeature{
 
     //placeholder uninstall method to identify this feature
     public function uninstall(){
-        echo "ContentOracle Settings Feature uninstalling...";
+        
     }
 }

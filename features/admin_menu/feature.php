@@ -40,6 +40,6 @@ class ContentOracleMenu extends PluginFeature{
 
     //placeholder uninstall method to identify this feature
     public function uninstall(){
-        echo "ContentOracle Admin Menu Feature uninstalling...";
+        
     }
 }

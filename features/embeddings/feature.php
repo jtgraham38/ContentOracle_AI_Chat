@@ -525,7 +525,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     //placeholder uninstall method to identify this feature
     public function uninstall(){
-        echo "ContentOracle Embeddings Feature uninstalling...";
+        
     }
 
 }

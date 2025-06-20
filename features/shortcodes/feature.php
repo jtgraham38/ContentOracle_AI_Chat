@@ -208,6 +208,6 @@ class ContentOracleShortcodes extends PluginFeature{
 
     //placeholder uninstall method to identify this feature
     public function uninstall(){
-        echo "ContentOracle Shortcodes Feature uninstalling...";
+
     }
 }

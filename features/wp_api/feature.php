@@ -943,6 +943,5 @@ class ContentOracleApi extends PluginFeature{
 
     //placeholder uninstall method to identify this feature
     public function uninstall(){
-        echo "ContentOracle WP API Feature uninstalling...";
     }
 }

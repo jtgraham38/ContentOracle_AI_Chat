@@ -65,6 +65,6 @@ class ContentOracleSearchBlock extends PluginFeature{
 
     //placeholder uninstall method to identify this block
     public function uninstall(){
-        echo "ContentOracle Search Block uninstalling...";
+        
     }
 }

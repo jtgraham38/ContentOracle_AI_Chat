@@ -156,6 +156,6 @@ class ContentOracleAiBlock extends PluginFeature{
 
     //placeholder uninstall method to identify this block
     public function uninstall(){
-        echo "ContentOracle Chat Block uninstalling...";
+        
     }
 }
