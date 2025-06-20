@@ -36,6 +36,11 @@ class ContentOracleMenu extends PluginFeature{
 
     public function enqueue_icon_style(){
         wp_enqueue_style('contentoracle-icon', plugin_dir_url( __FILE__ ) . '/assets/css/icon.css');
+        
+        // Enqueue main page styles if we're on the ContentOracle main page
+        if (isset($_GET['page']) && $_GET['page'] === 'contentoracle-ai-chat') {
+            wp_enqueue_style('contentoracle-main-page', plugin_dir_url( __FILE__ ) . '/assets/css/main_page.css');
+        }
     }
 
     //placeholder uninstall method to identify this feature
