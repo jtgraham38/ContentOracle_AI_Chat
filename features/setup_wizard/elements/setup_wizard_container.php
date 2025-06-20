@@ -7,18 +7,12 @@ if (!defined('ABSPATH')) {
 //handle a step being completed
 $step_completed = isset($_GET['complete']) ? intval($_GET['complete']) : 0;
 if ($step_completed) {
-    update_option($this->get_prefix() . 'setup_wizard_latest_step_completed', $step_completed);
+    update_option($this->prefixed('setup_wizard_latest_step_completed'), $step_completed);
 }
-
-// echo "latest step completed";
-// echo "<br>";
-// echo $this->get_prefix() . 'setup_wizard_latest_step_completed';
-// echo "<br>";
-// echo get_option($this->get_prefix() . 'setup_wizard_latest_step_completed');
 
 //get the current step from the url
 //or, if it is not set there, get it from the latest step completed
-$last_completed_step = get_option($this->get_prefix() . 'setup_wizard_latest_step_completed');
+$last_completed_step = get_option($this->prefixed('setup_wizard_latest_step_completed'));
 $current_step = isset($_GET['step']) ? intval($_GET['step']) : $last_completed_step + 1;
 
 //urls for next and prev buttons

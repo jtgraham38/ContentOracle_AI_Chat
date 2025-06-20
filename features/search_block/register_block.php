@@ -38,7 +38,7 @@ class ContentOracleSearchBlock extends PluginFeature{
             $ai_search_query = sanitize_text_field($_GET['contentoracle_ai_search']);
 
             //redirect to the ai search results page, if set, with the ai search query
-            $ai_results_page_id = get_option($this->get_prefix() . 'ai_results_page', null);
+            $ai_results_page_id = get_option($this->prefixed('ai_results_page'), null);
             $ai_results_page = get_post($ai_results_page_id);
 
             if ($ai_results_page && $ai_results_page->post_type == 'page' && $ai_results_page->post_status == 'publish') { 
@@ -63,4 +63,8 @@ class ContentOracleSearchBlock extends PluginFeature{
         }
     }
 
+    //placeholder uninstall method to identify this block
+    public function uninstall(){
+        
+    }
 }

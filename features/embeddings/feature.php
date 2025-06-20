@@ -58,14 +58,13 @@ class ContentOracleEmbeddings extends PluginFeature{
         add_action('init', array($this, 'schedule_cron_jobs'));
 
         //hook into the cron job, to consume a batch of posts from the queue
-        add_action($this->get_prefix() . 'embed_batch_cron_hook', array($this, 'consume_batch_from_queue'));
+        add_action($this->prefixed('embed_batch_cron_hook'), array($this, 'consume_batch_from_queue'));
 
         //hook into the cron job, to clean the queue
-        add_action($this->get_prefix() . 'clean_queue_cron_hook', array($this, 'clean_queue'));
+        add_action($this->prefixed('clean_queue_cron_hook'), array($this, 'clean_queue'));
 
         //hook into the cron job, to enqueue posts for embedding generation if they are not already embedded
-        add_action($this->get_prefix() . 'auto_enqueue_embeddings_cron_hook', array($this, 'auto_enqueue_embeddings'));
-
+        add_action($this->prefixed('auto_enqueue_embeddings_cron_hook'), array($this, 'auto_enqueue_embeddings'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -73,31 +72,44 @@ class ContentOracleEmbeddings extends PluginFeature{
     //  \\  //  \\  //  \\  //  \\ MANAGE QUEUE FOR POSTS REQUIRING EMBEDDINGS  //  \\  //  \\  //  \\  // \\
     //schedule the cron job
     public function schedule_cron_jobs(){
+        //if the chunking method is not set, do not consume the batch from the queue
+        $chunking_method = get_option($this->prefixed('chunking_method'));
+        if ($chunking_method == 'none' || $chunking_method == '') {
+            return;
+        }
+
         //schedule the cron job to consume a batch of posts from the queue every 15 seconds
-        if (!wp_next_scheduled($this->get_prefix() . 'embed_batch_cron_hook')) {
-            wp_schedule_event(time(), 'every_minute', $this->get_prefix() . 'embed_batch_cron_hook');
+        if (!wp_next_scheduled($this->prefixed('embed_batch_cron_hook'))) {
+            wp_schedule_event(time(), 'every_minute', $this->prefixed('embed_batch_cron_hook'));
         }
 
         //schedule a daily cron job to remove posts that have been completed for more than 3 days
-        if (!wp_next_scheduled($this->get_prefix() . 'clean_queue_cron_hook')) {
-            wp_schedule_event(time(), 'daily', $this->get_prefix() . 'clean_queue_cron_hook');
+        if (!wp_next_scheduled($this->prefixed('clean_queue_cron_hook'))) {
+            wp_schedule_event(time(), 'daily', $this->prefixed('clean_queue_cron_hook'));
         }
 
         //schedule a weekly cron job to enqueue posts for embedding generation if they are not already embedded
-        if (!wp_next_scheduled($this->get_prefix() . 'auto_enqueue_embeddings_cron_hook')) {
-            wp_schedule_event(time(), 'weekly', $this->get_prefix() . 'auto_enqueue_embeddings_cron_hook');
+        if (!wp_next_scheduled($this->prefixed('auto_enqueue_embeddings_cron_hook'))) {
+            wp_schedule_event(time(), 'weekly', $this->prefixed('auto_enqueue_embeddings_cron_hook'));
         }
     }
 
     //get a batch of posts from the queue, and send it to the embedding service
     public function consume_batch_from_queue(){
+        //if the chunking method is not set, do not consume the batch from the queue
+        $chunking_method = get_option($this->prefixed('chunking_method'));
+        if ($chunking_method == 'none' || $chunking_method == '') {
+            return;
+        }
+        
         global $wpdb;
+
         //get a batch of posts from the queue
         $queue = new VectorTableQueue($this->get_prefix());
         $post_ids = $queue->get_next_batch();
 
         //get all posts with the indicated ids
-        $post_types_str = '"' . implode('","', get_option($this->get_prefix() . 'post_types', [])) . '"';
+        $post_types_str = '"' . implode('","', get_option($this->prefixed('post_types'), [])) . '"';
         $post_ids_str = implode(',', $post_ids);
 
         //return if there are no post types or post ids
@@ -105,8 +117,8 @@ class ContentOracleEmbeddings extends PluginFeature{
             return;
         }
 
-        //get the posts
-        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->posts} WHERE ID IN ($post_ids_str) AND post_status = 'publish' AND post_type IN ($post_types_str) LIMIT 1000");
+        //get the posts (no limit needed here because $queue->get_next_batch() already limits the number of posts)
+        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->posts} WHERE ID IN ($post_ids_str) AND post_status = 'publish' AND post_type IN ($post_types_str)");
 
         //return if there are no posts
         if (empty($posts)) {
@@ -133,7 +145,15 @@ class ContentOracleEmbeddings extends PluginFeature{
 
         //send the posts to the embedding service
         try{
-            $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+
+            $api = new ContentOracleApiConnection(
+                $this->get_prefix(), 
+                $this->get_base_url(), 
+                $this->get_base_dir(), 
+                $this->get_client_ip(),
+                $this->config('chat_timeout'),
+                $this->config('embed_timeout')
+            );
             $result = $api->bulk_generate_embeddings($filtered_posts);
         } catch (Exception $e){
             //log the error
@@ -151,6 +171,12 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     //clean the queue
     public function clean_queue(){
+        //if the chunking method is not set, do not clean the queue
+        $chunking_method = get_option($this->prefixed('chunking_method'));
+        if ($chunking_method == 'none' || $chunking_method == '') {
+            return;
+        }
+
         //get the queue
         $queue = new VectorTableQueue($this->get_prefix());
         $queue->cleanup();
@@ -158,8 +184,14 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     //automoatically enqueue posts for embedding generation if they are not already embedded
     public function auto_enqueue_embeddings(){
+        //if the chunking method is not set, do not enqueue posts for embedding generation
+        $chunking_method = get_option($this->prefixed('chunking_method'));
+        if ($chunking_method == 'none' || $chunking_method == '') {
+            return;
+        }
+
         //get all posts that are not already embedded
-        if (get_option($this->get_prefix() . 'auto_generate_embeddings')){
+        if (get_option($this->prefixed('auto_generate_embeddings'))){
             $this->enqueue_all_posts_that_are_not_already_embedded();
         }
     }
@@ -180,20 +212,20 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
         
         //nonce verification
-        if (!isset($_POST[$this->get_prefix() . 'generate_embeddings_nonce']) 
+        if (!isset($_POST[$this->prefixed('generate_embeddings_nonce')]) 
         || 
-        !wp_verify_nonce($_POST[$this->get_prefix() . 'generate_embeddings_nonce'], $this->get_prefix() . 'save_generate_embeddings')
+        !wp_verify_nonce($_POST[$this->prefixed('generate_embeddings_nonce')], $this->prefixed('save_generate_embeddings'))
         ) {
             return;
         }
         
         //check if the post is of the correct post type
-        if (!in_array($post->post_type, get_option($this->get_prefix() . 'post_types', []))) {
+        if (!in_array($post->post_type, get_option($this->prefixed('post_types'), []))) {
             return;
         }
 
         //check if the checkbox is checked
-        if (!isset($_POST[$this->get_prefix() . 'generate_embeddings'])) {
+        if (!isset($_POST[$this->prefixed('generate_embeddings')])) {
             return;
         }
         
@@ -204,48 +236,52 @@ class ContentOracleEmbeddings extends PluginFeature{
 
     //enqueue all posts that are not already embedded
     public function enqueue_all_posts_that_are_not_already_embedded(){
+        global $wpdb;
         //get all posts that are:
         // 1. not already embedded
         // 2. of the correct post type
         // 3. status is publish
+        // 4. are not in the embed queue
 
         //get post types
-        $post_types = get_option($this->get_prefix() . 'post_types');
+        $post_types = get_option($this->prefixed('post_types'));
+        $post_types_str = "'" . implode("','", $post_types) . "'";
+
+        
 
         //get ids of posts that have embeddings
         $VT = new VectorTable($this->get_prefix());
+        $queue = new VectorTableQueue($this->get_prefix());
+        
         $vecs = $VT->get_all();
         $embedded_ids = array_map(function($vec){
             return $vec->post_id;
         }, $vecs);
+        $embedded_ids = array_map('intval', $embedded_ids);
+        $embedded_ids[] = -1;
 
-        //get posts
-        $posts = get_posts(array(
-                    'post_type' => $post_types,
-                    'post_status' => 'publish',
-                    'posts_per_page' => 500,    //limit to 500 at a time for scalability
-                    'post__not_in' => $embedded_ids,
-                //NOTE: THIS META QUERY IS BROKEN, RETURNS POSTS THAT HAVE EMBEDDINGS
-                    // 'meta_query' => array(
-                    //     'relation' => 'OR',
-                    //     array(
-                    //         'key' => $this->get_prefix() . 'embeddings',
-                    //         'compare' => 'NOT EXISTS'
-                    //     ),
-                    //     array(
-                    //         'key' => $this->get_prefix() . 'embeddings',
-                    //         'value' => "a:0:{}",
-                    //         'compare' => '='
-                    //     )
-                    // )
-                ));
+        //get posts in post types, that are published, that are not already embedded, and that are not in the embed queue
+        //ordered by the most recently published post
+        $posts = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->posts} 
+                WHERE post_type IN ($post_types_str) 
+                AND post_status = 'publish'
+                AND ID NOT IN (" . implode(',', $embedded_ids) . ")
+                AND ID NOT IN (SELECT post_id FROM {$queue->get_table_name()})
+                ORDER BY post_date DESC
+                LIMIT 500"
+            ),
+            OBJECT
+        );
 
+        
         //remove posts that have no chunks
         $posts = array_filter($posts, function($post){
             $chunked_post = $this->chunk_post($post);
             return !empty($chunked_post->chunks);
         });
-
+        
         //return if there are no posts
         if (empty($posts)) {
             return;
@@ -257,21 +293,31 @@ class ContentOracleEmbeddings extends PluginFeature{
         }, $posts);
 
         //enqueue the posts
-        $queue = new VectorTableQueue($this->get_prefix());
         $queue->add_posts($post_ids);
     }
 
     //enqueue all posts
     //function here for future use, not currently used!
     public function enqueue_all_posts(){
+        global $wpdb;
+
+        //create a queue
+        $queue = new VectorTableQueue($this->get_prefix());
+
         //get all posts where
         // 1. of the correct post type
         // 2. status is publish
-        $posts = get_posts(array(
-            'post_type' => get_option($this->get_prefix() . 'post_types', []),
-            'post_status' => 'publish',
-            'posts_per_page' => 500,    //limit to 500 at a time for scalability
-        ));
+        // 3. are not in the embed queue
+        $posts = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$wpdb->posts} 
+                WHERE post_type IN ($post_types_str) 
+                AND post_status = 'publish'
+                AND ID NOT IN (SELECT post_id FROM {$queue->get_table_name()})"
+            ),
+            OBJECT
+        );
+
 
         //remove posts that have no chunks
         $posts = array_filter($posts, function($post){
@@ -290,7 +336,6 @@ class ContentOracleEmbeddings extends PluginFeature{
         }, $posts);
 
         //enqueue the posts
-        $queue = new VectorTableQueue($this->get_prefix());
         $queue->add_posts($post_ids);
     }
 
@@ -375,7 +420,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
             // create the settings fields
             add_settings_field(
-                $this->get_prefix() . "chunking_method",    // id of the field
+                $this->prefixed('chunking_method'),    // id of the field
                 'Embedding Method',   // title
                 function(){ // callback
                     require_once plugin_dir_path(__FILE__) . 'elements/chunking_method_input.php';
@@ -383,12 +428,12 @@ class ContentOracleEmbeddings extends PluginFeature{
                 'contentoracle-ai-settings', // page (matches menu slug)
                 'coai_chat_embeddings_settings',  // section
                 array(
-                'label_for' => $this->get_prefix() .'chunking_method'
+                'label_for' => $this->prefixed('chunking_method')
                 )
             );
 
             add_settings_field(
-                $this->get_prefix() . "auto_generate_embeddings",    // id of the field
+                $this->prefixed('auto_generate_embeddings'),    // id of the field
                 'Auto-generate Text Embeddings Weekly',   // title
                 function(){ // callback
                     require_once plugin_dir_path(__FILE__) . 'elements/auto_generate_embeddings_input.php';
@@ -396,14 +441,14 @@ class ContentOracleEmbeddings extends PluginFeature{
                 'contentoracle-ai-settings', // page (matches menu slug)
                 'coai_chat_embeddings_settings',  // section
                 array(
-                'label_for' => $this->get_prefix() .'auto_generate_embeddings'
+                'label_for' => $this->prefixed('auto_generate_embeddings')
                 )
             );
 
             // create the settings themselves
             register_setting(
                 'coai_chat_embeddings_settings', // option group
-                $this->get_prefix() . 'chunking_method',    // option name
+                $this->prefixed('chunking_method'),    // option name
                 array(  // args
                     'type' => 'string',
                     'default' => 'token:256',
@@ -413,7 +458,7 @@ class ContentOracleEmbeddings extends PluginFeature{
 
             register_setting(
                 'coai_chat_embeddings_settings', // option group
-                $this->get_prefix() . 'auto_generate_embeddings',    // option name
+                $this->prefixed('auto_generate_embeddings'),    // option name
                 array(  // args
                     'type' => 'boolean',
                     'default' => true,
@@ -426,8 +471,8 @@ class ContentOracleEmbeddings extends PluginFeature{
 
             //WE NO LONGER NEED THIS SETTING, SO UNREGISTER AND DELETE IT
             //unregister and delete the extraneous setting
-            unregister_setting('coai_chat_embeddings_settings',$this->get_prefix() . 'auto_generate_only_new_embeddings');
-            $deleted = delete_option($this->get_prefix() . 'auto_generate_only_new_embeddings');
+            unregister_setting('coai_chat_embeddings_settings',$this->prefixed('auto_generate_only_new_embeddings'));
+            $deleted = delete_option($this->prefixed('auto_generate_only_new_embeddings'));
 
 
         }
@@ -459,7 +504,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     //    \\    add meta box to post editor    //    \\
     public function add_embedding_meta_box(){
         //only add the meta box if the post type is in the list of post types that are indexed by the AI
-        if (!in_array(get_post_type(), get_option($this->get_prefix() . 'post_types', []))) {
+        if (!in_array(get_post_type(), get_option($this->prefixed('post_types'), []))) {
             return;
         }
 
@@ -469,7 +514,7 @@ class ContentOracleEmbeddings extends PluginFeature{
             function(){
                 require_once plugin_dir_path(__FILE__) . 'elements/_meta_box.php';
             },
-            get_option($this->get_prefix().'_post_types') ?? [],
+            get_option($this->prefixed('post_types')) ?? [],
             'side',
             'high'
         );
@@ -488,7 +533,7 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
 
         //show an admin notice to generate embeddings if the chunking method is set
-        if (get_option($this->get_prefix() . 'chunking_method') != 'none') {
+        if (get_option($this->prefixed('chunking_method')) != 'none') {
 
             //check if embeddings have been generated
             $vt = new VectorTable($this->get_prefix());
@@ -503,6 +548,11 @@ class ContentOracleEmbeddings extends PluginFeature{
             echo '<p>Visit <a href="' . esc_url($generate_embeddings_url) . '" >this page </a> to generate embeddings for your posts, or switch to keyword search.</p>';
             echo '</div>';
         }
+    }
+
+    //placeholder uninstall method to identify this feature
+    public function uninstall(){
+        
     }
 
 }

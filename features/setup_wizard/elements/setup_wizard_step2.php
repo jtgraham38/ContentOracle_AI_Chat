@@ -10,7 +10,7 @@ $error_msg = '';
 $success_msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST'):
     //check the nonce
-    if (!wp_verify_nonce($_POST['nonce'], $this->get_prefix() . 'setup_wizard_step2')) {
+    if (!wp_verify_nonce($_POST['nonce'], $this->prefixed('setup_wizard_step2'))) {
         $error_msg = 'Invalid nonce';
     }
     
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'):
     $token = $_POST['token'];
     
     //save the token to the database
-    update_option($this->get_prefix() . 'api_token', $token);
+    update_option($this->prefixed('api_token'), $token);
     
     if ($error_msg == '') {
         $success_msg = 'Token saved successfully';
@@ -27,7 +27,7 @@ endif;
 
 
 //get current token value
-$current_token = get_option($this->get_prefix() . 'api_token');
+$current_token = get_option($this->prefixed('api_token'));
 ?>
 
 <div>
@@ -45,11 +45,11 @@ $current_token = get_option($this->get_prefix() . 'api_token');
 
     <p>Then, the token will appear.  Copy the token, and paste it into the input field below.</p>
 
-    <form action="" method="POST" id="<?php echo $this->get_prefix(); ?>step2-form">
+    <form action="" method="POST" id="<?php $this->pre('step2-form') ?>">
 
-        <label for="<?php echo $this->get_prefix(); ?>api_token_input">API Token</label>
-        <input type="text" id="<?php echo $this->get_prefix(); ?>api_token_input" name="token" placeholder="API Token" required value="<?php echo $current_token; ?>">
-        <input type="hidden" name="nonce" value="<?php echo wp_create_nonce($this->get_prefix() . 'setup_wizard_step2'); ?>">
+        <label for="<?php $this->pre('api_token_input') ?>">API Token</label>
+        <input type="text" id="<?php $this->pre('api_token_input') ?>" name="token" placeholder="API Token" required value="<?php echo $current_token; ?>">
+        <input type="hidden" name="nonce" value="<?php echo wp_create_nonce($this->prefixed('setup_wizard_step2')); ?>">
         <button type="submit" class="button button-primary">Save Token</button>
     </form>
 

@@ -153,16 +153,16 @@ class ContentOracleApi extends PluginFeature{
 
         //get the content to use in the response
         //switch based on the chunking method
-        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        $chunking_method = get_option($this->prefixed('chunking_method'));
         try{
             switch ($chunking_method){
                 case 'token:256':
                     $content = $this->token256_content_search($message);
-                    $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, $this->config('token:256_content_limit')); //NOTE: magic number, make it configurable later!
                     break;
                 default:
                     $content = $this->keyword_content_search($message);
-                    $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, $this->config('keyword_content_limit')); //NOTE: magic number, make it configurable later!
                     break;
             }
         }
@@ -233,7 +233,14 @@ class ContentOracleApi extends PluginFeature{
 
 
         //send a request to the ai to generate a response
-        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
+        $api = new ContentOracleApiConnection(
+            $this->get_prefix(), 
+            $this->get_base_url(), 
+            $this->get_base_dir(), 
+            $client_ip,
+            $this->config('chat_timeout'),
+            $this->config('embed_timeout')
+        );
         $response = $api->streamed_ai_chat($message, $content, $conversation, 
             function($data){
                 //divider character, to separate the fragments of the response
@@ -370,16 +377,16 @@ class ContentOracleApi extends PluginFeature{
 
         //get the content to use in the response
         //switch based on the chunking method
-        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        $chunking_method = get_option($this->prefixed('chunking_method'));
         try{
             switch ($chunking_method){
                 case 'token:256':
                     $content = $this->token256_content_search($message);
-                    $content = array_slice($content, 0, 10); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, $this->config('token:256_content_limit')); //NOTE: magic number, make it configurable later!
                     break;
                 default:
                     $content = $this->keyword_content_search($message);
-                    $content = array_slice($content, 0, 3); //NOTE: magic number, make it configurable later!
+                    $content = array_slice($content, 0, $this->config('keyword_content_limit')); //NOTE: magic number, make it configurable later!
                     break;
             }
         } 
@@ -412,7 +419,14 @@ class ContentOracleApi extends PluginFeature{
         $client_ip = $this->get_client_ip();
         
         //send a request to the ai to generate a response
-        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $client_ip);
+        $api = new ContentOracleApiConnection(
+            $this->get_prefix(), 
+            $this->get_base_url(), 
+            $this->get_base_dir(), 
+            $client_ip,
+            $this->config('chat_timeout'),
+            $this->config('embed_timeout')
+        );
         try{
             //get an ai response
             $response = $api->ai_chat($message, $content, $conversation);
@@ -514,30 +528,29 @@ class ContentOracleApi extends PluginFeature{
     //bulk generate embeddings
     public function bulk_generate_embeddings($request){
         global $wpdb;
-        $api = new ContentOracleApiConnection(
-            $this->get_prefix(), 
-            $this->get_base_url(), 
-            $this->get_base_dir(), 
-            $this->get_client_ip()
-        );
 
         $for = $request->get_param('for');
+
+        //create a queue
+        $queue = new VectorTableQueue($this->get_prefix());
 
         //get the posts based on the parameter
         $posts = [];
 
-        $post_types = get_option($this->get_prefix() . 'post_types');
+        $post_types = get_option($this->prefixed('post_types'));
+        $post_types_str = "'" . implode("','", $post_types) . "'";
         switch ($for){
             case 'all':
                 //get the ids of all posts of the correct post type that are published
-                //and where the body has no chunks, in pages of 10
+                //and where the body has no chunks
+                //and are not in the embed queue
                 //with a prepared statement
                 $results = $wpdb->get_results(
                     $wpdb->prepare(
                         "SELECT ID FROM {$wpdb->posts} 
-                        WHERE post_type IN ('" . implode("', '", $post_types) . "') 
+                        WHERE post_type IN ($post_types_str) 
                         AND post_status = 'publish'
-                        "
+                        AND ID NOT IN (SELECT post_id FROM {$queue->get_table_name()})"
                     ),
                     OBJECT
                 );
@@ -549,18 +562,19 @@ class ContentOracleApi extends PluginFeature{
                 $VT = new VectorTable($this->get_prefix());
                 $vecs = $VT->get_all();
                 $embedded_ids = array_map(function($vec){
-                    return $vec->post_id;
+                    return intval($vec->post_id);
                 }, $vecs);
+                $embedded_ids[] = -1;
 
                 //get posts ids of posts of the correct type that have no embeddings
-                //that have chunks
-                //with a prepared statement
+                //include a where not in clause if there are embedded ids, otherwise exclude it
                 $results = $wpdb->get_results(
                     $wpdb->prepare(
                         "SELECT ID FROM {$wpdb->posts} 
-                        WHERE post_type IN ('" . implode("', '", $post_types) . "') 
+                        WHERE post_type IN ($post_types_str) 
                         AND post_status = 'publish'
-                        AND ID NOT IN (" . implode(",", $embedded_ids) . ")"
+                        AND ID NOT IN (" . implode(',', $embedded_ids) . ")
+                        AND ID NOT IN (SELECT post_id FROM {$queue->get_table_name()})"
                     ),
                     OBJECT
                 );
@@ -587,7 +601,6 @@ class ContentOracleApi extends PluginFeature{
 
         //enqueue the posts for embedding generation
         try{
-            $queue = new VectorTableQueue($this->get_prefix());
             $queue->add_posts($post_ids);
         }
         catch (Exception $e){
@@ -639,7 +652,7 @@ class ContentOracleApi extends PluginFeature{
         $stems = $stemmer->stemAll($search_terms);
 
         //find all posts of the types specified by the user that are relavent to the query
-        $post_types = get_option($this->get_prefix() . 'post_types');
+        $post_types = get_option($this->prefixed('post_types'));
         if (!$post_types) $post_types = array('post', 'page');
 
         $relavent_posts = [];
@@ -649,7 +662,7 @@ class ContentOracleApi extends PluginFeature{
             'post_type' => $post_types,
             //'s' => implode(' ', $message_words),
             'coai_search' => $stems,
-            'posts_per_page' => 10,   //NOTE: magic number, make it configurable later!
+            'posts_per_page' => $this->config('keyword_content_limit'),   //NOTE: magic number, make it configurable later!
             'post_status' => 'publish',
             'orderby' => 'relevance'
         ));
@@ -657,7 +670,7 @@ class ContentOracleApi extends PluginFeature{
         //NOTE: currently, the api only returns content used in the response.  I plan to change this to flag used content when I revamp the api
         //NOTE: to return an ai-generated json object.  FOr now, some content that is supplied to the ai is not returned in the response.
 
-        //locate the 10 most relavent posts, prioritizing the user's goals
+        //locate the n most relavent posts, prioritizing the user's goals
         //NOTE: this is a placeholder for now, will be replaced with a call to the ai
         $content = [];
         while ($wp_query->have_posts()){
@@ -771,7 +784,14 @@ class ContentOracleApi extends PluginFeature{
     //token:256 embedding search
     function token256_content_search($message){
         //begin by embedding the user's message
-        $api = new ContentOracleApiConnection($this->get_prefix(), $this->get_base_url(), $this->get_base_dir(), $this->get_client_ip());
+        $api = new ContentOracleApiConnection(
+            $this->get_prefix(), 
+            $this->get_base_url(), 
+            $this->get_base_dir(), 
+            $this->get_client_ip(),
+            $this->config('chat_timeout'),
+            $this->config('embed_timeout')
+        );
 
         //get the embedding from the ai
         $response = $api->query_vector($message);
@@ -855,7 +875,7 @@ class ContentOracleApi extends PluginFeature{
         )
         */
         //get post types
-        $post_types = get_option($this->get_prefix() . 'post_types');
+        $post_types = get_option($this->prefixed('post_types'));
         if (!$post_types) $post_types = array('post', 'page');
 
         //loop over each chunk
@@ -867,7 +887,7 @@ class ContentOracleApi extends PluginFeature{
             $meta = get_post_meta($chunk['id']);
 
             //get the meta keys for that post type configured by the user
-            $keys = get_option($this->get_prefix() . $chunk['type'] . '_prompt_meta_keys', []);
+            $keys = get_option($this->prefixed( $chunk['type'] . '_prompt_meta_keys' ), []);
 
             //filter out the meta that is not configured by the user
             $meta = array_filter($meta, function($key) use ($keys){
@@ -919,5 +939,9 @@ class ContentOracleApi extends PluginFeature{
         }
 
         return $fragments;
+    }
+
+    //placeholder uninstall method to identify this feature
+    public function uninstall(){
     }
 }

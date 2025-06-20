@@ -47,7 +47,7 @@ class ContentOracleSettings extends PluginFeature{
         
 
         add_settings_field(
-            $this->get_prefix() . "api_token",    // id of the field
+            $this->prefixed('api_token'),    // id of the field
             'ContentOracle API Token',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/plugin/api_token_input.php';
@@ -55,12 +55,12 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_plugin_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'api_token_input'
+                'label_for' => $this->prefixed('api_token_input')
             )
         );
 
         // add_settings_field(
-        //     $this->get_prefix() . "show_searchbar_popup",    // id of the field
+        //     $this->prefixed('show_searchbar_popup'),    // id of the field
         //     'Show AI Search Popup',   // title
         //     function(){ // callback
         //         require_once plugin_dir_path(__FILE__) . 'elements/plugin/ai_search_popup_input.php';
@@ -68,12 +68,12 @@ class ContentOracleSettings extends PluginFeature{
         //     'contentoracle-ai-settings', // page (matches menu slug)
         //     'coai_chat_plugin_settings',  // section
         //     array(
-        //         'label_for' => $this->get_prefix() .'show_searchbar_popup_input'
+        //         'label_for' => $this->prefixed('show_searchbar_popup_input')
         //     )
         // );
 
         add_settings_field(
-            $this->get_prefix() . "debug_mode",    // id of the field
+            $this->prefixed('debug_mode'),    // id of the field
             'Debug Mode',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/plugin/debug_mode_input.php';
@@ -81,12 +81,12 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_plugin_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'debug_mode_input'
+                'label_for' => $this->prefixed('debug_mode_input')
             )
         );
 
         add_settings_field(
-            $this->get_prefix() . "display_credit_link",    // id of the field
+            $this->prefixed('display_credit_link'),    // id of the field
             'Display Credit Link',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/plugin/display_credit_link_input.php';
@@ -94,7 +94,7 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_plugin_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'display_credit_link_input'
+                'label_for' => $this->prefixed('display_credit_link_input')
             )
         );
 
@@ -102,7 +102,7 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_plugin_settings', // option group
-            $this->get_prefix() . 'api_token',    // option name
+            $this->prefixed('api_token'),    // option name
             array(  // args
                 'type' => 'string',
                 'default' => '',
@@ -112,7 +112,7 @@ class ContentOracleSettings extends PluginFeature{
 
         // register_setting(
         //     'coai_chat_plugin_settings', // option group
-        //     $this->get_prefix() . 'show_searchbar_popup',    // option name
+        //     $this->prefixed('show_searchbar_popup'),    // option name
         //     array(  // args
         //         'type' => 'boolean',
         //         'default' => true,
@@ -124,7 +124,7 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_plugin_settings', // option group
-            $this->get_prefix() . 'debug_mode',    // option name
+            $this->prefixed('debug_mode'),    // option name
             array(  // args
                 'type' => 'boolean',
                 'default' => false,
@@ -136,7 +136,7 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_plugin_settings', // option group
-            $this->get_prefix() . 'display_credit_link',    // option name
+            $this->prefixed('display_credit_link'),    // option name
             array(  // args
                 'type' => 'boolean',
                 'default' => false,
@@ -166,7 +166,7 @@ class ContentOracleSettings extends PluginFeature{
 
     //create the results page for the ai search if it does not exist
     public function create_results_page(){
-        $results_page_id = get_option($this->get_prefix() . 'ai_results_page', null);
+        $results_page_id = get_option($this->prefixed('ai_results_page'), null);
         if ($results_page_id == 'none'){
             return;
         }
@@ -187,7 +187,7 @@ class ContentOracleSettings extends PluginFeature{
             //update the option to create the page
             if ($page_id && !is_wp_error($page_id)) {
                 // Update the option with the ID of the new page
-                update_option($this->get_prefix() . 'ai_results_page', $page_id);
+                update_option($this->prefixed('ai_results_page'), $page_id);
             }
         }
     }
@@ -196,6 +196,9 @@ class ContentOracleSettings extends PluginFeature{
 
     //register ai settings
     public function register_ai_settings(){
+
+
+
         add_settings_section(
             'coai_chat_ai_settings', // id
             '', // title
@@ -207,7 +210,7 @@ class ContentOracleSettings extends PluginFeature{
 
         //add the organization name input
         add_settings_field(
-            $this->get_prefix() . "organization_name",    // id of the field
+            $this->prefixed('organization_name'),    // id of the field
             'Organization Name',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/organization_name_input.php';
@@ -215,13 +218,13 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_ai_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'organization_name_input'
+                'label_for' => $this->prefixed('organization_name_input')
             )
         );
 
         //add the ai results page input
         add_settings_field(
-            $this->get_prefix() . "ai_results_page",    // id of the field
+            $this->prefixed('ai_results_page'),    // id of the field
             'ContentOracle AI Search Results Page',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_search_results_page_input.php';
@@ -229,14 +232,14 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_ai_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'ai_results_page_input',
+                'label_for' => $this->prefixed('ai_results_page_input'),
                 'class' => 'contentoracle-ai-results-page-input'
             )
         );
 
         // create the settings fields
         add_settings_field(
-            $this->get_prefix() . "post_types",    // id of the field
+            $this->prefixed('post_types'),    // id of the field
             'ContentOracle Post Types to Use',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/post_types_input.php';
@@ -244,12 +247,12 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_ai_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'post_types_input'
+                'label_for' => $this->prefixed('post_types_input')
             )
         );
 
         add_settings_field(
-            $this->get_prefix() . "ai_tone",    // id of the field
+            $this->prefixed('ai_tone'),    // id of the field
             'ContentOracle AI Tone',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_tone_input.php';
@@ -257,12 +260,12 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_ai_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'ai_tone_input'
+                'label_for' => $this->prefixed('ai_tone_input')
             )
         );
 
         add_settings_field(
-            $this->get_prefix() . "ai_jargon",    // id of the field
+            $this->prefixed('ai_jargon'),    // id of the field
             'ContentOracle AI Jargon',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_jargon_input.php';
@@ -270,12 +273,12 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_ai_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'ai_jargon_input'
+                'label_for' => $this->prefixed('ai_jargon_input')
             )
         );
 
         add_settings_field(
-            $this->get_prefix() . "ai_goal_prompt",    // id of the field
+            $this->prefixed('ai_goal_prompt'),    // id of the field
             'ContentOracle AI Goals',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_goal_prompt_input.php';
@@ -283,12 +286,12 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_ai_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'ai_goal_prompt_input'
+                'label_for' => $this->prefixed('ai_goal_prompt_input')
             )
         );
 
         add_settings_field(
-            $this->get_prefix() . "ai_extra_info",    // id of the field
+            $this->prefixed('ai_extra_info'),    // id of the field
             'ContentOracle AI Extra Info',   // title
             function(){ // callback
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/ai_extra_info_prompt_input.php';
@@ -296,7 +299,7 @@ class ContentOracleSettings extends PluginFeature{
             'contentoracle-ai-settings', // page (matches menu slug)
             'coai_chat_ai_settings',  // section
             array(
-                'label_for' => $this->get_prefix() .'ai_extra_info_prompt_input'
+                'label_for' => $this->prefixed('ai_extra_info_prompt_input')
             )
         );
 
@@ -304,7 +307,7 @@ class ContentOracleSettings extends PluginFeature{
         // create the settings themselves
         register_setting(
             'coai_chat_ai_settings', // option group
-            $this->get_prefix() . 'organization_name',    // option name
+            $this->prefixed('organization_name'),    // option name
             array(  // args
                 'type' => 'string',
                 'default' => get_bloginfo('name') ?? 'Organization Name',
@@ -314,7 +317,7 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_ai_settings', // option group
-            $this->get_prefix() . 'ai_results_page',    // option name
+            $this->prefixed('ai_results_page'),    // option name
             array(  // args
                 'type' => 'string',
                 'default' => 'none',
@@ -324,7 +327,7 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_ai_settings', // option group
-            $this->get_prefix() . 'post_types',    // option name
+            $this->prefixed('post_types'),    // option name
             array(  // args
                 'type' => 'array',
                 'default' => array('post', 'page', 'media'),
@@ -334,7 +337,7 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_ai_settings', // option group
-            $this->get_prefix() . 'ai_tone',    // option name
+            $this->prefixed('ai_tone'),    // option name
             array(  // args
                 'type' => 'string',
                 'default' => 'none',
@@ -344,7 +347,7 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_ai_settings', // option group
-            $this->get_prefix() . 'ai_jargon',    // option name
+            $this->prefixed('ai_jargon'),    // option name
             array(  // args
                 'type' => 'string',
                 'default' => 'none',
@@ -354,7 +357,7 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_ai_settings', // option group
-            $this->get_prefix() . 'ai_goal_prompt',    // option name
+            $this->prefixed('ai_goal_prompt'),    // option name
             array(  // args
                 'type' => 'string',
                 'default' => '',
@@ -364,7 +367,7 @@ class ContentOracleSettings extends PluginFeature{
 
         register_setting(
             'coai_chat_ai_settings', // option group
-            $this->get_prefix() . 'ai_extra_info_prompt',    // option name
+            $this->prefixed('ai_extra_info_prompt'),    // option name
             array(  // args
                 'type' => 'string',
                 'default' => '',
@@ -398,14 +401,14 @@ class ContentOracleSettings extends PluginFeature{
     //register setting for post meta keys
     public function register_post_meta_keys_settings(){
         //get all post types used for prompting
-        $post_types = get_option($this->get_prefix() . 'post_types', array('post', 'page'));
+        $post_types = get_option($this->prefixed('post_types'), array('post', 'page'));
 
         //register a setting for each post type
         foreach ($post_types as $label=>$post_type){
             //create the settings themselves
             register_setting(
                 'coai_chat_ai_settings', // option group
-                $this->get_prefix() . $post_type . '_prompt_meta_keys',    // option name
+                $this->prefixed($post_type . '_prompt_meta_keys'),    // option name
                 array(  // args
                     'type' => 'array',
                     'default' => [],
@@ -425,14 +428,19 @@ class ContentOracleSettings extends PluginFeature{
         if (strpos($_SERVER['REQUEST_URI'], 'contentoracle') === false){
             return;
         }
-        wp_enqueue_style('contentoracle-ai-chat-settings', plugin_dir_url(__FILE__) . 'assets/css/admin.css');
+        wp_enqueue_style('contentoracle-ai-chat-settings', plugin_dir_url(__FILE__) . 'assets/css/settings.css');
     }
 
     //register the url of coai api (so it can be changed for testing)
     public function register_coai_api_url(){
-        $api_url = get_option($this->get_prefix() . 'api_url', null);
+        $api_url = get_option($this->prefixed('api_url'), null);
         if (!$api_url){
-            update_option($this->get_prefix() . 'api_url', 'https://app.contentoracleai.com/api');
+            update_option($this->prefixed('api_url'), 'https://app.contentoracleai.com/api');
         }
+    }
+
+    //placeholder uninstall method to identify this feature
+    public function uninstall(){
+        
     }
 }

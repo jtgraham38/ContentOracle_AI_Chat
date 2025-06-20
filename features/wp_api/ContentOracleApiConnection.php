@@ -25,12 +25,16 @@ class ContentOracleApiConnection{
     protected $base_url;
     protected $base_dir;
     protected $client_ip;
+    protected $chat_timeout;
+    protected $embed_timeout;
 
-    public function __construct($prefix, $base_url, $base_dir, $client_ip){
+    public function __construct($prefix, $base_url, $base_dir, $client_ip, $chat_timeout=250, $embed_timeout=7200){
         $this->prefix = $prefix;
         $this->base_url = get_option('coai_chat_api_url', 'https://app.contentoracleai.com/api') ?? 'https://app.contentoracleai.com/api';
         $this->base_dir = $base_dir;
         $this->client_ip = $client_ip;
+        $this->chat_timeout = $chat_timeout;
+        $this->embed_timeout = $embed_timeout;
     }
 
     //static function to get the base url
@@ -42,6 +46,17 @@ class ContentOracleApiConnection{
     public function get_prefix(){
         return $this->prefix;
     }
+
+    //getter for the chat timeout
+    public function get_chat_timeout(){
+        return $this->chat_timeout;
+    }
+
+    //getter for the embed timeout
+    public function get_embed_timeout(){
+        return $this->embed_timeout;
+    }
+    
 
     //get a chat response from content oracle api
     public function ai_chat(string $query, array $content, array $conversation){
@@ -74,7 +89,7 @@ class ContentOracleApiConnection{
                 'client_ip' => $this->client_ip
                 
             )),
-            'timeout' => 250,
+            'timeout' => $this->get_chat_timeout(),
         );
 
         
@@ -172,7 +187,7 @@ class ContentOracleApiConnection{
                 
             )),
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 250,
+            CURLOPT_TIMEOUT => $this->chat_timeout,
             CURLOPT_WRITEFUNCTION => function($ch, $data) use ($callback){
                 $callback($data);
                 return strlen($data);
@@ -212,7 +227,7 @@ class ContentOracleApiConnection{
                 'client_ip' => $this->client_ip,
                 'query' => $query,
             )),
-            'timeout' => 250,
+            'timeout' => $this->get_chat_timeout(),
         );
 
         //make the request

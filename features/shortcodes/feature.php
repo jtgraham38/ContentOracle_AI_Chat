@@ -205,4 +205,9 @@ class ContentOracleShortcodes extends PluginFeature{
         </script>
         <?php
     }
+
+    //placeholder uninstall method to identify this feature
+    public function uninstall(){
+
+    }
 }

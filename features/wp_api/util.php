@@ -118,7 +118,7 @@ trait ContentOracleBulkContentEmbeddingMixin {
                 'client_ip' => $this->get_client_ip(),
                 'content' => $content
             ]),
-            'timeout' => 7200,   //long timeout (2 hours) because of wait in coai api to avoid request limit
+            'timeout' => $this->get_embed_timeout(),
         ];
 
         //make the request

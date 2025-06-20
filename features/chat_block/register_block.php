@@ -154,4 +154,8 @@ class ContentOracleAiBlock extends PluginFeature{
         return $block_content;
     }
 
+    //placeholder uninstall method to identify this block
+    public function uninstall(){
+        
+    }
 }

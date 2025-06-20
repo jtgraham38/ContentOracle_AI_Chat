@@ -5,16 +5,14 @@ if (!defined('ABSPATH')) {
 }
 
 //import the embeedings feature object, so we can use it to enqueue posts for embedding
-require_once(plugin_dir_path(__FILE__) . '../../embeddings/feature.php');
-$embeddings_feature = new ContentOracleEmbeddings();
-$embeddings_feature->plugin = $this->plugin;
+$embeddings_feature = $this->get_feature('embeddings');
 
 //handle form submission
 $error_msg = '';
 $success_msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST'):
     //check the nonce
-    if (!wp_verify_nonce($_POST['nonce'], $this->get_prefix() . 'setup_wizard_step4')) {
+    if (!wp_verify_nonce($_POST['nonce'], $this->prefixed('setup_wizard_step4'))) {
         $error_msg = 'Security check failed. Please try again.';
     } else {
         //enqueue the desired posts
@@ -33,7 +31,7 @@ endif;
 
 <div>
     <h1>Step 4: Generate Embeddings</h1>
-    <?php if (get_option($this->get_prefix() . 'chunking_method') != 'none'): ?>
+    <?php if (get_option($this->prefixed('chunking_method')) != 'none'): ?>
         <p>
             Now, we need to generate text embeddings for all of your posts so that the AI agent can use semantic search to match user queries with the most relevant content.
         </p>
@@ -50,13 +48,13 @@ endif;
         </p>
 
         <form action="" method="POST">
-            <?php wp_nonce_field($this->get_prefix() . 'setup_wizard_step4', 'nonce'); ?>
-            <label for="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_select">Add Posts to Queue</label>
+            <?php wp_nonce_field($this->prefixed('setup_wizard_step4'), 'nonce'); ?>
+            <label for="<?php $this->pre('bulk_generate_embeddings_select') ?>">Add Posts to Queue</label>
             <div style="display: flex;" >
                 
                 <select 
                     name="bulk_generate_embeddings_option" 
-                    id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_select" 
+                    id="<?php $this->pre('bulk_generate_embeddings_select') ?>" 
                     required
                     title="Select an option to generate embeddings for many posts at once.  This will only generate embeddings for posts of the types selected in the prompt settings, and only if a chunking method is set."    
                 >

@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Check if search results page exists
-$search_page_id = get_option($this->get_prefix() . 'search_results_page_id');
+$search_page_id = get_option($this->prefixed('search_results_page_id'));
 $search_page_url = $search_page_id ? get_edit_post_link($search_page_id) : admin_url('post-new.php?post_type=page');
 
 ?>
@@ -32,7 +32,7 @@ $search_page_url = $search_page_id ? get_edit_post_link($search_page_id) : admin
             <li>Configure the block settings and styles as needed using the block settings panel.</li>
         </ol>
         <?php 
-            $search_results_page_id = get_option($this->get_prefix() . 'ai_results_page', null);
+            $search_results_page_id = get_option($this->prefixed('ai_results_page'), null);
             $search_page = $search_results_page_id ? get_post($search_results_page_id) : null;
             if ($search_page && $search_page->post_type == 'page') {
         ?>
