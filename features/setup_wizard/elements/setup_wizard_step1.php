@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 //get the base url from the api url
-$api_url = get_option($this->get_prefix() . 'api_url');
+$api_url = get_option($this->prefixed('api_url'));
 
 //get the base url from the api url
 $protocol = parse_url($api_url, PHP_URL_SCHEME);

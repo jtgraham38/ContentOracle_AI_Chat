@@ -68,9 +68,9 @@ class ContentOracleSetupWizard extends PluginFeature{
         }
 
         //check if the transient is set
-        if (get_transient($this->get_prefix() . "plugin_activated")){
+        if (get_transient($this->prefixed("plugin_activated"))){
             //delete the transient
-            delete_transient($this->get_prefix() . "plugin_activated");
+            delete_transient($this->prefixed("plugin_activated"));
 
             //redirect to the setup wizard page
             wp_redirect(admin_url('admin.php?page=contentoracle-ai-chat-setup-wizard&step=1'));
@@ -80,7 +80,7 @@ class ContentOracleSetupWizard extends PluginFeature{
 
     //create an admin notice to complete plugin setup if the wizard was not completed
     public function show_admin_notice(){
-        if (get_option($this->get_prefix() . "setup_wizard_latest_step_completed") < 5){
+        if (get_option($this->prefixed("setup_wizard_latest_step_completed")) < 5){
             echo '<div class="notice notice-warning is-dismissible"><p>You did not finish the setup process for ContentOracle AI Chat.  Finish it to ensure your ai agent works properly. <a href="' . admin_url('admin.php?page=contentoracle-ai-chat-setup-wizard') . '">Go to setup wizard</a></p></div>';
         }
     }

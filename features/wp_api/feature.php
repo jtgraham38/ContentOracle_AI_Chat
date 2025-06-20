@@ -153,7 +153,7 @@ class ContentOracleApi extends PluginFeature{
 
         //get the content to use in the response
         //switch based on the chunking method
-        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        $chunking_method = get_option($this->prefixed('chunking_method'));
         try{
             switch ($chunking_method){
                 case 'token:256':
@@ -377,7 +377,7 @@ class ContentOracleApi extends PluginFeature{
 
         //get the content to use in the response
         //switch based on the chunking method
-        $chunking_method = get_option($this->get_prefix() . 'chunking_method');
+        $chunking_method = get_option($this->prefixed('chunking_method'));
         try{
             switch ($chunking_method){
                 case 'token:256':
@@ -537,7 +537,7 @@ class ContentOracleApi extends PluginFeature{
         //get the posts based on the parameter
         $posts = [];
 
-        $post_types = get_option($this->get_prefix() . 'post_types');
+        $post_types = get_option($this->prefixed('post_types'));
         $post_types_str = "'" . implode("','", $post_types) . "'";
         switch ($for){
             case 'all':
@@ -652,7 +652,7 @@ class ContentOracleApi extends PluginFeature{
         $stems = $stemmer->stemAll($search_terms);
 
         //find all posts of the types specified by the user that are relavent to the query
-        $post_types = get_option($this->get_prefix() . 'post_types');
+        $post_types = get_option($this->prefixed('post_types'));
         if (!$post_types) $post_types = array('post', 'page');
 
         $relavent_posts = [];
@@ -875,7 +875,7 @@ class ContentOracleApi extends PluginFeature{
         )
         */
         //get post types
-        $post_types = get_option($this->get_prefix() . 'post_types');
+        $post_types = get_option($this->prefixed('post_types'));
         if (!$post_types) $post_types = array('post', 'page');
 
         //loop over each chunk
@@ -887,7 +887,7 @@ class ContentOracleApi extends PluginFeature{
             $meta = get_post_meta($chunk['id']);
 
             //get the meta keys for that post type configured by the user
-            $keys = get_option($this->get_prefix() . $chunk['type'] . '_prompt_meta_keys', []);
+            $keys = get_option($this->prefixed( $chunk['type'] . '_prompt_meta_keys' ), []);
 
             //filter out the meta that is not configured by the user
             $meta = array_filter($meta, function($key) use ($keys){

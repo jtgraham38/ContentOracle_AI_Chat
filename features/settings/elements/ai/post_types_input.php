@@ -18,15 +18,15 @@ foreach ($exclude as $ex){
 }
 
 //load the current value of the post types setting
-$post_types_setting = get_option($this->get_prefix() . 'post_types');
+$post_types_setting = get_option($this->prefixed('post_types'));
 ?>
 
 <div>
     <div>
         <div>
             <select
-                id="<?php echo esc_attr($this->get_prefix()) ?>post_types_input"
-                name="<?php echo esc_attr($this->get_prefix()) ?>post_types[]"
+                id="<?php $this->pre('post_types_input') ?>"
+                name="<?php $this->pre('post_types[]') ?>"
                 multiple
                 title="Select which post types our AI should use to generate its search response.  It will use the title, contents, links, media, and more to generate a response."
                 required

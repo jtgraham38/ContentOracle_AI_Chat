@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "585ac04ac87eb1a7c982abb2e7f1d3e0",
+    "content-hash": "1311641156ebe512cfe79640e45f4dc7",
     "packages": [
         {
             "name": "jtgraham38/jgwordpressblockstyle",
@@ -44,17 +44,17 @@
         },
         {
             "name": "jtgraham38/jgwordpresskit",
-            "version": "2.0.3",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "git@github.com:jtgraham38/JGWordPressKit.git",
-                "reference": "034168ba4399dec41764d4ccbf823243790752eb"
+                "reference": "fc3b272b91d32437dd03cb7fa0db7b5fc2d15fc2"
             },
             "dist": {
                 "type": "tar",
-                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/jgwordpresskit/jtgraham38-jgwordpresskit-034168ba4399dec41764d4ccbf823243790752eb-zip-237ac0.tar",
-                "reference": "034168ba4399dec41764d4ccbf823243790752eb",
-                "shasum": "3c8bdf6f7b9404cdda8d0f6a74c9ba8172dfc71e"
+                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/jgwordpresskit/jtgraham38-jgwordpresskit-fc3b272b91d32437dd03cb7fa0db7b5fc2d15fc2-zip-cbdb0e.tar",
+                "reference": "fc3b272b91d32437dd03cb7fa0db7b5fc2d15fc2",
+                "shasum": "b9db5c2ce263231ef88868b4317d7d42f86ce0d9"
             },
             "require": {
                 "php": ">=7.3"
@@ -75,7 +75,7 @@
                 }
             ],
             "description": "A very simple, modular framework for developing WordPress plugins.",
-            "time": "2025-06-19T20:17:26+00:00"
+            "time": "2025-06-20T13:49:36+00:00"
         },
         {
             "name": "jtgraham38/wpvectordb",

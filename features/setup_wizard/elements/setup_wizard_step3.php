@@ -63,7 +63,7 @@ $error_msg = '';
 $success_msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST'):
     //check the nonce
-    if (!wp_verify_nonce($_POST['nonce'], $this->get_prefix() . 'setup_wizard_step3')) {
+    if (!wp_verify_nonce($_POST['nonce'], $this->prefixed('setup_wizard_step3'))) {
         $error_msg = 'Security check failed. Please try again.';
     } else {
         // Validate post types
@@ -128,23 +128,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'):
 
         // If no errors, save the settings
         if (empty($error_msg)) {
-            update_option($this->get_prefix() . 'post_types', $post_types_setting);
-            update_option($this->get_prefix() . 'chunking_method', $chunking_method_setting);
-            update_option($this->get_prefix() . 'tone', $tone_setting);
-            update_option($this->get_prefix() . 'jargon', $jargon_setting);
-            update_option($this->get_prefix() . 'ai_goal_prompt', $goals_setting);
-            update_option($this->get_prefix() . 'ai_extra_info_prompt', $extra_info_setting);
+            update_option($this->prefixed('post_types'), $post_types_setting);
+            update_option($this->prefixed('chunking_method'), $chunking_method_setting);
+            update_option($this->prefixed('tone'), $tone_setting);
+            update_option($this->prefixed('jargon'), $jargon_setting);
+            update_option($this->prefixed('ai_goal_prompt'), $goals_setting);
+            update_option($this->prefixed('ai_extra_info_prompt'), $extra_info_setting);
             $success_msg = 'Prompt settings saved successfully!';
         }
     }
 endif;
 //    \\    //    GET CURRENT SETTINGS
-$post_types_setting = get_option($this->get_prefix() . 'post_types');
-$chunking_method_setting = get_option($this->get_prefix() . 'chunking_method');
-$tone_setting = get_option($this->get_prefix() . 'tone');
-$jargon_setting = get_option($this->get_prefix() . 'jargon');
-$goals_setting = get_option($this->get_prefix() . 'ai_goal_prompt');
-$extra_info_setting = get_option($this->get_prefix() . 'ai_extra_info_prompt');
+$post_types_setting = get_option($this->prefixed('post_types'));
+$chunking_method_setting = get_option($this->prefixed('chunking_method'));
+$tone_setting = get_option($this->prefixed('tone'));
+$jargon_setting = get_option($this->prefixed('jargon'));
+$goals_setting = get_option($this->prefixed('ai_goal_prompt'));
+$extra_info_setting = get_option($this->prefixed('ai_extra_info_prompt'));
 ?>
 
 <div>
@@ -211,13 +211,13 @@ $extra_info_setting = get_option($this->get_prefix() . 'ai_extra_info_prompt');
     <div class="postbox" style="padding: 0.25rem;">
         <h2>Prompt Settings</h2>
     <form action="" method="POST"  style="padding: 0.5rem;">
-        <?php wp_nonce_field($this->get_prefix() . 'setup_wizard_step3', 'nonce'); ?>
+        <?php wp_nonce_field($this->prefixed('setup_wizard_step3'), 'nonce'); ?>
         <input type="hidden" name="action" value="setup_wizard_step3">
 
-        <div>
-            <label for="<?php echo $this->get_prefix(); ?>post_types_input">Post Types</label>
+        <div style="margin-top: 1rem;">
+            <label for="<?php $this->pre('post_types_input') ?>">Post Types</label>
                         <select
-                id="<?php echo esc_attr($this->get_prefix()) ?>post_types_input"
+                id="<?php $this->pre('post_types_input') ?>"
                 name="post_types[]"
                 multiple
                 title="Select which post types our AI should use to generate its search response.  It will use the title, contents, links, media, and more to generate a response."
@@ -233,9 +233,9 @@ $extra_info_setting = get_option($this->get_prefix() . 'ai_extra_info_prompt');
         </div>
 
         <div style="margin-top: 1rem;">
-            <label for="<?php echo $this->get_prefix(); ?>chunking_method_input">Chunking Method</label>
+            <label for="<?php $this->pre('chunking_method_input') ?>">Chunking Method</label>
             <select
-                id="<?php echo esc_attr($this->get_prefix()) ?>chunking_method_input"
+                id="<?php $this->pre('chunking_method_input') ?>"
                 name="chunking_method"
                 title="Select the chunking method that should be used when generating embeddings of your post content.  This will determine how the content is broken up into smaller pieces for embedding generation.  If no chunking method is set, embeddings will not be generated, and keyword search will be used instead."
             >
@@ -244,14 +244,14 @@ $extra_info_setting = get_option($this->get_prefix() . 'ai_extra_info_prompt');
                     <option value="<?php echo esc_attr($key) ?>" <?php echo esc_attr( $chunking_method_setting == $key ? "selected" : "" ) ?>  ><?php echo esc_html($value) ?></option>
                 <?php } ?>
             </select>
-            <small style="display: block;">Note: it is heavily recommended to use select <code>Token (256 tokens/chunk)</code> as the chunking method.</small>
+            <small style="display: block; margin-top: 0.25rem;">Note: it is heavily recommended to use select <code>Token (256 tokens/chunk)</code> as the chunking method.</small>
         </div>
 
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; margin-top: 0.5rem;">
             <div>
-            <label for="<?php echo $this->get_prefix(); ?>tone_input_input">Tone</label>
+            <label for="<?php $this->pre('tone_input_input') ?>">Tone</label>
             <select
-                id="<?php echo esc_attr( $this->get_prefix() ) ?>ai_tone_input" 
+                id="<?php $this->pre('tone_input_input') ?>" 
                 name="ai_tone" 
                 title="Select the tone of the AI's responses.  Formal tones are more professional, casual tones are more friendly, and neutral tones are more... neutral."
             >
@@ -267,9 +267,9 @@ $extra_info_setting = get_option($this->get_prefix() . 'ai_extra_info_prompt');
             </div>
 
             <div>
-            <label for="<?php echo $this->get_prefix(); ?>jargon_input">Jargon</label>
+            <label for="<?php $this->pre('jargon_input') ?>">Jargon</label>
             <select
-                id="<?php echo esc_attr( $this->get_prefix() ) ?>ai_jargon_input" 
+                id="<?php $this->pre('jargon_input') ?>" 
                 name="ai_jargon" 
                 title="Select the jargon of the AI's responses.  Healthcare jargon is more medical, legal jargon is more legal, finance jargon is more financial, tech jargon is more technical, education jargon is more educational, general jargon is more general, and none is no jargon."
             >
@@ -285,12 +285,12 @@ $extra_info_setting = get_option($this->get_prefix() . 'ai_extra_info_prompt');
             </div>
         </div>
 
-        <div>
-            <label for="<?php echo $this->get_prefix(); ?>ai_goal_prompt_input">Goals</label>
+        <div style="margin-top: 1rem;">
+            <label for="<?php $this->pre('ai_goal_prompt_input') ?>">Goals</label>
             <textarea 
                 type="text" 
                 name="ai_goal_prompt" 
-                id="<?php echo esc_attr( $this->get_prefix() ) ?>ai_goal_prompt_input"
+                id="<?php $this->pre('ai_goal_prompt_input') ?>"
                 title="Enter a succinct description of what you would like the ai to try to do in its interactions with users.  Ex. 'If it makes sense in the context of the conversation, share a link to a product you were given and encourage them to add it to their cart.'"
                 maxlength="255"
                 rows="4"
@@ -300,12 +300,12 @@ $extra_info_setting = get_option($this->get_prefix() . 'ai_extra_info_prompt');
 </textarea>
         </div>
 
-        <div>
-            <label for="<?php echo $this->get_prefix(); ?>ai_extra_info_prompt_input">Extra Info</label>
+        <div style="margin-top: 1rem;">
+            <label for="<?php $this->pre('ai_extra_info_prompt_input') ?>">Extra Info</label>
             <textarea 
                 type="text" 
                 name="ai_extra_info_prompt" 
-                id="<?php echo esc_attr( $this->get_prefix() ) ?>ai_extra_info_prompt_input"
+                id="<?php $this->pre('ai_extra_info_prompt_input') ?>"
                 title="Enter any extra information about your organization that the chat assistant might need during its conversation.  Ex. 'We are a small business and can only ship to the US.'"
                 maxlength="255"
                 rows="4"

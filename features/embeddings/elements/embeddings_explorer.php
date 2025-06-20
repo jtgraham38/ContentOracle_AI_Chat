@@ -29,7 +29,7 @@ if (isset($_REQUEST['post_id'])) {
     $selected_post = get_post($post_id);
 
     //get the embeddings of the post
-    $embedding_ids = get_post_meta($post_id, $this->get_prefix() . 'embeddings', true) ?? [];
+    $embedding_ids = get_post_meta($post_id, $this->prefixed('embeddings'), true) ?? [];
     if (!is_array($embedding_ids)) {    //ensure the embeddings are an array
         $embedding_ids = [];
     }
@@ -283,7 +283,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
 <br>
 <br>
 
-<div id="<?php echo esc_attr( $this->get_prefix() ) ?>embeddings_explorer">
+<div id="<?php $this->pre('embeddings_explorer') ?>">
 
     <div>
         <h2>Embedding Queue</h2>
@@ -328,7 +328,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
     <div>
         <form 
             method="POST" 
-            id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_form"
+            id="<?php $this->pre('bulk_generate_embeddings_form') ?>"
         >
             <label for="bulk_generate_embeddings_select">Add Posts to Queue</label>
             <div style="display: flex;" >
@@ -348,20 +348,20 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
         </form>
 
         <!-- spinner, success, error -->
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_result_container" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_result_container" >
-            <span id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_spinner" 
+        <div id="<?php $this->pre('bulk_generate_embeddings_result_container') ?>" class="<?php $this->pre('generate_embeddings_result_container') ?>" >
+            <span id="<?php $this->pre('bulk_generate_embeddings_spinner') ?>" 
                 class="
-                    <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_spinner
-                    <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden
+                    <?php $this->pre('generate_embeddings_spinner') ?>
+                    <?php $this->pre('generate_embeddings_hidden') ?>
             ">
             </span>
         </div>
 
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_success_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_success_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
+        <div id="<?php $this->pre('bulk_generate_embeddings_success_msg') ?>" class="<?php $this->pre('generate_embeddings_success_msg') ?> <?php $this->pre('generate_embeddings_hidden') ?>">
             <p>Posts enqueued for embedding generation.</p>
         </div>
 
-        <div id="<?php echo esc_attr($this->get_prefix()) ?>bulk_generate_embeddings_error_msg" class="<?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_error_msg <?php echo esc_attr($this->get_prefix()) ?>generate_embeddings_hidden">
+        <div id="<?php $this->pre('bulk_generate_embeddings_error_msg') ?>" class="<?php $this->pre('generate_embeddings_error_msg') ?> <?php $this->pre('generate_embeddings_hidden') ?>">
             <p>Error enqueuing posts for embedding generation!</p>
         </div>
     </div>

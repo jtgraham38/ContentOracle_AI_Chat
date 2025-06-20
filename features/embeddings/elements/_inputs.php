@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 
     <?php
     //get the embeddings method
-    $embeddings_method = get_option($this->get_prefix() . 'chunking_method');
+    $embeddings_method = get_option($this->prefixed('chunking_method'));
     if ($embeddings_method != 'none' && $embeddings_method != '') {
         require_once plugin_dir_path(__FILE__) . 'embeddings_explorer.php';
     } else{
