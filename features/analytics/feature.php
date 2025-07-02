@@ -27,7 +27,7 @@ class ContentOracleAnalytics extends PluginFeature{
             'Analytics', // page title
             'Analytics', // menu title
             'manage_options', // capability
-            'contentoracle-analytics', // menu slug
+            'contentoracle-ai-chat-analytics', // menu slug
             array($this, 'render_page') // callback function
         );
     }

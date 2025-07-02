@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
 //get urls
 $prompt_url = admin_url('admin.php?page=contentoracle-ai-chat-prompt');
 $embeddings_url = admin_url('admin.php?page=contentoracle-ai-chat-embeddings');
-$analytics_url = '#';//admin_url('admin.php?page=contentoracle-analytics');
+$analytics_url = '#';//admin_url('admin.php?page=contentoracle-ai-chat-analytics');
 $settings_url = admin_url('admin.php?page=contentoracle-ai-chat-settings');
 $learn_more_url = "https://contentoracleai.com/contentoracle-ai-chat";
 $support_url = 'https://contentoracleai.com/contact';
