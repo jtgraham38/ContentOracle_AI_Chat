@@ -392,6 +392,18 @@ class ContentOracleSettings extends PluginFeature{
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/_inputs.php';
             } // $function
         );
+
+        //demo settings layout page
+        add_submenu_page(
+            'contentoracle-ai-chat', // $parent_slug
+            'Demo Settings Layout', // $page_title
+            'Demo Settings Layout', // $menu_title
+            'manage_options', // $capability
+            'contentoracle-ai-chat-demo-settings-layout', // $menu_slug
+            function(){
+                require_once plugin_dir_path(__FILE__) . 'elements/base_layout.php';
+            } // $function
+        );
     }
 
     //NOTE: embeddings have been registered in their own feature, "embeddings"
