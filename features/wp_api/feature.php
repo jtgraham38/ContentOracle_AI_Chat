@@ -20,6 +20,7 @@ require_once plugin_dir_path(__FILE__) . 'WPAPIErrorResponse.php';
 use jtgraham38\jgwordpresskit\PluginFeature;
 use jtgraham38\wpvectordb\VectorTable;
 use jtgraham38\wpvectordb\VectorTableQueue;
+use jtgraham38\wpvectordb\query\QueryBuilder;
 
 class ContentOracleApi extends PluginFeature{
     use ContentOracleChunkingMixin;
@@ -806,10 +807,14 @@ class ContentOracleApi extends PluginFeature{
 
         $embedding = $response['embeddings'][0]['embedding'];
 
-        
+        //TODO: looks like adding the filters via sql is working, test it and then proceed
+        //TODO: pass everything to the new objects as arrays for clarity
+
         //then, find the most similar vectors in the database table
         $vt = new VectorTable( $this->get_prefix() );
-        $ordered_vec_ids = $vt->search( $embedding, 20 );
+        $filters = new QueryBuilder();
+
+        $ordered_vec_ids = $vt->search( $embedding, 20, $filters );
         
         //then, get the posts and sections each vector corresponds to
         $vecs = $vt->ids( $ordered_vec_ids );

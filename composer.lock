@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1311641156ebe512cfe79640e45f4dc7",
+    "content-hash": "b9018ef262c98dc52c691328cc077671",
     "packages": [
         {
             "name": "jtgraham38/jgwordpressblockstyle",
@@ -79,17 +79,17 @@
         },
         {
             "name": "jtgraham38/wpvectordb",
-            "version": "0.1.3",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:jtgraham38/WPVectorDb.git",
-                "reference": "e3cc6b8a6a5913b1b57f2c9b4851d92e57fabb21"
+                "reference": "b0f1f0388199e59679f38811770e19b72b4b0bc3"
             },
             "dist": {
                 "type": "tar",
-                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/wpvectordb/jtgraham38-wpvectordb-e3cc6b8a6a5913b1b57f2c9b4851d92e57fabb21-zip-024440.tar",
-                "reference": "e3cc6b8a6a5913b1b57f2c9b4851d92e57fabb21",
-                "shasum": "bc53b21ea2f5eb5de137cd7167483325032852e4"
+                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/wpvectordb/jtgraham38-wpvectordb-b0f1f0388199e59679f38811770e19b72b4b0bc3-zip-e024c7.tar",
+                "reference": "b0f1f0388199e59679f38811770e19b72b4b0bc3",
+                "shasum": "d52481d4faa9c8134dfddcd52270bfc37d81b276"
             },
             "require": {
                 "php": ">=7.3"
@@ -110,7 +110,7 @@
                 }
             ],
             "description": "Utitlities for managing a vector database in MySQL for use within WordPress plugins.",
-            "time": "2025-06-19T20:43:09+00:00"
+            "time": "2025-07-02T20:01:57+00:00"
         },
         {
             "name": "nlp-tools/nlp-tools",
