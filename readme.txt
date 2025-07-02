@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.10.5
+Stable tag: 1.10.6
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -97,6 +97,9 @@ This plugin uses the following libraries:
 8. Customized block on the frontend.
 
 == Changelog ==
+
+= 1.10.6 =
+Behind-the-scenes improvments and bug fixes.
 
 = 1.10.5 =
 * Fix calling of large query that could cause a crash on admin area.
@@ -207,6 +210,9 @@ This plugin uses the following libraries:
 * Initial release.  
 
 == Upgrade Notice ==
+
+= 1.10.6 =
+Behind-the-scenes improvments and bug fixes.
 
 = 1.10.5 = 
 Fixed large expensive query on admin area.
