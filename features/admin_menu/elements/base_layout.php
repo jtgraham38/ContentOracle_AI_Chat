@@ -17,9 +17,14 @@ $current_page = $_GET['page'] ?? '';
 // Define available tabs
 $tabs = array(
     'contentoracle-ai-chat-prompt' => array(
-        'label' => __('General', 'contentoracle-ai-chat'),
+        'label' => __('Prompt', 'contentoracle-ai-chat'),
         'icon' => 'dashicons-format-chat',
         'url' => admin_url('admin.php?page=contentoracle-ai-chat-prompt')
+    ),
+    'contentoracle-ai-chat-filters-sorts' => array(
+        'label' => __('Filters & Sorts', 'contentoracle-ai-chat'),
+        'icon' => 'dashicons-filter',
+        'url' => admin_url('admin.php?page=contentoracle-ai-chat-filters-sorts')
     ),
     'contentoracle-ai-chat-embeddings' => array(
         'label' => __('Embeddings', 'contentoracle-ai-chat'),

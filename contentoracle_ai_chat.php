@@ -82,7 +82,10 @@ require_once plugin_dir_path(__FILE__) . 'features/setup_wizard/feature.php';
 $feature = new ContentOracleSetupWizard();
 $plugin->register_feature('setup_wizard', $feature);
 
-
+//register the filters and sorts feature
+require_once plugin_dir_path(__FILE__) . 'features/filters_sorts/feature.php';
+$feature = new ContentOracleFiltersSorts();
+$plugin->register_feature('filters_sorts', $feature);
 
 //init the plugin
 $plugin->init();
