@@ -704,6 +704,7 @@ class ContentOracleApi extends PluginFeature{
             Query by the coai_score in descending order.
     */
     function find_relevant_content_by_score( $clauses, $wp_query ){
+
          //return if not the correct query
         if ( !isset( $wp_query->query_vars['coai_search'] ) ) return $clauses;
 
@@ -742,6 +743,41 @@ class ContentOracleApi extends PluginFeature{
             $clauses['where'] .= " OR {$wpdb->posts}.post_content LIKE '%" . implode("%' OR {$wpdb->posts}.post_content LIKE '%", $search_terms) . "%'";
             $clauses['where'] .= " OR {$wpdb->posts}.post_type LIKE '%" . implode("%' OR {$wpdb->posts}.post_type LIKE '%", $search_terms) . "%'";
             $clauses['where'] .= ")";
+
+            //load the filters from the database into a query builder object
+            $query_filters = new QueryBuilder();
+            $filters_option = get_option($this->prefixed('filters'), array());
+            foreach ($filters_option as $i=>$group){
+                $query_filters->add_filter_group('coai_semsearch_filter_group_' . $i);
+                foreach ($group as $filter){
+                    //parse the compare value as the correct type
+                    $compare_value = $filter['compare_value'];
+                    switch ($filter['compare_type']){
+                        case 'number':
+                            $compare_value = floatval($compare_value);
+                            break;
+                        case 'date':
+                            $compare_value = strtotime($compare_value);
+                            break;
+                        // text is default
+                    }
+
+                    //set the compare value to the correct type
+                    $filter['compare_value'] = $compare_value;
+
+                    //add the filter to the query builder
+                    $query_filters->add_filter('coai_semsearch_filter_group_' . $i, $filter);
+                }
+            }
+
+            //apply the filters to the query if there are any
+            if ($query_filters->has_filters()) {
+                // Add LEFT JOIN with wp_postmeta table
+                $clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} pm ON ({$wpdb->posts}.ID = pm.post_id)";
+                
+                // Apply the filters to the query
+                $clauses['where'] .= ' AND (' . $query_filters->to_sql() . ')';
+            }
 
             //add an order_by clause for the coai_score
             $clauses['orderby'] = "coai_score DESC";
@@ -811,7 +847,7 @@ class ContentOracleApi extends PluginFeature{
         $query_filters = new QueryBuilder();
         $filters_option = get_option($this->prefixed('filters'), array());
         foreach ($filters_option as $i=>$group){
-            $query_filters->add_filter_group('coai_settings_filter_group_' . $i);
+            $query_filters->add_filter_group('coai_semsearch_filter_group_' . $i);
             foreach ($group as $filter){
                 //parse the compare value as the correct type
                 $compare_value = $filter['compare_value'];
@@ -829,7 +865,7 @@ class ContentOracleApi extends PluginFeature{
                 $filter['compare_value'] = $compare_value;
 
                 //add the filter to the query builder
-                $query_filters->add_filter('coai_settings_filter_group_' . $i, $filter);
+                $query_filters->add_filter('coai_semsearch_filter_group_' . $i, $filter);
             }
         }
 

@@ -43,18 +43,11 @@ $fields = array(
 );
 
 //echo the filters setting
-echo '<pre>';
-print_r($filters_setting);
-echo '</pre>';
+// echo '<pre>';
+// print_r($filters_setting);
+// echo '</pre>';
 
 ?>
-
-<ul>
-    <hr>
-    <li>Account for logic for formatting for operators like In, Not In, etc.</li>
-    <li>apply filters to the keyword search implementation too!</li>
-    <hr>
-</ul>
 
 <div id="<?php $this->pre('filters_input') ?>">
     <p class="description">
