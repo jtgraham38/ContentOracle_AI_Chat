@@ -807,14 +807,21 @@ class ContentOracleApi extends PluginFeature{
 
         $embedding = $response['embeddings'][0]['embedding'];
 
-        //TODO: looks like adding the filters via sql is working, test it and then proceed
-        //TODO: pass everything to the new objects as arrays for clarity
+        //load the filters from the database into a query builder object
+        $query_filters = new QueryBuilder();
+        $filters_option = get_option($this->prefixed('filters'), array());
+        foreach ($filters_option as $i=>$group){
+            echo $group['coai_settings_filt_group_' . $i];
+            $query_filters->add_filter_group('coai_settings_filt_group_' . $i);
+            foreach ($group as $filter){
+                $query_filters->add_filter('coai_settings_filt_group_' . $i, $filter);
+            }
+        }
 
         //then, find the most similar vectors in the database table
         $vt = new VectorTable( $this->get_prefix() );
-        $filters = new QueryBuilder();
 
-        $ordered_vec_ids = $vt->search( $embedding, 20, $filters );
+        $ordered_vec_ids = $vt->search( $embedding, 20, $query_filters );
         
         //then, get the posts and sections each vector corresponds to
         $vecs = $vt->ids( $ordered_vec_ids );
