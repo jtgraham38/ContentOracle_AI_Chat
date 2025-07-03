@@ -138,6 +138,10 @@ class ContentOracleFiltersSorts extends PluginFeature{
                         continue;
                     }
                 }
+                //if the operator is LIKE or NOT LIKE, add % to the beginning and end of the compare value
+                if ($filter_data['operator'] === 'LIKE' || $filter_data['operator'] === 'NOT LIKE') {
+                    $filter_data['compare_value'] = '%' . $filter_data['compare_value'] . '%';
+                }
                 
                 //preserve the type of the compare value
                 $compare_type = isset($filter_data['compare_type']) ? $filter_data['compare_type'] : 'text';

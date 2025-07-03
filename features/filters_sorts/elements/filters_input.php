@@ -135,7 +135,11 @@ echo '</pre>';
                                 <input type="text" name="<?php $this->pre("filters[{$group_index}][{$filter_index}][compare_value]") ?>" class="filter-value" placeholder="Value" value="<?php 
                                     $display_value = $filter['compare_value'];
                                     if (is_array($display_value)) {
-                                        $display_value = implode(', ', $display_value);
+                                        $display_value = implode(',', $display_value);
+                                    }
+                                    // Remove % wildcards for LIKE/NOT LIKE operators
+                                    if (isset($filter['operator']) && in_array($filter['operator'], ['LIKE', 'NOT LIKE'])) {
+                                        $display_value = trim($display_value, '%');
                                     }
                                     echo esc_attr($display_value); 
                                 ?>">
@@ -284,12 +288,13 @@ jQuery(document).ready(function($) {
         }
     }
 
-    // Update the handleOperatorChange function to handle array values
+    // Update the handleOperatorChange function to handle LIKE/NOT LIKE operators
     function handleOperatorChange($operatorSelect) {
         const $row = $operatorSelect.closest('.filter-row');
         const $valueInput = $row.find('.filter-value');
         const operator = $operatorSelect.val();
         const isArrayOperator = operator === 'IN' || operator === 'NOT IN';
+        const isLikeOperator = operator === 'LIKE' || operator === 'NOT LIKE';
         
         if (isArrayOperator) {
             // Update placeholder for array input
@@ -310,6 +315,19 @@ jQuery(document).ready(function($) {
                     $valueInput.attr('placeholder', 'Enter values separated by commas (e.g., value1, value2, value3)');
                     $valueInput.val(currentValue);
                 }
+            }
+        } else if (isLikeOperator) {
+            // Handle LIKE/NOT LIKE operators - remove % wildcards
+            if ($valueInput.attr('type') !== 'hidden') {
+                let currentValue = $valueInput.val();
+                
+                // Remove % from beginning and end
+                if (typeof currentValue === 'string') {
+                    currentValue = currentValue.replace(/^%+|%+$/g, '');
+                }
+                
+                $valueInput.attr('placeholder', 'Value');
+                $valueInput.val(currentValue);
             }
         } else {
             // Reset placeholder for regular input
