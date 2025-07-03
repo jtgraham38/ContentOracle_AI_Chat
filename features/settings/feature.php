@@ -159,7 +159,11 @@ class ContentOracleSettings extends PluginFeature{
             'manage_options', // $capability
             'contentoracle-ai-chat-settings', // $menu_slug
             function(){
+                ob_start();
                 require_once plugin_dir_path(__FILE__) . 'elements/plugin/_inputs.php';
+                $content = ob_get_clean();
+                
+                $this->get_feature('admin_menu')->render_tabbed_admin_page($content);
             } // $function
         );
     }
@@ -389,20 +393,12 @@ class ContentOracleSettings extends PluginFeature{
             'manage_options', // $capability
             'contentoracle-ai-chat-prompt', // $menu_slug
             function(){
+                ob_start();
                 require_once plugin_dir_path(__FILE__) . 'elements/ai/_inputs.php';
-            } // $function
-        );
-
-        //demo settings layout page
-        add_submenu_page(
-            'contentoracle-ai-chat', // $parent_slug
-            'Demo Settings Layout', // $page_title
-            'Demo Settings Layout', // $menu_title
-            'manage_options', // $capability
-            'contentoracle-ai-chat-demo-settings-layout', // $menu_slug
-            function(){
-                require_once plugin_dir_path(__FILE__) . 'elements/base_layout.php';
-            } // $function
+                $content = ob_get_clean();
+                
+                $this->get_feature('admin_menu')->render_tabbed_admin_page($content);
+            }
         );
     }
 
@@ -440,7 +436,7 @@ class ContentOracleSettings extends PluginFeature{
         if (strpos($_SERVER['REQUEST_URI'], 'contentoracle') === false){
             return;
         }
-        wp_enqueue_style('contentoracle-ai-chat-settings', plugin_dir_url(__FILE__) . 'assets/css/settings.css');
+        wp_enqueue_style('contentoracle-ai-chat-settings', plugin_dir_url(__FILE__) . 'assets/css/admin.css');
     }
 
     //register the url of coai api (so it can be changed for testing)

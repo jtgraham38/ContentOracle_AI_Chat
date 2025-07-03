@@ -37,22 +37,6 @@ $tabs = array(
         'icon' => 'dashicons-admin-settings'
     )
 );
-
-// Get saved options
-$enable_chat = get_option('contentoracle_enable_chat', 1);
-$chat_title = get_option('contentoracle_chat_title', __('AI Assistant', 'contentoracle-ai-chat'));
-$welcome_message = get_option('contentoracle_welcome_message', __('Hello! How can I help you today?', 'contentoracle-ai-chat'));
-$max_messages = get_option('contentoracle_max_messages', 50);
-$auto_scroll = get_option('contentoracle_auto_scroll', 1);
-$show_timestamp = get_option('contentoracle_show_timestamp', 1);
-$api_key = get_option('contentoracle_api_key', '');
-$model = get_option('contentoracle_model', 'gpt-3.5-turbo');
-$temperature = get_option('contentoracle_temperature', 0.7);
-$primary_color = get_option('contentoracle_primary_color', '#0073aa');
-$chat_position = get_option('contentoracle_chat_position', 'bottom-right');
-$chat_width = get_option('contentoracle_chat_width', 350);
-$debug_mode = get_option('contentoracle_debug_mode', 0);
-$log_retention = get_option('contentoracle_log_retention', 30);
 ?>
 
 <div class="wrap">
@@ -73,10 +57,8 @@ $log_retention = get_option('contentoracle_log_retention', 30);
             </a>
         <?php endforeach; ?>
     </nav>
-    
-    <!-- Page Content here -->
-    <div>
-        Tab content here
-    </div>
-    
+</div>
+
+<div>
+    <?php echo $content; //already escaped ?>
 </div>

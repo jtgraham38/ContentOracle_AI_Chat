@@ -33,7 +33,9 @@ class ContentOracleAnalytics extends PluginFeature{
     }
 
     public function render_page(){
-        echo "<h2>Analytics</h2> <strong>Coming soon...</strong>";
+        $this->get_feature('admin_menu')->render_tabbed_admin_page(
+            "<h2>Analytics</h2> <strong>Coming soon...</strong>"
+        );
     }
 
     //placeholder uninstall method to identify this feature

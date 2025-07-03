@@ -43,6 +43,22 @@ class ContentOracleMenu extends PluginFeature{
         }
     }
 
+    //prefix all content of admin menu pages with the base_layout.php file
+    public function add_base_layout(){
+        require_once plugin_dir_path(__FILE__) . 'elements/base_layout.php';
+    }
+
+    //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
+
+    //render a page with the tab bar at the top
+    //called by various other features to render all admin pages with the tab bar at the top
+    public function render_tabbed_admin_page(string $content){
+        require_once plugin_dir_path(__FILE__) . 'elements/base_layout.php';
+    }
+    /*
+    TODO: make this function work for putting the tab bar at the top of the admin pages
+    */
+
     //placeholder uninstall method to identify this feature
     public function uninstall(){
         

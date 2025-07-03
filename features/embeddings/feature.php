@@ -394,7 +394,11 @@ class ContentOracleEmbeddings extends PluginFeature{
     }
     //    \\    SETTINGS PAGE \\    //
     public function render_page(){
+        ob_start();
         require_once plugin_dir_path(__FILE__) . 'elements/_inputs.php';
+        $content = ob_get_clean();
+        
+        $this->get_feature('admin_menu')->render_tabbed_admin_page($content);
     }
     
     public function add_menu(){
