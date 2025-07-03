@@ -35,20 +35,28 @@ $operators = array(
 
 //available fields
 $fields = array(
-    //'post_type' => 'Post Type',
-    //'post_status' => 'Post Status',
-    'post_author' => 'Post Author',
-    'post_date' => 'Post Date',
-    'post_modified' => 'Post Modified Date',
-    'comment_count' => 'Comment Count',
-    'meta' => 'Custom Field (Meta)'
+    'post_author' => ['label' => 'Post Author', 'type' => 'number'],
+    'post_date' => ['label' => 'Post Date', 'type' => 'date'],
+    'post_modified' => ['label' => 'Post Modified Date', 'type' => 'date'],
+    'comment_count' => ['label' => 'Comment Count', 'type' => 'number'],
+    'meta' => ['label' => 'Custom Field (Meta)', 'type' => 'text']
 );
 
 //echo the filters setting
-// echo '<pre>';
-// print_r($filters_setting);
-// echo '</pre>';
+echo '<pre>';
+print_r($filters_setting);
+echo '</pre>';
+
 ?>
+
+<ul>
+    <hr>
+    <li>I need to account for the type of the data I am passing for the compare value, for example, for price, it is passed as a string by default, but i need it passed as a number.  or for date comparison</li>
+    <li>Account for passing in useful constants, like today's date, or the current user's ID</li>
+    <li>Account for logic for formatting for operators like In, Not In, etc.</li>
+    <li>apply filters to the keyword search implementation too!</li>
+    <hr>
+</ul>
 
 <div id="<?php $this->pre('filters_input') ?>">
     <p class="description">
@@ -63,8 +71,8 @@ $fields = array(
                     <div class="filter-row" data-filter-index="0">
                         <select name="<?php $this->pre('filters[0][0][field_name]') ?>" class="filter-field">
                             <option value="">Select Field</option>
-                            <?php foreach ($fields as $field_key => $field_label): ?>
-                                <option value="<?php echo esc_attr($field_key); ?>"><?php echo esc_html($field_label); ?></option>
+                            <?php foreach ($fields as $field_key => $field_info): ?>
+                                <option value="<?php echo esc_attr($field_key); ?>" data-type="<?php echo esc_attr($field_info['type']); ?>"><?php echo esc_html($field_info['label']); ?></option>
                             <?php endforeach; ?>
                         </select>
                         
@@ -78,6 +86,8 @@ $fields = array(
                         </select>
                         
                         <input type="text" name="<?php $this->pre('filters[0][0][compare_value]') ?>" class="filter-value" placeholder="Value">
+                        
+                        <input type="hidden" name="<?php $this->pre('filters[0][0][compare_type]') ?>" class="filter-compare-type" value="<?php echo esc_attr($fields['post_author']['type'] ?? 'text'); ?>">
                         
                         <button type="button" class="button remove-filter">Remove Filter</button>
                     </div>
@@ -99,8 +109,8 @@ $fields = array(
                             <div class="filter-row" data-filter-index="<?php echo esc_attr($filter_index); ?>">
                                 <select name="<?php $this->pre("filters[{$group_index}][{$filter_index}][field_name]") ?>" class="filter-field">
                                     <option value="">Select Field</option>
-                                    <?php foreach ($fields as $field_key => $field_label): ?>
-                                        <option value="<?php echo esc_attr($field_key); ?>" <?php selected($filter['field_name'], $field_key); ?>><?php echo esc_html($field_label); ?></option>
+                                    <?php foreach ($fields as $field_key => $field_info): ?>
+                                        <option value="<?php echo esc_attr($field_key); ?>" data-type="<?php echo esc_attr($field_info['type']); ?>" <?php selected($filter['field_name'], $field_key); ?>><?php echo esc_html($field_info['label']); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 
@@ -114,6 +124,8 @@ $fields = array(
                                 </select>
                                 
                                 <input type="text" name="<?php $this->pre("filters[{$group_index}][{$filter_index}][compare_value]") ?>" class="filter-value" placeholder="Value" value="<?php echo esc_attr($filter['compare_value']); ?>">
+                                
+                                <input type="hidden" name="<?php $this->pre("filters[{$group_index}][{$filter_index}][compare_type]") ?>" class="filter-compare-type" value="<?php echo esc_attr($fields[$filter['field_name']]['type'] ?? 'text'); ?>">
                                 
                                 <button type="button" class="button remove-filter">Remove Filter</button>
                             </div>
@@ -162,6 +174,7 @@ jQuery(document).ready(function($) {
                 const $operator = $row.find('.filter-operator');
                 const $value = $row.find('.filter-value');
                 const $metaKey = $row.find('.filter-meta-key');
+                const $compareType = $row.find('.filter-compare-type');
                 
                 const fieldVal = $field.val();
                 const operatorVal = $operator.val();
@@ -215,14 +228,23 @@ jQuery(document).ready(function($) {
     function handleFieldChange($field) {
         const $row = $field.closest('.filter-row');
         const $metaKey = $row.find('.filter-meta-key');
+        const $valueInput = $row.find('.filter-value');
+        const $compareType = $row.find('.filter-compare-type');
         const selectedField = $field.val();
-        
+        const selectedOption = $field.find('option:selected');
+        const fieldType = selectedOption.data('type') || 'text';
+
+        // Set input type
         if (selectedField === 'meta') {
             $metaKey.show();
+            $valueInput.attr('type', 'text'); // always text for meta
         } else {
             $metaKey.hide().val('');
+            $valueInput.attr('type', fieldType);
         }
-        
+
+        $compareType.val(selectedField === 'meta' ? 'text' : fieldType);
+
         validateFilters();
     }
     
@@ -275,8 +297,8 @@ jQuery(document).ready(function($) {
                     <div class="filter-row" data-filter-index="0">
                         <select name="<?php $this->pre('filters') ?>[${groupIndex}][0][field_name]" class="filter-field">
                             <option value="">Select Field</option>
-                            <?php foreach ($fields as $field_key => $field_label): ?>
-                                <option value="<?php echo esc_attr($field_key); ?>"><?php echo esc_html($field_label); ?></option>
+                            <?php foreach ($fields as $field_key => $field_info): ?>
+                                <option value="<?php echo esc_attr($field_key); ?>" data-type="<?php echo esc_attr($field_info['type']); ?>"><?php echo esc_html($field_info['label']); ?></option>
                             <?php endforeach; ?>
                         </select>
                         
@@ -290,6 +312,8 @@ jQuery(document).ready(function($) {
                         </select>
                         
                         <input type="text" name="<?php $this->pre('filters') ?>[${groupIndex}][0][compare_value]" class="filter-value" placeholder="Value">
+                        
+                        <input type="hidden" name="<?php $this->pre('filters') ?>[${groupIndex}][0][compare_type]" class="filter-compare-type" value="text">
                         
                         <button type="button" class="button remove-filter">Remove Filter</button>
                     </div>
@@ -317,8 +341,8 @@ jQuery(document).ready(function($) {
             <div class="filter-row" data-filter-index="${filterIndex}">
                 <select name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][field_name]" class="filter-field">
                     <option value="">Select Field</option>
-                    <?php foreach ($fields as $field_key => $field_label): ?>
-                        <option value="<?php echo esc_attr($field_key); ?>"><?php echo esc_html($field_label); ?></option>
+                    <?php foreach ($fields as $field_key => $field_info): ?>
+                        <option value="<?php echo esc_attr($field_key); ?>" data-type="<?php echo esc_attr($field_info['type']); ?>"><?php echo esc_html($field_info['label']); ?></option>
                     <?php endforeach; ?>
                 </select>
                 
@@ -332,6 +356,8 @@ jQuery(document).ready(function($) {
                 </select>
                 
                 <input type="text" name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][compare_value]" class="filter-value" placeholder="Value">
+                
+                <input type="hidden" name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][compare_type]" class="filter-compare-type" value="text">
                 
                 <button type="button" class="button remove-filter">Remove Filter</button>
             </div>

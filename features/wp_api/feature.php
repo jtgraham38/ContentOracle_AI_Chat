@@ -811,10 +811,25 @@ class ContentOracleApi extends PluginFeature{
         $query_filters = new QueryBuilder();
         $filters_option = get_option($this->prefixed('filters'), array());
         foreach ($filters_option as $i=>$group){
-            echo $group['coai_settings_filt_group_' . $i];
-            $query_filters->add_filter_group('coai_settings_filt_group_' . $i);
+            $query_filters->add_filter_group('coai_settings_filter_group_' . $i);
             foreach ($group as $filter){
-                $query_filters->add_filter('coai_settings_filt_group_' . $i, $filter);
+                //parse the compare value as the correct type
+                $compare_value = $filter['compare_value'];
+                switch ($filter['compare_type']){
+                    case 'number':
+                        $compare_value = floatval($compare_value);
+                        break;
+                    case 'date':
+                        $compare_value = strtotime($compare_value);
+                        break;
+                    // text is default
+                }
+
+                //set the compare value to the correct type
+                $filter['compare_value'] = $compare_value;
+
+                //add the filter to the query builder
+                $query_filters->add_filter('coai_settings_filter_group_' . $i, $filter);
             }
         }
 

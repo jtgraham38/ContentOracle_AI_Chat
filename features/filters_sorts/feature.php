@@ -130,10 +130,32 @@ class ContentOracleFiltersSorts extends PluginFeature{
                     continue;
                 }
                 
+                //preserve the type of the compare value
+                $compare_type = isset($filter_data['compare_type']) ? $filter_data['compare_type'] : 'text';
+                $compare_value = $filter_data['compare_value'];
+                switch ($compare_type) {
+                    case 'number':
+                        if (is_numeric($compare_value)) {
+                            $compare_value = 0 + $compare_value;
+                        } else {
+                            continue;
+                        }
+                        break;
+                    case 'date':
+                        try {
+                            $compare_value = strtotime($compare_value);
+                        } catch (Exception $e) {
+                            continue;
+                        }
+                        break;
+                    // text is default
+                }
+
                 $sanitized_filter = array(
                     'field_name' => sanitize_text_field($filter_data['field_name']),
                     'operator' => $filter_data['operator'],
                     'compare_value' => $filter_data['compare_value'],
+                    'compare_type' => $compare_type,
                     'is_meta_filter' => false
                 );
                 
