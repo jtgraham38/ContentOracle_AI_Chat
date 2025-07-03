@@ -403,7 +403,7 @@ class ContentOracleEmbeddings extends PluginFeature{
     
     public function add_menu(){
             add_submenu_page(
-                'contentoracle-ai-chat', // parent slug
+                'contentoracle-hidden', // Parent menu slug (this page does not appear in the sidebar menu)
                 'Embeddings', // page title
                 'Embeddings', // menu title
                 'manage_options', // capability

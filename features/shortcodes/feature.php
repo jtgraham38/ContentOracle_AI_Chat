@@ -81,7 +81,7 @@ class ContentOracleShortcodes extends PluginFeature{
     public function register_shortcodes_post_type_page(){
         // Add submenu for listing all shortcodes
         add_submenu_page(
-            'contentoracle-ai-chat', // Parent menu slug
+            'contentoracle-hidden', // Parent menu slug (this page does not appear in the sidebar menu)
             __('Shortcodes', 'contentoracle-ai-chat'),
             __('Shortcodes', 'contentoracle-ai-chat'),
             'manage_options',
