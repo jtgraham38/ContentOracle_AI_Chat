@@ -28,7 +28,11 @@ class ContentOracleMenu extends PluginFeature{
             'manage_options',   // capability
             'contentoracle-ai-chat', // menu slug
             function(){ // callback function
+                ob_start();
                 require_once plugin_dir_path(__FILE__) . 'elements/main_page.php';
+                $content = ob_get_clean();
+                
+                $this->render_tabbed_admin_page($content);
             },
             plugin_dir_url( __FILE__ ) . "/assets/images/coai_icon_light.png"    // icon
         );
