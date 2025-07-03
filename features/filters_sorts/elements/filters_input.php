@@ -43,9 +43,9 @@ $fields = array(
 );
 
 //echo the filters setting
-echo '<pre>';
-print_r($filters_setting);
-echo '</pre>';
+// echo '<pre>';
+// print_r($filters_setting);
+// echo '</pre>';
 
 ?>
 
@@ -124,6 +124,7 @@ echo '</pre>';
                                     <option value="text" <?php selected($filter['compare_type'] ?? '', 'text'); ?>>Text</option>
                                     <option value="number" <?php selected($filter['compare_type'] ?? '', 'number'); ?>>Number</option>
                                     <option value="date" <?php selected($filter['compare_type'] ?? '', 'date'); ?>>Date</option>
+                                    <option value="boolean" <?php selected($filter['compare_type'] ?? '', 'boolean'); ?>>Boolean</option>
                                 </select>
                                 
                                 <select name="<?php $this->pre("filters[{$group_index}][{$filter_index}][operator]") ?>" class="filter-operator">
@@ -234,12 +235,58 @@ jQuery(document).ready(function($) {
         return isValid;
     }
     
-    // Function to handle field selection changes
+    // Add operator filtering function after the validateFilters function
+    function updateOperatorOptions($operatorSelect, valueType) {
+        const allOperators = {
+            '=': 'Equals',
+            '!=': 'Not Equals',
+            '>': 'Greater Than',
+            '>=': 'Greater Than or Equal',
+            '<': 'Less Than',
+            '<=': 'Less Than or Equal',
+            'LIKE': 'Contains',
+            'NOT LIKE': 'Does Not Contain',
+            'IN': 'In List',
+            'NOT IN': 'Not In List'
+        };
+        
+        // Define which operators are valid for each type
+        const typeOperators = {
+            'boolean': ['=', '!='],
+            'number': ['=', '!=', '>', '>=', '<', '<='],
+            'date': ['=', '!=', '>', '>=', '<', '<='],
+            'text': ['=', '!=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN']
+        };
+        
+        // Get valid operators for the type
+        const validOperators = typeOperators[valueType] || typeOperators['text'];
+        
+        // Store current selection
+        const currentValue = $operatorSelect.val();
+        
+        // Clear and rebuild options
+        $operatorSelect.empty();
+        $operatorSelect.append('<option value="">Select Operator</option>');
+        
+        // Add only valid operators
+        validOperators.forEach(op => {
+            const option = `<option value="${op}">${allOperators[op]}</option>`;
+            $operatorSelect.append(option);
+        });
+        
+        // Restore selection if it's still valid
+        if (currentValue && validOperators.includes(currentValue)) {
+            $operatorSelect.val(currentValue);
+        }
+    }
+    
+    // Update the handleFieldChange function to call updateOperatorOptions
     function handleFieldChange($field) {
         const $row = $field.closest('.filter-row');
         const $metaKey = $row.find('.filter-meta-key');
         const $valueInput = $row.find('.filter-value');
         const $compareType = $row.find('.filter-compare-type');
+        const $operatorSelect = $row.find('.filter-operator');
         const selectedField = $field.val();
         const selectedOption = $field.find('option:selected');
         const fieldType = selectedOption.data('type') || 'text';
@@ -249,13 +296,44 @@ jQuery(document).ready(function($) {
         if (selectedField === 'meta') {
             $metaKey.show();
             $metaTypeSelect.show();
-            $valueInput.attr('type', $metaTypeSelect.val() || 'text');
-            $compareType.val($metaTypeSelect.val() || 'text');
+            const metaType = $metaTypeSelect.val() || 'text';
+            if (metaType === 'boolean') {
+                // Replace text input with checkbox and hidden input
+                if ($valueInput.attr('type') !== 'hidden') {
+                    const currentValue = $valueInput.val();
+                    const inputName = $valueInput.attr('name');
+                    $valueInput.replaceWith(`
+                        <input type="checkbox" class="filter-value-checkbox" ${currentValue === '1' ? 'checked' : ''}>
+                        <input type="hidden" name="${inputName}" class="filter-value" value="${currentValue === '1' ? '1' : '0'}">
+                    `);
+                }
+            } else {
+                // Replace checkbox with text input if it exists
+                if ($valueInput.attr('type') === 'hidden') {
+                    const currentValue = $valueInput.val();
+                    const inputName = $valueInput.attr('name');
+                    $row.find('.filter-value-checkbox').remove();
+                    $valueInput.replaceWith(`<input type="${metaType}" name="${inputName}" class="filter-value" placeholder="Value" value="${currentValue}">`);
+                } else {
+                    $valueInput.attr('type', metaType);
+                }
+            }
+            $compareType.val(metaType);
+            updateOperatorOptions($operatorSelect, metaType);
         } else {
             $metaKey.hide().val('');
             $metaTypeSelect.hide();
-            $valueInput.attr('type', fieldType);
+            // Replace checkbox with text input if it exists
+            if ($valueInput.attr('type') === 'hidden') {
+                const currentValue = $valueInput.val();
+                const inputName = $valueInput.attr('name');
+                $row.find('.filter-value-checkbox').remove();
+                $valueInput.replaceWith(`<input type="${fieldType}" name="${inputName}" class="filter-value" placeholder="Value" value="${currentValue}">`);
+            } else {
+                $valueInput.attr('type', fieldType);
+            }
             $compareType.val(fieldType);
+            updateOperatorOptions($operatorSelect, fieldType);
         }
 
         validateFilters();
@@ -320,6 +398,7 @@ jQuery(document).ready(function($) {
                             <option value="text">Text</option>
                             <option value="number">Number</option>
                             <option value="date">Date</option>
+                            <option value="boolean">Boolean</option>
                         </select>
                         
                         <select name="<?php $this->pre('filters') ?>[${groupIndex}][0][operator]" class="filter-operator">
@@ -375,6 +454,7 @@ jQuery(document).ready(function($) {
                     <option value="text">Text</option>
                     <option value="number">Number</option>
                     <option value="date">Date</option>
+                    <option value="boolean">Boolean</option>
                 </select>
                 <input type="text" name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][compare_value]" class="filter-value" placeholder="Value">
                 
@@ -436,14 +516,47 @@ jQuery(document).ready(function($) {
         }
     });
 
-    // js handler for when a meta type is selected for a filter
+    // Update the meta-type-select change handler to also update operators
     $(document).on('change', '.meta-type-select', function() {
         const $row = $(this).closest('.filter-row');
         const $valueInput = $row.find('.filter-value');
         const $compareType = $row.find('.filter-compare-type');
+        const $operatorSelect = $row.find('.filter-operator');
         const type = $(this).val();
-        $valueInput.attr('type', type);
+        
+        if (type === 'boolean') {
+            // Replace text input with checkbox and hidden input
+            if ($valueInput.attr('type') !== 'hidden') {
+                const currentValue = $valueInput.val();
+                const inputName = $valueInput.attr('name');
+                $valueInput.replaceWith(`
+                    <input type="checkbox" class="filter-value-checkbox" ${currentValue === '1' ? 'checked' : ''}>
+                    <input type="hidden" name="${inputName}" class="filter-value" value="${currentValue === '1' ? '1' : '0'}">
+                `);
+            }
+        } else {
+            // Replace checkbox with text input if it exists
+            if ($valueInput.attr('type') === 'hidden') {
+                const currentValue = $valueInput.val();
+                const inputName = $valueInput.attr('name');
+                $row.find('.filter-value-checkbox').remove();
+                $valueInput.replaceWith(`<input type="${type}" name="${inputName}" class="filter-value" placeholder="Value" value="${currentValue}">`);
+            } else {
+                $valueInput.attr('type', type);
+            }
+        }
         $compareType.val(type);
+        updateOperatorOptions($operatorSelect, type);
+        validateFilters();
+    });
+
+    // Add event listener for checkbox changes
+    $(document).on('change', '.filter-value-checkbox', function() {
+        const $row = $(this).closest('.filter-row');
+        const $hiddenInput = $row.find('.filter-value');
+        const isChecked = $(this).is(':checked');
+        $hiddenInput.val(isChecked ? '1' : '0');
+        validateFilters();
     });
 });
 </script> 
