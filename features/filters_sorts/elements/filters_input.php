@@ -77,6 +77,11 @@ echo '</pre>';
                         </select>
                         
                         <input type="text" name="<?php $this->pre('filters[0][0][meta_key]') ?>" class="filter-meta-key" placeholder="Meta Key" style="display: none;">
+                        <select class="meta-type-select" style="display: none;">
+                            <option value="text">Text</option>
+                            <option value="number">Number</option>
+                            <option value="date">Date</option>
+                        </select>
                         
                         <select name="<?php $this->pre('filters[0][0][operator]') ?>" class="filter-operator">
                             <option value="">Select Operator</option>
@@ -115,6 +120,11 @@ echo '</pre>';
                                 </select>
                                 
                                 <input type="text" name="<?php $this->pre("filters[{$group_index}][{$filter_index}][meta_key]") ?>" class="filter-meta-key" placeholder="Meta Key" value="<?php echo esc_attr(isset($filter['is_meta_filter']) && $filter['is_meta_filter'] ? $filter['field_name'] : ($filter['meta_key'] ?? '')); ?>" style="<?php echo (isset($filter['is_meta_filter']) && $filter['is_meta_filter']) ? '' : 'display: none;'; ?>">
+                                <select class="meta-type-select" style="<?php echo (isset($filter['is_meta_filter']) && $filter['is_meta_filter']) ? '' : 'display: none;'; ?>">
+                                    <option value="text" <?php selected($filter['compare_type'] ?? '', 'text'); ?>>Text</option>
+                                    <option value="number" <?php selected($filter['compare_type'] ?? '', 'number'); ?>>Number</option>
+                                    <option value="date" <?php selected($filter['compare_type'] ?? '', 'date'); ?>>Date</option>
+                                </select>
                                 
                                 <select name="<?php $this->pre("filters[{$group_index}][{$filter_index}][operator]") ?>" class="filter-operator">
                                     <option value="">Select Operator</option>
@@ -233,17 +243,20 @@ jQuery(document).ready(function($) {
         const selectedField = $field.val();
         const selectedOption = $field.find('option:selected');
         const fieldType = selectedOption.data('type') || 'text';
+        const $metaTypeSelect = $row.find('.meta-type-select');
 
         // Set input type
         if (selectedField === 'meta') {
             $metaKey.show();
-            $valueInput.attr('type', 'text'); // always text for meta
+            $metaTypeSelect.show();
+            $valueInput.attr('type', $metaTypeSelect.val() || 'text');
+            $compareType.val($metaTypeSelect.val() || 'text');
         } else {
             $metaKey.hide().val('');
+            $metaTypeSelect.hide();
             $valueInput.attr('type', fieldType);
+            $compareType.val(fieldType);
         }
-
-        $compareType.val(selectedField === 'meta' ? 'text' : fieldType);
 
         validateFilters();
     }
@@ -303,6 +316,11 @@ jQuery(document).ready(function($) {
                         </select>
                         
                         <input type="text" name="<?php $this->pre('filters') ?>[${groupIndex}][0][meta_key]" class="filter-meta-key" placeholder="Meta Key" style="display: none;">
+                        <select class="meta-type-select" style="display: none;">
+                            <option value="text">Text</option>
+                            <option value="number">Number</option>
+                            <option value="date">Date</option>
+                        </select>
                         
                         <select name="<?php $this->pre('filters') ?>[${groupIndex}][0][operator]" class="filter-operator">
                             <option value="">Select Operator</option>
@@ -347,14 +365,17 @@ jQuery(document).ready(function($) {
                 </select>
                 
                 <input type="text" name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][meta_key]" class="filter-meta-key" placeholder="Meta Key" style="display: none;">
-                
                 <select name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][operator]" class="filter-operator" data-operator="">
                     <option value="">Select Operator</option>
                     <?php foreach ($operators as $op_key => $op_label): ?>
                         <option value="<?php echo esc_attr($op_key); ?>"><?php echo esc_html($op_label); ?></option>
                     <?php endforeach; ?>
                 </select>
-                
+                <select class="meta-type-select" style="display: none;">
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="date">Date</option>
+                </select>
                 <input type="text" name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][compare_value]" class="filter-value" placeholder="Value">
                 
                 <input type="hidden" name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][compare_type]" class="filter-compare-type" value="text">
@@ -413,6 +434,16 @@ jQuery(document).ready(function($) {
             alert('Please complete all filters before saving. All fields (Field, Operator, and Value) must be filled out.');
             return false;
         }
+    });
+
+    // js handler for when a meta type is selected for a filter
+    $(document).on('change', '.meta-type-select', function() {
+        const $row = $(this).closest('.filter-row');
+        const $valueInput = $row.find('.filter-value');
+        const $compareType = $row.find('.filter-compare-type');
+        const type = $(this).val();
+        $valueInput.attr('type', type);
+        $compareType.val(type);
     });
 });
 </script> 
