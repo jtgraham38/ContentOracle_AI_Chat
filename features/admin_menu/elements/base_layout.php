@@ -11,30 +11,35 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Get current tab
-$current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'general';
+// Get current page
+$current_page = $_GET['page'] ?? '';
 
 // Define available tabs
 $tabs = array(
-    '?page=contentoracle-ai-chat-prompt' => array(
+    'contentoracle-ai-chat-prompt' => array(
         'label' => __('General', 'contentoracle-ai-chat'),
-        'icon' => 'dashicons-format-chat'
+        'icon' => 'dashicons-format-chat',
+        'url' => admin_url('admin.php?page=contentoracle-ai-chat-prompt')
     ),
-    '?page=contentoracle-ai-chat-embeddings' => array(
+    'contentoracle-ai-chat-embeddings' => array(
         'label' => __('Embeddings', 'contentoracle-ai-chat'),
-        'icon' => 'dashicons-format-status'
+        'icon' => 'dashicons-format-status',
+        'url' => admin_url('admin.php?page=contentoracle-ai-chat-embeddings')
     ),
-    '?page=contentoracle-ai-chat-analytics' => array(
+    'contentoracle-ai-chat-analytics' => array(
         'label' => __('Analytics', 'contentoracle-ai-chat'),
-        'icon' => 'dashicons-admin-tools'
+        'icon' => 'dashicons-admin-tools',
+        'url' => admin_url('admin.php?page=contentoracle-ai-chat-analytics')
     ),
-    admin_url('edit.php?post_type=coai_chat_shortcode') => array(
+    'coai_chat_shortcode' => array(
         'label' => __('Shortcodes', 'contentoracle-ai-chat'),
-        'icon' => 'dashicons-admin-appearance'
+        'icon' => 'dashicons-admin-appearance',
+        'url' => admin_url('edit.php?post_type=coai_chat_shortcode')
     ),
-    '?page=contentoracle-ai-chat-settings' => array(
+    'contentoracle-ai-chat-settings' => array(
         'label' => __('Advanced', 'contentoracle-ai-chat'),
-        'icon' => 'dashicons-admin-settings'
+        'icon' => 'dashicons-admin-settings',
+        'url' => admin_url('admin.php?page=contentoracle-ai-chat-settings')
     )
 );
 ?>
@@ -50,8 +55,18 @@ $tabs = array(
     <!-- Tab Navigation -->
     <nav class="nav-tab-wrapper wp-clearfix">
         <?php foreach ($tabs as $tab_id => $tab) : ?>
-            <a href="<?php echo esc_attr($tab_id); ?>" 
-               class="nav-tab <?php echo $current_tab === $tab_id ? 'nav-tab-active' : ''; ?>">
+            <?php 
+            // Check if this is the current tab
+            $is_current = false;
+            if ($tab_id === 'coai_chat_shortcode') {
+                // Special case for shortcodes page
+                $is_current = isset($_GET['post_type']) && $_GET['post_type'] === 'coai_chat_shortcode';
+            } else {
+                $is_current = $current_page === $tab_id;
+            }
+            ?>
+            <a href="<?php echo esc_attr($tab['url']); ?>" 
+               class="nav-tab <?php echo $is_current ? 'nav-tab-active' : ''; ?>">
                 <span class="dashicons <?php echo esc_attr($tab['icon']); ?>" style="margin-right: 5px;"></span>
                 <?php echo esc_html($tab['label']); ?>
             </a>

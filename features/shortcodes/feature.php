@@ -24,6 +24,9 @@ class ContentOracleShortcodes extends PluginFeature{
         add_action('manage_coai_chat_shortcode_posts_columns', array($this, 'add_shortcode_column'));
         add_action('manage_coai_chat_shortcode_posts_custom_column', array($this, 'display_shortcode_column'), 10, 2);
         add_action('admin_footer', array($this, 'add_copy_script'));
+        
+        // Add tab bar to shortcodes admin page
+        add_action('admin_notices', array($this, 'add_tab_bar_to_shortcodes_page'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -204,6 +207,21 @@ class ContentOracleShortcodes extends PluginFeature{
         });
         </script>
         <?php
+    }
+
+    // Add tab bar to shortcodes admin page
+    public function add_tab_bar_to_shortcodes_page() {
+        // Only add tab bar on the shortcodes list page
+        if (!isset($_GET['post_type']) || $_GET['post_type'] !== 'coai_chat_shortcode') {
+            return;
+        }
+        
+        // Get the admin menu feature to render the tab bar
+        $admin_menu_feature = $this->get_feature('admin_menu');
+        if ($admin_menu_feature) {
+            // Render empty content with tab bar (the actual content will be the WordPress post list)
+            $admin_menu_feature->render_tabbed_admin_page('');
+        }
     }
 
     //placeholder uninstall method to identify this feature
