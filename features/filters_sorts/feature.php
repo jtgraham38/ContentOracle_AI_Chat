@@ -124,10 +124,15 @@ class ContentOracleFiltersSorts extends PluginFeature{
                     !isset($filter_data['compare_value'])) {
                     continue;
                 }
+
+                //ensure the operator is in the allowed operators array
+                if (!in_array($filter_data['operator'], ['=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN'])) {
+                    continue;
+                }
                 
                 $sanitized_filter = array(
                     'field_name' => sanitize_text_field($filter_data['field_name']),
-                    'operator' => sanitize_text_field($filter_data['operator']),
+                    'operator' => $filter_data['operator'],
                     'compare_value' => $filter_data['compare_value'],
                     'is_meta_filter' => false
                 );

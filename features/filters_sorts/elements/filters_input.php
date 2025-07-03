@@ -35,8 +35,8 @@ $operators = array(
 
 //available fields
 $fields = array(
-    'post_type' => 'Post Type',
-    'post_status' => 'Post Status',
+    //'post_type' => 'Post Type',
+    //'post_status' => 'Post Status',
     'post_author' => 'Post Author',
     'post_date' => 'Post Date',
     'post_modified' => 'Post Modified Date',
@@ -165,6 +165,7 @@ jQuery(document).ready(function($) {
                 
                 const fieldVal = $field.val();
                 const operatorVal = $operator.val();
+                console.log(operatorVal, "operatorVal");
                 const valueVal = $value.val().trim();
                 const metaKeyVal = $metaKey.val().trim();
                 
@@ -323,7 +324,7 @@ jQuery(document).ready(function($) {
                 
                 <input type="text" name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][meta_key]" class="filter-meta-key" placeholder="Meta Key" style="display: none;">
                 
-                <select name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][operator]" class="filter-operator">
+                <select name="<?php $this->pre('filters') ?>[${groupIndex}][${filterIndex}][operator]" class="filter-operator" data-operator="">
                     <option value="">Select Operator</option>
                     <?php foreach ($operators as $op_key => $op_label): ?>
                         <option value="<?php echo esc_attr($op_key); ?>"><?php echo esc_html($op_label); ?></option>
