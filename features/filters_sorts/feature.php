@@ -129,6 +129,15 @@ class ContentOracleFiltersSorts extends PluginFeature{
                 if (!in_array($filter_data['operator'], ['=', '!=', '>', '>=', '<', '<=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN'])) {
                     continue;
                 }
+
+                //if the operator is IN or NOT IN, convert the compare value to an array
+                if ($filter_data['operator'] === 'IN' || $filter_data['operator'] === 'NOT IN') {
+                    try {
+                        $filter_data['compare_value'] = explode(',', $filter_data['compare_value']);
+                    } catch (Exception $e) {
+                        continue;
+                    }
+                }
                 
                 //preserve the type of the compare value
                 $compare_type = isset($filter_data['compare_type']) ? $filter_data['compare_type'] : 'text';

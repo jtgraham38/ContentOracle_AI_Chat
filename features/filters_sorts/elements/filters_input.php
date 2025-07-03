@@ -43,16 +43,14 @@ $fields = array(
 );
 
 //echo the filters setting
-// echo '<pre>';
-// print_r($filters_setting);
-// echo '</pre>';
+echo '<pre>';
+print_r($filters_setting);
+echo '</pre>';
 
 ?>
 
 <ul>
     <hr>
-    <li>I need to account for the type of the data I am passing for the compare value, for example, for price, it is passed as a string by default, but i need it passed as a number.  or for date comparison</li>
-    <li>Account for passing in useful constants, like today's date, or the current user's ID</li>
     <li>Account for logic for formatting for operators like In, Not In, etc.</li>
     <li>apply filters to the keyword search implementation too!</li>
     <hr>
@@ -134,7 +132,13 @@ $fields = array(
                                     <?php endforeach; ?>
                                 </select>
                                 
-                                <input type="text" name="<?php $this->pre("filters[{$group_index}][{$filter_index}][compare_value]") ?>" class="filter-value" placeholder="Value" value="<?php echo esc_attr($filter['compare_value']); ?>">
+                                <input type="text" name="<?php $this->pre("filters[{$group_index}][{$filter_index}][compare_value]") ?>" class="filter-value" placeholder="Value" value="<?php 
+                                    $display_value = $filter['compare_value'];
+                                    if (is_array($display_value)) {
+                                        $display_value = implode(', ', $display_value);
+                                    }
+                                    echo esc_attr($display_value); 
+                                ?>">
                                 
                                 <input type="hidden" name="<?php $this->pre("filters[{$group_index}][{$filter_index}][compare_type]") ?>" class="filter-compare-type" value="<?php echo esc_attr($fields[$filter['field_name']]['type'] ?? 'text'); ?>">
                                 
@@ -235,7 +239,7 @@ jQuery(document).ready(function($) {
         return isValid;
     }
     
-    // Add operator filtering function after the validateFilters function
+    // Update the updateOperatorOptions function to handle IN/NOT IN operators
     function updateOperatorOptions($operatorSelect, valueType) {
         const allOperators = {
             '=': 'Equals',
@@ -279,8 +283,45 @@ jQuery(document).ready(function($) {
             $operatorSelect.val(currentValue);
         }
     }
-    
-    // Update the handleFieldChange function to call updateOperatorOptions
+
+    // Update the handleOperatorChange function to handle array values
+    function handleOperatorChange($operatorSelect) {
+        const $row = $operatorSelect.closest('.filter-row');
+        const $valueInput = $row.find('.filter-value');
+        const operator = $operatorSelect.val();
+        const isArrayOperator = operator === 'IN' || operator === 'NOT IN';
+        
+        if (isArrayOperator) {
+            // Update placeholder for array input
+            if ($valueInput.attr('type') !== 'hidden') {
+                const inputName = $valueInput.attr('name');
+                let currentValue = $valueInput.val();
+                
+                // If current value is an array (from saved data), convert to comma-separated string
+                if (Array.isArray(currentValue)) {
+                    currentValue = currentValue.join(',');
+                }
+                
+                if ($valueInput.attr('type') === 'checkbox') {
+                    // Handle checkbox case
+                    $row.find('.filter-value-checkbox').remove();
+                    $valueInput.replaceWith(`<input type="text" name="${inputName}" class="filter-value" placeholder="Enter values separated by commas (e.g., value1, value2, value3)" value="${currentValue}">`);
+                } else {
+                    $valueInput.attr('placeholder', 'Enter values separated by commas (e.g., value1, value2, value3)');
+                    $valueInput.val(currentValue);
+                }
+            }
+        } else {
+            // Reset placeholder for regular input
+            if ($valueInput.attr('type') !== 'hidden') {
+                $valueInput.attr('placeholder', 'Value');
+            }
+        }
+        
+        validateFilters();
+    }
+
+    // Update the handleFieldChange function to handle array values
     function handleFieldChange($field) {
         const $row = $field.closest('.filter-row');
         const $metaKey = $row.find('.filter-meta-key');
@@ -300,7 +341,11 @@ jQuery(document).ready(function($) {
             if (metaType === 'boolean') {
                 // Replace text input with checkbox and hidden input
                 if ($valueInput.attr('type') !== 'hidden') {
-                    const currentValue = $valueInput.val();
+                    let currentValue = $valueInput.val();
+                    // Handle array values
+                    if (Array.isArray(currentValue)) {
+                        currentValue = currentValue.join(', ');
+                    }
                     const inputName = $valueInput.attr('name');
                     $valueInput.replaceWith(`
                         <input type="checkbox" class="filter-value-checkbox" ${currentValue === '1' ? 'checked' : ''}>
@@ -310,7 +355,11 @@ jQuery(document).ready(function($) {
             } else {
                 // Replace checkbox with text input if it exists
                 if ($valueInput.attr('type') === 'hidden') {
-                    const currentValue = $valueInput.val();
+                    let currentValue = $valueInput.val();
+                    // Handle array values
+                    if (Array.isArray(currentValue)) {
+                        currentValue = currentValue.join(', ');
+                    }
                     const inputName = $valueInput.attr('name');
                     $row.find('.filter-value-checkbox').remove();
                     $valueInput.replaceWith(`<input type="${metaType}" name="${inputName}" class="filter-value" placeholder="Value" value="${currentValue}">`);
@@ -325,7 +374,11 @@ jQuery(document).ready(function($) {
             $metaTypeSelect.hide();
             // Replace checkbox with text input if it exists
             if ($valueInput.attr('type') === 'hidden') {
-                const currentValue = $valueInput.val();
+                let currentValue = $valueInput.val();
+                // Handle array values
+                if (Array.isArray(currentValue)) {
+                    currentValue = currentValue.join(', ');
+                }
                 const inputName = $valueInput.attr('name');
                 $row.find('.filter-value-checkbox').remove();
                 $valueInput.replaceWith(`<input type="${fieldType}" name="${inputName}" class="filter-value" placeholder="Value" value="${currentValue}">`);
@@ -557,6 +610,11 @@ jQuery(document).ready(function($) {
         const isChecked = $(this).is(':checked');
         $hiddenInput.val(isChecked ? '1' : '0');
         validateFilters();
+    });
+
+    // Add event listener for operator changes
+    $(document).on('change', '.filter-operator', function() {
+        handleOperatorChange($(this));
     });
 });
 </script> 
