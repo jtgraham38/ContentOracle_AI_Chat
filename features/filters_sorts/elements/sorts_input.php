@@ -40,15 +40,15 @@ echo '</pre>';
     <div id="sort-list">
         <?php if (!empty($sorts_setting)): ?>
             <?php foreach ($sorts_setting as $sort_index => $sort): ?>
-                <div class="sort-box filter-group" data-sort-index="<?php echo esc_attr($sort_index); ?>">
-                    <div class="sort-row filter-row" data-sort-index="<?php echo esc_attr($sort_index); ?>">
-                        <select name="<?php $this->pre("sorts[{$sort_index}][field_name]") ?>" class="sort-field filter-field">
+                <div class="sort-box" data-sort-index="<?php echo esc_attr($sort_index); ?>">
+                    <div class="sort-row" data-sort-index="<?php echo esc_attr($sort_index); ?>">
+                        <select name="<?php $this->pre("sorts[{$sort_index}][field_name]") ?>" class="sort-field">
                             <option value="">Select Field</option>
                             <?php foreach ($fields as $field_key => $field_info): ?>
                                 <option value="<?php echo esc_attr($field_key); ?>" data-type="<?php echo esc_attr($field_info['type']); ?>" <?php selected($sort['field_name'], $field_key); ?>><?php echo esc_html($field_info['label']); ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <input type="text" name="<?php $this->pre("sorts[{$sort_index}][meta_key]") ?>" class="sort-meta-key filter-meta-key" placeholder="Meta Key" value="<?php echo esc_attr(isset($sort['is_meta_sort']) && $sort['is_meta_sort'] ? $sort['field_name'] : ($sort['meta_key'] ?? '')); ?>" style="<?php echo (isset($sort['is_meta_sort']) && $sort['is_meta_sort']) ? '' : 'display: none;'; ?>">
+                        <input type="text" name="<?php $this->pre("sorts[{$sort_index}][meta_key]") ?>" class="sort-meta-key" placeholder="Meta Key" value="<?php echo esc_attr(isset($sort['is_meta_sort']) && $sort['is_meta_sort'] ? $sort['field_name'] : ($sort['meta_key'] ?? '')); ?>" style="<?php echo (isset($sort['is_meta_sort']) && $sort['is_meta_sort']) ? '' : 'display: none;'; ?>">
                         <select name="<?php $this->pre("sorts[{$sort_index}][direction]") ?>" class="sort-direction">
                             <option value="">Select Direction</option>
                             <?php foreach ($directions as $dir_key => $dir_label): ?>
@@ -56,7 +56,7 @@ echo '</pre>';
                             <?php endforeach; ?>
                         </select>
                         <input type="hidden" name="<?php $this->pre("sorts[{$sort_index}][field_type]") ?>" class="sort-field-type" value="text">
-                        <button type="button" class="button remove-sort remove-filter">Remove Sort</button>
+                        <button type="button" class="button remove-sort">Remove Sort</button>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -73,17 +73,21 @@ echo '</pre>';
 <script>
 jQuery(document).ready(function($) {
     let sortCounter = <?php echo count($sorts_setting); ?>;
+    
     function validateSorts() {
         let isValid = true;
         let incompleteSorts = [];
+        
         $('#sort-list .sort-box').each(function(sortIndex) {
             const $row = $(this).find('.sort-row');
             const $field = $row.find('.sort-field');
             const $direction = $row.find('.sort-direction');
             const $metaKey = $row.find('.sort-meta-key');
+            
             const fieldVal = $field.val();
             const directionVal = $direction.val();
-            const metaKeyVal = $metaKey.val().trim();
+            const metaKeyVal = ($metaKey.val() || '').trim();
+            
             let isIncomplete = false;
             if (!fieldVal || !directionVal) {
                 isIncomplete = true;
@@ -91,6 +95,7 @@ jQuery(document).ready(function($) {
             if (fieldVal === 'meta' && !metaKeyVal) {
                 isIncomplete = true;
             }
+            
             if (isIncomplete) {
                 isValid = false;
                 incompleteSorts.push(`Sort ${sortIndex + 1}`);
@@ -99,6 +104,7 @@ jQuery(document).ready(function($) {
                 $row.removeClass('incomplete-sort');
             }
         });
+        
         const $saveButton = $('input[type="submit"]');
         if (!isValid) {
             $saveButton.prop('disabled', true);
@@ -113,11 +119,13 @@ jQuery(document).ready(function($) {
         }
         return isValid;
     }
-    function handleFieldChange($field) {
+    
+    function handleSortFieldChange($field) {
         const $row = $field.closest('.sort-row');
         const $metaKey = $row.find('.sort-meta-key');
         const $fieldType = $row.find('.sort-field-type');
         const selectedField = $field.val();
+        
         if (selectedField === 'meta') {
             $metaKey.show();
             $fieldType.val('text');
@@ -127,42 +135,58 @@ jQuery(document).ready(function($) {
         }
         validateSorts();
     }
+    
+    // Run validation on page load
     validateSorts();
+    
+    // Initialize existing sorts on page load
     $('.sort-field').each(function() {
         const $field = $(this);
         const $row = $field.closest('.sort-row');
         const $metaKey = $row.find('.sort-meta-key');
+        
+        // Check if this is a meta sort (has meta key value and field is not 'meta')
         if ($metaKey.val() && $field.val() !== 'meta') {
+            // This is likely a meta sort, set field to 'meta' and show meta key
             $field.val('meta');
             $metaKey.show();
         }
-        handleFieldChange($field);
+        
+        handleSortFieldChange($field);
     });
+    
+    // Handle field selection changes with proper event delegation
     $(document).on('change', '.sort-field', function(e) {
         e.stopPropagation();
-        handleFieldChange($(this));
+        handleSortFieldChange($(this));
     });
+    
+    // Run validation when any sort field changes with proper event delegation
     $(document).on('change keyup', '.sort-field, .sort-direction, .sort-meta-key', function(e) {
         e.stopPropagation();
         validateSorts();
     });
+    
+    // Ensure buttons are clickable with proper event delegation
     $(document).on('click', '.remove-sort', function(e) {
         e.stopPropagation();
         $(this).closest('.sort-box').remove();
         validateSorts();
     });
+    
+    // Add sort
     $('#add-sort').on('click', function() {
         const sortIndex = sortCounter++;
         const sortHtml = `
-            <div class="sort-box filter-group" data-sort-index="${sortIndex}">
-                <div class="sort-row filter-row" data-sort-index="${sortIndex}">
-                    <select name="<?php $this->pre('sorts') ?>[${sortIndex}][field_name]" class="sort-field filter-field">
+            <div class="sort-box" data-sort-index="${sortIndex}">
+                <div class="sort-row" data-sort-index="${sortIndex}">
+                    <select name="<?php $this->pre('sorts') ?>[${sortIndex}][field_name]" class="sort-field">
                         <option value="">Select Field</option>
                         <?php foreach ($fields as $field_key => $field_info): ?>
                             <option value="<?php echo esc_attr($field_key); ?>" data-type="<?php echo esc_attr($field_info['type']); ?>"><?php echo esc_html($field_info['label']); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <input type="text" name="<?php $this->pre('sorts') ?>[${sortIndex}][meta_key]" class="sort-meta-key filter-meta-key" placeholder="Meta Key" style="display: none;">
+                    <input type="text" name="<?php $this->pre('sorts') ?>[${sortIndex}][meta_key]" class="sort-meta-key" placeholder="Meta Key" style="display: none;">
                     <select name="<?php $this->pre('sorts') ?>[${sortIndex}][direction]" class="sort-direction">
                         <option value="">Select Direction</option>
                         <?php foreach ($directions as $dir_key => $dir_label): ?>
@@ -170,13 +194,15 @@ jQuery(document).ready(function($) {
                         <?php endforeach; ?>
                     </select>
                     <input type="hidden" name="<?php $this->pre('sorts') ?>[${sortIndex}][field_type]" class="sort-field-type" value="text">
-                    <button type="button" class="button remove-sort remove-filter">Remove Sort</button>
+                    <button type="button" class="button remove-sort">Remove Sort</button>
                 </div>
             </div>
         `;
         $('#sort-list').append(sortHtml);
         validateSorts();
     });
+    
+    // Prevent form submission if validation fails
     $('form').on('submit', function(e) {
         if (!validateSorts()) {
             e.preventDefault();

@@ -176,8 +176,8 @@ jQuery(document).ready(function($) {
         let isValid = true;
         let incompleteFilters = [];
         
-        // Check each filter group
-        $('.filter-group').each(function(groupIndex) {
+        // Check each filter group - scope to filters container
+        $('#filter-groups .filter-group').each(function(groupIndex) {
             const $group = $(this);
             const groupId = groupIndex + 1;
             
@@ -192,9 +192,8 @@ jQuery(document).ready(function($) {
                 
                 const fieldVal = $field.val();
                 const operatorVal = $operator.val();
-                console.log(operatorVal, "operatorVal");
-                const valueVal = $value.val().trim();
-                const metaKeyVal = $metaKey.val().trim();
+                const valueVal = ($value.val() || '').trim();
+                const metaKeyVal = ($metaKey.val() || '').trim();
                 
                 // Check if any field is empty
                 let isIncomplete = false;
@@ -409,7 +408,7 @@ jQuery(document).ready(function($) {
     validateFilters();
     
     // Initialize existing filters on page load
-    $('.filter-field').each(function() {
+    $('#filter-groups .filter-field').each(function() {
         const $field = $(this);
         const $row = $field.closest('.filter-row');
         const $metaKey = $row.find('.filter-meta-key');
@@ -425,19 +424,19 @@ jQuery(document).ready(function($) {
     });
     
     // Handle field selection changes with proper event delegation
-    $(document).on('change', '.filter-field', function(e) {
+    $(document).on('change', '#filter-groups .filter-field', function(e) {
         e.stopPropagation();
         handleFieldChange($(this));
     });
     
     // Run validation when any filter field changes with proper event delegation
-    $(document).on('change keyup', '.filter-field, .filter-operator, .filter-value, .filter-meta-key', function(e) {
+    $(document).on('change keyup', '#filter-groups .filter-field, #filter-groups .filter-operator, #filter-groups .filter-value, #filter-groups .filter-meta-key', function(e) {
         e.stopPropagation();
         validateFilters();
     });
     
     // Ensure buttons are clickable with proper event delegation
-    $(document).on('click', '.remove-filter, .remove-group, .add-filter', function(e) {
+    $(document).on('click', '#filter-groups .remove-filter, #filter-groups .remove-group, #filter-groups .add-filter', function(e) {
         e.stopPropagation();
     });
     
@@ -583,7 +582,7 @@ jQuery(document).ready(function($) {
     });
 
     // Update the meta-type-select change handler to also update operators
-    $(document).on('change', '.meta-type-select', function() {
+    $(document).on('change', '#filter-groups .meta-type-select', function() {
         const $row = $(this).closest('.filter-row');
         const $valueInput = $row.find('.filter-value');
         const $compareType = $row.find('.filter-compare-type');
@@ -617,7 +616,7 @@ jQuery(document).ready(function($) {
     });
 
     // Add event listener for checkbox changes
-    $(document).on('change', '.filter-value-checkbox', function() {
+    $(document).on('change', '#filter-groups .filter-value-checkbox', function() {
         const $row = $(this).closest('.filter-row');
         const $hiddenInput = $row.find('.filter-value');
         const isChecked = $(this).is(':checked');
@@ -626,7 +625,7 @@ jQuery(document).ready(function($) {
     });
 
     // Add event listener for operator changes
-    $(document).on('change', '.filter-operator', function() {
+    $(document).on('change', '#filter-groups .filter-operator', function() {
         handleOperatorChange($(this));
     });
 });

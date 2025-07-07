@@ -1,5 +1,6 @@
 /* Filters and Sorts Admin Styles */
 
+/* ===== FILTERS STYLES ===== */
 #filter-groups {
     display: flex;
     flex-direction: column;
@@ -111,7 +112,89 @@
     margin-top: 20px;
 }
 
-/* Connector Styles */
+/* ===== SORTS STYLES ===== */
+#sort-list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    gap: 16px;
+}
+
+.sort-box {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 15px;
+    position: relative;
+}
+
+.sort-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+    padding: 10px 0;
+    background: none;
+    border: none;
+    position: relative;
+    z-index: 1;
+}
+
+.sort-row select,
+.sort-row input[type="text"] {
+    min-width: 120px;
+    max-width: 200px;
+    flex: 1 1 auto;
+}
+
+.sort-row.incomplete-sort {
+    border-color: #dc3232;
+    background: #fef7f7;
+    box-shadow: 0 0 0 1px #dc3232;
+}
+
+.sort-field {
+    min-width: 150px;
+    position: relative;
+    z-index: 2;
+}
+
+.sort-direction {
+    min-width: 150px;
+    position: relative;
+    z-index: 2;
+}
+
+.sort-meta-key {
+    min-width: 150px;
+    position: relative;
+    z-index: 2;
+}
+
+.remove-sort {
+    color: #a00;
+    border-color: #a00;
+    position: relative;
+    z-index: 2;
+}
+
+.remove-sort:hover {
+    background: #a00;
+    border-color: #a00;
+    color: #fff;
+}
+
+#add-sort {
+    margin-top: 20px;
+}
+
+/* ===== SHARED CONNECTOR STYLES ===== */
 .filter-connector,
 .group-connector {
     width: 100%;
@@ -167,7 +250,7 @@
     padding: 6px 16px;
 }
 
-/* Validation Styles */
+/* ===== SHARED VALIDATION STYLES ===== */
 .validation-message {
     margin: 15px 0;
     padding: 10px 15px;
@@ -180,12 +263,13 @@
     color: #dc3232;
 }
 
-/* Disabled save button styles */
+/* ===== SHARED FORM STYLES ===== */
 input[type="submit"]:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
+/* ===== PLACEHOLDER STYLES ===== */
 .sorts-placeholder {
     background: #f9f9f9;
     padding: 15px;
@@ -199,4 +283,34 @@ input[type="submit"]:disabled {
 
 .sorts-placeholder li {
     margin-bottom: 5px;
+}
+
+/* ===== RESPONSIVE STYLES ===== */
+@media (max-width: 768px) {
+
+    .filter-row,
+    .sort-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-row select,
+    .filter-row input[type="text"],
+    .sort-row select,
+    .sort-row input[type="text"] {
+        min-width: 100%;
+        max-width: none;
+    }
+
+    .filter-field,
+    .filter-operator,
+    .sort-field,
+    .sort-direction {
+        min-width: 100%;
+    }
+
+    .filter-value,
+    .sort-meta-key {
+        min-width: 100%;
+    }
 }
