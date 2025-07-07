@@ -99,7 +99,7 @@ class ContentOracleFiltersSorts extends PluginFeature{
             array(  // args
                 'type' => 'array',
                 'default' => array(),
-                'sanitize_callback' => 'wp_parse_args'
+                'sanitize_callback' => array($this, 'sanitize_sorts')
             )
         );
     }
@@ -187,6 +187,52 @@ class ContentOracleFiltersSorts extends PluginFeature{
         }
         
         return $sanitized_filters;
+    }
+
+    public function sanitize_sorts($value) {
+        if (!is_array($value)) {
+            return array();
+        }
+
+        $sanitized_sorts = array();
+        
+        foreach ($value as $sort) {
+            if (!is_array($sort)) {
+                continue;
+            }
+
+            //ensure the proper keys are set
+            if (!isset($sort['field_name']) || !isset($sort['direction'])) {
+                continue;
+            }
+
+            //ensure the direction  is either ASC or DESC
+            if ($sort['direction'] !== 'ASC' && $sort['direction'] !== 'DESC') {
+                continue;
+            }
+
+            //if the field name is meta, ensure the meta key is set
+            if ($sort['field_name'] === 'meta' && !isset($sort['meta_key'])) {
+                continue;
+            }
+
+            //get the sort to save 
+            $sort_to_save = array(
+                'field_name' => sanitize_text_field($sort['field_name']),
+                'direction' => sanitize_text_field($sort['direction']),
+                'is_meta_sort' => $sort['field_name'] === 'meta'
+            );
+
+            // If field is 'meta', use meta_key as field_name and set is_meta_sort to true
+            if ($sort['field_name'] === 'meta' && isset($sort['meta_key']) && !empty($sort['meta_key'])) {
+                $sort_to_save['field_name'] = sanitize_text_field($sort['meta_key']);
+                $sort_to_save['is_meta_sort'] = true;
+            }
+            
+            $sanitized_sorts[] = $sort_to_save;
+        }
+        
+        return $sanitized_sorts;
     }
 
     public function register_styles(){

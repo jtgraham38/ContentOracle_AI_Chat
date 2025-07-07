@@ -51,7 +51,9 @@ $fields = array(
 
 <div id="<?php $this->pre('filters_input') ?>">
     <p class="description">
-        Configure filters to refine AI search results. Filters within each group are combined with OR, while groups are combined with AND.
+        Configure filters to refine AI search results. 
+        Filters within each group are combined with OR, while groups are combined with AND.
+        Filters are applied before semantic retrieval, meaning no post that is filtered out will be retrieved.
     </p>
     
     <div id="filter-groups">
