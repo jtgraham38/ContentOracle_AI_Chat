@@ -820,6 +820,7 @@ class ContentOracleApi extends PluginFeature{
 
     //token:256 embedding search
     function token256_content_search($message){
+
         //begin by embedding the user's message
         $api = new ContentOracleApiConnection(
             $this->get_prefix(), 
@@ -844,10 +845,15 @@ class ContentOracleApi extends PluginFeature{
         $embedding = $response['embeddings'][0]['embedding'];
 
         //load the filters from the database into a query builder object
-        $query_filters = new QueryBuilder();
+        //NOTE: the below line causes a silent error, fix it.
+
+        //I have other var dump dies further down the line in vectortable.
+        //I have made changes throughout wpvectordb that need to be committed to the main repo, copy/paste would be best.
+        $query_params = new QueryBuilder();
+
         $filters_option = get_option($this->prefixed('filters'), array());
         foreach ($filters_option as $i=>$group){
-            $query_filters->add_filter_group('coai_semsearch_filter_group_' . $i);
+            $query_params->add_filter_group('coai_semsearch_filter_group_' . $i);
             foreach ($group as $filter){
                 //parse the compare value as the correct type
                 $compare_value = $filter['compare_value'];
@@ -865,14 +871,21 @@ class ContentOracleApi extends PluginFeature{
                 $filter['compare_value'] = $compare_value;
 
                 //add the filter to the query builder
-                $query_filters->add_filter('coai_semsearch_filter_group_' . $i, $filter);
+                $query_params->add_filter('coai_semsearch_filter_group_' . $i, $filter);
             }
+        }
+        
+
+        //load the sorts from the database into a query builder object
+        $sorts_option = get_option($this->prefixed('sorts'), array());
+        foreach ($sorts_option as $i=>$sort){
+            $query_params->add_sort($sort);
         }
 
         //then, find the most similar vectors in the database table
         $vt = new VectorTable( $this->get_prefix() );
 
-        $ordered_vec_ids = $vt->search( $embedding, 20, $query_filters );
+        $ordered_vec_ids = $vt->search( $embedding, 20, $query_params );
         
         //then, get the posts and sections each vector corresponds to
         $vecs = $vt->ids( $ordered_vec_ids );
