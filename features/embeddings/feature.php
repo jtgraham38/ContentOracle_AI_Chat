@@ -230,8 +230,12 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
         
         //update flag post meta for embedding generation if the checkbox is checked
-        $queue = new VectorTableQueue($this->get_prefix());
-        $queue->add_post($post_ID);
+        try{
+            $queue = new VectorTableQueue($this->get_prefix());
+            $queue->add_post($post_ID);
+        } catch (Exception $e){
+            error_log($e->getMessage());
+        }
     }
 
     //enqueue all posts that are not already embedded

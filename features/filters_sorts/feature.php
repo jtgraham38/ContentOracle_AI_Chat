@@ -212,7 +212,7 @@ class ContentOracleFiltersSorts extends PluginFeature{
             }
 
             //if the field name is meta, ensure the meta key is set
-            if ($sort['field_name'] === 'meta' && !isset($sort['meta_key'])) {
+            if ($sort['field_name'] === 'meta' && (!isset($sort['meta_key']) || empty($sort['meta_type']))) {
                 continue;
             }
 
@@ -220,7 +220,8 @@ class ContentOracleFiltersSorts extends PluginFeature{
             $sort_to_save = array(
                 'field_name' => sanitize_text_field($sort['field_name']),
                 'direction' => sanitize_text_field($sort['direction']),
-                'is_meta_sort' => $sort['field_name'] === 'meta'
+                'is_meta_sort' => $sort['field_name'] === 'meta',
+                'meta_type' => isset($sort['meta_type']) ? sanitize_text_field($sort['meta_type']) : 'text'
             );
 
             // If field is 'meta', use meta_key as field_name and set is_meta_sort to true

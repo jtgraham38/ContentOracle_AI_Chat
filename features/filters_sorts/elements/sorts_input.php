@@ -10,12 +10,18 @@ $sorts_setting = get_option($this->prefixed('sorts'), array());
 
 //available fields for sorting
 $fields = array(
-    'coai_score' => ['label' => 'Relevance Score', 'type' => 'number'],
     'post_date' => ['label' => 'Post Date', 'type' => 'date'],
     'post_modified' => ['label' => 'Post Modified Date', 'type' => 'date'],
     'post_title' => ['label' => 'Post Title', 'type' => 'text'],
     'comment_count' => ['label' => 'Comment Count', 'type' => 'number'],
     'meta' => ['label' => 'Custom Field (Meta)', 'type' => 'text']
+);
+
+//available meta types for sorting
+$meta_types = array(
+    'text' => 'Text',
+    'number' => 'Number',
+    'date' => 'Date'
 );
 
 //available sort directions
@@ -24,9 +30,9 @@ $directions = array(
     'DESC' => 'Descending (Z-A, 9-1, Newest First)'
 );
 
-echo '<pre>';
-print_r($sorts_setting);
-echo '</pre>';
+// echo '<pre>';
+// print_r($sorts_setting);
+// echo '</pre>';
 
 ?>
 
@@ -49,6 +55,12 @@ echo '</pre>';
                             <?php endforeach; ?>
                         </select>
                         <input type="text" name="<?php $this->pre("sorts[{$sort_index}][meta_key]") ?>" class="sort-meta-key" placeholder="Meta Key" value="<?php echo esc_attr(isset($sort['is_meta_sort']) && $sort['is_meta_sort'] ? $sort['field_name'] : ($sort['meta_key'] ?? '')); ?>" style="<?php echo (isset($sort['is_meta_sort']) && $sort['is_meta_sort']) ? '' : 'display: none;'; ?>">
+                        <select name="<?php $this->pre("sorts[{$sort_index}][meta_type]") ?>" class="sort-meta-type" style="<?php echo (isset($sort['is_meta_sort']) && $sort['is_meta_sort']) ? '' : 'display: none;'; ?>">
+                            <option value="">Select Meta Type</option>
+                            <?php foreach ($meta_types as $type_key => $type_label): ?>
+                                <option value="<?php echo esc_attr($type_key); ?>" <?php selected($sort['meta_type'] ?? '', $type_key); ?>><?php echo esc_html($type_label); ?></option>
+                            <?php endforeach; ?>
+                        </select>
                         <select name="<?php $this->pre("sorts[{$sort_index}][direction]") ?>" class="sort-direction">
                             <option value="">Select Direction</option>
                             <?php foreach ($directions as $dir_key => $dir_label): ?>
@@ -83,16 +95,18 @@ jQuery(document).ready(function($) {
             const $field = $row.find('.sort-field');
             const $direction = $row.find('.sort-direction');
             const $metaKey = $row.find('.sort-meta-key');
+            const $metaType = $row.find('.sort-meta-type');
             
             const fieldVal = $field.val();
             const directionVal = $direction.val();
             const metaKeyVal = ($metaKey.val() || '').trim();
+            const metaTypeVal = $metaType.val();
             
             let isIncomplete = false;
             if (!fieldVal || !directionVal) {
                 isIncomplete = true;
             }
-            if (fieldVal === 'meta' && !metaKeyVal) {
+            if (fieldVal === 'meta' && (!metaKeyVal || !metaTypeVal)) {
                 isIncomplete = true;
             }
             
@@ -110,7 +124,7 @@ jQuery(document).ready(function($) {
             $saveButton.prop('disabled', true);
             $saveButton.attr('title', 'Please complete all sorts before saving. Incomplete sorts: ' + incompleteSorts.join(', '));
             if ($('#sort-validation-message').length === 0) {
-                $('<div id="sort-validation-message" class="validation-message notice notice-error"><p><strong>Please complete all sorts before saving.</strong> All fields must be filled out. For Custom Field sorts, Meta Key is required.</p></div>').insertBefore('#add-sort');
+                $('<div id="sort-validation-message" class="validation-message notice notice-error"><p><strong>Please complete all sorts before saving.</strong> All fields must be filled out. For Custom Field sorts, Meta Key and Meta Type are required.</p></div>').insertBefore('#add-sort');
             }
         } else {
             $saveButton.prop('disabled', false);
@@ -123,14 +137,17 @@ jQuery(document).ready(function($) {
     function handleSortFieldChange($field) {
         const $row = $field.closest('.sort-row');
         const $metaKey = $row.find('.sort-meta-key');
+        const $metaType = $row.find('.sort-meta-type');
         const $fieldType = $row.find('.sort-field-type');
         const selectedField = $field.val();
         
         if (selectedField === 'meta') {
             $metaKey.show();
+            $metaType.show();
             $fieldType.val('text');
         } else {
             $metaKey.hide().val('');
+            $metaType.hide().val('');
             $fieldType.val('text');
         }
         validateSorts();
@@ -162,7 +179,7 @@ jQuery(document).ready(function($) {
     });
     
     // Run validation when any sort field changes with proper event delegation
-    $(document).on('change keyup', '.sort-field, .sort-direction, .sort-meta-key', function(e) {
+    $(document).on('change keyup', '.sort-field, .sort-direction, .sort-meta-key, .sort-meta-type', function(e) {
         e.stopPropagation();
         validateSorts();
     });
@@ -187,6 +204,12 @@ jQuery(document).ready(function($) {
                         <?php endforeach; ?>
                     </select>
                     <input type="text" name="<?php $this->pre('sorts') ?>[${sortIndex}][meta_key]" class="sort-meta-key" placeholder="Meta Key" style="display: none;">
+                    <select name="<?php $this->pre('sorts') ?>[${sortIndex}][meta_type]" class="sort-meta-type" style="display: none;">
+                        <option value="">Select Meta Type</option>
+                        <?php foreach ($meta_types as $type_key => $type_label): ?>
+                            <option value="<?php echo esc_attr($type_key); ?>"><?php echo esc_html($type_label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                     <select name="<?php $this->pre('sorts') ?>[${sortIndex}][direction]" class="sort-direction">
                         <option value="">Select Direction</option>
                         <?php foreach ($directions as $dir_key => $dir_label): ?>

@@ -862,7 +862,7 @@ class ContentOracleApi extends PluginFeature{
                         $compare_value = floatval($compare_value);
                         break;
                     case 'date':
-                        $compare_value = strtotime($compare_value);
+                        $compare_value = new DateTime($compare_value);
                         break;
                     // text is default
                 }
@@ -874,7 +874,25 @@ class ContentOracleApi extends PluginFeature{
                 $query_params->add_filter('coai_semsearch_filter_group_' . $i, $filter);
             }
         }
-        
+
+        //add filters to the query builder for post type and status
+        //add a filter for post types and status
+        $post_types = get_option($this->prefixed('post_types'));
+        if (!$post_types) $post_types = array('post', 'page');
+
+        $query_params->add_filter_group('_semsearch_post_types');
+        $query_params->add_filter('_semsearch_post_types', [
+            'field_name' => 'post_type',
+            'operator' => 'IN',
+            'compare_value' => $post_types
+        ]);
+
+        $query_params->add_filter_group('_semsearch_post_status');
+        $query_params->add_filter('_semsearch_post_status', [
+            'field_name' => 'post_status',
+            'operator' => '=',
+            'compare_value' => 'publish'
+        ]);
 
         //load the sorts from the database into a query builder object
         $sorts_option = get_option($this->prefixed('sorts'), array());
@@ -886,18 +904,9 @@ class ContentOracleApi extends PluginFeature{
         $vt = new VectorTable( $this->get_prefix() );
 
         $ordered_vec_ids = $vt->search( $embedding, 20, $query_params );
-        
         //then, get the posts and sections each vector corresponds to
         $vecs = $vt->ids( $ordered_vec_ids );
-
-        //sort the vectors into the order returned by the search
-        $vecs = array_map(function($id) use ($vecs){
-            foreach ($vecs as $vec){
-                if ($vec->id == $id){
-                    return $vec;
-                }
-            }
-        }, $ordered_vec_ids);
+        
 
         //create an array of the content embedding data
         $content_embedding_datas = [];
