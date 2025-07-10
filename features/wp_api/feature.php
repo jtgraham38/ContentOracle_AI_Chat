@@ -668,10 +668,6 @@ class ContentOracleApi extends PluginFeature{
             'orderby' => 'relevance'
         ));
 
-        //dump the query as sql sting
-        var_dump($wp_query->request);
-        die;
-
         //NOTE: currently, the api only returns content used in the response.  I plan to change this to flag used content when I revamp the api
         //NOTE: to return an ai-generated json object.  FOr now, some content that is supplied to the ai is not returned in the response.
 
@@ -812,8 +808,8 @@ class ContentOracleApi extends PluginFeature{
                 $post_meta_selects = [];
                 foreach ($query_params->get_sorts() as $i => $sort){
                     if ($sort->is_meta_sort){
-                        $post_meta_joins[] = "LEFT JOIN $wpdb->postmeta pm$i ON $wpdb->posts.ID = pm$i.post_id AND pm$i.meta_key = '" . esc_sql($sort->field_name) . "'";
-                        $post_meta_selects[] = "MAX(pm$i.meta_value) as " . esc_sql($sort->field_name);
+                        $post_meta_joins[] = "LEFT JOIN $wpdb->postmeta " .$this->get_prefix() . "_pm$i ON $wpdb->posts.ID = " .$this->get_prefix() . "_pm$i.post_id AND " .$this->get_prefix() . "_pm$i.meta_key = '" . esc_sql($sort->field_name) . "'";
+                        $post_meta_selects[] = "MAX(" .$this->get_prefix() . "_pm$i.meta_value) as " . esc_sql($sort->field_name);
                     }
                 }
 
