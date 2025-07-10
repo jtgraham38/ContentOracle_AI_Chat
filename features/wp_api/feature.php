@@ -668,6 +668,10 @@ class ContentOracleApi extends PluginFeature{
             'orderby' => 'relevance'
         ));
 
+        //dump the query as sql sting
+        var_dump($wp_query->request);
+        die;
+
         //NOTE: currently, the api only returns content used in the response.  I plan to change this to flag used content when I revamp the api
         //NOTE: to return an ai-generated json object.  FOr now, some content that is supplied to the ai is not returned in the response.
 
@@ -744,11 +748,13 @@ class ContentOracleApi extends PluginFeature{
             $clauses['where'] .= " OR {$wpdb->posts}.post_type LIKE '%" . implode("%' OR {$wpdb->posts}.post_type LIKE '%", $search_terms) . "%'";
             $clauses['where'] .= ")";
 
-            //load the filters from the database into a query builder object
-            $query_filters = new QueryBuilder();
+            //load the filters and sorts from the database into a query builder object
+            $query_params = new QueryBuilder($wpdb->posts, $wpdb->postmeta);
             $filters_option = get_option($this->prefixed('filters'), array());
+            
             foreach ($filters_option as $i=>$group){
-                $query_filters->add_filter_group('coai_semsearch_filter_group_' . $i);
+                $query_params->add_filter_group('coai_lexsearch_filter_group_' . $i);
+
                 foreach ($group as $filter){
                     //parse the compare value as the correct type
                     $compare_value = $filter['compare_value'];
@@ -757,7 +763,7 @@ class ContentOracleApi extends PluginFeature{
                             $compare_value = floatval($compare_value);
                             break;
                         case 'date':
-                            $compare_value = strtotime($compare_value);
+                            $compare_value = new DateTime($compare_value);
                             break;
                         // text is default
                     }
@@ -766,22 +772,58 @@ class ContentOracleApi extends PluginFeature{
                     $filter['compare_value'] = $compare_value;
 
                     //add the filter to the query builder
-                    $query_filters->add_filter('coai_semsearch_filter_group_' . $i, $filter);
+                    $query_params->add_filter('coai_lexsearch_filter_group_' . $i, $filter);
                 }
             }
+            //load the sorts from the database into a query builder object
+            $sorts_option = get_option($this->prefixed('sorts'), array());
+            foreach ($sorts_option as $i=>$sort){   
+                //set meta type to "", if it is not already set
+                if (!isset($sort['meta_type'])){
+                    $sort['meta_type'] = "text";
+                }
+                $query_params->add_sort($sort);
+            }
+            
+            //add filters for post types and status
+            $post_types = get_option($this->prefixed('post_types'));
+            if (!$post_types) $post_types = array('post', 'page');
+
 
             //apply the filters to the query if there are any
-            if ($query_filters->has_filters()) {
+            if ($query_params->has_filters()) {
                 // Add LEFT JOIN with wp_postmeta table
                 $clauses['join'] .= " LEFT JOIN {$wpdb->postmeta} pm ON ({$wpdb->posts}.ID = pm.post_id)";
                 
+                
                 // Apply the filters to the query
-                $clauses['where'] .= ' AND (' . $query_filters->to_sql() . ')';
+                $clauses['where'] .= ' AND (' . $query_params->get_filters_sql() . ')';
             }
-
+            
             //add an order_by clause for the coai_score
             $clauses['orderby'] = "coai_score DESC";
-            
+
+            //add secondary orderby clauses for each sort
+            if ($query_params->has_sorts()){
+                $clauses['orderby'] .= ", " . $query_params->get_sorts_sql();
+
+                //create the post meta join statements and attribute select statements
+                $post_meta_joins = [];
+                $post_meta_selects = [];
+                foreach ($query_params->get_sorts() as $i => $sort){
+                    if ($sort->is_meta_sort){
+                        $post_meta_joins[] = "LEFT JOIN $wpdb->postmeta pm$i ON $wpdb->posts.ID = pm$i.post_id AND pm$i.meta_key = '" . esc_sql($sort->field_name) . "'";
+                        $post_meta_selects[] = "MAX(pm$i.meta_value) as " . esc_sql($sort->field_name);
+                    }
+                }
+
+                //add the post meta joins and selects to the clauses
+                $clauses['join'] .= " " . implode(" ", $post_meta_joins);
+                $clauses['fields'] .= ", " . implode(", ", $post_meta_selects);
+
+                //add group by clause to collapse duplicate posts from post meta records
+                $clauses['groupby'] = "$wpdb->posts.ID";
+            }
         }
 
         return $clauses;
