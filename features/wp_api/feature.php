@@ -922,7 +922,7 @@ class ContentOracleApi extends PluginFeature{
         }
 
         //add filters to the query builder for post type and status
-        //add a filter for post types and status
+        //add a filter for post types and status and empty content
         $post_types = get_option($this->prefixed('post_types'));
         if (!$post_types) $post_types = array('post', 'page');
 
@@ -940,6 +940,12 @@ class ContentOracleApi extends PluginFeature{
             'compare_value' => 'publish'
         ]);
 
+        $query_params->add_filter_group('_semsearch_post_content');
+        $query_params->add_filter('_semsearch_post_content', [
+            'field_name' => 'post_content',
+            'operator' => '!=',
+            'compare_value' => ''
+        ]);
         //load the sorts from the database into a query builder object
         $sorts_option = get_option($this->prefixed('sorts'), array());
         foreach ($sorts_option as $i=>$sort){
