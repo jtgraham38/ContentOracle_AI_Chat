@@ -771,6 +771,14 @@ class ContentOracleApi extends PluginFeature{
                     $query_params->add_filter('coai_lexsearch_filter_group_' . $i, $filter);
                 }
             }
+
+            //add a filter to remove posts with empty content
+            $query_params->add_filter('coai_lexsearch_filter_group_empty_content', [
+                'field_name' => 'post_content',
+                'operator' => '!=',
+                'compare_value' => ''
+            ]);
+
             //load the sorts from the database into a query builder object
             $sorts_option = get_option($this->prefixed('sorts'), array());
             foreach ($sorts_option as $i=>$sort){   
