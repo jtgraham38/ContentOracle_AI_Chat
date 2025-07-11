@@ -130,8 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'):
         if (empty($error_msg)) {
             update_option($this->prefixed('post_types'), $post_types_setting);
             update_option($this->prefixed('chunking_method'), $chunking_method_setting);
-            update_option($this->prefixed('tone'), $tone_setting);
-            update_option($this->prefixed('jargon'), $jargon_setting);
+            update_option($this->prefixed('ai_tone'), $tone_setting);
+            update_option($this->prefixed('ai_jargon'), $jargon_setting);
             update_option($this->prefixed('ai_goal_prompt'), $goals_setting);
             update_option($this->prefixed('ai_extra_info_prompt'), $extra_info_setting);
             $success_msg = 'Prompt settings saved successfully!';
@@ -141,8 +141,8 @@ endif;
 //    \\    //    GET CURRENT SETTINGS
 $post_types_setting = get_option($this->prefixed('post_types'));
 $chunking_method_setting = get_option($this->prefixed('chunking_method'));
-$tone_setting = get_option($this->prefixed('tone'));
-$jargon_setting = get_option($this->prefixed('jargon'));
+$tone_setting = get_option($this->prefixed('ai_tone'));
+$jargon_setting = get_option($this->prefixed('ai_jargon'));
 $goals_setting = get_option($this->prefixed('ai_goal_prompt'));
 $extra_info_setting = get_option($this->prefixed('ai_extra_info_prompt'));
 ?>
@@ -216,7 +216,7 @@ $extra_info_setting = get_option($this->prefixed('ai_extra_info_prompt'));
 
         <div style="margin-top: 1rem;">
             <label for="<?php $this->pre('post_types_input') ?>">Post Types</label>
-                        <select
+            <select
                 id="<?php $this->pre('post_types_input') ?>"
                 name="post_types[]"
                 multiple
@@ -238,6 +238,7 @@ $extra_info_setting = get_option($this->prefixed('ai_extra_info_prompt'));
                 id="<?php $this->pre('chunking_method_input') ?>"
                 name="chunking_method"
                 title="Select the chunking method that should be used when generating embeddings of your post content.  This will determine how the content is broken up into smaller pieces for embedding generation.  If no chunking method is set, embeddings will not be generated, and keyword search will be used instead."
+                required
             >
                 <option value="none" selected>None (Use keyword search)</option>
                 <?php foreach ($chunking_method_options as $key => $value) { ?>
@@ -254,6 +255,7 @@ $extra_info_setting = get_option($this->prefixed('ai_extra_info_prompt'));
                 id="<?php $this->pre('tone_input_input') ?>" 
                 name="ai_tone" 
                 title="Select the tone of the AI's responses.  Formal tones are more professional, casual tones are more friendly, and neutral tones are more... neutral."
+                required
             >
                 <?php foreach ($tone_options as $value=>$label): ?>
                     <option 
@@ -272,6 +274,7 @@ $extra_info_setting = get_option($this->prefixed('ai_extra_info_prompt'));
                 id="<?php $this->pre('jargon_input') ?>" 
                 name="ai_jargon" 
                 title="Select the jargon of the AI's responses.  Healthcare jargon is more medical, legal jargon is more legal, finance jargon is more financial, tech jargon is more technical, education jargon is more educational, general jargon is more general, and none is no jargon."
+                required
             >
                 <?php foreach ($jargon_options as $value=>$label): ?>
                     <option 
@@ -295,6 +298,7 @@ $extra_info_setting = get_option($this->prefixed('ai_extra_info_prompt'));
                 maxlength="255"
                 rows="4"
                 cols="50"
+                required
             >
 <?php echo esc_html( $goals_setting ) ?>
 </textarea>
@@ -310,6 +314,7 @@ $extra_info_setting = get_option($this->prefixed('ai_extra_info_prompt'));
                 maxlength="255"
                 rows="4"
                 cols="50"
+                required
             >
 <?php echo esc_html( $extra_info_setting ) ?>
 </textarea>
