@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
         name="<?php $this->pre('ai_extra_info_prompt') ?>" 
         id="<?php $this->pre('ai_extra_info_prompt_input') ?>"
         title="Enter any extra information about your organization that the chat assistant might need during its conversation.  Ex. 'We are a small business and can only ship to the US.'"
-        maxlength="255"
+        maxlength="511"
         rows="4"
         cols="50"
     >
