@@ -98,6 +98,19 @@ class ContentOracleSettings extends PluginFeature{
             )
         );
 
+        add_settings_field(
+            $this->prefixed('cleanup_db'),    // id of the field
+            'Cleanup Database on Uninstall',   // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/plugin/cleanup_db_input.php';
+            },
+            'contentoracle-ai-settings', // page (matches menu slug)
+            'coai_chat_plugin_settings',  // section
+            array(
+                'label_for' => $this->prefixed('cleanup_db_input'),
+            )
+        );
+
         // create the settings themselves
 
         register_setting(
@@ -137,6 +150,18 @@ class ContentOracleSettings extends PluginFeature{
         register_setting(
             'coai_chat_plugin_settings', // option group
             $this->prefixed('display_credit_link'),    // option name
+            array(  // args
+                'type' => 'boolean',
+                'default' => false,
+                'sanitize_callback' => function($value){
+                    return $value ? true : false;
+                }
+            )
+        );
+
+        register_setting(
+            'coai_chat_plugin_settings', // option group
+            $this->prefixed('cleanup_db'),    // option name
             array(  // args
                 'type' => 'boolean',
                 'default' => false,

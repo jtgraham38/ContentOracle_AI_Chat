@@ -72,12 +72,13 @@ class ContentOracleEmbeddings extends PluginFeature{
     //  \\  //  \\  //  \\  //  \\ MANAGE QUEUE FOR POSTS REQUIRING EMBEDDINGS  //  \\  //  \\  //  \\  // \\
     //schedule the cron job
     public function schedule_cron_jobs(){
+
         //if the chunking method is not set, do not consume the batch from the queue
         $chunking_method = get_option($this->prefixed('chunking_method'));
         if ($chunking_method == 'none' || $chunking_method == '') {
             return;
         }
-
+        
         //schedule the cron job to consume a batch of posts from the queue every 15 seconds
         if (!wp_next_scheduled($this->prefixed('embed_batch_cron_hook'))) {
             wp_schedule_event(time(), 'every_minute', $this->prefixed('embed_batch_cron_hook'));
