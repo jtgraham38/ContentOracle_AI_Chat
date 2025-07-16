@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 $prompt_url = admin_url('admin.php?page=contentoracle-ai-chat-prompt');
 $embeddings_url = admin_url('admin.php?page=contentoracle-ai-chat-embeddings');
 $analytics_url = '#';//admin_url('admin.php?page=contentoracle-ai-chat-analytics');
+$filters_url = admin_url('admin.php?page=contentoracle-ai-chat-filters-sorts');
 $settings_url = admin_url('admin.php?page=contentoracle-ai-chat-settings');
 $learn_more_url = "https://contentoracleai.com/contentoracle-ai-chat";
 $support_url = 'https://contentoracleai.com/contact';
@@ -34,10 +35,10 @@ $support_url = 'https://contentoracleai.com/contact';
         </div>
     </div>
     <div class="grid-item postbox">
-        <h2>Analytics</h2>
-        <i>Gain insights on your ai's conversations.</i>
+        <h2>Filters & Sorts</h2>
+        <i>Filter and sort the content the ai is prompted with.</i>
         <div class="button-container">
-            <a href="<?php echo esc_url($analytics_url) ?>" class="button" disabled>Go to Analytics</a>
+            <a href="<?php echo esc_url($filters_url) ?>" class="button" >Go to Filters & Sorts</a>
         </div>
     </div>
     <div class="grid-item postbox">
