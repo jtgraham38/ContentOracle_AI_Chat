@@ -149,12 +149,15 @@ class ContentOracleApi extends PluginFeature{
         //divider character, to separate the fragments of the response
         $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
 
+
+        
         // //get the query
         $message = $request->get_param('message');
 
+
         //get the content to use in the response
         //switch based on the chunking method
-        $chunking_method = get_option($this->prefixed('chunking_method'));
+        $chunking_method = get_option($this->prefixed('chunking_method'), "token:256");
         try{
             switch ($chunking_method){
                 case 'token:256':

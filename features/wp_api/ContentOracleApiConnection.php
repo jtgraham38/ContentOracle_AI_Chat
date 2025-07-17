@@ -213,6 +213,7 @@ class ContentOracleApiConnection{
 
     //get a user query embedded by content oracle api
     public function query_vector(string $query){
+        
         //build the request
         $url = $this->base_url . '/v1/ai/query_vector';
         
@@ -223,7 +224,7 @@ class ContentOracleApiConnection{
                 'Content-Type' => 'application/json'
             ),
             'body' => json_encode(array(
-                'chunking_method' => get_option($this->prefix . 'chunking_method', 'none'),
+                'chunking_method' => get_option($this->prefix . 'chunking_method', 'token:256'),
                 'client_ip' => $this->client_ip,
                 'query' => $query,
             )),
@@ -234,6 +235,7 @@ class ContentOracleApiConnection{
         $url = $this->base_url . '/v1/ai/embedquery';
         $response = wp_remote_post($url, $payload);
 
+
         //handle wordpress errors
         if (is_wp_error($response)){
             throw new ContentOracle_ResponseException(
@@ -242,15 +244,19 @@ class ContentOracleApiConnection{
             );
         }
 
+
         //handle non-2XX responses
         if (wp_remote_retrieve_response_code($response) < 200 || wp_remote_retrieve_response_code($response) >= 300) {
+            
+            $body = json_decode(wp_remote_retrieve_body($response), true);
             throw new ContentOracle_ResponseException(
-                wp_remote_retrieve_response_message($response),
+                "Query Vector Returned Non-2XX Response: " . (isset($body['message']) ? $body['message'] : wp_remote_retrieve_response_message($response)),
                 $response,
                 "coai"
             );
         }
-        
+
+
         //retrieve and format the response
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
