@@ -34,6 +34,7 @@ class ContentOracleSettings extends PluginFeature{
 
     //register plugin settings
     public function init_plugin_settings(){
+        global $wpdb;
         // create section for settings
         add_settings_section(
             'coai_chat_plugin_settings', // id
@@ -170,6 +171,22 @@ class ContentOracleSettings extends PluginFeature{
                 }
             )
         );
+
+
+        //check if each setting is in the db, if not, add it
+        $settings = array(
+            ['option_name' => $this->prefixed('api_token'), 'default' => ''],
+            ['option_name' => $this->prefixed('debug_mode'), 'default' => false],
+            ['option_name' => $this->prefixed('display_credit_link'), 'default' => true],
+            ['option_name' => $this->prefixed('cleanup_db'), 'default' => false]
+        );
+
+        foreach ($settings as $setting){
+            $exists = $wpdb->get_results("SELECT option_name FROM {$wpdb->options} WHERE option_name = '{$setting['option_name']}'")[0]->option_name;
+            if (!$exists){
+                add_option($setting['option_name'], $setting['default']);
+            }
+        }
     }
 
     //add plugin settings page
@@ -225,7 +242,7 @@ class ContentOracleSettings extends PluginFeature{
 
     //register ai settings
     public function register_ai_settings(){
-
+        global $wpdb;
 
 
         add_settings_section(
@@ -359,7 +376,7 @@ class ContentOracleSettings extends PluginFeature{
             $this->prefixed('post_types'),    // option name
             array(  // args
                 'type' => 'array',
-                'default' => array('post', 'page', 'media'),
+                'default' => array('post', 'page'),
                 'sanitize_callback' => 'wp_parse_args'
             )
         );
@@ -403,6 +420,23 @@ class ContentOracleSettings extends PluginFeature{
                 'sanitize_callback' => 'sanitize_text_field'
             )
         );
+
+        //check if each setting is in the db, if not, add it
+        $settings = array(
+            ['option_name' => $this->prefixed('post_types'), 'default' => array('post', 'page')],
+            ['option_name' => $this->prefixed('organization_name'), 'default' => get_bloginfo('name') ?? 'Organization Name'],
+            ['option_name' => $this->prefixed('ai_extra_info_prompt'), 'default' => 'Tell the site admin that they need to change this setting.'],
+            ['option_name' => $this->prefixed('ai_goal_prompt'), 'default' => 'Tell the site admin that they need to change this setting.'],
+            ['option_name' => $this->prefixed('ai_jargon'), 'default' => 'none'],
+            ['option_name' => $this->prefixed('ai_tone'), 'default' => 'formal'],
+        );
+
+        foreach ($settings as $setting){
+            $exists = $wpdb->get_results("SELECT option_name FROM {$wpdb->options} WHERE option_name = '{$setting['option_name']}'")[0]->option_name;
+            if (!$exists){
+                add_option($setting['option_name'], $setting['default']);
+            }
+        }
 
         //register setting for post meta keys
         $this->register_post_meta_keys_settings();

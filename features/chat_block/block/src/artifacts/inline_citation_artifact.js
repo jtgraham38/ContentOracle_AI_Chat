@@ -34,7 +34,7 @@ export default class InlineCitationArtifact extends COAI_Artifact {
         //check if this piece of content is in content_used
         let already_used = false;
         for (let i = 0; i < content_used.length; i++) {
-            if (content_used[i].id == this.content_id) {
+            if (content_used[i]?.id == this.content_id) {
                 already_used = true;
                 break;
             }
@@ -51,10 +51,15 @@ export default class InlineCitationArtifact extends COAI_Artifact {
         //create a span
         const span = document.createElement('span');
         span.innerHTML = this.el.innerHTML;
-        
+
+        //if their is no url for the content, then we shouldn't render any visible html
+        if (!content_supplied[this.content_id]?.url) {
+            return document.createElement('div');
+        }
+
         //create a link
         const a = document.createElement('a');
-        a.href = content_supplied[this.content_id].url || '#';
+        a.href = content_supplied[this.content_id]?.url || '#';
         a.classList.add('contentoracle-inline_citation');
         a.target = '_blank';
         a.innerHTML = lbl;

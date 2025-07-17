@@ -3464,10 +3464,15 @@ class FeaturedContentArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["de
     const cta = document.createElement('p');
     cta.innerHTML = this.el.innerHTML;
 
+    //if no link is present, then we shouldn't render any visible html
+    if (!content_supplied[this.content_id]?.url) {
+      return document.createElement('div');
+    }
+
     //create a link button
     const btn = document.createElement('a');
     const btn_text = this.el.getAttribute('button_text');
-    btn.href = content_supplied[this.content_id].url || '#';
+    btn.href = content_supplied[this.content_id]?.url || '#';
     btn.innerText = btn_text || 'Go!';
     btn.target = '_blank';
     btn.classList.add('coai_chat-featured_content_btn');
@@ -3477,10 +3482,10 @@ class FeaturedContentArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["de
 
     //create an image for the featured image
     let img;
-    if (content_supplied[this.content_id].image) {
+    if (content_supplied[this.content_id]?.image) {
       img = document.createElement('img');
-      img.src = content_supplied[this.content_id].image;
-      img.alt = content_supplied[this.content_id].title;
+      img.src = content_supplied[this.content_id]?.image || '';
+      img.alt = content_supplied[this.content_id]?.title || '';
     }
 
     //build the card
@@ -3544,7 +3549,7 @@ class InlineCitationArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["def
     //check if this piece of content is in content_used
     let already_used = false;
     for (let i = 0; i < content_used.length; i++) {
-      if (content_used[i].id == this.content_id) {
+      if (content_used[i]?.id == this.content_id) {
         already_used = true;
         break;
       }
@@ -3559,9 +3564,14 @@ class InlineCitationArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["def
     const span = document.createElement('span');
     span.innerHTML = this.el.innerHTML;
 
+    //if their is no url for the content, then we shouldn't render any visible html
+    if (!content_supplied[this.content_id]?.url) {
+      return document.createElement('div');
+    }
+
     //create a link
     const a = document.createElement('a');
-    a.href = content_supplied[this.content_id].url || '#';
+    a.href = content_supplied[this.content_id]?.url || '#';
     a.classList.add('contentoracle-inline_citation');
     a.target = '_blank';
     a.innerHTML = lbl;

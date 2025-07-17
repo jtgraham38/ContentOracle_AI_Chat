@@ -418,6 +418,8 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
 
         public function register_settings(){
+            global $wpdb;
+
             add_settings_section(
                 'coai_chat_embeddings_settings', // id
                 '', // title
@@ -476,6 +478,19 @@ class ContentOracleEmbeddings extends PluginFeature{
                     }
                 )
             );
+
+            //check if each setting is in the db, if not, add it
+            $settings = array(
+                ['option_name' => $this->prefixed('chunking_method'), 'default' => 'token:256'],
+                ['option_name' => $this->prefixed('auto_generate_embeddings'), 'default' => true],
+            );
+
+            foreach ($settings as $setting){
+                $exists = $wpdb->get_results("SELECT option_name FROM {$wpdb->options} WHERE option_name = '{$setting['option_name']}'")[0]->option_name;
+                if (!$exists){
+                    add_option($setting['option_name'], $setting['default']);
+                }
+            }
 
 
             //WE NO LONGER NEED THIS SETTING, SO UNREGISTER AND DELETE IT

@@ -28,10 +28,15 @@ export default class FeaturedContentArtifact extends COAI_Artifact {
         const cta = document.createElement('p');
         cta.innerHTML = this.el.innerHTML;
 
+        //if no link is present, then we shouldn't render any visible html
+        if (!content_supplied[this.content_id]?.url) {
+            return document.createElement('div');
+        }
+
         //create a link button
         const btn = document.createElement('a');
         const btn_text = this.el.getAttribute('button_text');
-        btn.href = content_supplied[this.content_id].url || '#';
+        btn.href = content_supplied[this.content_id]?.url || '#';
         btn.innerText = btn_text || 'Go!';
         btn.target = '_blank';
         btn.classList.add('coai_chat-featured_content_btn');
@@ -40,13 +45,13 @@ export default class FeaturedContentArtifact extends COAI_Artifact {
                 btn.classList.add(button_class);
         });
 
-        
+
         //create an image for the featured image
         let img;
-        if (content_supplied[this.content_id].image) {
+        if (content_supplied[this.content_id]?.image) {
             img = document.createElement('img');
-            img.src = content_supplied[this.content_id].image;
-            img.alt = content_supplied[this.content_id].title;
+            img.src = content_supplied[this.content_id]?.image || '';
+            img.alt = content_supplied[this.content_id]?.title || '';
         }
 
         //build the card
