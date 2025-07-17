@@ -9,6 +9,44 @@
 .contentoracle-ai_chat_root {
 	padding: 0.25rem;
 
+	.contentoracle-ai_chat_header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 0.5rem;
+
+		h3 {
+			margin: 0;
+			flex-grow: 1;
+		}
+
+		.contentoracle-ai_chat_reset_button {
+			background: none;
+			border: none;
+			cursor: pointer;
+			padding: 4px;
+			margin-left: 8px;
+			opacity: 0.7;
+			transition: opacity 0.2s, transform 0.2s;
+			border-radius: 4px;
+			color: inherit;
+
+			&:hover {
+				opacity: 1;
+				transform: scale(1.1);
+			}
+
+			&:active {
+				transform: scale(0.95);
+			}
+
+			svg {
+				width: 16px;
+				height: 16px;
+			}
+		}
+	}
+
 	.contentoracle-ai_chat_conversation {
 		height: 10rem;
 		overflow-y: auto;

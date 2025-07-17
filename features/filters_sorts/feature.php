@@ -151,14 +151,14 @@ class ContentOracleFiltersSorts extends PluginFeature{
                         if (is_numeric($compare_value)) {
                             $compare_value = 0 + $compare_value;
                         } else {
-                            continue;
+                            continue 2;
                         }
                         break;
                     case 'date':
                         try {
                             $compare_value = strtotime($compare_value);
                         } catch (Exception $e) {
-                            continue;
+                            continue 2;
                         }
                         break;
                     // text is default

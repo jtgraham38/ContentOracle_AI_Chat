@@ -7859,6 +7859,9 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     } else {
       await this.send(this.userMsg, event);
     }
+
+    //set the content of the input field to be empty
+    this.$refs.chatInput.value = "";
   },
   //sends a message to the server and gets an ai response back
   async send(msg) {
@@ -8163,6 +8166,24 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       this.sendStreamed(msg, {});
     } else {
       this.send(msg, {});
+    }
+  },
+  //reset the chat state to defaults
+  resetChat() {
+    //reset all state variables to their defaults
+    this.userMsg = "";
+    this.conversation = [];
+    this.loading = false;
+    this.error = "";
+
+    //clear the input field
+    if (this.$refs.chatInput) {
+      this.$refs.chatInput.value = "";
+    }
+
+    //focus back on the input field
+    if (this.$refs.chatInput) {
+      this.$refs.chatInput.focus();
     }
   }
 }));
