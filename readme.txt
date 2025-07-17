@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.11.0
+Stable tag: 1.11.1
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -149,10 +149,14 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.11.1 =
+* Streaming bug fixes for robustness.
+
 = 1.11.0 =
 * Added the ability to filter and sort the content the agent is prompted with, to better tailor the responses it can give.
 * Intuitively rebuilt plugin settings layout.
 * Added an option to remove all plugin data from db on plugin deletion.
+* New chat reset button on chat block to prevent need for full page reload.
 * Increased character limits in the ai goal and ai extra info prompt inputs.
 * Fixed bugs.
 
@@ -268,6 +272,9 @@ Behind-the-scenes improvements and bug fixes.
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.11.1 =
+Bug fix for streaming robustness.
 
 = 1.11.0 =
 Upgrade now for advanced content filtering and sorting capabilities, improved settings layout, and data cleanup options.
