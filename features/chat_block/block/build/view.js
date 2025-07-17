@@ -8014,60 +8014,64 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
         //parse the response
         let parsed;
+        let json_valid = true;
         try {
           parsed = JSON.parse(response);
         } catch (e) {
           //don't use handleErrorResponse, because this is not the result of a response
           console.error(e);
-          return;
+          //exit this call of the map callback
+          json_valid = false;
         }
 
         //handle the response
-        if (parsed?.error) {
-          this.handleErrorResponse(parsed);
-        }
-        //check if this is the action response
-        else if (parsed?.action) {
-          //handle the action
-          if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
-            this.conversation[this.conversation.length - 1].action = parsed.action;
+        if (json_valid) {
+          if (parsed?.error) {
+            this.handleErrorResponse(parsed);
           }
-        }
-        //else if it is the context supplied response
-        else if (parsed?.content_supplied) {
-          //set the context supplied on the ai's message
-          if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
-            this.conversation[this.conversation.length - 1].content_supplied = parsed.content_supplied;
-          }
-        }
-        //else if it is the engineered input response
-        else if (parsed?.engineered_prompt) {
-          //set the engineered input on the ai's message
-          if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
-            this.conversation[this.conversation.length - 1].engineered_prompt = parsed.engineered_prompt;
-          }
-        }
-        //otherwise, extract the generated message fragment
-        else {
-          //ensure the last message is not finished yet and it is an assistant message
-          if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
-            //append the fragment to the last message
-            if (parsed?.generated?.message.length > 0) {
-              raw_response += parsed?.generated?.message;
+          //check if this is the action response
+          else if (parsed?.action) {
+            //handle the action
+            if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+              this.conversation[this.conversation.length - 1].action = parsed.action;
             }
           }
+          //else if it is the context supplied response
+          else if (parsed?.content_supplied) {
+            //set the context supplied on the ai's message
+            if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+              this.conversation[this.conversation.length - 1].content_supplied = parsed.content_supplied;
+            }
+          }
+          //else if it is the engineered input response
+          else if (parsed?.engineered_prompt) {
+            //set the engineered input on the ai's message
+            if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+              this.conversation[this.conversation.length - 1].engineered_prompt = parsed.engineered_prompt;
+            }
+          }
+          //otherwise, extract the generated message fragment
+          else {
+            //ensure the last message is not finished yet and it is an assistant message
+            if (!this.conversation?.action && this.conversation[this.conversation.length - 1].role == 'assistant') {
+              //append the fragment to the last message
+              if (parsed?.generated?.message.length > 0) {
+                raw_response += parsed?.generated?.message;
+              }
+            }
 
-          //add the raw (unparsed) response to the last message
-          this.conversation[this.conversation.length - 1].raw_content = raw_response;
+            //add the raw (unparsed) response to the last message
+            this.conversation[this.conversation.length - 1].raw_content = raw_response;
 
-          //parse the coai artifacts (updates the raw content with the parsed artifacts)
-          const artifacts_parsed_content = this.renderArtifacts(this.conversation[this.conversation.length - 1]);
+            //parse the coai artifacts (updates the raw content with the parsed artifacts)
+            const artifacts_parsed_content = this.renderArtifacts(this.conversation[this.conversation.length - 1]);
 
-          //render and sanitize the markdown in the chat's raw content
-          const md_rendered_content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(artifacts_parsed_content));
+            //render and sanitize the markdown in the chat's raw content
+            const md_rendered_content = dompurify__WEBPACK_IMPORTED_MODULE_2___default().sanitize(marked__WEBPACK_IMPORTED_MODULE_1__.marked.parse(artifacts_parsed_content));
 
-          //now, after all parses and transformations, set the chat content to the rendered chat
-          this.conversation[this.conversation.length - 1].content = md_rendered_content;
+            //now, after all parses and transformations, set the chat content to the rendered chat
+            this.conversation[this.conversation.length - 1].content = md_rendered_content;
+          }
         }
       });
     }.bind(this); //IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
