@@ -298,10 +298,30 @@ class ContentOracleApi extends PluginFeature{
                     //    \\    //    \\  make updates to the parsed data below  //    \\    //    \\
                     //handle an action fragment
                     if ( isset($parsed['action']) && isset($parsed['action']['content_id']) && get_post($parsed['action']['content_id']) ){
-                        $parsed['action']['content_type'] = get_post_type($parsed['action']['content_id']);
-                        $parsed['action']['content_url'] = get_post_permalink($parsed['action']['content_id']);
-                        $parsed['action']['content_excerpt'] = get_the_excerpt($parsed['action']['content_id']);
-                        $parsed['action']['content_featured_image'] = get_the_post_thumbnail_url($parsed['action']['content_id']);
+
+                        //add special handling for woocommerce posts for reliability
+                        if (get_post_type($parsed['action']['content_id']) == 'product'){
+                            //use woocommerce-specific functions to get the data
+                            try{
+                                $product = wc_get_product($parsed['action']['content_id']);
+                                $parsed['action']['content_type'] = 'product';
+                                $parsed['action']['content_url'] = $product->get_permalink();
+                                $parsed['action']['content_excerpt'] = $product->get_short_description();
+                                $parsed['action']['content_featured_image'] = $product->get_image();
+                            }
+                            catch (Exception $e){
+                                //if there is an error, use the default behavior
+                                $parsed['action']['content_type'] = get_post_type($parsed['action']['content_id']);
+                            $parsed['action']['content_url'] = get_post_permalink($parsed['action']['content_id']);
+                            $parsed['action']['content_excerpt'] = get_the_excerpt($parsed['action']['content_id']);
+                            $parsed['action']['content_featured_image'] = get_the_post_thumbnail_url($parsed['action']['content_id']);
+                            }
+                        } else {
+                            $parsed['action']['content_type'] = get_post_type($parsed['action']['content_id']);
+                            $parsed['action']['content_url'] = get_post_permalink($parsed['action']['content_id']);
+                            $parsed['action']['content_excerpt'] = get_the_excerpt($parsed['action']['content_id']);
+                            $parsed['action']['content_featured_image'] = get_the_post_thumbnail_url($parsed['action']['content_id']);
+                        }
                     }
                     //handle an engineered_prompt fragment
                     else if ( isset($parsed['engineered_prompt']) ){
