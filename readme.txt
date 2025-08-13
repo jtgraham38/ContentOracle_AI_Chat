@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.11.1
+Stable tag: 1.11.2
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -149,6 +149,9 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.11.2 =
+* Added dedicated support for retrieving WooCommerce products when receiving responses, fixing issues that arose from discrepancies between the WordPress loop functions, and the WooCommerce ones.
+
 = 1.11.1 =
 * Streaming bug fixes for robustness.
 
@@ -272,6 +275,9 @@ Behind-the-scenes improvements and bug fixes.
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.11.2 =
+Add dedicated handling for WooCommerce products for better performance in ecommerce stores.
 
 = 1.11.1 =
 Bug fix for streaming robustness.
