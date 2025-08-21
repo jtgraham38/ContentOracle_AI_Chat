@@ -34,7 +34,7 @@ $tabs = array(
     'contentoracle-ai-chat-analytics' => array(
         'label' => __('Analytics', 'contentoracle-ai-chat'),
         'icon' => 'dashicons-admin-tools',
-        'url' => admin_url('admin.php?page=contentoracle-ai-chat-analytics')
+        'url' => admin_url('edit.php?post_type=' . $this->prefixed('chatlog'))
     ),
     'coai_chat_shortcode' => array(
         'label' => __('Shortcodes', 'contentoracle-ai-chat'),
@@ -66,6 +66,9 @@ $tabs = array(
             if ($tab_id === 'coai_chat_shortcode') {
                 // Special case for shortcodes page
                 $is_current = isset($_GET['post_type']) && $_GET['post_type'] === 'coai_chat_shortcode';
+            } elseif ($tab_id === 'contentoracle-ai-chat-analytics') {
+                // Special case for chat logs page
+                $is_current = isset($_GET['post_type']) && $_GET['post_type'] === 'coai_chat_chatlog';
             } else {
                 $is_current = $current_page === $tab_id;
             }
