@@ -22,6 +22,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	scrollBlockIntoView: false,
 	featured_content_border_classes: "",
 	featured_content_button_classes: "",
+	chat_log_id: null,
 	init() {
 		console.log('init chat!!!');
 		//load the rest url into the apiBaseUrl from the data-contentoracle_rest_url attribute
@@ -119,6 +120,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		const data = {
 			message: msg,
 			conversation: contextConversation.length <= 10 ? contextConversation : contextConversation.slice(contextConversation.length - 10),
+			chat_log_id: this.chat_log_id,
 		};
 		//build the request
 		const options = {
@@ -160,6 +162,9 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				}
 				this.conversation.push(placeholder_response);
 
+				//set the chat log id on this chat interface
+				this.chat_log_id = json.chat_log_id;
+
 				//parse the coai artifacts (updates the raw content with the parsed artifacts)
 				const artifacts_parsed_content = this.renderArtifacts(this.conversation[this.conversation.length - 1]);
 
@@ -173,7 +178,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				//now, after all parses and transformations, set the chat content to the rendered chat
 				this.conversation[this.conversation.length - 1].content = md_rendered_content;
 
-				console.log("conversation", this.conversation);
+				console.log("conversation", this.conversation, "chat_log_id", this.chat_log_id);
 			}
 			catch (e) {
 				//don't use handleErrorResponse, because this is not the result of a malformed/bad response
@@ -267,6 +272,11 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					if (parsed?.error) {
 						this.handleErrorResponse(parsed);
 					}
+					//else if it is the chat log id response
+					else if (parsed?.chat_log_id) {
+						//set the chat log id on this chat interface
+						this.chat_log_id = parsed.chat_log_id;
+					}
 					//check if this is the action response
 					else if (parsed?.action) {
 						//handle the action
@@ -325,7 +335,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 		//after the request is done
 		xhr.onload = function () {
-			console.log("conversation", this.conversation);
+			console.log("conversation", this.conversation, "chat_log_id", this.chat_log_id);
 		}.bind(this);	//IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
 
 		//send the request with the body
@@ -333,6 +343,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		const data = {
 			message: msg,
 			conversation: contextConversation.length <= 10 ? contextConversation : contextConversation.slice(contextConversation.length - 10),
+			chat_log_id: this.chat_log_id,
 		};
 		xhr.send(JSON.stringify(data));
 	},
@@ -438,6 +449,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		this.conversation = [];
 		this.loading = false;
 		this.error = "";
+		this.chat_log_id = null;
 
 		//clear the input field
 		if (this.$refs.chatInput) {

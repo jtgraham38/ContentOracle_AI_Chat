@@ -16,6 +16,7 @@ require_once plugin_dir_path(__FILE__) . 'ContentOracleApiConnection.php';
 require_once plugin_dir_path(__FILE__) . '../embeddings/chunk_getters.php';
 require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
 require_once plugin_dir_path(__FILE__) . 'WPAPIErrorResponse.php';
+require_once plugin_dir_path(__FILE__) . 'chat_logging/ChatLogger.php';
 
 use jtgraham38\jgwordpresskit\PluginFeature;
 use jtgraham38\wpvectordb\VectorTable;
@@ -24,7 +25,8 @@ use jtgraham38\wpvectordb\query\QueryBuilder;
 
 class ContentOracleApi extends PluginFeature{
     use ContentOracleChunkingMixin;
-    
+    use ContentOracle_ChatLoggerTrait;
+
     public function add_filters(){
         add_filter('posts_clauses', array($this, 'find_relevant_content_by_score'), 10, 2);
     }
@@ -149,11 +151,8 @@ class ContentOracleApi extends PluginFeature{
         //divider character, to separate the fragments of the response
         $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
 
-
-        
         // //get the query
         $message = $request->get_param('message');
-
 
         //get the content to use in the response
         //switch based on the chunking method
@@ -190,8 +189,8 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
-        //get the configured post meta for each post
-        $content = $this->add_meta_attributes($content);
+        //handle the chat log
+        $chat_log_id = $this->handleChatLog($request);
 
         // Set headers for streaming
         // Ensure headers are sent before output
@@ -200,6 +199,13 @@ class ContentOracleApi extends PluginFeature{
             header('Cache-Control: no-cache');
             header('Connection: keep-alive');
             header('X-Accel-Buffering: no'); // For Nginx
+        }
+
+        //send the chat log id to the client
+        if (isset($chat_log_id)){
+            echo json_encode(["chat_log_id" => $chat_log_id]);
+            echo $private_use_char; // Send a private use character to signal the end of the fragment
+            flush();
         }
         
         //TODO: move this to after the first fragment, so it only is sent if a response is generated
@@ -433,6 +439,9 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
+        //handle the chat log
+        $chat_log_id = $this->handleChatLog($request);
+
         //get the configured post meta for each post
         $content = $this->add_meta_attributes($content);
 
@@ -511,6 +520,7 @@ class ContentOracleApi extends PluginFeature{
             'response' => $ai_response,
             'action' => $ai_action,
             'engineered_prompt' => $ai_engineered_input,
+            'chat_log_id' => $chat_log_id,
         ));
     }
 
