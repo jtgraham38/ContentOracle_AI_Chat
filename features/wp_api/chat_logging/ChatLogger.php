@@ -33,4 +33,17 @@ trait ContentOracle_ChatLoggerTrait{
         //return the chat log id
         return $chat_log_id;
     }
+
+    /*
+    * 
+    * 
+    * TODO: I need a more robust system that does not overwrite the chat log with each message, but instead appends to it.
+    * Ideally, we woul add the user's message to the chat log at the beginning of the request, and the completed ai response to the chat log at the end of the request.
+    * Then, we would add error handling to the chat log.  Then, the chat log feature would just need auto-deleting, and it'd be done!
+    * 
+    * 
+    * 
+    * 
+    * 
+    */
 }
