@@ -189,9 +189,6 @@ class ContentOracleApi extends PluginFeature{
             );
         }
 
-        //handle the chat log
-        $chat_log_id = $this->handleChatLog($request);
-
         // Set headers for streaming
         // Ensure headers are sent before output
         if (!headers_sent()) {
@@ -251,8 +248,9 @@ class ContentOracleApi extends PluginFeature{
             $this->config('chat_timeout'),
             $this->config('embed_timeout')
         );
+        $full_response = [];
         $response = $api->streamed_ai_chat($message, $content, $conversation, 
-            function($data){
+            function($data) use (&$full_response){
                 //divider character, to separate the fragments of the response
                 $private_use_char = "\u{E000}"; // U+E000 is the start of the private use area in Unicode
 
@@ -379,6 +377,9 @@ class ContentOracleApi extends PluginFeature{
                     }
                     //if no error, echo the parsed data
                     else{
+                        //queue the response for logging
+                        $full_response[] = $parsed;
+
                         //encode and echo the parsed data
                         echo json_encode($parsed);
                     }
@@ -396,8 +397,26 @@ class ContentOracleApi extends PluginFeature{
                 }
             }
         );
-        //stop executing here
-        die;
+
+
+
+
+        //log the user message and the ai response
+        // $this->logUserChat($request, $id2post);
+        // $this->logAiChat($request, $ai_chat_response);
+
+        //assemble the full text of the response from the full_response array
+        $ai_chat_response = "";
+        foreach ($full_response as $fragment){
+            $ai_chat_response .= $fragment['generated']['message'];
+        }
+
+        //log the user message and the ai response
+        $this->logUserChat($request, $id2post);
+        $this->logAiChat($request, $ai_chat_response);
+
+
+        //NOTE: previously had a die here, but I could not get the full response with it there for some reason
     }
 
     //search callback
@@ -438,9 +457,6 @@ class ContentOracleApi extends PluginFeature{
                 'EMBED_ERR'
             );
         }
-
-        //handle the chat log
-        $chat_log_id = $this->handleChatLog($request);
 
         //get the configured post meta for each post
         $content = $this->add_meta_attributes($content);
@@ -512,6 +528,10 @@ class ContentOracleApi extends PluginFeature{
                 $id2post[$post['id']] = $post;
             }
         }
+
+        //log the user message and the ai response
+        $this->logUserChat($request, $id2post);
+        $this->logAiChat($request);
         
         //return the response
         return new WP_REST_Response(array(

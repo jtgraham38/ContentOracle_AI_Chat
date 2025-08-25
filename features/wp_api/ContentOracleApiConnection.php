@@ -155,7 +155,6 @@ class ContentOracleApiConnection{
         //build the request
         $url = $this->base_url . '/v1/ai/chat/stream';
 
-
         //initialize the curl request
         $ch = curl_init();
         curl_setopt_array($ch, array(
@@ -189,9 +188,12 @@ class ContentOracleApiConnection{
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => $this->chat_timeout,
             CURLOPT_WRITEFUNCTION => function($ch, $data) use ($callback){
+                //add the data to the response buffer
                 $callback($data);
                 return strlen($data);
             }
+
+
         ));
 
         //execute the request
@@ -209,6 +211,9 @@ class ContentOracleApiConnection{
         if (is_wp_error($response)){
             return [ 'error' => $response->get_error_message() ];
         }
+
+        //return the response
+        return $response;
     }
 
     //get a user query embedded by content oracle api
