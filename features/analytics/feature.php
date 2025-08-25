@@ -240,3 +240,5 @@ class ContentOracleAnalytics extends PluginFeature{
         echo "ContentOracle Analytics Feature uninstalling...";
     }
 }
+
+//TODO: make the view button actually show the chat log
