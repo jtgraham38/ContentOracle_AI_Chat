@@ -197,16 +197,6 @@ class ContentOracleApi extends PluginFeature{
             header('Connection: keep-alive');
             header('X-Accel-Buffering: no'); // For Nginx
         }
-
-        //log the user message and the ai response
-        $chat_log_id = $this->logUserChat($request, $id2post);
-
-        //send the chat log id to the client
-        if (isset($chat_log_id)){
-            echo json_encode(["chat_log_id" => $chat_log_id]);
-            echo $private_use_char; // Send a private use character to signal the end of the fragment
-            flush();
-        }
         
         //TODO: move this to after the first fragment, so it only is sent if a response is generated
         //send the content supplied to the client block
@@ -227,6 +217,16 @@ class ContentOracleApi extends PluginFeature{
         echo $content_supplied;
         echo $private_use_char; // Send a private use character to signal the end of the fragment
         flush();
+
+        //log the user message and the ai response
+        $chat_log_id = $this->logUserChat($request, $id2post);
+
+        //send the chat log id to the client
+        if (isset($chat_log_id)){
+            echo json_encode(["chat_log_id" => $chat_log_id]);
+            echo $private_use_char; // Send a private use character to signal the end of the fragment
+            flush();
+        }
 
         //get the conversation from the request
         $conversation = $request->get_param('conversation');
