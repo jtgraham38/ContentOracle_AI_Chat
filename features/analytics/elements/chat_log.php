@@ -9,10 +9,6 @@ global $post;
 
 if ($post && $post->post_content) {
     $chat_data = json_decode($post->post_content, true);
-    // echo "<pre>";
-    // print_r($chat_data);
-    // echo "</pre>";
-    // die();
     
     if ($chat_data && isset($chat_data['conversation']) && is_array($chat_data['conversation'])) {
         $has_valid_data = true;
@@ -42,7 +38,17 @@ if ($post && $post->post_content) {
                         $role_class = $this->prefixed('user-message');
                         break;
                     case 'assistant':
-                        $content = $message['message'] ?? '';
+                        //strip all html tags from the message other than coai-artifact and br tags
+                        $sanitized_content = wp_kses($message['message'], array(
+                            'coai-artifact' => array(
+                                'artifact_type' => array(),
+                                'content_id' => array(),
+                                'button_text' => array(),
+                            ),
+                            'br' => array(),
+                        ));
+
+                        $content = $sanitized_content ?? '';
                         $content_supplied = null;
                         $role_class = $this->prefixed('assistant-message');
                 }

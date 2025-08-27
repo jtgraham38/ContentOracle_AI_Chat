@@ -198,6 +198,9 @@ class ContentOracleApi extends PluginFeature{
             header('X-Accel-Buffering: no'); // For Nginx
         }
 
+        //log the user message and the ai response
+        $chat_log_id = $this->logUserChat($request, $id2post);
+
         //send the chat log id to the client
         if (isset($chat_log_id)){
             echo json_encode(["chat_log_id" => $chat_log_id]);
@@ -411,9 +414,8 @@ class ContentOracleApi extends PluginFeature{
             $ai_chat_response .= $fragment['generated']['message'];
         }
 
-        //log the user message and the ai response
-        $this->logUserChat($request, $id2post);
-        $this->logAiChat($request, $ai_chat_response);
+        //log the ai response
+        $this->logAiChat($ai_chat_response, $chat_log_id);
 
 
         //NOTE: previously had a die here, but I could not get the full response with it there for some reason
@@ -530,8 +532,8 @@ class ContentOracleApi extends PluginFeature{
         }
 
         //log the user message and the ai response
-        $this->logUserChat($request, $id2post);
-        $this->logAiChat($request);
+        $chat_log_id = $this->logUserChat($request, $id2post);
+        $this->logAiChat($ai_response, $chat_log_id);
         
         //return the response
         return new WP_REST_Response(array(

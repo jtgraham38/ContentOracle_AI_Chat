@@ -48,7 +48,7 @@ trait ContentOracle_ChatLoggerTrait{
                     "conversation" => [
                         [
                             "role" => "user",
-                            'message' => $request->get_param('message'),
+                            'message' => sanitize_text_field($request->get_param('message')),
                             'content_supplied' => $content_supplied,
                             'timestamp' => time(),
                         ]
@@ -89,8 +89,10 @@ trait ContentOracle_ChatLoggerTrait{
     }
 
     //log a chat from the ai
-    public function logAiChat(WP_REST_Request $request){
-        $chat_log_id = $request->get_param('chat_log_id');
+    public function logAiChat(string $message, $chat_log_id=null){
+        if ($chat_log_id === null){
+            $chat_log_id = $request->get_param('chat_log_id');
+        }
 
         //if the chat log id is null, something has gone wrong.  Return from the function
         if ($chat_log_id === null){
@@ -101,14 +103,37 @@ trait ContentOracle_ChatLoggerTrait{
         $chat_log = get_post($chat_log_id);
 
         //get the existing conversation
-        $conversation = json_decode($chat_log->post_content, true);
+        $conversation = json_decode($chat_log->post_content, true) ?: ['conversation' => []];
+
+        //sanitize the message
+        $sanitized_message = htmlspecialchars($message, ENT_QUOTES | ENT_XML1, 'UTF-8');
+        $sanitized_message = nl2br($sanitized_message);
 
         //add the ai's message to the conversation
         $conversation['conversation'][] = [
             'role' => 'assistant',
-            'message' => $request->get_param('message'),
+            'message' => $sanitized_message,
             'timestamp' => time()
         ];
+
+        //json encode the conversation
+        $encoded_conversation = json_encode($conversation, JSON_UNESCAPED_UNICODE /*| JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT*/ );
+
+        // Check if JSON encoding was successful
+        if ($encoded_conversation === false) {
+            // Log error for debugging (optional)
+            error_log('Failed to encode JSON in logAiChat: ' . json_last_error_msg());
+            return null;
+        }
+            
+        //update the existing chat log
+        wp_update_post(array(
+            'ID' => $chat_log_id,
+            'post_content' => $encoded_conversation,
+        ));
+
+        //return the chat log id
+        return $chat_log_id;
     }
 
 
