@@ -26,15 +26,16 @@ class ContentOracleAnalytics extends PluginFeature{
 
         //add the tab bar to the chat log page
         add_action('admin_notices', array($this, 'add_tab_bar_to_chat_log_page'));
-
-        //disable editing capabilities
-        add_action('admin_init', array($this, 'disable_chat_log_editing'));
-        add_action('admin_head', array($this, 'hide_chat_log_edit_buttons'));
-        add_filter('user_can_edit_post', array($this, 'prevent_chat_log_editing'), 10, 2);
-        add_action('load-post.php', array($this, 'prevent_chat_log_edit_screen'));
-        add_action('load-post-new.php', array($this, 'prevent_chat_log_edit_screen'));
+        
+        //customize the edit screen for chat logs
+        add_action('edit_form_after_title', array($this, 'show_chat_log_content'));
+        add_action('add_meta_boxes', array($this, 'remove_publish_meta_box'));
+        
+        //enqueue chat log styles
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_chat_log_styles'));
     }
 
+    
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
     public function add_menu(){
         add_submenu_page(
@@ -44,6 +45,43 @@ class ContentOracleAnalytics extends PluginFeature{
             'manage_options', // capability
             'edit.php?post_type=' . $this->prefixed('chatlog')
         );
+    }
+    /**
+     * Show chat log content instead of editor
+     */
+    public function show_chat_log_content() {
+        global $post;
+        
+        ob_start();
+        include plugin_dir_path(__FILE__) . 'elements/chat_log.php';
+        echo ob_get_clean();
+    }
+
+    /**
+     * Remove the publish meta box from chat log edit screen
+     */
+    public function remove_publish_meta_box() {
+        global $post;
+        
+        if ($post && $post->post_type === $this->prefixed('chatlog')) {
+            remove_meta_box('submitdiv', $this->prefixed('chatlog'), 'side');
+        }
+    }
+
+    /**
+     * Enqueue chat log styles for admin area
+     */
+    public function enqueue_chat_log_styles() {
+        global $post;
+        
+        if ($post && $post->post_type === $this->prefixed('chatlog')) {
+            wp_enqueue_style(
+                'contentoracle-chat-log-styles',
+                plugin_dir_url(__FILE__) . 'assets/css/chat_log.css',
+                array(),
+                '1.0.0'
+            );
+        }
     }
 
     public function render_page(){
@@ -61,7 +99,7 @@ class ContentOracleAnalytics extends PluginFeature{
             'all_items' => 'All Chat Logs',
             'view_item' => 'View Chat Log',
             'add_new_item' => 'Add New Chat Log',
-            'edit_item' => 'View Chat Log',
+            'edit_item' => 'Edit Chat Log',
             'update_item' => 'Update Chat Log',
             'search_items' => 'Search Chat Logs',
             'not_found' => 'No chat logs found',
@@ -85,9 +123,11 @@ class ContentOracleAnalytics extends PluginFeature{
                 'publish_posts' => 'manage_options',
                 'read_private_posts' => 'manage_options',
                 'delete_posts' => 'manage_options',
+                //cannot be published
+                'publish_posts' => false,
             ),
             'map_meta_cap' => true,
-            'supports' => array('title'), // Only title, no editor or other fields
+            'supports' => array('title' ),
             'hierarchical' => false,
             'has_archive' => false,
             'rewrite' => false,
@@ -122,83 +162,6 @@ class ContentOracleAnalytics extends PluginFeature{
             $admin_menu_feature->render_tabbed_admin_page('');
         }
     }
-
-    /**
-     * Disable chat log editing capabilities
-     */
-    public function disable_chat_log_editing() {
-        // Remove edit capabilities for chat logs
-        if (isset($_GET['post_type']) && $_GET['post_type'] === $this->prefixed('chatlog')) {
-            // Remove edit actions from bulk actions
-            add_filter('bulk_actions-edit-' . $this->prefixed('chatlog'), '__return_empty_array');
-            
-            // Remove row actions (edit, quick edit, trash, etc.)
-            add_filter('post_row_actions', array($this, 'remove_chat_log_row_actions'), 10, 2);
-        }
-    }
-
-    /**
-     * Hide edit buttons and other editing UI elements
-     */
-    public function hide_chat_log_edit_buttons() {
-        if (isset($_GET['post_type']) && $_GET['post_type'] === $this->prefixed('chatlog')) {
-            echo '<style>
-                .page-title-action,
-                .add-new-h2,
-                .edit-post-link,
-                .post-edit-link,
-                .row-actions .edit,
-                .row-actions .inline,
-                .row-actions .trash,
-                .bulk-edit,
-                .quick-edit,
-                .delete,
-                .editinline { display: none !important; }
-                
-                .wp-list-table .check-column input[type="checkbox"] { display: none !important; }
-                .tablenav .bulkactions { display: none !important; }
-                .tablenav .tablenav-pages { margin-left: 0 !important; }
-            </style>';
-        }
-    }
-
-    /**
-     * Prevent editing of chat log posts
-     */
-    public function prevent_chat_log_editing($can_edit, $post) {
-        if ($post && $post->post_type === $this->prefixed('chatlog')) {
-            return false;
-        }
-        return $can_edit;
-    }
-
-    /**
-     * Remove row actions for chat logs
-     */
-    public function remove_chat_log_row_actions($actions, $post) {
-        if ($post->post_type === $this->prefixed('chatlog')) {
-            // Keep only view action, remove all others
-            $actions = array(
-                'view' => '<a href="' . get_permalink($post->ID) . '" target="_blank">' . __('View', 'contentoracle-ai-chat') . '</a>'
-            );
-        }
-        return $actions;
-    }
-
-    /**
-     * Prevent access to edit screen for chat logs
-     */
-    public function prevent_chat_log_edit_screen() {
-        global $post;
-        
-        if ($post && $post->post_type === $this->prefixed('chatlog')) {
-            // Redirect to the chat logs list page
-            wp_redirect(admin_url('edit.php?post_type=' . $this->prefixed('chatlog')));
-            exit;
-        }
-    }
-    
-    
 
     /*
     This feature will consist of two major parts:
@@ -240,5 +203,3 @@ class ContentOracleAnalytics extends PluginFeature{
         echo "ContentOracle Analytics Feature uninstalling...";
     }
 }
-
-//TODO: make the view button actually show the chat log
