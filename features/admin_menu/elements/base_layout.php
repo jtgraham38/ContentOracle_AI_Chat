@@ -68,7 +68,12 @@ $tabs = array(
                 $is_current = isset($_GET['post_type']) && $_GET['post_type'] === 'coai_chat_shortcode';
             } elseif ($tab_id === 'contentoracle-ai-chat-analytics') {
                 // Special case for chat logs page
-                $is_current = isset($_GET['post_type']) && $_GET['post_type'] === 'coai_chat_chatlog';
+                $is_log_list_page = (isset($_GET['post_type']) && $_GET['post_type'] === 'coai_chat_chatlog') ;
+                $post_type = get_post_type($_GET['post']) ?? null;
+                $is_log_view_page = $_GET['action'] === 'edit' && $post_type === 'coai_chat_chatlog';
+                
+
+                $is_current = $is_log_list_page || $is_log_view_page;
             } else {
                 $is_current = $current_page === $tab_id;
             }

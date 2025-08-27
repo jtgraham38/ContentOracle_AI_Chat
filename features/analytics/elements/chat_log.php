@@ -19,7 +19,15 @@ if ($post && $post->post_content) {
 } else {
     $has_valid_data = false;
 }
+
 ?>
+
+<script>
+    const first_header = document.querySelector('h1');
+    if (first_header){
+        first_header.style.display = 'none';
+    }
+</script>
 
 <div class="chat-log-content-display">
     <h2>Chat Log Content</h2>
@@ -36,6 +44,7 @@ if ($post && $post->post_content) {
                         $content = $message['message'] ?? '';
                         $content_supplied = $message['content_supplied'] ?? [];
                         $role_class = $this->prefixed('user-message');
+                        $timestamp = $message['timestamp'] ?? '';
                         break;
                     case 'assistant':
                         //strip all html tags from the message other than coai-artifact and br tags
@@ -51,12 +60,14 @@ if ($post && $post->post_content) {
                         $content = $sanitized_content ?? '';
                         $content_supplied = null;
                         $role_class = $this->prefixed('assistant-message');
+                        $timestamp = $message['timestamp'] ?? '';
                 }
             ?>
                 <div class="<?php echo $this->prefixed('chat-message'); ?> <?php echo esc_attr($role_class); ?>">
                     <div class="<?php echo $this->prefixed('message-header'); ?>">
                         <strong><?php echo esc_html(ucfirst($role)); ?></strong>
                         <span class="<?php echo $this->prefixed('message-number'); ?>">Message <?php echo ($index + 1); ?></span>
+                        <span class="<?php echo $this->prefixed('message-timestamp'); ?>"><?php echo esc_html(date('M j, Y g:i:s A', $timestamp)); ?></span>
                     </div>
                     <div class="<?php echo $this->prefixed('message-content'); ?>"><?php echo esc_html($content); ?></div>
                     <?php if ($content_supplied): ?>

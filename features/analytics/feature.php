@@ -51,10 +51,14 @@ class ContentOracleAnalytics extends PluginFeature{
      */
     public function show_chat_log_content() {
         global $post;
-        
+
+        //get page content
         ob_start();
-        include plugin_dir_path(__FILE__) . 'elements/chat_log.php';
-        echo ob_get_clean();
+        require_once plugin_dir_path(__FILE__) . 'elements/chat_log.php';
+        $page_content = ob_get_clean();
+        
+        //render the page
+        $this->get_feature('admin_menu')->render_tabbed_admin_page($page_content);
     }
 
     /**
@@ -127,7 +131,7 @@ class ContentOracleAnalytics extends PluginFeature{
                 'publish_posts' => false,
             ),
             'map_meta_cap' => true,
-            'supports' => array('title' ),
+            'supports' => array(''),
             'hierarchical' => false,
             'has_archive' => false,
             'rewrite' => false,
