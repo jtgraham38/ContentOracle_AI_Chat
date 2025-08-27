@@ -33,6 +33,11 @@ class ContentOracleAnalytics extends PluginFeature{
         
         //enqueue chat log styles
         add_action('admin_enqueue_scripts', array($this, 'enqueue_chat_log_styles'));
+        
+        //customize the post table columns
+        add_filter('manage_' . $this->prefixed('chatlog') . '_posts_columns', array($this, 'set_chat_log_columns'));
+        add_action('manage_' . $this->prefixed('chatlog') . '_posts_custom_column', array($this, 'customize_chat_log_columns'), 10, 2);
+        add_filter('manage_edit-' . $this->prefixed('chatlog') . '_sortable_columns', array($this, 'make_chat_log_columns_sortable'));
     }
 
     
@@ -86,6 +91,75 @@ class ContentOracleAnalytics extends PluginFeature{
                 '1.0.0'
             );
         }
+    }
+
+    /**
+     * Set custom columns for chat logs
+     */
+    public function set_chat_log_columns($columns) {
+        $new_columns = array();
+        $new_columns['cb'] = $columns['cb'];
+        $new_columns['title'] = __('Chat ID', 'contentoracle-ai-chat');
+        $new_columns['user_messages'] = __('User Messages', 'contentoracle-ai-chat');
+        $new_columns['ai_messages'] = __('AI Messages', 'contentoracle-ai-chat');
+        $new_columns['date'] = __('Date', 'contentoracle-ai-chat');
+        return $new_columns;
+    }
+
+    /**
+     * Customize the content of chat log columns
+     */
+    public function customize_chat_log_columns($column, $post_id) {
+        switch ($column) {
+            case 'user_messages':
+                $post = get_post($post_id);
+                if ($post && $post->post_content) {
+                    $chat_data = json_decode($post->post_content, true);
+                    if ($chat_data && isset($chat_data['conversation']) && is_array($chat_data['conversation'])) {
+                        $user_count = 0;
+                        foreach ($chat_data['conversation'] as $message) {
+                            if (isset($message['role']) && $message['role'] === 'user') {
+                                $user_count++;
+                            }
+                        }
+                        echo $user_count;
+                    } else {
+                        echo '0';
+                    }
+                } else {
+                    echo '0';
+                }
+                break;
+                
+            case 'ai_messages':
+                $post = get_post($post_id);
+                if ($post && $post->post_content) {
+                    $chat_data = json_decode($post->post_content, true);
+                    if ($chat_data && isset($chat_data['conversation']) && is_array($chat_data['conversation'])) {
+                        $ai_count = 0;
+                        foreach ($chat_data['conversation'] as $message) {
+                            if (isset($message['role']) && $message['role'] === 'assistant') {
+                                $ai_count++;
+                            }
+                        }
+                        echo $ai_count;
+                    } else {
+                        echo '0';
+                    }
+                } else {
+                    echo '0';
+                }
+                break;
+        }
+    }
+
+    /**
+     * Make chat log columns sortable
+     */
+    public function make_chat_log_columns_sortable($columns) {
+        $columns['user_messages'] = 'user_messages';
+        $columns['ai_messages'] = 'ai_messages';
+        return $columns;
     }
 
     public function render_page(){
