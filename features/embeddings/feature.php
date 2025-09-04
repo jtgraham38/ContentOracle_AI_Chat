@@ -574,6 +574,24 @@ class ContentOracleEmbeddings extends PluginFeature{
         }
     }
 
+    public function coai_chat_token256_get_chunk($content, $embedding_number){
+        $chunk_size = 256;
+        //strip tags and tokenize content
+        $tokenizer = new WhitespaceAndPunctuationTokenizer();
+        $tokens = $tokenizer->tokenize(strip_tags($content));
+
+        //get start and end indices of section
+        $start = $embedding_number * $chunk_size;
+        $end = ($embedding_number + 1) * $chunk_size;
+
+        //get the section from the post content
+        $section = array_slice($tokens, $start, $end - $start);
+        $section = implode(' ', $section);
+
+        //return the section
+        return $section;
+    }
+
     //placeholder uninstall method to identify this feature
     public function uninstall(){
         

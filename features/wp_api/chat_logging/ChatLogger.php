@@ -5,34 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 trait ContentOracle_ChatLoggerTrait{
-    // public function handleChatLog(WP_REST_Request $request){
-    //     $chat_log_id = null;
-
-    //     //if the chat has no chat log id, create a new one
-    //     if ($request->get_param('chat_log_id') === null){
-    //         //create a new chat log
-    //         $chat_log_id = wp_insert_post(array(
-    //             'post_type' => $this->prefixed('chatlog'),
-    //             'post_title' => 'Chat Log',
-    //             'post_content' => json_encode($request->get_param('conversation')),
-    //             'post_status' => 'publish',
-    //         ));
-
-
-    //     }
-    //     //otherwise, update the existing chat log
-    //     else{
-    //         //update the existing chat log
-    //         $chat_log_id = $request->get_param('chat_log_id');
-    //         wp_update_post(array(
-    //             'ID' => $chat_log_id,
-    //             'post_content' => json_encode($request->get_param('conversation')),
-    //         ));
-    //     }
-
-    //     //return the chat log id
-    //     return $chat_log_id;
-    // }
+    abstract public function get_client_ip();
 
     //log a chat from the user
     public function logUserChat(WP_REST_Request $request, $content_supplied = []){
@@ -40,10 +13,15 @@ trait ContentOracle_ChatLoggerTrait{
 
         //if the chat has no chat log id, create a new one
         if ($request->get_param('chat_log_id') === null){
+
+            //get either the username or the email or the ip address
+            $user_info = wp_get_current_user();
+            $user_info = $user_info->user_login ?? $user_info->user_email ?? $this->get_client_ip();
+
             //create a new chat log
             $chat_log_id = wp_insert_post(array(
                 'post_type' => $this->prefixed('chatlog'),
-                'post_title' => 'Chat Log',
+                'post_title' => 'Chat Log from: ' . $user_info,
                 'post_content' => json_encode([
                     "conversation" => [
                         [

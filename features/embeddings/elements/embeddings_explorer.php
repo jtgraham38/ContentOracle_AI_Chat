@@ -5,7 +5,6 @@ if (!defined('ABSPATH')) {
 }
 
 require_once plugin_dir_path(__FILE__) . '../../../vendor/autoload.php';
-require_once plugin_dir_path(__FILE__) . '../chunk_getters.php';
 
 use \NlpTools\Tokenizers\WhitespaceAndPunctuationTokenizer;
 use jtgraham38\wpvectordb\VectorTable;

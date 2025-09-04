@@ -13,7 +13,6 @@ if (!defined('ABSPATH')) {
 
 require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
 require_once plugin_dir_path(__FILE__) . 'ContentOracleApiConnection.php';
-require_once plugin_dir_path(__FILE__) . '../embeddings/chunk_getters.php';
 require_once plugin_dir_path(__FILE__) . 'ResponseException.php';
 require_once plugin_dir_path(__FILE__) . 'WPAPIErrorResponse.php';
 require_once plugin_dir_path(__FILE__) . 'chat_logging/ChatLogger.php';
@@ -1035,8 +1034,8 @@ class ContentOracleApi extends PluginFeature{
             $post = get_post($post_id);
 
             //get the post content for the sequence number
-            $chunk = token256_get_chunk($post->post_content, $sequence_no);
-
+            $chunk = $this->get_feature('embeddings')->coai_chat_token256_get_chunk($post->post_content, $sequence_no);
+            
             //add the chunk to the chunks array
             $chunks[] = [
                 'id' => $post_id,
