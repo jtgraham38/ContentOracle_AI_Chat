@@ -6,8 +6,12 @@ if (!defined('ABSPATH')) {
 
 // Get the current post
 global $post;
+global $wpdb;
 
 if ($post && $post->post_content) {
+
+
+    // Decode the JSON conversation data
     $chat_data = json_decode($post->post_content, true);
     
     if ($chat_data && isset($chat_data['conversation']) && is_array($chat_data['conversation'])) {

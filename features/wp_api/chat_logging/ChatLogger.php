@@ -54,12 +54,13 @@ trait ContentOracle_ChatLoggerTrait{
                 'timestamp' => time()
             ];
 
-            //update the existing chat log
+            //update the existing chat log using a manual query
             $chat_log_id = $request->get_param('chat_log_id');
-            wp_update_post(array(
-                'ID' => $chat_log_id,
-                'post_content' => json_encode($conversation),
-            ));
+            $wpdb->update(
+                $wpdb->posts,
+                array('post_content' => json_encode($conversation)),
+                array('ID' => $chat_log_id)
+            );
         }
 
         //return the chat log id
@@ -68,9 +69,7 @@ trait ContentOracle_ChatLoggerTrait{
 
     //log a chat from the ai
     public function logAiChat(string $message, $chat_log_id=null){
-        if ($chat_log_id === null){
-            $chat_log_id = $request->get_param('chat_log_id');
-        }
+        global $wpdb;
 
         //if the chat log id is null, something has gone wrong.  Return from the function
         if ($chat_log_id === null){
@@ -83,9 +82,14 @@ trait ContentOracle_ChatLoggerTrait{
         //get the existing conversation
         $conversation = json_decode($chat_log->post_content, true) ?: ['conversation' => []];
 
-        //sanitize the message
-        $sanitized_message = htmlspecialchars($message, ENT_QUOTES | ENT_XML1, 'UTF-8');
-        $sanitized_message = nl2br($sanitized_message);
+        // First, strip all tags except coai-artifact tags
+        $sanitized_message = wp_kses($message, array(
+            'coai-artifact' => array(
+                'artifact_type' => array(),
+                'content_id' => array(),
+                'button_text' => array(),
+            ),
+        ));
 
         //add the ai's message to the conversation
         $conversation['conversation'][] = [
@@ -94,8 +98,8 @@ trait ContentOracle_ChatLoggerTrait{
             'timestamp' => time()
         ];
 
-        //json encode the conversation
-        $encoded_conversation = json_encode($conversation, JSON_UNESCAPED_UNICODE /*| JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT*/ );
+        //json encode the conversation with proper escaping
+        $encoded_conversation = json_encode($conversation, JSON_UNESCAPED_UNICODE);
 
         // Check if JSON encoding was successful
         if ($encoded_conversation === false) {
@@ -104,11 +108,13 @@ trait ContentOracle_ChatLoggerTrait{
             return null;
         }
             
-        //update the existing chat log
-        wp_update_post(array(
-            'ID' => $chat_log_id,
-            'post_content' => $encoded_conversation,
-        ));
+        //update the existing chat log with a manual query
+        //(the wp_update_post function was filtering the content unnecessarily)
+        $wpdb->update(
+            $wpdb->posts,
+            array('post_content' => $encoded_conversation),
+            array('ID' => $chat_log_id)
+        );
 
         //return the chat log id
         return $chat_log_id;
