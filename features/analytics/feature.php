@@ -32,7 +32,7 @@ class ContentOracleAnalytics extends PluginFeature{
         add_action('add_meta_boxes', array($this, 'remove_publish_meta_box'));
         
         //enqueue chat log styles
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_chat_log_styles'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_chat_log_scripts_styles'));
         
         //customize the post table columns
         add_filter('manage_' . $this->prefixed('chatlog') . '_posts_columns', array($this, 'set_chat_log_columns'));
@@ -80,15 +80,40 @@ class ContentOracleAnalytics extends PluginFeature{
     /**
      * Enqueue chat log styles for admin area
      */
-    public function enqueue_chat_log_styles() {
+    public function enqueue_chat_log_scripts_styles() {
         global $post;
         
+        //enqueue styles
         if ($post && $post->post_type === $this->prefixed('chatlog')) {
             wp_enqueue_style(
                 'contentoracle-chat-log-styles',
                 plugin_dir_url(__FILE__) . 'assets/css/chat_log.css',
                 array(),
                 '1.0.0'
+            );
+        }
+
+        //enqueue scripts
+        if ($post && $post->post_type === $this->prefixed('chatlog')) {
+
+            //marked
+            wp_enqueue_script(
+                $this->prefixed('marked-scripts'),
+                plugin_dir_url(__FILE__) . 'assets/js/marked.min.js',
+                array(),
+                '1.0.0',
+                true
+            );
+
+            //chat rendering functions (dependent on marked)
+            wp_enqueue_script(
+                $this->prefixed('chat-log-scripts'),
+                plugin_dir_url(__FILE__) . 'assets/js/renderChat.js',
+                array(
+                    $this->prefixed('marked-scripts'),
+                ),
+                '1.0.0',
+                true
             );
         }
     }

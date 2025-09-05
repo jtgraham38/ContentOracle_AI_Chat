@@ -73,7 +73,19 @@ if ($post && $post->post_content) {
                         <span class="<?php echo $this->prefixed('message-number'); ?>">Message <?php echo ($index + 1); ?></span>
                         <span class="<?php echo $this->prefixed('message-timestamp'); ?>"><?php echo esc_html(date('M j, Y g:i:s A', $timestamp)); ?></span>
                     </div>
-                    <div class="<?php echo $this->prefixed('message-content'); ?>"><?php echo esc_html($content); ?></div>
+                    <div class="<?php echo $this->prefixed('message-content'); ?>">
+                        <?php 
+
+                        //replace multiple newlines with a single newline
+                        $content = preg_replace('/\n+/', "\n", $content);
+
+                        //strip whitespace off front and end
+                        $content = trim($content);
+
+
+                        echo esc_html($content); 
+                        ?>
+                    </div>
                     <?php if ($content_supplied): ?>
                         <div class="<?php echo $this->prefixed('content-supplied-label'); ?>">Content Sent to Agent:</div>
                         <ol class="<?php echo $this->prefixed('content-supplied'); ?>">
