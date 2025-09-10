@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:       ContentOracle AI Chat
- * Plugin URI:        https://contentoracleai.com/contentoracle-ai-chat/
+ * Plugin URI:        https://scrywp.com/contentoracle-ai-chat/
  * Description:       ContentOracle AI Chat seamlessly blends the power of generative AI with your website’s unique content.
  * Version:           1.11.2
  * Requires at least: 6.0
  * Requires PHP:      7.2
  * Author:            ContentOracle AI
- * Author URI:        https://contentoracleai.com
+ * Author URI:        https://scrywp.com
  * License:           GPL v3 or later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  */
