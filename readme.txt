@@ -18,7 +18,7 @@ The plugin features a comprehensive setup wizard to get you started quickly, adv
 Whether you're a small business, content creator, or enterprise, ContentOracle AI Chat transforms your website into an intelligent, conversational interface that understands your content and helps visitors find exactly what they're looking for.
 
 == Demo! ==
-**Try it Here:** [demo.contentoracleai.com/](https://demo.scrywp.com/)  
+**Try it Here:** [demo.scrywp.com/](https://demo.scrywp.com/)  
 
 == Intro ==
 
@@ -62,7 +62,7 @@ ContentOracle AI Chat bridges this gap by combining your unique content with AI'
 
 1. Upload the plugin files to the `/wp-content/plugins/contentoracle_ai_chat` directory, or install the plugin through the WordPress plugins screen directly.  
 2. Activate the plugin through the 'Plugins' screen in WordPress.  
-3. Go to [app.contentoracleai.com](https://app.scrywp.com) and create an account.  
+3. Go to [app.scrywp.com](https://app.scrywp.com) and create an account.  
 4. Navigate to the **Tokens** tab, create a new token, and copy it to your clipboard.  
 5. Navigate to the **Subscription** tab, enter your billing information, or use the free trial.  
 6. On your WordPress site, go to **ContentOracle > Settings** and paste the token into the "ContentOracle API Token" field.  
