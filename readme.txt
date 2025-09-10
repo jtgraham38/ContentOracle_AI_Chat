@@ -18,7 +18,7 @@ The plugin features a comprehensive setup wizard to get you started quickly, adv
 Whether you're a small business, content creator, or enterprise, ContentOracle AI Chat transforms your website into an intelligent, conversational interface that understands your content and helps visitors find exactly what they're looking for.
 
 == Demo! ==
-**Try it Here:** [demo.contentoracleai.com/](https://demo.contentoracleai.com/)  
+**Try it Here:** [demo.contentoracleai.com/](https://demo.scrywp.com/)  
 
 == Intro ==
 
@@ -62,7 +62,7 @@ ContentOracle AI Chat bridges this gap by combining your unique content with AI'
 
 1. Upload the plugin files to the `/wp-content/plugins/contentoracle_ai_chat` directory, or install the plugin through the WordPress plugins screen directly.  
 2. Activate the plugin through the 'Plugins' screen in WordPress.  
-3. Go to [app.contentoracleai.com](https://app.contentoracleai.com) and create an account.  
+3. Go to [app.contentoracleai.com](https://app.scrywp.com) and create an account.  
 4. Navigate to the **Tokens** tab, create a new token, and copy it to your clipboard.  
 5. Navigate to the **Subscription** tab, enter your billing information, or use the free trial.  
 6. On your WordPress site, go to **ContentOracle > Settings** and paste the token into the "ContentOracle API Token" field.  
@@ -93,7 +93,7 @@ Use the AI Goal and AI Extra Info text inputs in the **Prompt** settings to tail
 Follow the installation instructions.
 
 = How does billing work? =  
-Billing is usage-based and monthly. Visit [https://contentoracleai.com/pricing](https://contentoracleai.com/pricing) for details. A free trial is available.
+Billing is usage-based and monthly. Visit [https://scrywp.com/pricing](https://scrywp.com/pricing) for details. A free trial is available.
 
 = What does the AI Search block do? =  
 The AI Search block redirects users to your AI chat page with their query preloaded, enhancing the search experience.
@@ -122,8 +122,8 @@ Use the goal prompt in the admin to help the agent decide which content to recom
 == 3rd-Party Services ==
 
 This plugin uses the ContentOracle AI API to process user messages, index website content, and generate responses.  
-- API URL: [https://app.contentoracleai.com](https://app.contentoracleai.com)  
-- Terms of Service: [https://app.contentoracleai.com/terms](https://app.contentoracleai.com/terms)  
+- API URL: [https://app.scrywp.com](https://app.scrywp.com)  
+- Terms of Service: [https://app.scrywp.com/terms](https://app.scrywp.com/terms)  
 
 Data sent to the API includes user messages, site content, server/client domains, and analytics. Messages and content may be stored for debugging and feature development.
 
