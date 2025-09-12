@@ -32,23 +32,27 @@ class ContentOracleAnalytics extends PluginFeature{
             'manage_options', // capability
             'contentoracle-ai-chat-analytics',
             function(){
-                require_once plugin_dir_path(__FILE__) . 'elements/analytics_page.php';
+                //check if the chat_log_id param 
+                if (isset($_GET['chat_log_id'])) {
+                    // Get page content
+                    ob_start();
+                    require_once plugin_dir_path(__FILE__) . 'elements/chat_log.php';
+                    $page_content = ob_get_clean();
+                    
+                    // Render the page
+                    $this->get_feature('admin_menu')->render_tabbed_admin_page($page_content);
+                } else {
+                    // Get page content
+                    ob_start();
+                    require_once plugin_dir_path(__FILE__) . 'elements/analytics_page.php';
+                    $page_content = ob_get_clean();
+                    
+                    // Render the page
+                    $this->get_feature('admin_menu')->render_tabbed_admin_page($page_content);
+                }
+                
             }
         );
-    }
-    /**
-     * Show chat log content instead of editor
-     */
-    public function show_chat_log_content() {
-        global $post;
-
-        //get page content
-        ob_start();
-        require_once plugin_dir_path(__FILE__) . 'elements/chat_log.php';
-        $page_content = ob_get_clean();
-        
-        //render the page
-        $this->get_feature('admin_menu')->render_tabbed_admin_page($page_content);
     }
 
 
@@ -58,18 +62,16 @@ class ContentOracleAnalytics extends PluginFeature{
     public function enqueue_chat_log_scripts_styles() {
         global $post;
         
-        //enqueue styles
-        if ($post && $post->post_type === $this->prefixed('chatlog')) {
+        //only enqueue them if we are on the analytics page, and chat_log_id is set in the
+        if (isset($_GET['page']) && $_GET['page'] === 'contentoracle-ai-chat-analytics' && isset($_GET['chat_log_id'])) {
+            //enqueue styles
             wp_enqueue_style(
                 'contentoracle-chat-log-styles',
                 plugin_dir_url(__FILE__) . 'assets/css/chat_log.css',
                 array(),
                 '1.0.0'
             );
-        }
 
-        //enqueue scripts
-        if ($post && $post->post_type === $this->prefixed('chatlog')) {
 
             //marked
             wp_enqueue_script(

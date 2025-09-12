@@ -150,12 +150,12 @@ foreach ($chat_logs as $log) {
                         </td>
                         <td class="column-actions">
                             <a href="<?php 
+                                //add the chat_log_id param to the url
                                 echo esc_url(
                                     add_query_arg(
                                         array(
                                             'page' => 'contentoracle-ai-chat-analytics',
-                                            'action' => 'view_chat',
-                                            'chat_id' => urlencode($log->chat_id)
+                                            'chat_log_id' => urlencode($log->id)
                                         ),
                                         admin_url('admin.php')
                                     )
