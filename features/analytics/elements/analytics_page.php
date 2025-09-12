@@ -283,7 +283,10 @@ $table = new COAI_ChatLogs_Table();
 
 <div class="wrap">
     <h1><?php _e('Analytics', 'contentoracle-ai-chat'); ?></h1>
-    
+    <h2><?php _e('Quick Stats', 'contentoracle-ai-chat'); ?></h2>
+    <i>Coming Soon...</i>
+
+    <h2><?php _e('Chat Logs', 'contentoracle-ai-chat'); ?></h2>
     <?php 
     // Prepare and display the table
     $table->prepare_items();
