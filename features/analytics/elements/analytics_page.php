@@ -46,6 +46,9 @@ class COAI_ChatLogs_Table extends WP_List_Table {
     public function prepare_items() {
         global $wpdb;
         
+        // Process bulk actions
+        $this->process_bulk_action();
+        
         // Check if table exists
         if ($wpdb->get_var("SHOW TABLES LIKE '{$this->table_name}'") != $this->table_name) {
             $this->items = [];
@@ -154,6 +157,80 @@ class COAI_ChatLogs_Table extends WP_List_Table {
         return [
             'bulk-delete' => __('Delete', 'contentoracle-ai-chat')
         ];
+    }
+
+    public function process_bulk_action() {
+        if ('bulk-delete' === $this->current_action()) {
+            $nonce = isset($_REQUEST['_wpnonce']) ? $_REQUEST['_wpnonce'] : '';
+            
+            if (!wp_verify_nonce($nonce, 'bulk-' . $this->_args['plural'])) {
+                add_action('admin_notices', function() {
+                    echo '<div class="notice notice-error is-dismissible"><p>' . 
+                         __('Security check failed. Please try again.', 'contentoracle-ai-chat') . 
+                         '</p></div>';
+                });
+                return;
+            }
+
+            $chat_log_ids = isset($_REQUEST['chat_log']) ? array_map('intval', $_REQUEST['chat_log']) : [];
+            
+            if (!empty($chat_log_ids)) {
+                global $wpdb;
+                $table_name = $wpdb->prefix . 'coai_chat_chatlog';
+                
+                // Start transaction
+                $wpdb->query('START TRANSACTION');
+                
+                try {
+                    // Create placeholders for the IN clause
+                    $placeholders = implode(',', array_fill(0, count($chat_log_ids), '%d'));
+                    
+                    // Execute single DELETE query with all IDs
+                    $result = $wpdb->query(
+                        $wpdb->prepare(
+                            "DELETE FROM {$table_name} WHERE id IN ({$placeholders})",
+                            $chat_log_ids
+                        )
+                    );
+                    
+                    if ($result !== false) {
+                        // Commit transaction
+                        $wpdb->query('COMMIT');
+                        
+                        $deleted_count = $result;
+                        add_action('admin_notices', function() use ($deleted_count) {
+                            echo '<div class="notice notice-success is-dismissible"><p>' . 
+                                 sprintf(
+                                     _n(
+                                         '%d chat log deleted successfully.',
+                                         '%d chat logs deleted successfully.',
+                                         $deleted_count,
+                                         'contentoracle-ai-chat'
+                                     ),
+                                     $deleted_count
+                                 ) . 
+                                 '</p></div>';
+                        });
+                    } else {
+                        // Rollback transaction on error
+                        $wpdb->query('ROLLBACK');
+                        add_action('admin_notices', function() {
+                            echo '<div class="notice notice-error is-dismissible"><p>' . 
+                                 __('Failed to delete chat logs.', 'contentoracle-ai-chat') . 
+                                 '</p></div>';
+                        });
+                    }
+                } catch (Exception $e) {
+                    // Rollback transaction on exception
+                    $wpdb->query('ROLLBACK');
+                    add_action('admin_notices', function() {
+                        echo '<div class="notice notice-error is-dismissible"><p>' . 
+                             __('An error occurred while deleting chat logs.', 'contentoracle-ai-chat') . 
+                             '</p></div>';
+                    });
+                }
+            }
+        }
     }
 
     public function column_chat_id($item) {
