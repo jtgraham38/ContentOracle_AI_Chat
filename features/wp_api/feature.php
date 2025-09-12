@@ -400,13 +400,6 @@ class ContentOracleApi extends PluginFeature{
             }
         );
 
-
-
-
-        //log the user message and the ai response
-        // $this->logUserChat($request, $id2post);
-        // $this->logAiChat($request, $ai_chat_response);
-
         //assemble the full text of the response from the full_response array
         $ai_chat_response = "";
         foreach ($full_response as $fragment){

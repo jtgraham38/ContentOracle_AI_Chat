@@ -35,8 +35,8 @@ class ContentOracleSetupWizard extends PluginFeature{
     public function create_admin_page(){
         add_submenu_page(
             'contentoracle-hidden', // Parent menu slug (this page does not appear in the sidebar menu)
-            'Content Oracle Setup Wizard',
-            'Content Oracle Setup Wizard',
+            'ContentOracle Setup Wizard',
+            'ContentOracle Setup Wizard',
             'manage_options',
             'contentoracle-ai-chat-setup-wizard',
             function(){

@@ -54,7 +54,14 @@ if ($cleanup_db) {
     $vtq = new VectorTableQueue($prefix);
     $vtq->drop_table();
     echo "Custom tables cleaned up successfully!<br>";
-    
+
+
+    // Clean up chat log table
+    echo "Cleaning up chat log table...<br>";
+    $tablename = $wpdb->prefix . $prefix . 'chatlog';
+    $wpdb->query("DROP TABLE IF EXISTS {$tablename}");
+    echo "Chat log table cleaned up successfully!<br>";
+
     // Clear any scheduled cron jobs
     echo "Clearing scheduled cron jobs...";
     wp_clear_scheduled_hook($prefix . 'embed_batch_cron_hook');

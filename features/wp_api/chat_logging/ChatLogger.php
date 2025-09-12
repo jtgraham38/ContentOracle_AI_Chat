@@ -7,9 +7,38 @@ if (!defined('ABSPATH')) {
 trait ContentOracle_ChatLoggerTrait{
     abstract public function get_client_ip();
 
+    //create the chat log table, if it does not exist
+    public function create_chat_log_table(){
+        global $wpdb;
+        
+
+        $table_name = $wpdb->prefix . $this->prefixed('chatlog');
+
+        //check if the table exists
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") == $table_name) {
+            return;
+        }
+
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$table_name} (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            conversation JSON,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )");
+    }
+
+    
+
     //log a chat from the user
     public function logUserChat(WP_REST_Request $request, $content_supplied = []){
+        global $wpdb;
         $chat_log_id = null;
+
+        //ensure the chat log table exists
+        $this->create_chat_log_table();
+
+        //define the table name
+        $table_name = $wpdb->prefix . $this->prefixed('chatlog');
 
         //if the chat has no chat log id, create a new one
         if ($request->get_param('chat_log_id') === null){
@@ -19,49 +48,89 @@ trait ContentOracle_ChatLoggerTrait{
             $user_info = $user_info->user_login ?? $user_info->user_email ?? $this->get_client_ip();
 
             //create a new chat log
-            $chat_log_id = wp_insert_post(array(
-                'post_type' => $this->prefixed('chatlog'),
-                'post_title' => 'Chat Log from: ' . $user_info,
-                'post_content' => json_encode([
-                    "conversation" => [
-                        [
-                            "role" => "user",
-                            'message' => sanitize_text_field($request->get_param('message')),
-                            'content_supplied' => $content_supplied,
-                            'timestamp' => time(),
-                        ]
-                    ]
-                ]),
-                'post_status' => 'publish',
-            ));
+            $conversation = [
+                [
+                    "role" => "user",
+                    "message" => sanitize_text_field($request->get_param('message')),
+                    "content_supplied" => $content_supplied,
+                    "timestamp" => time(),
+                ]
+            ];
+
+            //insert it into the database
+            $result = $wpdb->insert(
+                $table_name, 
+                array(
+                    'conversation' => json_encode($conversation),
+                    'created_at' => current_time('mysql'),
+                    'updated_at' => current_time('mysql')
+                ),
+                array('%s', '%s', '%s')
+            );
+
+            //check if insert was successful
+            if ($result === false) {
+                error_log('Failed to insert chat log: ' . $wpdb->last_error);
+                return null;
+            }
+
+            //get the id of the inserted chat log
+            $chat_log_id = $wpdb->insert_id;
 
 
         }
         //otherwise, update the existing chat log
         else{
 
+            //set the chat log id
+            $chat_log_id = $request->get_param('chat_log_id');
+
             //get the existing chat log
-            $chat_log = get_post($request->get_param('chat_log_id'));
+            $chat_log = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $chat_log_id));
+
+            if (!$chat_log) {
+                error_log('Chat log not found: ' . $chat_log_id);
+                return null;
+            }
 
             //get the existing conversation
-            $conversation = json_decode($chat_log->post_content, true);
+            $conversation = json_decode($chat_log->conversation, true) ?: [];
+            
+            // Log if JSON decode failed (for debugging)
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                error_log('Failed to decode existing chat log JSON in logUserChat: ' . json_last_error_msg());
+                $conversation = [];
+            }
 
             //add the user's message to the conversation
-            $conversation['conversation'][] = [
-                'role' => 'user',
-                'message' => $request->get_param('message'),
-                'content_supplied' => $content_supplied,
-                'timestamp' => time()
+            $conversation[] = [
+                "role" => "user",
+                "message" => sanitize_text_field($request->get_param('message')),
+                "content_supplied" => $content_supplied,
+                "timestamp" => time(),
             ];
 
-            //update the existing chat log using a manual query
-            $chat_log_id = $request->get_param('chat_log_id');
-            $wpdb->update(
-                $wpdb->posts,
-                array('post_content' => json_encode($conversation)),
-                array('ID' => $chat_log_id)
+            //update the existing chat log
+            $result = $wpdb->update(
+                $table_name, 
+                array(
+                    'conversation' => json_encode($conversation),
+                    'updated_at' => current_time('mysql')
+                ), 
+                array('id' => $chat_log_id),
+                array('%s', '%s'),
+                array('%d')
             );
+
+            if ($result === false) {
+                error_log('Failed to update chat log: ' . $wpdb->last_error);
+                return null;
+            }
+
         }
+        
+        //send changes to db
+        $wpdb->flush();
 
         //return the chat log id
         return $chat_log_id;
@@ -71,16 +140,33 @@ trait ContentOracle_ChatLoggerTrait{
     public function logAiChat(string $message, $chat_log_id=null){
         global $wpdb;
 
+        //ensure the chat log table exists
+        $this->create_chat_log_table();
+
+        //define the table name
+        $table_name = $wpdb->prefix . $this->prefixed('chatlog');
+
         //if the chat log id is null, something has gone wrong.  Return from the function
         if ($chat_log_id === null){
             return null;
         }
 
         //get the existing chat log
-        $chat_log = get_post($chat_log_id);
+        $chat_log = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table_name} WHERE id = %d", $chat_log_id));
+
+        if (!$chat_log) {
+            error_log('Chat log not found: ' . $chat_log_id);
+            return null;
+        }
 
         //get the existing conversation
-        $conversation = json_decode($chat_log->post_content, true) ?: ['conversation' => []];
+        $conversation = json_decode($chat_log->conversation, true) ?: [];
+
+        // Log if JSON decode failed (for debugging)
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log('Failed to decode existing chat log JSON in logAiChat: ' . json_last_error_msg());
+            $conversation = [];
+        }
 
         // First, strip all tags except coai-artifact tags
         $sanitized_message = wp_kses($message, array(
@@ -92,7 +178,7 @@ trait ContentOracle_ChatLoggerTrait{
         ));
 
         //add the ai's message to the conversation
-        $conversation['conversation'][] = [
+        $conversation[] = [
             'role' => 'assistant',
             'message' => $sanitized_message,
             'timestamp' => time()
@@ -108,29 +194,27 @@ trait ContentOracle_ChatLoggerTrait{
             return null;
         }
             
-        //update the existing chat log with a manual query
-        //(the wp_update_post function was filtering the content unnecessarily)
-        $wpdb->update(
-            $wpdb->posts,
-            array('post_content' => $encoded_conversation),
-            array('ID' => $chat_log_id)
+        //update the existing chat log
+        $result = $wpdb->update(
+            $table_name,
+            array(
+                'conversation' => $encoded_conversation,
+                'updated_at' => current_time('mysql')
+            ),
+            array('id' => $chat_log_id),
+            array('%s', '%s'),
+            array('%d')
         );
+
+        if ($result === false) {
+            error_log('Failed to update chat log with AI message: ' . $wpdb->last_error);
+            return null;
+        }
 
         //return the chat log id
         return $chat_log_id;
     }
 
 
-    /*
-    * 
-    * 
-    * TODO: I need a more robust system that does not overwrite the chat log with each message, but instead appends to it.
-    * Ideally, we woul add the user's message to the chat log at the beginning of the request, and the completed ai response to the chat log at the end of the request.
-    * Then, we would add error handling to the chat log.  Then, the chat log feature would just need auto-deleting, and it'd be done!
-    * 
-    * 
-    * 
-    * 
-    * 
-    */
+
 }

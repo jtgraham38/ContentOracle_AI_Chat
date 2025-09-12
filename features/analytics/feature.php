@@ -17,27 +17,9 @@ class ContentOracleAnalytics extends PluginFeature{
     public function add_actions(){
         //add submenu page
         add_action('admin_menu', array($this, 'add_menu'));
-
-        //register the chat log cpt
-        add_action('init', array($this, 'register_chat_log_cpt'));
-
-        //register the chat log admin page
-        add_action('admin_menu', array($this, 'register_chat_log_admin_page'));
-
-        //add the tab bar to the chat log page
-        add_action('admin_notices', array($this, 'add_tab_bar_to_chat_log_page'));
-        
-        //customize the edit screen for chat logs
-        add_action('edit_form_after_title', array($this, 'show_chat_log_content'));
-        add_action('add_meta_boxes', array($this, 'remove_publish_meta_box'));
         
         //enqueue chat log styles
         add_action('admin_enqueue_scripts', array($this, 'enqueue_chat_log_scripts_styles'));
-        
-        //customize the post table columns
-        add_filter('manage_' . $this->prefixed('chatlog') . '_posts_columns', array($this, 'set_chat_log_columns'));
-        add_action('manage_' . $this->prefixed('chatlog') . '_posts_custom_column', array($this, 'customize_chat_log_columns'), 10, 2);
-        add_filter('manage_edit-' . $this->prefixed('chatlog') . '_sortable_columns', array($this, 'make_chat_log_columns_sortable'));
     }
 
     
@@ -48,7 +30,10 @@ class ContentOracleAnalytics extends PluginFeature{
             __('Analytics', 'contentoracle-ai-chat'), // page title
             __('Analytics', 'contentoracle-ai-chat'), // menu title
             'manage_options', // capability
-            'edit.php?post_type=' . $this->prefixed('chatlog')
+            'contentoracle-ai-chat-analytics',
+            function(){
+                require_once plugin_dir_path(__FILE__) . 'elements/analytics_page.php';
+            }
         );
     }
     /**
@@ -66,16 +51,6 @@ class ContentOracleAnalytics extends PluginFeature{
         $this->get_feature('admin_menu')->render_tabbed_admin_page($page_content);
     }
 
-    /**
-     * Remove the publish meta box from chat log edit screen
-     */
-    public function remove_publish_meta_box() {
-        global $post;
-        
-        if ($post && $post->post_type === $this->prefixed('chatlog')) {
-            remove_meta_box('submitdiv', $this->prefixed('chatlog'), 'side');
-        }
-    }
 
     /**
      * Enqueue chat log styles for admin area
@@ -118,153 +93,10 @@ class ContentOracleAnalytics extends PluginFeature{
         }
     }
 
-    /**
-     * Set custom columns for chat logs
-     */
-    public function set_chat_log_columns($columns) {
-        $new_columns = array();
-        $new_columns['cb'] = $columns['cb'];
-        $new_columns['title'] = __('Chat ID', 'contentoracle-ai-chat');
-        $new_columns['user_messages'] = __('User Messages', 'contentoracle-ai-chat');
-        $new_columns['ai_messages'] = __('AI Messages', 'contentoracle-ai-chat');
-        $new_columns['date'] = __('Date', 'contentoracle-ai-chat');
-        return $new_columns;
-    }
 
-    /**
-     * Customize the content of chat log columns
-     */
-    public function customize_chat_log_columns($column, $post_id) {
-        switch ($column) {
-            case 'user_messages':
-                $post = get_post($post_id);
-                if ($post && $post->post_content) {
-                    $chat_data = json_decode($post->post_content, true);
-                    if ($chat_data && isset($chat_data['conversation']) && is_array($chat_data['conversation'])) {
-                        $user_count = 0;
-                        foreach ($chat_data['conversation'] as $message) {
-                            if (isset($message['role']) && $message['role'] === 'user') {
-                                $user_count++;
-                            }
-                        }
-                        echo $user_count;
-                    } else {
-                        echo '0';
-                    }
-                } else {
-                    echo '0';
-                }
-                break;
-                
-            case 'ai_messages':
-                $post = get_post($post_id);
-                if ($post && $post->post_content) {
-                    $chat_data = json_decode($post->post_content, true);
-                    if ($chat_data && isset($chat_data['conversation']) && is_array($chat_data['conversation'])) {
-                        $ai_count = 0;
-                        foreach ($chat_data['conversation'] as $message) {
-                            if (isset($message['role']) && $message['role'] === 'assistant') {
-                                $ai_count++;
-                            }
-                        }
-                        echo $ai_count;
-                    } else {
-                        echo '0';
-                    }
-                } else {
-                    echo '0';
-                }
-                break;
-        }
-    }
-
-    /**
-     * Make chat log columns sortable
-     */
-    public function make_chat_log_columns_sortable($columns) {
-        $columns['user_messages'] = 'user_messages';
-        $columns['ai_messages'] = 'ai_messages';
-        return $columns;
-    }
-
-    public function render_page(){
-        $this->get_feature('admin_menu')->render_tabbed_admin_page(
-            require_once plugin_dir_path(__FILE__) . 'elements/analytics_page.php'
-        );
-    }
 
     //register a cpt for chat logs
-    public function register_chat_log_cpt(){
-        $labels = array(
-            'name' => 'Chat Logs',
-            'singular_name' => 'Chat Log',
-            'menu_name' => 'Chat Logs',
-            'all_items' => 'All Chat Logs',
-            'view_item' => 'View Chat Log',
-            'add_new_item' => 'Add New Chat Log',
-            'edit_item' => 'Edit Chat Log',
-            'update_item' => 'Update Chat Log',
-            'search_items' => 'Search Chat Logs',
-            'not_found' => 'No chat logs found',
-            'not_found_in_trash' => 'No chat logs found in trash',
-        );
 
-        $args = array(
-            'labels' => $labels,
-            'public' => false,
-            'publicly_queryable' => false,
-            'show_ui' => true,
-            'show_in_menu' => false,
-            'show_in_admin_bar' => false,
-            'show_in_nav_menus' => false,
-            'show_in_rest' => false,
-            'capability_type' => 'post',
-            'capabilities' => array(
-                'create_posts' => false, // Disable creating new posts
-                'edit_posts' => 'manage_options',
-                'edit_others_posts' => 'manage_options',
-                'publish_posts' => 'manage_options',
-                'read_private_posts' => 'manage_options',
-                'delete_posts' => 'manage_options',
-                //cannot be published
-                'publish_posts' => false,
-            ),
-            'map_meta_cap' => true,
-            'supports' => array(''),
-            'hierarchical' => false,
-            'has_archive' => false,
-            'rewrite' => false,
-            'query_var' => false,
-            'can_export' => false,
-        );
-
-        register_post_type($this->prefixed('chatlog'), $args);
-    }
-
-    //register the admin page for the chat logs
-    public function register_chat_log_admin_page(){
-        add_submenu_page(
-            'contentoracle-hidden',
-            'Chat Logs',
-            'Chat Logs',
-            'manage_options',
-            'edit.php?post_type=' . $this->prefixed('chatlog')
-        );
-    }
-
-    public function add_tab_bar_to_chat_log_page(){
-        //only add the tab bar if we are on the chat log page
-        if (!isset($_GET['post_type']) || $_GET['post_type'] !== $this->prefixed('chatlog')) {
-            return;
-        }
-
-        //get the admin menu feature to render the tab bar
-        $admin_menu_feature = $this->get_feature('admin_menu');
-        if ($admin_menu_feature) {
-            //render the tab bar
-            $admin_menu_feature->render_tabbed_admin_page('');
-        }
-    }
 
     /*
     This feature will consist of two major parts:
