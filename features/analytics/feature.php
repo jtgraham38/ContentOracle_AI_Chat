@@ -34,6 +34,12 @@ class ContentOracleAnalytics extends PluginFeature{
             'manage_options', // capability
             'contentoracle-ai-chat-analytics',
             function(){
+                // Handle delete action first
+                if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['chat_log_id'])) {
+                    $this->handle_delete_chat_log();
+                    return;
+                }
+                
                 //check if the chat_log_id param 
                 if (isset($_GET['chat_log_id'])) {
                     // Get page content
@@ -74,6 +80,49 @@ class ContentOracleAnalytics extends PluginFeature{
                 '1.0.0'
             );
         }
+    }
+
+    /**
+     * Handle delete chat log action
+     */
+    private function handle_delete_chat_log() {
+        $chat_log_id = intval($_GET['chat_log_id']);
+        $nonce = isset($_GET['_wpnonce']) ? $_GET['_wpnonce'] : '';
+        
+        if (wp_verify_nonce($nonce, 'delete_chat_log_' . $chat_log_id)) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'coai_chat_chatlog';
+            
+            $result = $wpdb->delete(
+                $table_name,
+                array('id' => $chat_log_id),
+                array('%d')
+            );
+            
+            if ($result !== false) {
+                add_action('admin_notices', function() {
+                    echo '<div class="notice notice-success is-dismissible"><p>' . 
+                         __('Chat log deleted successfully.', 'contentoracle-ai-chat') . 
+                         '</p></div>';
+                });
+            } else {
+                add_action('admin_notices', function() {
+                    echo '<div class="notice notice-error is-dismissible"><p>' . 
+                         __('Failed to delete chat log.', 'contentoracle-ai-chat') . 
+                         '</p></div>';
+                });
+            }
+        } else {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error is-dismissible"><p>' . 
+                     __('Security check failed. Please try again.', 'contentoracle-ai-chat') . 
+                     '</p></div>';
+            });
+        }
+        
+        // Redirect to the analytics page
+        wp_redirect(admin_url('admin.php?page=contentoracle-ai-chat-analytics'));
+        exit;
     }
 
 

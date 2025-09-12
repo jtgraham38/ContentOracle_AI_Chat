@@ -170,6 +170,21 @@ class COAI_ChatLogs_Table extends WP_List_Table {
                     )
                 ),
                 __('View', 'contentoracle-ai-chat')
+            ),
+            'delete' => sprintf(
+                '<a href="%s" class="submitdelete" onclick="return confirm(\'%s\');">%s</a>',
+                wp_nonce_url(
+                    add_query_arg(
+                        array(
+                            'action' => 'delete',
+                            'chat_log_id' => $item->id
+                        ),
+                        admin_url('admin.php?page=contentoracle-ai-chat-analytics')
+                    ),
+                    'delete_chat_log_' . $item->id
+                ),
+                esc_js(__('Are you sure you want to delete this chat log?', 'contentoracle-ai-chat')),
+                __('Delete', 'contentoracle-ai-chat')
             )
         );
 
