@@ -133,8 +133,9 @@ This plugin uses the following libraries:
 - **AlpineJS**: Reactive data for UI ([GitHub](https://github.com/alpinejs/alpine))  
 - **Floating UI**: Tooltip positioning ([GitHub](https://github.com/floating-ui/floating-ui))  
 - **PHP NLP Tools**: Natural language processing ([GitHub](https://github.com/angeloskath/php-nlp-tools))  
-- **Marked**: Markdown to HTML parser  
-- **DOMPurify**: HTML XSS sanitizer  
+- **CommonMark**: PHP library to parse markdown server-side ([Github](https://github.com/thephpleague/commonmark))
+- **Marked**: Markdown to HTML parser ([Github](https://github.com/markedjs/marked))
+- **DOMPurify**: HTML XSS sanitizer ([Github](https://github.com/cure53/DOMPurify))
 
 == Screenshots ==
 
