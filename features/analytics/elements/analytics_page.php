@@ -4,200 +4,207 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once(ABSPATH . 'wp-admin/includes/class-wp-list-table.php');
 
-// Get current page and pagination parameters
-$current_page = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
-$per_page = 20;
-$offset = ($current_page - 1) * $per_page;
+// Create a WordPress list table for chat logs
+class COAI_ChatLogs_Table extends WP_List_Table {
 
-// Get chat logs from the custom table
-global $wpdb;
-$table_name = $wpdb->prefix . $this->prefixed('chatlog');
+    private $table_name;
 
-// Check if table exists, if not show message
-if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name}'") != $table_name) {
-    echo '<div class="wrap"><h1>' . __('Analytics', 'contentoracle-ai-chat') . '</h1>';
-    echo '<div class="notice notice-info"><p>' . __('Chat log table not found. No chat logs available.', 'contentoracle-ai-chat') . '</p></div></div>';
-    return;
-}
+    public function __construct($args = []) {
+        parent::__construct($args);
+        
+        global $wpdb;
+        $this->table_name = $wpdb->prefix . 'coai_chat_chatlog';
+        
+        // Set column headers
+        $this->_column_headers = [
+            $this->get_columns(),
+            [],
+            $this->get_sortable_columns(),
+            'chat_id'
+        ];
+    }
 
-// Get total count
-$total_count = $wpdb->get_var("SELECT COUNT(*) FROM {$table_name}");
+    public function get_columns() {
+        return [
+            'cb' => '<input type="checkbox" />',
+            'chat_id' => __('Chat ID', 'contentoracle-ai-chat'),
+            'user_info' => __('User', 'contentoracle-ai-chat'),
+            'user_messages' => __('User Messages', 'contentoracle-ai-chat'),
+            'ai_messages' => __('AI Messages', 'contentoracle-ai-chat'),
+            'created_at' => __('Date', 'contentoracle-ai-chat'),
+        ];
+    }
 
-// Get paginated results
-$chat_logs = $wpdb->get_results(
-    $wpdb->prepare(
-        "SELECT * FROM {$table_name} ORDER BY created_at DESC LIMIT %d OFFSET %d",
-        $per_page,
-        $offset
-    )
-);
+    public function get_sortable_columns() {
+        return [
+            'created_at' => ['created_at', true], // true = descending by default
+        ];
+    }
 
-// Calculate pagination
-$total_pages = ceil($total_count / $per_page);
+    public function prepare_items() {
+        global $wpdb;
+        
+        // Check if table exists
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$this->table_name}'") != $this->table_name) {
+            $this->items = [];
+            $this->set_pagination_args([
+                'total_items' => 0,
+                'per_page' => 20,
+                'total_pages' => 0
+            ]);
+            return;
+        }
 
-// Process chat logs to extract message counts
-foreach ($chat_logs as $log) {
-    $conversation = json_decode($log->conversation, true);
-    $log->user_message_count = 0;
-    $log->ai_message_count = 0;
-    
-    if (isset($conversation['conversation']) && is_array($conversation['conversation'])) {
-        foreach ($conversation['conversation'] as $message) {
-            if (isset($message['role'])) {
-                if ($message['role'] === 'user') {
-                    $log->user_message_count++;
-                } elseif ($message['role'] === 'assistant') {
-                    $log->ai_message_count++;
+        // Set up pagination
+        $per_page = 20;
+        $current_page = $this->get_pagenum();
+        $offset = ($current_page - 1) * $per_page;
+
+        // Get total count
+        $total_items = $wpdb->get_var("SELECT COUNT(*) FROM {$this->table_name}");
+
+        // Handle sorting
+        $orderby = 'created_at';
+        $order = 'DESC';
+        
+        if (isset($_GET['orderby'])) {
+            $orderby = sanitize_sql_orderby($_GET['orderby']);
+            if (!$orderby) {
+                $orderby = 'created_at';
+            }
+        }
+        
+        if (isset($_GET['order'])) {
+            $order = strtoupper($_GET['order']) === 'ASC' ? 'ASC' : 'DESC';
+        }
+
+        // Get paginated results
+        $chat_logs = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$this->table_name} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
+                $per_page,
+                $offset
+            )
+        );
+
+        // Process chat logs to extract message counts
+        foreach ($chat_logs as $log) {
+            $conversation = json_decode($log->conversation, true);
+            $log->user_message_count = 0;
+            $log->ai_message_count = 0;
+            
+            if (isset($conversation) && is_array($conversation)) {
+                foreach ($conversation as $message) {
+                    if (isset($message['role'])) {
+                        if ($message['role'] === 'user') {
+                            $log->user_message_count++;
+                        } elseif ($message['role'] === 'assistant') {
+                            $log->ai_message_count++;
+                        }
+                    }
                 }
             }
         }
+
+        // Set the items
+        $this->items = $chat_logs;
+
+        $this->set_pagination_args([
+            'total_items' => $total_items,
+            'per_page' => $per_page,
+            'total_pages' => ceil($total_items / $per_page)
+        ]);
+    }
+
+    public function column_default($item, $column_name) {
+        switch ($column_name) {
+            case 'chat_id':
+                return sprintf(
+                    '<strong>%s</strong>',
+                    esc_html($item->id)
+                );
+            case 'user_info':
+                return esc_html($item->user_info ?: __('Anonymous', 'contentoracle-ai-chat'));
+            case 'user_messages':
+                return intval($item->user_message_count);
+            case 'ai_messages':
+                return intval($item->ai_message_count);
+            case 'created_at':
+                return esc_html(
+                    date_i18n(
+                        get_option('date_format') . ' ' . get_option('time_format'), 
+                        strtotime($item->created_at)
+                    )
+                );
+            default:
+                return isset($item->$column_name) ? esc_html($item->$column_name) : '';
+        }
+    }
+
+    public function column_cb($item) {
+        return sprintf(
+            '<input type="checkbox" name="chat_log[]" value="%s" />',
+            $item->id
+        );
+    }
+
+    public function get_bulk_actions() {
+        return [
+            'bulk-delete' => __('Delete', 'contentoracle-ai-chat')
+        ];
+    }
+
+    public function column_chat_id($item) {
+        $actions = array(
+            'view' => sprintf(
+                '<a href="%s">%s</a>',
+                esc_url(
+                    add_query_arg(
+                        array(
+                            'page' => 'contentoracle-ai-chat-analytics',
+                            'chat_log_id' => urlencode($item->id)
+                        ),
+                        admin_url('admin.php')
+                    )
+                ),
+                __('View', 'contentoracle-ai-chat')
+            )
+        );
+
+        return sprintf(
+            '%1$s %2$s',
+            sprintf(
+                '<strong>%s</strong>',
+                esc_html($item->id)
+            ),
+            $this->row_actions($actions)
+        );
     }
 }
+
+// Create an instance of the table
+$table = new COAI_ChatLogs_Table();
 
 ?>
 
 <div class="wrap">
     <h1><?php _e('Analytics', 'contentoracle-ai-chat'); ?></h1>
     
-    <?php if (empty($chat_logs)): ?>
-        <div class="notice notice-info">
-            <p><?php _e('No chat logs found.', 'contentoracle-ai-chat'); ?></p>
-        </div>
-    <?php else: ?>
-        
-        <!-- Top pagination -->
-        <div class="tablenav top">
-            <div class="alignleft actions">
-                <span class="displaying-num">
-                    <?php 
-                    printf(
-                        _n('%s item', '%s items', $total_count, 'contentoracle-ai-chat'),
-                        number_format_i18n($total_count)
-                    );
-                    ?>
-                </span>
-            </div>
-            <?php if ($total_pages > 1): ?>
-                <div class="tablenav-pages">
-                    <?php
-                    $pagination_args = array(
-                        'base' => add_query_arg('paged', '%#%'),
-                        'format' => '',
-                        'prev_text' => __('&laquo;'),
-                        'next_text' => __('&raquo;'),
-                        'total' => $total_pages,
-                        'current' => $current_page,
-                        'type' => 'plain'
-                    );
-                    echo paginate_links($pagination_args);
-                    ?>
-                </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Chat logs table -->
-        <table class="wp-list-table widefat fixed striped">
-            <thead>
-                <tr>
-                    <th scope="col" class="manage-column column-chat-id column-primary">
-                        <?php _e('Chat ID', 'contentoracle-ai-chat'); ?>
-                    </th>
-                    <th scope="col" class="manage-column column-user-info">
-                        <?php _e('User', 'contentoracle-ai-chat'); ?>
-                    </th>
-                    <th scope="col" class="manage-column column-user-messages">
-                        <?php _e('User Messages', 'contentoracle-ai-chat'); ?>
-                    </th>
-                    <th scope="col" class="manage-column column-ai-messages">
-                        <?php _e('AI Messages', 'contentoracle-ai-chat'); ?>
-                    </th>
-                    <th scope="col" class="manage-column column-date">
-                        <?php _e('Date', 'contentoracle-ai-chat'); ?>
-                    </th>
-                    <th scope="col" class="manage-column column-actions">
-                        <?php _e('Actions', 'contentoracle-ai-chat'); ?>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($chat_logs as $log): ?>
-                    <tr>
-                        <td class="column-chat-id column-primary">
-                            <strong><?php echo esc_html($log->chat_id); ?></strong>
-                            <button type="button" class="toggle-row">
-                                <span class="screen-reader-text"><?php _e('Show more details', 'contentoracle-ai-chat'); ?></span>
-                            </button>
-                        </td>
-                        <td class="column-user-info">
-                            <?php echo esc_html($log->user_info ?: __('Anonymous', 'contentoracle-ai-chat')); ?>
-                        </td>
-                        <td class="column-user-messages">
-                            <?php echo intval($log->user_message_count); ?>
-                        </td>
-                        <td class="column-ai-messages">
-                            <?php echo intval($log->ai_message_count); ?>
-                        </td>
-                        <td class="column-date">
-                            <?php 
-                            echo esc_html(
-                                date_i18n(
-                                    get_option('date_format') . ' ' . get_option('time_format'), 
-                                    strtotime($log->created_at)
-                                )
-                            ); 
-                            ?>
-                        </td>
-                        <td class="column-actions">
-                            <a href="<?php 
-                                //add the chat_log_id param to the url
-                                echo esc_url(
-                                    add_query_arg(
-                                        array(
-                                            'page' => 'contentoracle-ai-chat-analytics',
-                                            'chat_log_id' => urlencode($log->id)
-                                        ),
-                                        admin_url('admin.php')
-                                    )
-                                ); 
-                            ?>" 
-                               class="button button-small">
-                                <?php _e('View Chat', 'contentoracle-ai-chat'); ?>
-                            </a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-
-        <!-- Bottom pagination -->
-        <?php if ($total_pages > 1): ?>
-            <div class="tablenav bottom">
-                <div class="tablenav-pages">
-                    <?php echo paginate_links($pagination_args); ?>
-                </div>
-            </div>
-        <?php endif; ?>
-
-    <?php endif; ?>
+    <?php 
+    // Prepare and display the table
+    $table->prepare_items();
+    
+    if (empty($table->items)) {
+        echo '<div class="notice notice-info">';
+        echo '<p>' . __('No chat logs found.', 'contentoracle-ai-chat') . '</p>';
+        echo '</div>';
+    } else {
+        echo '<form method="post">';
+        wp_nonce_field('bulk-' . $table->_args['plural']);
+        $table->display();
+        echo '</form>';
+    }
+    ?>
 </div>
-
-<style>
-.wp-list-table .column-chat-id {
-    width: 25%;
-}
-.wp-list-table .column-user-info {
-    width: 20%;
-}
-.wp-list-table .column-user-messages,
-.wp-list-table .column-ai-messages {
-    width: 12%;
-    text-align: center;
-}
-.wp-list-table .column-date {
-    width: 18%;
-}
-.wp-list-table .column-actions {
-    width: 13%;
-}
-</style>
