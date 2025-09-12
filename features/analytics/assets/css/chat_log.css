@@ -143,7 +143,7 @@
 
 .coai_chat_content-item-link {
     text-decoration: none;
-    color: #0073aa;
+    color: #46b450;
     font-size: 1.2em;
     padding: 2px 6px;
     border-radius: 3px;
@@ -205,7 +205,7 @@
     text-align: center;
     text-decoration: none !important;
     padding: 0.75rem 1.5rem;
-    background: #0073aa !important;
+    background: #46b450 !important;
     color: white !important;
     border-radius: 6px;
     border: none;
@@ -220,7 +220,7 @@
 
 .coai_chat-featured_content a:hover,
 .coai_chat-featured_content_btn:hover {
-    background: #005a87 !important;
+    background: #358d3c !important;
     color: white !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -229,7 +229,7 @@
 
 .coai_chat-featured_content a:active,
 .coai_chat-featured_content_btn:active {
-    background: #004a6b !important;
+    background: #358d3c !important;
     color: white !important;
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -246,7 +246,7 @@
     vertical-align: super;
     font-size: smaller;
     text-decoration: none;
-    color: #0073aa;
+    color: #46b450;
     margin-left: 2px;
 }
 
