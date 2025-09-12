@@ -1,9 +1,72 @@
 <?php
 
+
 if (!defined('ABSPATH')) {
     exit;
 }
 global $wpdb;
+
+
+//render artifacts
+$render_artifacts = function($content){
+    //get all coai artifacts, and get ready to replace them with the rendered html
+    $content = preg_replace_callback('/<coai-artifact[^>]*>(.*?)<\/coai-artifact>/', function($matches){
+        //get the artifact
+        $artifact = $matches[0];
+
+        //parse it uising simplexml
+        $artifact = simplexml_load_string($artifact);
+
+
+        //get the artifact type
+        $artifact_type = $artifact->attributes()->artifact_type;
+
+        //rendered artifact buffer
+        $rendered_artifact = '';
+
+        //switch based on the artifact type
+        switch ($artifact_type){
+            case 'featured_content':
+                $content_id = strval($artifact->attributes()->content_id);
+                $button_text = strval($artifact->attributes()->button_text);
+                $inner_content = (string)$artifact;
+                
+                $rendered_artifact = '<div class="coai_chat-featured_content">';
+                $rendered_artifact .= '<div class="coai_chat-featured_content_inner">';
+                $rendered_artifact .= '<img src="' . get_the_post_thumbnail_url($content_id) . '" alt="' . get_the_title($content_id) . '">';
+                $rendered_artifact .= '<p>' . $inner_content . '</p>';
+                $rendered_artifact .= '<a href="' . get_permalink($content_id) . '" target="_blank">' . $button_text . '</a>';
+                $rendered_artifact .= '</div>';
+                $rendered_artifact .= '</div>';
+                break;    
+
+            case 'inline_citation':
+                $content_id = strval($artifact->attributes()->content_id);
+                $button_text = strval($artifact->attributes()->button_text);
+                $inner_content = (string)$artifact;
+                
+                $rendered_artifact = '<div class="coai_chat-inline_citation">';
+                $rendered_artifact .= '<a href="' . get_permalink($content_id) . '" target="_blank">' . $button_text . '</a>';
+                $rendered_artifact .= '</div>';
+                break;
+            default:
+                $inner_content = (string)$artifact;
+                $rendered_artifact = $inner_content;
+                break;
+        }
+
+        //return the rendered artifact
+        return $rendered_artifact;
+    }, $content);
+
+
+    return $content;
+};
+//  \\  //  \\  //  \\  //  \\
+
+//include autoloader
+require_once plugin_dir_path(__FILE__) . '../../../vendor/autoload.php';
+use League\CommonMark\CommonMarkConverter;
 
 //define the table name
 $table_name = $wpdb->prefix . $this->prefixed('chatlog');
@@ -34,7 +97,12 @@ $updated_at = $chat_log->updated_at;
     
     <?php if (isset($chat_log_id) && isset($created_at)): ?>
         <div class="chat-log-meta">
-            <p><strong><?php _e('Chat ID:', 'contentoracle-ai-chat'); ?></strong> <?php echo esc_html($chat_log_id); ?></p>
+            <div class="chat-log-header">
+                <a href="<?php echo esc_url(admin_url('admin.php?page=contentoracle-ai-chat-analytics')); ?>" class="go-back-button">
+                    ← <?php _e('Go Back', 'contentoracle-ai-chat'); ?>
+                </a>
+                <p><strong><?php _e('Chat ID:', 'contentoracle-ai-chat'); ?></strong> <?php echo esc_html($chat_log_id); ?></p>
+            </div>
             <p><strong><?php _e('Created:', 'contentoracle-ai-chat'); ?></strong> <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($created_at))); ?></p>
         </div>
     <?php endif; ?>
@@ -88,13 +156,32 @@ $updated_at = $chat_log->updated_at;
                     <div class="<?php echo $this->prefixed('message-content'); ?>">
                         <?php 
 
+                        //run the content through wp_kses to only allow br and coai-artifact tags
+                        $content = wp_kses($content, array(
+                            'br' => array(),
+                            'coai-artifact' => array(
+                                'artifact_type' => array(),
+                                'content_id' => array(),
+                                'button_text' => array(),
+                            ),
+                        ));
+
+
                         //replace multiple newlines with a single newline
                         $content = preg_replace('/\n+/', "\n", $content);
+
+                        //convert the content to markdown
+                        $converter = new CommonMarkConverter();
+                        $content = $converter->convert($content);
+
+
+                        //render the artifacts
+                        $content = $render_artifacts($content);
 
                         //strip whitespace off front and end
                         $content = trim($content);
 
-                        echo esc_html($content); 
+                        echo $content; 
                         ?>
                     </div>
                     <?php if ($content_supplied && is_array($content_supplied)): ?>

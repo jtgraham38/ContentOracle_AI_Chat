@@ -9,6 +9,8 @@ require_once plugin_dir_path(__FILE__) . '../../vendor/autoload.php';
 
 use jtgraham38\jgwordpresskit\PluginFeature;
 
+
+
 class ContentOracleAnalytics extends PluginFeature{
     public function add_filters(){
         //todo: add filters here
@@ -70,27 +72,6 @@ class ContentOracleAnalytics extends PluginFeature{
                 plugin_dir_url(__FILE__) . 'assets/css/chat_log.css',
                 array(),
                 '1.0.0'
-            );
-
-
-            //marked
-            wp_enqueue_script(
-                $this->prefixed('marked-scripts'),
-                plugin_dir_url(__FILE__) . 'assets/js/marked.min.js',
-                array(),
-                '1.0.0',
-                true
-            );
-
-            //chat rendering functions (dependent on marked)
-            wp_enqueue_script(
-                $this->prefixed('chat-log-scripts'),
-                plugin_dir_url(__FILE__) . 'assets/js/renderChat.js',
-                array(
-                    $this->prefixed('marked-scripts'),
-                ),
-                '1.0.0',
-                true
             );
         }
     }
