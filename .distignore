@@ -25,3 +25,4 @@ Thumbs.db
 **/node_modules
 **/.gitignore
 /vendor/**/tests
+scoper.inc.php

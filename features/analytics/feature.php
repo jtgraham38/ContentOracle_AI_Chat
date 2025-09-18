@@ -22,10 +22,36 @@ class ContentOracleAnalytics extends PluginFeature{
         
         //enqueue chat log styles
         add_action('admin_enqueue_scripts', array($this, 'enqueue_chat_log_scripts_styles'));
+
+        //register a cron hook
+        add_action('init', array($this, 'schedule_cron_jobs'));
+
+        //register a cron job to remove chat logs that are older than 30 days
+        add_action($this->prefixed('remove_old_chat_logs_cron_hook'), array($this, 'remove_old_chat_logs'));
     }
 
     
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
+    /*
+    * Schedule cron jobs
+    */
+    public function schedule_cron_jobs(){
+        //schedule a cron job to remove chat logs that are older than 30 days
+        if (!wp_next_scheduled($this->prefixed('remove_old_chat_logs_cron_hook'))) {
+            wp_schedule_event(time(), 'daily', $this->prefixed('remove_old_chat_logs_cron_hook'));
+        }
+    }
+
+    /*
+    * Remove chat logs that are older than 30 days
+    */
+    public function remove_old_chat_logs(){
+        //elete all entries from the chat log table created more than 30 days ago
+        global $wpdb;
+        $table_name = $wpdb->prefix . $this->prefixed('chatlog');
+        $wpdb->query("DELETE FROM {$table_name} WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)");
+    }
+
     public function add_menu(){
         add_submenu_page(
             'contentoracle-hidden', // Parent menu slug (this page does not appear in the sidebar menu)
