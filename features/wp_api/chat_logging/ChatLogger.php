@@ -34,6 +34,12 @@ trait ContentOracle_ChatLoggerTrait{
         global $wpdb;
         $chat_log_id = null;
 
+        //check if chat logging is enabled
+        $logging_enabled = get_option($this->prefixed('enable_chat_logging'));
+        if ( !$logging_enabled ){
+            return;
+        }
+
         //ensure the chat log table exists
         $this->create_chat_log_table();
 
@@ -139,6 +145,12 @@ trait ContentOracle_ChatLoggerTrait{
     //log a chat from the ai
     public function logAiChat(string $message, $chat_log_id=null){
         global $wpdb;
+
+        //check if chat logging is enabled
+        $logging_enabled = get_option($this->prefixed('enable_chat_logging'));
+        if ( !$logging_enabled ){
+            return;
+        }
 
         //ensure the chat log table exists
         $this->create_chat_log_table();

@@ -23,6 +23,9 @@ class ContentOracleAnalytics extends PluginFeature{
         //enqueue chat log styles
         add_action('admin_enqueue_scripts', array($this, 'enqueue_chat_log_scripts_styles'));
 
+        //register chat log settings
+        add_action('admin_init', array($this, 'register_chat_log_settings'));
+
         //register a cron hook
         add_action('init', array($this, 'schedule_cron_jobs'));
 
@@ -46,10 +49,22 @@ class ContentOracleAnalytics extends PluginFeature{
     * Remove chat logs that are older than 30 days
     */
     public function remove_old_chat_logs(){
-        //elete all entries from the chat log table created more than 30 days ago
+        //delete all entries from the chat log table created more than 30 days ago
+        $logging_enabled = get_option($this->prefixed('enable_chat_logging'));
+        if ( !$logging_enabled ){
+            return;
+        }
+
+        $retention_period = get_option($this->prefixed('chat_log_retention_period'));
+
+        if ( !$retention_period ){
+            $retention_period = 30;
+        }
+
         global $wpdb;
+
         $table_name = $wpdb->prefix . $this->prefixed('chatlog');
-        $wpdb->query("DELETE FROM {$table_name} WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)");
+        $wpdb->query("DELETE FROM {$table_name} WHERE created_at < DATE_SUB(NOW(), INTERVAL {$retention_period} DAY)");
     }
 
     public function add_menu(){
@@ -149,6 +164,89 @@ class ContentOracleAnalytics extends PluginFeature{
         // Redirect to the analytics page
         wp_redirect(admin_url('admin.php?page=contentoracle-ai-chat-analytics'));
         exit;
+    }
+
+    /*
+    * Register a settings section for chat logs, with two settings: 
+        Enabled chat loging: boolean, determines whether chat logging is enable.
+        Chat log retention period: integer, determines the number of days to retain chat logs.
+    */
+    public function register_chat_log_settings(){
+
+        global $wpdb;
+
+        add_settings_section(
+            'coai_chat_chat_log_settings', // id
+            'Chat Log Settings', // title
+            function(){ // callback
+                echo 'Manage your chat log settings here.';
+            },
+            'contentoracle-ai-chat-chatlog-settings' // page (matches menu slug)
+        );
+
+        //add the enable chat logging input
+        add_settings_field(
+            $this->prefixed('enable_chat_logging'), // id
+            'Enable Chat Logging', // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/enable_chat_logging_input.php';
+            },
+            'contentoracle-ai-chat-chatlog-settings', // page (matches menu slug)
+            'coai_chat_chat_log_settings', // section
+            array(
+                'label_for' => $this->prefixed('enable_chat_logging_input')
+            )
+        );
+
+        //add the chat log retention period input
+        add_settings_field(
+            $this->prefixed('chat_log_retention_period'), // id
+            'Chat Log Retention Period', // title
+            function(){ // callback
+                require_once plugin_dir_path(__FILE__) . 'elements/chat_log_retention_period_input.php';
+            },
+            'contentoracle-ai-chat-chatlog-settings', // page (matches menu slug)
+            'coai_chat_chat_log_settings', // section
+            array(
+                'label_for' => $this->prefixed('chat_log_retention_period_input')
+            )
+        );
+
+        //create the settings themselves
+        register_setting(
+            'coai_chat_chat_log_settings', // option group
+            $this->prefixed('enable_chat_logging'), // option name
+            array(  // args
+                'type' => 'boolean',
+                'default' => true,
+                'sanitize_callback' => function($value){
+                    return $value ? true : false;
+                }
+            )
+        );
+
+        register_setting(
+            'coai_chat_chat_log_settings', // option group
+            $this->prefixed('chat_log_retention_period'), // option name
+            array(  // args
+                'type' => 'integer',
+                'default' => 30,
+                'sanitize_callback' => 'absint'
+            )
+        );
+
+        //check if each setting is in the db, if not, add it
+        $settings = array(
+            ['option_name' => $this->prefixed('enable_chat_logging'), 'default' => true],
+            ['option_name' => $this->prefixed('chat_log_retention_period'), 'default' => 30],
+        );
+
+        foreach ($settings as $setting){
+            $exists = $wpdb->get_results("SELECT option_name FROM {$wpdb->options} WHERE option_name = '{$setting['option_name']}'")[0]->option_name;
+            if ( !$exists ){
+                add_option($setting['option_name'], $setting['default']);
+            }
+        }
     }
 
 
