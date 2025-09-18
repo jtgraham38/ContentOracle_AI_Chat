@@ -129,7 +129,7 @@ class COAI_ChatLogs_Table extends WP_List_Table {
                     esc_html($item->id)
                 );
             case 'user_info':
-                return esc_html($item->user_info ?: __('Anonymous', 'contentoracle-ai-chat'));
+                return esc_html(isset($item->user_info) ? $item->user_info : __('Anonymous', 'contentoracle-ai-chat'));
             case 'user_messages':
                 return intval($item->user_message_count);
             case 'ai_messages':
