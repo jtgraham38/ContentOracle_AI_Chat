@@ -3,7 +3,7 @@
  * Plugin Name:       ContentOracle AI Chat
  * Plugin URI:        https://scrywp.com/contentoracle-ai-chat/
  * Description:       ContentOracle AI Chat seamlessly blends the power of generative AI with your website’s unique content.
- * Version:           1.11.3
+ * Version:           1.12.0
  * Requires at least: 6.0
  * Requires PHP:      7.2
  * Author:            ContentOracle AI
