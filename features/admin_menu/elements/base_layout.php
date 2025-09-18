@@ -32,7 +32,7 @@ $tabs = array(
         'url' => admin_url('admin.php?page=contentoracle-ai-chat-embeddings')
     ),
     'contentoracle-ai-chat-analytics' => array(
-        'label' => __('Analytics', 'contentoracle-ai-chat'),
+        'label' => __('Chat Logs', 'contentoracle-ai-chat'),
         'icon' => 'dashicons-admin-tools',
         'url' => admin_url('admin.php?page=contentoracle-ai-chat-analytics')
     ),
