@@ -13,6 +13,10 @@ That is where ContentOracle AI Chat comes in. ContentOracle AI Chat bridges the 
 - Suite of easy-to-modify settings to customize the way your ai responds.
 - Goal recommendation feature where the AI will recommend a post, event, product, or other piece of content at the end of its response.
 - Customize the page where the main AI chat feature should appear.
+- **NEW**: Comprehensive chat logging and analytics system with configurable retention periods.
+- **NEW**: Bulk chat log management with delete functionality and pagination.
+- **NEW**: Automatic chat log cleanup via WordPress cron jobs.
+- **NEW**: Chat log viewer with sorting capabilities and message count display.
 - Much more coming soon!
 
 ## Installation
@@ -43,3 +47,11 @@ ContentOracle AI bills on a usage-based basis. So, the more your users interact 
 ### What does the AI Search block do?
 
 The AI Search block is designed to connect your users with your AI Chat block from anywhere on your website. When the user searches something in the AI Search block, they will be redirected to your main AI search page, where your AI Chat block should reside. Their search query will be preemptively sent to the AI to kick off the conversation.
+
+### How do I view and manage chat logs?
+
+Navigate to **ContentOracle > Analytics** in your WordPress admin to view all chat interactions, manage chat log retention settings, and delete old logs. You can configure how long to keep chat logs and enable/disable logging entirely.
+
+### How does chat log retention work?
+
+The plugin automatically cleans up old chat logs based on your configured retention period (default 30 days). You can adjust this setting in the Analytics section, and the cleanup runs daily via WordPress cron jobs.

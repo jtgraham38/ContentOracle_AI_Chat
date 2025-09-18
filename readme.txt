@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.11.2
+Stable tag: 1.11.3
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -42,7 +42,7 @@ ContentOracle AI Chat bridges this gap by combining your unique content with AI'
 * Advanced content filtering and sorting system.
 * Shortcode support for placing blocks anywhere in any site builder.
 * Bulk embedding system for large content libraries (tested with 20k+ posts!).
-* Analytics dashboard (coming soon).
+* Analytics dashboard with chat log management and insights.
 * Custom field (meta) filtering and sorting.
 * Post type and date-based filtering.
 * Multi-group filter system with AND/OR logic.
@@ -56,6 +56,10 @@ ContentOracle AI Chat bridges this gap by combining your unique content with AI'
 * Customizable button and styling options.
 * Nonce verification for enhanced security.
 * Support for multiple retrieval methods.
+* Chat log storage and analytics for user interaction tracking.
+* Configurable chat log retention periods with automatic cleanup.
+* Bulk chat log management with delete functionality.
+* Chat log viewer with pagination and sorting capabilities.
 
 
 == Installation ==
@@ -119,6 +123,12 @@ Use the **Prompt** settings to adjust the AI's speech habits, tone, and response
 = How do I make the AI recommend my products? =
 Use the goal prompt in the admin to help the agent decide which content to recommend to users.  It will automatically pull the featured image and link them in it's messages!
 
+= How do I view and manage chat logs? =
+Navigate to **ContentOracle > Analytics** to view all chat interactions, manage chat log retention settings, and delete old logs. You can configure how long to keep chat logs and enable/disable logging entirely.
+
+= How does chat log retention work? =
+The plugin automatically cleans up old chat logs based on your configured retention period (default 30 days). You can adjust this setting in the Analytics section, and the cleanup runs daily via WordPress cron jobs.
+
 == 3rd-Party Services ==
 
 This plugin uses the ContentOracle AI API to process user messages, index website content, and generate responses.  
@@ -149,6 +159,11 @@ This plugin uses the following libraries:
 8. Customized block on the frontend.
 
 == Changelog ==
+
+= 1.11.3 =
+* Added comprehensive chat logging and analytics system.
+* Implemented configurable chat log retention periods with automatic cleanup.
+* Created chat log viewer with pagination and sorting capabilities.
 
 = 1.11.2 =
 * Added dedicated support for retrieving WooCommerce products when receiving responses, fixing issues that arose from discrepancies between the WordPress loop functions, and the WooCommerce ones.
@@ -276,6 +291,9 @@ Behind-the-scenes improvements and bug fixes.
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.11.3 =
+Upgrade for comprehensive chat logging and analytics system with configurable retention periods and bulk management tools.
 
 = 1.11.2 =
 Add dedicated handling for WooCommerce products for better performance in ecommerce stores.
