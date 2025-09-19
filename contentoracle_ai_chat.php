@@ -5,7 +5,7 @@
  * Description:       ContentOracle AI Chat seamlessly blends the power of generative AI with your website’s unique content.
  * Version:           1.12.0
  * Requires at least: 6.0
- * Requires PHP:      7.2
+ * Requires PHP:      8.1
  * Author:            ContentOracle AI
  * Author URI:        https://scrywp.com
  * License:           GPL v3 or later
