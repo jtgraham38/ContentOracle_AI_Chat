@@ -21,15 +21,20 @@ $tabs = array(
         'icon' => 'dashicons-format-chat',
         'url' => admin_url('admin.php?page=contentoracle-ai-chat-prompt')
     ),
-    'contentoracle-ai-chat-filters-sorts' => array(
-        'label' => __('Filters & Sorts', 'contentoracle-ai-chat'),
-        'icon' => 'dashicons-filter',
-        'url' => admin_url('admin.php?page=contentoracle-ai-chat-filters-sorts')
-    ),
     'contentoracle-ai-chat-embeddings' => array(
         'label' => __('Embeddings', 'contentoracle-ai-chat'),
         'icon' => 'dashicons-format-status',
         'url' => admin_url('admin.php?page=contentoracle-ai-chat-embeddings')
+    ),
+    'contentoracle-ai-chat-global-site-chat' => array(
+        'label' => __('Global Site Chat', 'contentoracle-ai-chat'),
+        'icon' => 'dashicons-admin-comments',
+        'url' => admin_url('admin.php?page=contentoracle-ai-chat-global-site-chat')
+    ),
+    'contentoracle-ai-chat-filters-sorts' => array(
+        'label' => __('Filters & Sorts', 'contentoracle-ai-chat'),
+        'icon' => 'dashicons-filter',
+        'url' => admin_url('admin.php?page=contentoracle-ai-chat-filters-sorts')
     ),
     'contentoracle-ai-chat-analytics' => array(
         'label' => __('Chat Logs', 'contentoracle-ai-chat'),
