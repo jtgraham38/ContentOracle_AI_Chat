@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.12.0
+Stable tag: 1.12.1
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -160,6 +160,9 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.12.1 =
+* Fixed a bug with artifact rendering.
+
 = 1.12.0 =
 * Added comprehensive chat logging and analytics system.
 * Implemented configurable chat log retention periods with automatic cleanup.
@@ -291,6 +294,9 @@ Behind-the-scenes improvements and bug fixes.
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.12.1 =
+Artifacts will render properly now.
 
 = 1.12.0 =
 Upgrade for comprehensive chat logging and analytics system with configurable retention periods and bulk management tools.
