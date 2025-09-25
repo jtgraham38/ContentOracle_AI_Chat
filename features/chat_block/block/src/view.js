@@ -352,7 +352,8 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	renderArtifacts(chat) {
 
 		//gregex for all artifact tags
-		const regex = /<coai-artifact[^>]*>(.*?)<\/coai-artifact>/g;
+		const regex = /<coai-artifact[^>]*>(.*?)<\/coai-artifact>/gs;
+
 
 		//get the raw content of the chat
 		const raw_content = chat.raw_content;
@@ -365,9 +366,6 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			const artifact = doc.querySelector('coai-artifact');
 			const artifact_type = artifact.getAttribute('artifact_type');
 
-			//get other information about the chat
-			const content_supplied = chat.content_supplied;	//for inline citations
-
 			//use the artifact parsers to parse each artifact based on it's type
 			let rendered;
 			switch (artifact_type) {
@@ -379,8 +377,8 @@ Alpine.data('contentoracle_ai_chat', () => ({
 					let featured_content = new FeaturedContentArtifact(artifact);
 					rendered = featured_content.render(chat.content_supplied, this.featured_content_border_classes, this.featured_content_button_classes);	//NOTE: these are modified by reference
 					return rendered.outerHTML;
-				default:
-					return innerText;
+				// default:
+				// 	return innerText;
 			}
 		})
 

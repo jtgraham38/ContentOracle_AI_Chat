@@ -291,6 +291,6 @@ class ContentOracleAnalytics extends PluginFeature{
 
     //placeholder uninstall method to identify this feature
     public function uninstall(){
-        echo "ContentOracle Analytics Feature uninstalling...";
+        
     }
 }
