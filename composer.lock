@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "674f6eefa9c2005b80dac186fcabe910",
+    "content-hash": "9b4ac48576300975c9d21a521ae77836",
     "packages": [
         {
             "name": "dflydev/dot-access-data",
@@ -86,7 +86,7 @@
             "version": "0.1.2",
             "source": {
                 "type": "git",
-                "url": "git@github.com:jtgraham38/JGWPBlockStyles.git",
+                "url": "https://github.com/jtgraham38/JGWPBlockStyles.git",
                 "reference": "3173a2b827a88b7736ae93143d5ec80237c9f978"
             },
             "dist": {
@@ -115,6 +115,10 @@
                 }
             ],
             "description": "A set of utility functions for extracting style values from a block's attributes object.",
+            "support": {
+                "source": "https://github.com/jtgraham38/JGWPBlockStyles/tree/0.1.2",
+                "issues": "https://github.com/jtgraham38/JGWPBlockStyles/issues"
+            },
             "time": "2025-05-14T18:58:24+00:00"
         },
         {
@@ -122,7 +126,7 @@
             "version": "2.0.4",
             "source": {
                 "type": "git",
-                "url": "git@github.com:jtgraham38/JGWordPressKit.git",
+                "url": "https://github.com/jtgraham38/JGWordPressKit.git",
                 "reference": "fc3b272b91d32437dd03cb7fa0db7b5fc2d15fc2"
             },
             "dist": {
@@ -150,21 +154,25 @@
                 }
             ],
             "description": "A very simple, modular framework for developing WordPress plugins.",
+            "support": {
+                "source": "https://github.com/jtgraham38/JGWordPressKit/tree/2.0.4",
+                "issues": "https://github.com/jtgraham38/JGWordPressKit/issues"
+            },
             "time": "2025-06-20T13:49:36+00:00"
         },
         {
             "name": "jtgraham38/wpvectordb",
-            "version": "2.0.1",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
-                "url": "git@github.com:jtgraham38/WPVectorDb.git",
-                "reference": "a76c85782f841f07f59a114d60697ee6cc596885"
+                "url": "https://github.com/jtgraham38/WPVectorDb.git",
+                "reference": "ee9ab52e2a50332f4bbd8740e1fc1a17b2e347c8"
             },
             "dist": {
                 "type": "tar",
-                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/wpvectordb/jtgraham38-wpvectordb-a76c85782f841f07f59a114d60697ee6cc596885-zip-d52141.tar",
-                "reference": "a76c85782f841f07f59a114d60697ee6cc596885",
-                "shasum": "afca0618f842753bb420133d4fd8a6ebae933acd"
+                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/wpvectordb/jtgraham38-wpvectordb-ee9ab52e2a50332f4bbd8740e1fc1a17b2e347c8-zip-1802c4.tar",
+                "reference": "ee9ab52e2a50332f4bbd8740e1fc1a17b2e347c8",
+                "shasum": "1f260008a9fdb5922d70b8730455e999fddec053"
             },
             "require": {
                 "php": ">=7.3"
@@ -185,7 +193,11 @@
                 }
             ],
             "description": "Utitlities for managing a vector database in MySQL for use within WordPress plugins.",
-            "time": "2025-07-17T19:27:00+00:00"
+            "support": {
+                "source": "https://github.com/jtgraham38/WPVectorDb/tree/2.0.2",
+                "issues": "https://github.com/jtgraham38/WPVectorDb/issues"
+            },
+            "time": "2025-09-26T18:29:40+00:00"
         },
         {
             "name": "league/commonmark",
