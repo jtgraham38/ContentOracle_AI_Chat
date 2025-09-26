@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.12.2
+Stable tag: 1.12.3
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -160,6 +160,9 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.12.3 =
+* Fixed bug in dependency.
+
 = 1.12.2 =
 * Fixed a bug where undefined sources were rendered in the source citation section.
 * Fixed a bug on certain installations with the embeddings menu.
@@ -298,6 +301,9 @@ Behind-the-scenes improvements and bug fixes.
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.12.3 =
+Bug fixes.
 
 = 1.12.2 =
 Bug fixes.

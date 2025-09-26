@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9b4ac48576300975c9d21a521ae77836",
+    "content-hash": "c354a4ca96230383d3729b77d8e16955",
     "packages": [
         {
             "name": "dflydev/dot-access-data",
@@ -162,17 +162,17 @@
         },
         {
             "name": "jtgraham38/wpvectordb",
-            "version": "2.0.2",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jtgraham38/WPVectorDb.git",
-                "reference": "ee9ab52e2a50332f4bbd8740e1fc1a17b2e347c8"
+                "reference": "d3cc18b3c24ca4c2d9eae8ba524f812c5e20f392"
             },
             "dist": {
                 "type": "tar",
-                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/wpvectordb/jtgraham38-wpvectordb-ee9ab52e2a50332f4bbd8740e1fc1a17b2e347c8-zip-1802c4.tar",
-                "reference": "ee9ab52e2a50332f4bbd8740e1fc1a17b2e347c8",
-                "shasum": "1f260008a9fdb5922d70b8730455e999fddec053"
+                "url": "http://php.jacob-t-graham.com/dist/jtgraham38/wpvectordb/jtgraham38-wpvectordb-d3cc18b3c24ca4c2d9eae8ba524f812c5e20f392-zip-7d26a9.tar",
+                "reference": "d3cc18b3c24ca4c2d9eae8ba524f812c5e20f392",
+                "shasum": "bce16ab10242e111a762a4673b5f25f52400d62b"
             },
             "require": {
                 "php": ">=7.3"
@@ -194,10 +194,10 @@
             ],
             "description": "Utitlities for managing a vector database in MySQL for use within WordPress plugins.",
             "support": {
-                "source": "https://github.com/jtgraham38/WPVectorDb/tree/2.0.2",
+                "source": "https://github.com/jtgraham38/WPVectorDb/tree/2.0.3",
                 "issues": "https://github.com/jtgraham38/WPVectorDb/issues"
             },
-            "time": "2025-09-26T18:29:40+00:00"
+            "time": "2025-09-26T19:47:59+00:00"
         },
         {
             "name": "league/commonmark",
