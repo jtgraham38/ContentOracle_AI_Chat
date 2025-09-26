@@ -273,6 +273,39 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
     }
 }
 
+// Handle batch consumption
+if (isset($_GET['action']) && $_GET['action'] === 'consume_batch') {
+    $nonce = isset($_GET['_wpnonce']) ? $_GET['_wpnonce'] : '';
+    
+    if (wp_verify_nonce($nonce, 'consume_batch_queue')) {
+        $this->consume_batch_from_queue();
+        
+        if ($result) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-success is-dismissible"><p>' . 
+                     __('Batch processing completed successfully.', 'contentoracle-ai-chat') . 
+                     '</p></div>';
+            });
+        } else {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error is-dismissible"><p>' . 
+                     __('Batch processing failed or no items to process.', 'contentoracle-ai-chat') . 
+                     '</p></div>';
+            });
+        }
+        
+        // Redirect to remove query args
+        wp_redirect(remove_query_arg(['action', '_wpnonce']));
+        exit;
+    } else {
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-error is-dismissible"><p>' . 
+                 __('Security check failed. Please try again.', 'contentoracle-ai-chat') . 
+                 '</p></div>';
+        });
+    }
+}
+
 ?>
 
 <strong>Note: Embeddings will only be generated for posts of the types set in the "Prompt" settings.  They will also only be generated if a chunking method is set.</strong>
@@ -360,6 +393,20 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
         <div id="<?php $this->pre('bulk_generate_embeddings_error_msg') ?>" class="<?php $this->pre('generate_embeddings_error_msg') ?> <?php $this->pre('generate_embeddings_hidden') ?>">
             <p>Error enqueuing posts for embedding generation!</p>
         </div>
+    </div>
+
+    <!-- Batch Processing Section -->
+    <div style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9;">
+        <h3>Process Queue</h3>
+        <p>Process a batch of content currently in the embedding generation queue.</p>
+        <p>
+            <small><i>This is done automatically, but you can click the button to speed up the process a bit.</i></small>
+        </p>
+        <a href="<?php echo wp_nonce_url(add_query_arg('action', 'consume_batch'), 'consume_batch_queue'); ?>" 
+           class="button button-secondary"
+           onclick="return confirm('Are you sure you want to process a batch of content in the queue? This may take some time.');">
+            Process Queue Batch
+        </a>
     </div>
 
     <div>
