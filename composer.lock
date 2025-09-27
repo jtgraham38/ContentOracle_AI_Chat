@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c354a4ca96230383d3729b77d8e16955",
+    "content-hash": "8ad6dfc8e3285fdfe166653de27c041c",
     "packages": [
         {
             "name": "dflydev/dot-access-data",
@@ -162,7 +162,7 @@
         },
         {
             "name": "jtgraham38/wpvectordb",
-            "version": "2.0.3",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jtgraham38/WPVectorDb.git",
@@ -194,7 +194,7 @@
             ],
             "description": "Utitlities for managing a vector database in MySQL for use within WordPress plugins.",
             "support": {
-                "source": "https://github.com/jtgraham38/WPVectorDb/tree/2.0.3",
+                "source": "https://github.com/jtgraham38/WPVectorDb/tree/2.0.4",
                 "issues": "https://github.com/jtgraham38/WPVectorDb/issues"
             },
             "time": "2025-09-26T19:47:59+00:00"
@@ -793,10 +793,10 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }
