@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.12.3
+Stable tag: 1.12.4
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -160,6 +160,11 @@ This plugin uses the following libraries:
 
 == Changelog ==
 
+= 1.12.4 =
+* Added manual batch processing button for embedding queue management.
+* Improved embedding queue UI with clearer instructions and user guidance.
+* Enhanced queue processing workflow with confirmation dialogs and better feedback.
+
 = 1.12.3 =
 * Fixed bug in dependency.
 
@@ -301,6 +306,9 @@ Behind-the-scenes improvements and bug fixes.
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.12.4 =
+Enhanced embedding queue management with manual batch processing capabilities and improved user experience.
 
 = 1.12.3 =
 Bug fixes.
