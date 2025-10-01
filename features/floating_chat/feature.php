@@ -30,6 +30,9 @@ class ContentOracleFloatingChat extends PluginFeature{
         //add default widget content
         add_action('widgets_init', array($this, 'add_default_floating_chat_widget'), 20);
 
+        //enqueue floating chat styles
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_floating_chat_styles'));
+
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -195,5 +198,24 @@ class ContentOracleFloatingChat extends PluginFeature{
         
         // Mark that we've added the default widget
         update_option($this->prefixed('default_widget_added'), true);
+    }
+
+    /*
+    * Enqueue floating chat styles.
+    */
+    public function enqueue_floating_chat_styles() {
+        // Check if floating site chat is enabled
+        $enable_floating_site_chat = get_option($this->prefixed('enable_floating_site_chat'));
+        
+        if (!$enable_floating_site_chat) {
+            return;
+        }
+
+        wp_enqueue_style(
+            $this->prefixed('floating_chat_styles'),
+            plugin_dir_url(__FILE__) . 'assets/css/floating-chat.css',
+            array(),
+            '1.0.0'
+        );
     }
 }
