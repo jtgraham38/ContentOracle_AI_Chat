@@ -12,7 +12,14 @@ use jtgraham38\jgwordpresskit\PluginFeature;
 class ContentOracleFloatingChat extends PluginFeature{
     public function add_filters(){
         //ensure only one post of the global site chat can be created
-        //add_filter('wp_insert_post_data', array($this, 'ensure_only_one_floating_site_chat_post_exists'));
+        add_filter('wp_insert_post_data', array($this, 'ensure_only_one_floating_site_chat_post_exists'));
+
+        //set default content for new floating site chat posts
+        add_filter('default_content', array($this, 'set_default_floating_site_chat_content'), 10, 2);
+        add_filter('default_title', array($this, 'set_default_floating_site_chat_title'), 10, 2);
+        
+        //redirect from post list page to ContentOracle admin page
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_floating_chat_redirect_script'));
     }
 
     public function add_actions(){
@@ -146,34 +153,79 @@ class ContentOracleFloatingChat extends PluginFeature{
         );
 
         register_post_type($this->prefixed('float_chat'), $args);
+        //^it has to be this short string, because longer would exceed the character limit for cpt keys
     }
 
     /*
-    * Ensure only one post of the global site chat can be created.
+    * Ensure only one post of the floating site chat can be created.
     */
     public function ensure_only_one_floating_site_chat_post_exists(array $data){
 
         //get the post type
-        $global_type = $this->prefixed('float_chat');
-
-
+        $float_chat_type = $this->prefixed('float_chat');
 
         //check if the post is of the correct post type
-        if ($data['post_type'] === $global_type && $data['post_status'] !== 'trash'){
-            //check for existing posts of the global site chat type
-            $posts = get_posts(array(
-                'post_type' => $global_type,
+        if ($data['post_type'] === $float_chat_type && $data['post_status'] !== 'trash'){
+            //check for existing posts of the floating site chat type
+            $existing_posts = get_posts(array(
+                'post_type' => $float_chat_type,
                 'post_status' => ['publish', 'draft', 'pending'],
                 'numberposts' => 1,
                 'fields' => 'ids',
             ));
 
-            //if a post exists, and this is a new post, die with an error
+            //if a post exists, and this is a new post (not an update), die with an error
             if (!empty($existing_posts) && empty($postarr['ID'])) {
-                wp_die('Only one global site chat interface can be created.');
+                wp_die('Only one floating site chat interface can be created.');
             }
         }
 
        return $data;
+    }
+
+    /*
+    * Set default content for new floating site chat posts.
+    */
+    public function set_default_floating_site_chat_content($content, $post){
+        // Only set content for new posts of our post type
+        if (isset($_GET['post_type']) && $_GET['post_type'] === $this->prefixed('float_chat')) {
+            return '<!-- wp:contentoracle/ai-chat {"height":"36rem","userMsgBgColor":"#3232FD","style":{"elements":{"link":{"color":{"text":"var:preset|color|base-2"}}},"border":{"radius":"4px","width":"1px"}},"textColor":"base-2","borderColor":"contrast"} /-->';
+        }
+        
+        return $content;
+    }
+
+    /*
+    * Set default title for new floating site chat posts.
+    */
+    public function set_default_floating_site_chat_title($title, $post){
+        // Only set title for new posts of our post type
+        if (isset($_GET['post_type']) && $_GET['post_type'] === $this->prefixed('float_chat')) {
+            return 'ContentOracle AI Floating Site Chat';
+        }
+        
+        return $title;
+    }
+
+    /*
+    * Enqueue JavaScript to redirect from floating site chat post list page to ContentOracle admin page.
+    */
+    public function enqueue_floating_chat_redirect_script($hook){
+        // Only run on post list pages
+        if ($hook !== 'edit.php') {
+            return;
+        }
+        
+        // Check if we're on the floating site chat post list page
+        if (isset($_GET['post_type']) && $_GET['post_type'] === $this->prefixed('float_chat')) {
+            $redirect_url = admin_url('admin.php?page=contentoracle-ai-chat-global-site-chat');
+            
+            // Add inline script to redirect
+            $script = "
+                window.location.href = '" . esc_js($redirect_url) . "';
+            ";
+            
+            wp_add_inline_script('jquery', $script);
+        }
     }
 }
