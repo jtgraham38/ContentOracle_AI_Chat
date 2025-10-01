@@ -88,9 +88,9 @@ $feature = new ContentOracleFiltersSorts();
 $plugin->register_feature('filters_sorts', $feature);
 
 //register the global site chat feature
-// require_once plugin_dir_path(__FILE__) . 'features/floating_chat/feature.php';
-// $feature = new ContentOracleFloatingChat();
-// $plugin->register_feature('floating_chat', $feature);
+require_once plugin_dir_path(__FILE__) . 'features/floating_chat/feature.php';
+$feature = new ContentOracleFloatingChat();
+$plugin->register_feature('floating_chat', $feature);
 
 //init the plugin
 $plugin->init();
