@@ -28,37 +28,34 @@ $enable_floating_site_chat = get_option($this->prefixed('enable_floating_site_ch
         <p>Global site chat is enabled.</p>
         
         <?php
-        // Find existing global site chat post
-        $global_chat_posts = get_posts(array(
-            'post_type' => $this->prefixed('float_chat'),
-            'post_status' => ['publish', 'draft', 'pending'],
-            'numberposts' => 1,
-            'fields' => 'ids',
-        ));
+        // Check if widget area has widgets
+        $widget_area_id = 'coai_chat_floating_chat_widget_area';
+        $has_widgets = is_active_sidebar($widget_area_id);
         
-        if (!empty($global_chat_posts)) {
-            // Edit existing post
-            $post_id = $global_chat_posts[0];
-            $edit_url = get_edit_post_link($post_id);
-            $button_text = 'Edit Global Site Chat';
+        if ($has_widgets) {
+            $button_text = 'Edit Floating Chat Widgets';
         } else {
-            // Create new post
-            $post_type = $this->prefixed('float_chat');
-            $edit_url = admin_url('post-new.php?post_type=' . $post_type);
-            $button_text = 'Create Global Site Chat';
+            $button_text = 'Add Floating Chat Widgets';
         }
+        
+        // Link to widgets page
+        $widgets_url = admin_url('widgets.php');
         ?>
         
         <p>
-            <a href="<?php echo esc_url($edit_url); ?>" class="button button-primary">
+            <a href="<?php echo esc_url($widgets_url); ?>" class="button button-primary">
                 <?php echo esc_html($button_text); ?>
             </a>
+        </p>
+        
+        <p>
+            <em>Use the "Floating Site Chat" widget area to add your chat widgets.</em>
         </p>
     <?php else: ?>
         <h2>Global Site Chat</h2>
         <p>Global site chat is disabled.</p>
         <p>
-            <em>Enable global site chat above to access the chat editor.</em>
+            <em>Enable global site chat above to access the widget area.</em>
         </p>
     <?php endif; ?>
 </div>

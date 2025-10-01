@@ -11,26 +11,24 @@ use jtgraham38\jgwordpresskit\PluginFeature;
 
 class ContentOracleFloatingChat extends PluginFeature{
     public function add_filters(){
-        //ensure only one post of the global site chat can be created
-        add_filter('wp_insert_post_data', array($this, 'ensure_only_one_floating_site_chat_post_exists'));
-
-        //set default content for new floating site chat posts
-        add_filter('default_content', array($this, 'set_default_floating_site_chat_content'), 10, 2);
-        add_filter('default_title', array($this, 'set_default_floating_site_chat_title'), 10, 2);
-        
-        //redirect from post list page to ContentOracle admin page
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_floating_chat_redirect_script'));
+        // No filters needed for widget area approach
     }
 
     public function add_actions(){
-        //register the cpt
-        add_action('init', array($this, 'register_floating_site_chat_cpt'), 10);
+        //register the widget area
+        add_action('widgets_init', array($this, 'register_floating_chat_widget_area'));
 
         //register the settings
         add_action('admin_init', array($this, 'register_floating_site_chat_settings'));
 
         //register the settings page
         add_action('admin_menu', array($this, 'register_floating_site_chat_settings_page'));
+
+        //render floating chat on frontend
+        add_action('wp_footer', array($this, 'render_floating_chat_frontend'));
+
+        //add default widget content
+        add_action('widgets_init', array($this, 'add_default_floating_chat_widget'), 20);
 
     }
 
@@ -41,16 +39,16 @@ class ContentOracleFloatingChat extends PluginFeature{
     open a chat block in the bottom right corner of the screen.
 
     The button color and background will be 100% customizable, and the chat 
-    block itself will be customizable using a custom post type that can only accept
-    coai chat blocks.
+    block itself will be customizable using a widget area that can accept
+    any widgets including coai chat blocks.
 
-    Only one post of that custom post type will be allowed, and it will be used to create the floating chat button and the chat block.
+    The widget area will be used to create the floating chat button and the chat block.
     
-    This will be a spearte entry in the tabs on the admin section to manage it.
+    This will be a separate entry in the tabs on the admin section to manage it.
 
     There will be a single setting, boolean, enable global site chat.  this will determine whether the 
     the floating chat button and block appear on the site frontend, and whether the admin can 
-    access the cpt to edit the floating chat button and block.
+    access the widget area to edit the floating chat button and block.
     */
 
     /*
@@ -114,118 +112,88 @@ class ContentOracleFloatingChat extends PluginFeature{
     }
 
     /*
-    * Register the custom post type for the global site chat.
+    * Register the widget area for the floating site chat.
     */
-    public function register_floating_site_chat_cpt(){
-
-        //register the cpt to manage the global site chat
-        $labels = array(
-            'name'               => _x('Floating Site Chat', 'post type general name', 'contentoracle-ai-chat'),
-            'singular_name'      => _x('Floating Site Chat', 'post type singular name', 'contentoracle-ai-chat'),
-            'menu_name'          => _x('Floating Site Chat', 'admin menu', 'contentoracle-ai-chat'),
-            'name_admin_bar'     => _x('Floating Site Chat', 'add new on admin bar', 'contentoracle-ai-chat'),
-            'add_new'            => _x('Add New', 'Floating Site Chat', 'contentoracle-ai-chat'),
-            'add_new_item'       => __('Add New Floating Site Chat', 'contentoracle-ai-chat'),
-            'new_item'           => __('New Floating Site Chat', 'contentoracle-ai-chat'),
-            'edit_item'          => __('Edit Floating Site Chat', 'contentoracle-ai-chat'),
-            'view_item'          => __('View Floating Site Chat', 'contentoracle-ai-chat'),
-            'all_items'          => __('All Floating Site Chats', 'contentoracle-ai-chat'),
-            'search_items'       => __('Search Floating Site Chats', 'contentoracle-ai-chat'),
-            'parent_item_colon'  => __('Parent Floating Site Chats:', 'contentoracle-ai-chat'),
-            'not_found'          => __('No floating site chats found.', 'contentoracle-ai-chat'),
-            'not_found_in_trash' => __('No floating site chats found in Trash.', 'contentoracle-ai-chat')
-        );
-
-        $args = array(
-            'labels'             => $labels,
-            'public'             => false,
-            'publicly_queryable' => false,
-            'show_ui'            => true,
-            'show_in_menu'       => false,
-            'query_var'          => true,
-            'rewrite'            => array('slug' => 'floating-site-chat'),
-            'capability_type'    => 'post',
-            'has_archive'        => false,
-            'hierarchical'       => false,
-            'menu_position'      => null,
-            'supports'           => array('editor', 'title'),
-            'show_in_rest'       => true,
-        );
-
-        register_post_type($this->prefixed('float_chat'), $args);
-        //^it has to be this short string, because longer would exceed the character limit for cpt keys
+    public function register_floating_chat_widget_area(){
+        register_sidebar(array(
+            'name'          => __('Floating Site Chat', 'contentoracle-ai-chat'),
+            'id'            => $this->prefixed('floating_chat_widget_area'),
+            'description'   => __('Widget area for the floating site chat. Add your chat widgets here.', 'contentoracle-ai-chat'),
+            'before_widget' => '<div id="%1$s" class="widget %2$s">',
+            'after_widget'  => '</div>',
+            'before_title'  => '<h3 class="widget-title">',
+            'after_title'   => '</h3>',
+        ));
     }
 
-    /*
-    * Ensure only one post of the floating site chat can be created.
-    */
-    public function ensure_only_one_floating_site_chat_post_exists(array $data){
-
-        //get the post type
-        $float_chat_type = $this->prefixed('float_chat');
-
-        //check if the post is of the correct post type
-        if ($data['post_type'] === $float_chat_type && $data['post_status'] !== 'trash'){
-            //check for existing posts of the floating site chat type
-            $existing_posts = get_posts(array(
-                'post_type' => $float_chat_type,
-                'post_status' => ['publish', 'draft', 'pending'],
-                'numberposts' => 1,
-                'fields' => 'ids',
-            ));
-
-            //if a post exists, and this is a new post (not an update), die with an error
-            if (!empty($existing_posts) && empty($postarr['ID'])) {
-                wp_die('Only one floating site chat interface can be created.');
-            }
-        }
-
-       return $data;
-    }
 
     /*
-    * Set default content for new floating site chat posts.
+    * Render floating chat on frontend pages.
     */
-    public function set_default_floating_site_chat_content($content, $post){
-        // Only set content for new posts of our post type
-        if (isset($_GET['post_type']) && $_GET['post_type'] === $this->prefixed('float_chat')) {
-            return '<!-- wp:contentoracle/ai-chat {"height":"36rem","userMsgBgColor":"#3232FD","style":{"elements":{"link":{"color":{"text":"var:preset|color|base-2"}}},"border":{"radius":"4px","width":"1px"}},"textColor":"base-2","borderColor":"contrast"} /-->';
-        }
+    public function render_floating_chat_frontend(){
+        // Check if floating site chat is enabled
+        $enable_floating_site_chat = get_option($this->prefixed('enable_floating_site_chat'));
         
-        return $content;
-    }
-
-    /*
-    * Set default title for new floating site chat posts.
-    */
-    public function set_default_floating_site_chat_title($title, $post){
-        // Only set title for new posts of our post type
-        if (isset($_GET['post_type']) && $_GET['post_type'] === $this->prefixed('float_chat')) {
-            return 'ContentOracle AI Floating Site Chat';
-        }
-        
-        return $title;
-    }
-
-    /*
-    * Enqueue JavaScript to redirect from floating site chat post list page to ContentOracle admin page.
-    */
-    public function enqueue_floating_chat_redirect_script($hook){
-        // Only run on post list pages
-        if ($hook !== 'edit.php') {
+        if (!$enable_floating_site_chat) {
             return;
         }
         
-        // Check if we're on the floating site chat post list page
-        if (isset($_GET['post_type']) && $_GET['post_type'] === $this->prefixed('float_chat')) {
-            $redirect_url = admin_url('admin.php?page=contentoracle-ai-chat-global-site-chat');
-            
-            // Add inline script to redirect
-            $script = "
-                window.location.href = '" . esc_js($redirect_url) . "';
-            ";
-            
-            wp_add_inline_script('jquery', $script);
+        // Include the floating chat template
+        require_once plugin_dir_path(__FILE__) . 'elements/floating_chat.php';
+    }
+
+    /*
+    * Add default widget content to the floating chat widget area.
+    */
+    public function add_default_floating_chat_widget(){
+        // Check if floating site chat is enabled
+        $enable_floating_site_chat = get_option($this->prefixed('enable_floating_site_chat'));
+        
+        if (!$enable_floating_site_chat) {
+            return;
         }
+        
+        // Check if the widget area already has widgets
+        $widget_area_id = $this->prefixed('floating_chat_widget_area');
+        if (is_active_sidebar($widget_area_id)) {
+            return;
+        }
+        
+        // Get the current widget settings
+        $sidebars_widgets = get_option('sidebars_widgets', array());
+        
+        // Check if we've already added the default widget
+        $default_added = get_option($this->prefixed('default_widget_added'), false);
+        if ($default_added) {
+            return;
+        }
+        
+        // Add a default HTML widget with ContentOracle AI chat block
+        $widget_id = 'html-' . time();
+        $widget_content = '<!-- wp:contentoracle/ai-chat {"height":"36rem","userMsgBgColor":"#3232FD","style":{"elements":{"link":{"color":{"text":"var:preset|color|base-2"}}},"border":{"radius":"4px","width":"1px"}},"textColor":"base-2","borderColor":"contrast"} /-->';
+        
+        // Get existing HTML widget settings
+        $html_widgets = get_option('widget_html', array());
+        
+        // Add the new widget
+        $html_widgets[$widget_id] = array(
+            'title' => 'ContentOracle AI Floating Chat',
+            'text' => $widget_content
+        );
+        
+        // Update widget settings
+        update_option('widget_html', $html_widgets);
+        
+        // Add widget to the sidebar
+        if (!isset($sidebars_widgets[$widget_area_id])) {
+            $sidebars_widgets[$widget_area_id] = array();
+        }
+        $sidebars_widgets[$widget_area_id][] = 'html-' . $widget_id;
+        
+        // Update sidebar widgets
+        update_option('sidebars_widgets', $sidebars_widgets);
+        
+        // Mark that we've added the default widget
+        update_option($this->prefixed('default_widget_added'), true);
     }
 }
