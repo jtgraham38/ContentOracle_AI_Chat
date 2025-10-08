@@ -43,6 +43,8 @@ class ContentOracleAiBlock extends PluginFeature{
 
     public function add_actions(){
         add_action('init', array($this, 'register_chat_blocks'));
+
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_block_assets'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -152,6 +154,11 @@ class ContentOracleAiBlock extends PluginFeature{
         
 
         return $block_content;
+    }
+
+    //manually enqueue the view script, to ensure it is present for global site chat
+    public function enqueue_block_assets(){
+        wp_enqueue_script('contentoracle-ai-chat-view-script', plugin_dir_url(__FILE__) . '/block/build/view.js', array('wp-blocks', 'wp-element', 'wp-editor'));
     }
 
     //placeholder uninstall method to identify this block
