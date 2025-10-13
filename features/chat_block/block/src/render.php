@@ -8,9 +8,14 @@ if (!defined('ABSPATH')) {
 //include autoload
 require_once plugin_dir_path(__FILE__) . '../../../../vendor/autoload.php';
 
+
+//enqueue the view script
+//(i do it here because for some reason, doing it in block.json does not work with widget areas)
+//wp_enqueue_script('contentoracle-ai-chat-view-script', plugin_dir_url(__FILE__) . 'view.js', array('wp-blocks', 'wp-element', 'wp-editor'));
+
 //use jtgraham38\jgwordpressstyle\BlockStyle;
 
-//echo the volors
+//echo the colors
 // echo "<pre>";
 // print_r($attributes);
 // echo "</pre>";
@@ -127,6 +132,23 @@ $featured_content_button_classes = implode(" ", $button_attrs['classnames']);
 //generate unique id for the chat
 $chat_id = wp_unique_id('contentoracle-ai_chat_');
 
+
+// check if we're currently in a widget context by looking at the call stack
+$is_in_widget_area = false;
+$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
+
+foreach ($backtrace as $trace) {
+    // Check if we're being called from dynamic_sidebar or widget rendering
+    if (
+        (isset($trace['function']) && $trace['function'] == 'display_callback')
+        &&
+        (isset($trace['class']) && $trace['class'] == 'WP_Widget')
+    ) {
+        $is_in_widget_area = true;
+        break;
+    }
+}
+
 ?>
 <div 
     id="<?php echo esc_attr( $chat_id ) ?>" 
@@ -140,6 +162,7 @@ $chat_id = wp_unique_id('contentoracle-ai_chat_');
     data-contentoracle_chat_message_seeder_items="<?php echo esc_attr( json_encode( $attributes['chatMessageSeederItems'] ) ) ?>"
     data-contentoracle_featured_content_border_classes="<?php echo esc_attr( $featured_content_border_classes ) ?>"
     data-contentoracle_featured_content_button_classes="<?php echo esc_attr( $featured_content_button_classes ) ?>"
+    data-contentoracle_is_in_widget_area="<?php echo esc_attr( $is_in_widget_area ) ?>"
 >
     <div class="contentoracle-ai_chat_header">
         <h3 

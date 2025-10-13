@@ -15,10 +15,19 @@
     box-sizing: border-box;
 }
 
+/* Small screens - 1/2 width */
+@media (max-width: 1480px) {
+    #coai_chat_floating_chat_container {
+        max-width: 50%;
+        right: 15px;
+        bottom: 15px;
+    }
+}
+
 /* Medium screens (tablets) - 1/2 width */
 @media (max-width: 1024px) {
     #coai_chat_floating_chat_container {
-        max-width: 50%;
+        max-width: 66.666666%;
         right: 15px;
         bottom: 15px;
     }

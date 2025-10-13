@@ -1,4 +1,5 @@
-/******/ var __webpack_modules__ = ({
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
 
 /***/ "./node_modules/alpinejs/dist/module.esm.js":
 /*!**************************************************!*\
@@ -6,6 +7,7 @@
   \**************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Alpine: () => (/* binding */ src_default),
@@ -3403,6 +3405,7 @@ var module_default = src_default;
   \***********************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ COAI_Artifact)
@@ -3431,6 +3434,7 @@ class COAI_Artifact {
   \****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ FeaturedContentArtifact)
@@ -3509,6 +3513,7 @@ class FeaturedContentArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["de
   \***************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ InlineCitationArtifact)
@@ -5164,6 +5169,7 @@ class InlineCitationArtifact extends _artifact__WEBPACK_IMPORTED_MODULE_0__["def
   \***********************************************/
 /***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
 
+"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Hooks: () => (/* binding */ _Hooks),
@@ -7692,75 +7698,78 @@ const lexer = _Lexer.lex;
 
 /***/ })
 
-/******/ });
+/******/ 	});
 /************************************************************************/
-/******/ // The module cache
-/******/ var __webpack_module_cache__ = {};
-/******/ 
-/******/ // The require function
-/******/ function __webpack_require__(moduleId) {
-/******/ 	// Check if module is in cache
-/******/ 	var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 	if (cachedModule !== undefined) {
-/******/ 		return cachedModule.exports;
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
 /******/ 	}
-/******/ 	// Create a new module (and put it into the cache)
-/******/ 	var module = __webpack_module_cache__[moduleId] = {
-/******/ 		// no module.id needed
-/******/ 		// no module.loaded needed
-/******/ 		exports: {}
-/******/ 	};
-/******/ 
-/******/ 	// Execute the module function
-/******/ 	__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 
-/******/ 	// Return the exports of the module
-/******/ 	return module.exports;
-/******/ }
-/******/ 
+/******/ 	
 /************************************************************************/
-/******/ /* webpack/runtime/compat get default export */
-/******/ (() => {
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = (module) => {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			() => (module['default']) :
-/******/ 			() => (module);
-/******/ 		__webpack_require__.d(getter, { a: getter });
-/******/ 		return getter;
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/define property getters */
-/******/ (() => {
-/******/ 	// define getter functions for harmony exports
-/******/ 	__webpack_require__.d = (exports, definition) => {
-/******/ 		for(var key in definition) {
-/******/ 			if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
 /******/ 			}
-/******/ 		}
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/hasOwnProperty shorthand */
-/******/ (() => {
-/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/make namespace object */
-/******/ (() => {
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = (exports) => {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/ })();
-/******/ 
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+(() => {
+"use strict";
 /*!*********************!*\
   !*** ./src/view.js ***!
   \*********************/
@@ -7798,6 +7807,7 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
   featured_content_border_classes: "",
   featured_content_button_classes: "",
   chat_log_id: null,
+  is_in_widget_area: false,
   init() {
     console.log('init chat!!!');
     //load the rest url into the apiBaseUrl from the data-contentoracle_rest_url attribute
@@ -7808,6 +7818,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     this.featured_content_border_classes = this.$el.getAttribute('data-contentoracle_featured_content_border_classes').split(" ");
     this.featured_content_button_classes = this.$el.getAttribute('data-contentoracle_featured_content_button_classes').split(" ");
     this.chat_message_seeder_items = JSON.parse(this.$el.getAttribute('data-contentoracle_chat_message_seeder_items'));
+    this.is_in_widget_area = this.$el.getAttribute('data-contentoracle_is_in_widget_area');
+    console.log("is_in_widget_area", this.is_in_widget_area);
 
     //scroll to the top of the bottommost chat when the conversation updates
     this.$watch('conversation', () => {
@@ -7828,14 +7840,32 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       }
     });
 
-    //preemptively add the search query to the conversation, if it exists
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('contentoracle_ai_search');
-    if (searchQuery) {
-      if (this.stream_responses) {
-        this.sendStreamed(searchQuery, event);
-      } else {
-        this.send(searchQuery, event);
+    //if we are in a widget area, attempt to load the conversation from local storage
+    if (this.is_in_widget_area) {
+      //get the conversation from local storage
+      const conversation = localStorage.getItem('contentoracle_ai_floating_chat_conversation');
+      if (conversation) {
+        this.conversation = JSON.parse(conversation);
+      }
+
+      //get the chat log id from local storage
+      const chat_log_id = localStorage.getItem('contentoracle_ai_floating_chat_chat_log_id');
+      if (chat_log_id) {
+        this.chat_log_id = chat_log_id;
+      }
+    }
+    //otherwise, if we are not in the global chat widget area, then send a message from the url params
+    //(if one is set)
+    else {
+      //preemptively add the search query to the conversation, if it exists
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchQuery = urlParams.get('contentoracle_ai_search');
+      if (searchQuery) {
+        if (this.stream_responses) {
+          this.sendStreamed(searchQuery, event);
+        } else {
+          this.send(searchQuery, event);
+        }
       }
     }
 
@@ -7908,6 +7938,11 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       content: msg
     });
 
+    //if we are in a widget area, save the conversation to local storage
+    if (this.is_in_widget_area) {
+      localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+    }
+
     //send the request
     const request = await fetch(url, options);
     const json = await request.json();
@@ -7943,6 +7978,14 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
         //now, after all parses and transformations, set the chat content to the rendered chat
         this.conversation[this.conversation.length - 1].content = md_rendered_content;
+
+        //if we are in a widget area, save the conversation to local storage
+        if (this.is_in_widget_area) {
+          localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+          if (this.chat_log_id) {
+            localStorage.setItem('contentoracle_ai_floating_chat_chat_log_id', this.chat_log_id);
+          }
+        }
         console.log("conversation", this.conversation, "chat_log_id", this.chat_log_id);
       } catch (e) {
         //don't use handleErrorResponse, because this is not the result of a malformed/bad response
@@ -7973,6 +8016,11 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
       role: 'user',
       content: msg
     });
+
+    //if we are in a widget area, save the conversation to local storage
+    if (this.is_in_widget_area) {
+      localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+    }
 
     //initialize the xhr request
     const xhr = new XMLHttpRequest();
@@ -8093,6 +8141,13 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
     //after the request is done
     xhr.onload = function () {
+      //if we are in a widget area, save the conversation to local storage
+      if (this.is_in_widget_area) {
+        localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+        if (this.chat_log_id) {
+          localStorage.setItem('contentoracle_ai_floating_chat_chat_log_id', this.chat_log_id);
+        }
+      }
       console.log("conversation", this.conversation, "chat_log_id", this.chat_log_id);
     }.bind(this); //IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
 
@@ -8199,6 +8254,11 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     this.error = "";
     this.chat_log_id = null;
 
+    //clear the global chat conversation, if this is a global chat widget area
+    if (this.is_in_widget_area) {
+      localStorage.removeItem('contentoracle_ai_floating_chat_conversation');
+    }
+
     //clear the input field
     if (this.$refs.chatInput) {
       this.$refs.chatInput.value = "";
@@ -8211,5 +8271,8 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
   }
 }));
 alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].start();
+})();
 
+/******/ })()
+;
 //# sourceMappingURL=view.js.map

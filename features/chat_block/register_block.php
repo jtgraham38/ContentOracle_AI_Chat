@@ -30,21 +30,15 @@ But, the render_block hook is necessary because it has access to the block attri
 //TODO
 
 class ContentOracleAiBlock extends PluginFeature{
-
-    //this string is used to pass the generated styles from the render_block filter callback to the enqueue_block_assets action callback
-    //NOTE: that it will only include the styles for the last block that was rendered.
-    //NOTE: this means that multiple differently-styled chat blocks per page will not work as expected
-    private string $style_string = "";
     //  \\  //  \\  //  \\  //  \\
 
     public function add_filters(){
         add_filter('render_block', array($this, 'add_render_styles'), 10, 2);
+        //add_filter('render_block', array($this, 'add_global_chat_widget_area_signal'), 10, 2);
     }
 
     public function add_actions(){
         add_action('init', array($this, 'register_chat_blocks'));
-
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_block_assets'));
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -156,9 +150,35 @@ class ContentOracleAiBlock extends PluginFeature{
         return $block_content;
     }
 
-    //manually enqueue the view script, to ensure it is present for global site chat
-    public function enqueue_block_assets(){
-        wp_enqueue_script('contentoracle-ai-chat-view-script', plugin_dir_url(__FILE__) . '/block/build/view.js', array('wp-blocks', 'wp-element', 'wp-editor'));
+    //signal to the block whether it is in the global chat widget area
+    public function add_global_chat_widget_area_signal($block_content, $block){
+        //ensure this is a chat block
+        if ($block['blockName'] !== 'contentoracle/ai-chat') {
+            return $block_content;
+        }
+
+        //determine if this specific block instance is in the global chat widget area
+        $is_in_widget_area = false;
+        
+        // Check if we're currently in a widget context by looking at the call stack
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
+
+        foreach ($backtrace as $trace) {
+            // Check if we're being called from dynamic_sidebar or widget rendering
+            if (
+                (isset($trace['function']) && $trace['function'] == 'display_callback')
+                &&
+                (isset($trace['class']) && $trace['class'] == 'WP_Widget')
+            ) {
+                $is_in_widget_area = true;
+                break;
+            }
+        }
+
+        //add a message about whether this block is in the global chat widget area
+        $block_content;
+
+        return $block_content;
     }
 
     //placeholder uninstall method to identify this block

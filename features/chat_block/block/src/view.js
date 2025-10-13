@@ -23,6 +23,7 @@ Alpine.data('contentoracle_ai_chat', () => ({
 	featured_content_border_classes: "",
 	featured_content_button_classes: "",
 	chat_log_id: null,
+	is_in_widget_area: false,
 	init() {
 		console.log('init chat!!!');
 		//load the rest url into the apiBaseUrl from the data-contentoracle_rest_url attribute
@@ -33,6 +34,9 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		this.featured_content_border_classes = this.$el.getAttribute('data-contentoracle_featured_content_border_classes').split(" ");
 		this.featured_content_button_classes = this.$el.getAttribute('data-contentoracle_featured_content_button_classes').split(" ");
 		this.chat_message_seeder_items = JSON.parse(this.$el.getAttribute('data-contentoracle_chat_message_seeder_items'));
+		this.is_in_widget_area = this.$el.getAttribute('data-contentoracle_is_in_widget_area');
+
+		console.log("is_in_widget_area", this.is_in_widget_area);
 
 		//scroll to the top of the bottommost chat when the conversation updates
 		this.$watch('conversation', () => {
@@ -53,15 +57,33 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			}
 		});
 
-		//preemptively add the search query to the conversation, if it exists
-		const urlParams = new URLSearchParams(window.location.search);
-		const searchQuery = urlParams.get('contentoracle_ai_search');
-		if (searchQuery) {
-			if (this.stream_responses) {
-				this.sendStreamed(searchQuery, event)
+		//if we are in a widget area, attempt to load the conversation from local storage
+		if (this.is_in_widget_area) {
+			//get the conversation from local storage
+			const conversation = localStorage.getItem('contentoracle_ai_floating_chat_conversation');
+			if (conversation) {
+				this.conversation = JSON.parse(conversation);
 			}
-			else {
-				this.send(searchQuery, event)
+
+			//get the chat log id from local storage
+			const chat_log_id = localStorage.getItem('contentoracle_ai_floating_chat_chat_log_id');
+			if (chat_log_id) {
+				this.chat_log_id = chat_log_id;
+			}
+		}
+		//otherwise, if we are not in the global chat widget area, then send a message from the url params
+		//(if one is set)
+		else {
+			//preemptively add the search query to the conversation, if it exists
+			const urlParams = new URLSearchParams(window.location.search);
+			const searchQuery = urlParams.get('contentoracle_ai_search');
+			if (searchQuery) {
+				if (this.stream_responses) {
+					this.sendStreamed(searchQuery, event)
+				}
+				else {
+					this.send(searchQuery, event)
+				}
 			}
 		}
 
@@ -99,7 +121,6 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			await this.send(this.userMsg, event);
 		}
 
-
 		//set the content of the input field to be empty
 		this.$refs.chatInput.value = "";
 	},
@@ -136,6 +157,11 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			role: 'user',
 			content: msg,
 		});
+
+		//if we are in a widget area, save the conversation to local storage
+		if (this.is_in_widget_area) {
+			localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+		}
 
 		//send the request
 		const request = await fetch(url, options)
@@ -178,6 +204,14 @@ Alpine.data('contentoracle_ai_chat', () => ({
 				//now, after all parses and transformations, set the chat content to the rendered chat
 				this.conversation[this.conversation.length - 1].content = md_rendered_content;
 
+				//if we are in a widget area, save the conversation to local storage
+				if (this.is_in_widget_area) {
+					localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+					if (this.chat_log_id) {
+						localStorage.setItem('contentoracle_ai_floating_chat_chat_log_id', this.chat_log_id);
+					}
+				}
+
 				console.log("conversation", this.conversation, "chat_log_id", this.chat_log_id);
 			}
 			catch (e) {
@@ -210,6 +244,11 @@ Alpine.data('contentoracle_ai_chat', () => ({
 			role: 'user',
 			content: msg,
 		});
+
+		//if we are in a widget area, save the conversation to local storage
+		if (this.is_in_widget_area) {
+			localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+		}
 
 		//initialize the xhr request
 		const xhr = new XMLHttpRequest();
@@ -335,6 +374,16 @@ Alpine.data('contentoracle_ai_chat', () => ({
 
 		//after the request is done
 		xhr.onload = function () {
+
+
+			//if we are in a widget area, save the conversation to local storage
+			if (this.is_in_widget_area) {
+				localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+				if (this.chat_log_id) {
+					localStorage.setItem('contentoracle_ai_floating_chat_chat_log_id', this.chat_log_id);
+				}
+			}
+
 			console.log("conversation", this.conversation, "chat_log_id", this.chat_log_id);
 		}.bind(this);	//IMPORTANT: bind the this context to the alpine object, otherwise it will be the xhr object
 
@@ -448,6 +497,11 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		this.loading = false;
 		this.error = "";
 		this.chat_log_id = null;
+
+		//clear the global chat conversation, if this is a global chat widget area
+		if (this.is_in_widget_area) {
+			localStorage.removeItem('contentoracle_ai_floating_chat_conversation');
+		}
 
 		//clear the input field
 		if (this.$refs.chatInput) {
