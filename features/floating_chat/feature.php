@@ -465,6 +465,29 @@ class ContentOracleFloatingChat extends PluginFeature{
                 'description' => __('Enter border width value (e.g., 1px, 2px, 0).', 'contentoracle-ai-chat'),
             )
         );
+
+        // Add floating button icon setting
+        $wp_customize->add_setting(
+            $this->prefixed('floating_button_icon'),
+            array(
+                'default'           => 'chat-bubble',
+                'sanitize_callback' => 'sanitize_text_field',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add floating button icon control
+        $wp_customize->add_control(
+            $this->prefixed('floating_button_icon_control'),
+            array(
+                'label'       => __('Floating Button Icon', 'contentoracle-ai-chat'),
+                'section'     => $this->prefixed('floating_chat_customizer_section'),
+                'settings'    => $this->prefixed('floating_button_icon'),
+                'type'        => 'select',
+                'choices'     => $this->get_floating_button_icon_choices(),
+                'description' => __('Choose the icon to display on the floating chat button.', 'contentoracle-ai-chat'),
+            )
+        );
     }
 
     /*
@@ -581,5 +604,32 @@ class ContentOracleFloatingChat extends PluginFeature{
             '#50575e', // Dark Gray
             '#f0f0f1', // Light Gray
         );
+    }
+
+    /*
+    * Get floating button icon choices.
+    */
+    private function get_floating_button_icon_choices() {
+        return array(
+            'chat-bubble' => __('💬 Chat Bubble', 'contentoracle-ai-chat'),
+            'question-mark' => __('❔ Question Mark', 'contentoracle-ai-chat'),
+            'thought-bubble' => __('💭 Thought Bubble', 'contentoracle-ai-chat'),
+            'robot' => __('🤖 Robot', 'contentoracle-ai-chat'),
+
+        );
+    }
+
+    /*
+    * Get emoji for icon key.
+    */
+    public function get_icon_emoji($icon_key) {
+        $icon_map = array(
+            'chat-bubble' => '💬',
+            'question-mark' => '❔',
+            'thought-bubble' => '💭',
+            'robot' => '🤖',
+        );
+        
+        return isset($icon_map[$icon_key]) ? $icon_map[$icon_key] : '💬';
     }
 }

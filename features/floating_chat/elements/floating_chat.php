@@ -10,12 +10,16 @@ $widget_area_id = $this->prefixed('floating_chat_widget_area');
 // Get the customizable header text
 $header_text = get_theme_mod($this->prefixed('chat_header_text'), 'AI Chat');
 
+// Get the customizable button icon
+$button_icon = get_theme_mod($this->prefixed('floating_button_icon'), 'chat-bubble');
+$icon_emoji = $this->get_icon_emoji($button_icon);
+
 // Check if the widget area has widgets
 if (is_active_sidebar($widget_area_id)) {
     ?>
     <!-- Floating Action Button -->
     <button id="coai_floating_chat_toggle" class="floating-chat-toggle coai-floating-chat-button" onclick="toggleFloatingChat()">
-        <span class="chat-icon">💬</span>
+        <span class="chat-icon"><?php echo esc_html($icon_emoji); ?></span>
     </button>
     
     <!-- Floating Chat Container (initially hidden) -->
