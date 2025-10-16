@@ -33,6 +33,12 @@ class ContentOracleFloatingChat extends PluginFeature{
         //enqueue floating chat styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_floating_chat_styles'));
 
+        //add theme customizer controls
+        add_action('customize_register', array($this, 'add_floating_chat_customizer_controls'));
+
+        //output customizer CSS variables
+        add_action('wp_head', array($this, 'output_floating_chat_customizer_css'));
+
     }
 
     //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\  //  \\
@@ -216,6 +222,353 @@ class ContentOracleFloatingChat extends PluginFeature{
             plugin_dir_url(__FILE__) . 'assets/css/floating-chat.css',
             array(),
             '1.0.0'
+        );
+    }
+
+    /*
+    * Add floating chat customizer controls.
+    */
+    public function add_floating_chat_customizer_controls($wp_customize) {
+        // Check if floating site chat is enabled
+        $enable_floating_site_chat = get_option($this->prefixed('enable_floating_site_chat'));
+        
+        if (!$enable_floating_site_chat) {
+            return;
+        }
+
+        // Add floating chat section
+        $wp_customize->add_section(
+            $this->prefixed('floating_chat_customizer_section'),
+            array(
+                'title'    => __('ContentOracle AI Chat', 'contentoracle-ai-chat'),
+                'priority' => 200,
+                'description' => __('Customize the appearance of your floating chat widget.', 'contentoracle-ai-chat'),
+            )
+        );
+
+        // Add floating button background color setting
+        $wp_customize->add_setting(
+            $this->prefixed('floating_button_bg_color'),
+            array(
+                'default'           => '#007cba',
+                'sanitize_callback' => 'sanitize_hex_color',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add floating button background color control with color presets
+        $wp_customize->add_control(
+            new WP_Customize_Color_Control(
+                $wp_customize,
+                $this->prefixed('floating_button_bg_color_control'),
+                array(
+                    'label'    => __('Floating Button Background Color', 'contentoracle-ai-chat'),
+                    'section'  => $this->prefixed('floating_chat_customizer_section'),
+                    'settings' => $this->prefixed('floating_button_bg_color'),
+                    'palette'  => $this->get_color_palette(),
+                )
+            )
+        );
+
+        // Add floating button hover background color setting
+        $wp_customize->add_setting(
+            $this->prefixed('floating_button_hover_bg_color'),
+            array(
+                'default'           => '#005a87',
+                'sanitize_callback' => 'sanitize_hex_color',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add floating button hover background color control with color presets
+        $wp_customize->add_control(
+            new WP_Customize_Color_Control(
+                $wp_customize,
+                $this->prefixed('floating_button_hover_bg_color_control'),
+                array(
+                    'label'    => __('Floating Button Hover Background Color', 'contentoracle-ai-chat'),
+                    'section'  => $this->prefixed('floating_chat_customizer_section'),
+                    'settings' => $this->prefixed('floating_button_hover_bg_color'),
+                    'palette'  => $this->get_color_palette(),
+                )
+            )
+        );
+
+        // Add chat container background color setting
+        $wp_customize->add_setting(
+            $this->prefixed('chat_container_bg_color'),
+            array(
+                'default'           => '#ffffff',
+                'sanitize_callback' => 'sanitize_hex_color',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add chat container background color control with color presets
+        $wp_customize->add_control(
+            new WP_Customize_Color_Control(
+                $wp_customize,
+                $this->prefixed('chat_container_bg_color_control'),
+                array(
+                    'label'    => __('Chat Container Background Color', 'contentoracle-ai-chat'),
+                    'section'  => $this->prefixed('floating_chat_customizer_section'),
+                    'settings' => $this->prefixed('chat_container_bg_color'),
+                    'palette'  => $this->get_color_palette(),
+                )
+            )
+        );
+
+        // Add chat header background color setting
+        $wp_customize->add_setting(
+            $this->prefixed('chat_header_bg_color'),
+            array(
+                'default'           => '#007cba',
+                'sanitize_callback' => 'sanitize_hex_color',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add chat header background color control with color presets
+        $wp_customize->add_control(
+            new WP_Customize_Color_Control(
+                $wp_customize,
+                $this->prefixed('chat_header_bg_color_control'),
+                array(
+                    'label'    => __('Chat Header Background Color', 'contentoracle-ai-chat'),
+                    'section'  => $this->prefixed('floating_chat_customizer_section'),
+                    'settings' => $this->prefixed('chat_header_bg_color'),
+                    'palette'  => $this->get_color_palette(),
+                )
+            )
+        );
+
+        // Add chat header text color setting
+        $wp_customize->add_setting(
+            $this->prefixed('chat_header_text_color'),
+            array(
+                'default'           => '#ffffff',
+                'sanitize_callback' => 'sanitize_hex_color',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add chat header text color control with color presets
+        $wp_customize->add_control(
+            new WP_Customize_Color_Control(
+                $wp_customize,
+                $this->prefixed('chat_header_text_color_control'),
+                array(
+                    'label'    => __('Chat Header Text Color', 'contentoracle-ai-chat'),
+                    'section'  => $this->prefixed('floating_chat_customizer_section'),
+                    'settings' => $this->prefixed('chat_header_text_color'),
+                    'palette'  => $this->get_color_palette(),
+                )
+            )
+        );
+
+        // Add chat header text setting
+        $wp_customize->add_setting(
+            $this->prefixed('chat_header_text'),
+            array(
+                'default'           => 'AI Chat',
+                'sanitize_callback' => 'sanitize_text_field',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add chat header text control
+        $wp_customize->add_control(
+            $this->prefixed('chat_header_text_control'),
+            array(
+                'label'    => __('Chat Header Text', 'contentoracle-ai-chat'),
+                'section'  => $this->prefixed('floating_chat_customizer_section'),
+                'settings' => $this->prefixed('chat_header_text'),
+                'type'     => 'text',
+            )
+        );
+
+        // Add chat container border color setting
+        $wp_customize->add_setting(
+            $this->prefixed('chat_container_border_color'),
+            array(
+                'default'           => '#e0e0e0',
+                'sanitize_callback' => 'sanitize_hex_color',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add chat container border color control with color presets
+        $wp_customize->add_control(
+            new WP_Customize_Color_Control(
+                $wp_customize,
+                $this->prefixed('chat_container_border_color_control'),
+                array(
+                    'label'    => __('Chat Container Border Color', 'contentoracle-ai-chat'),
+                    'section'  => $this->prefixed('floating_chat_customizer_section'),
+                    'settings' => $this->prefixed('chat_container_border_color'),
+                    'palette'  => $this->get_color_palette(),
+                )
+            )
+        );
+
+        // Add chat container border radius setting
+        $wp_customize->add_setting(
+            $this->prefixed('chat_container_border_radius'),
+            array(
+                'default'           => '8px',
+                'sanitize_callback' => 'sanitize_text_field',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add chat container border radius control
+        $wp_customize->add_control(
+            $this->prefixed('chat_container_border_radius_control'),
+            array(
+                'label'       => __('Chat Container Border Radius', 'contentoracle-ai-chat'),
+                'section'     => $this->prefixed('floating_chat_customizer_section'),
+                'settings'    => $this->prefixed('chat_container_border_radius'),
+                'type'        => 'text',
+                'description' => __('Enter border radius value (e.g., 8px, 12px, 50%).', 'contentoracle-ai-chat'),
+            )
+        );
+
+        // Add chat container border width setting
+        $wp_customize->add_setting(
+            $this->prefixed('chat_container_border_width'),
+            array(
+                'default'           => '1px',
+                'sanitize_callback' => 'sanitize_text_field',
+                'transport'         => 'refresh',
+            )
+        );
+
+        // Add chat container border width control
+        $wp_customize->add_control(
+            $this->prefixed('chat_container_border_width_control'),
+            array(
+                'label'       => __('Chat Container Border Width', 'contentoracle-ai-chat'),
+                'section'     => $this->prefixed('floating_chat_customizer_section'),
+                'settings'    => $this->prefixed('chat_container_border_width'),
+                'type'        => 'text',
+                'description' => __('Enter border width value (e.g., 1px, 2px, 0).', 'contentoracle-ai-chat'),
+            )
+        );
+    }
+
+    /*
+    * Output floating chat customizer CSS variables.
+    */
+    public function output_floating_chat_customizer_css() {
+        // Check if floating site chat is enabled
+        $enable_floating_site_chat = get_option($this->prefixed('enable_floating_site_chat'));
+        
+        if (!$enable_floating_site_chat) {
+            return;
+        }
+
+        // Get customizer values
+        $button_bg_color = get_theme_mod($this->prefixed('floating_button_bg_color'), '#007cba');
+        $button_hover_bg_color = get_theme_mod($this->prefixed('floating_button_hover_bg_color'), '#005a87');
+        $container_bg_color = get_theme_mod($this->prefixed('chat_container_bg_color'), '#ffffff');
+        $header_bg_color = get_theme_mod($this->prefixed('chat_header_bg_color'), '#007cba');
+        $header_text_color = get_theme_mod($this->prefixed('chat_header_text_color'), '#ffffff');
+        $container_border_color = get_theme_mod($this->prefixed('chat_container_border_color'), '#e0e0e0');
+        $container_border_radius = get_theme_mod($this->prefixed('chat_container_border_radius'), '8px');
+        $container_border_width = get_theme_mod($this->prefixed('chat_container_border_width'), '1px');
+
+        // Convert hex colors to rgba for shadows
+        $button_shadow_color = $this->hex_to_rgba($button_bg_color, 0.3);
+        $button_hover_shadow_color = $this->hex_to_rgba($button_hover_bg_color, 0.4);
+        $container_shadow_color = $this->hex_to_rgba($container_bg_color, 0.15);
+
+        // Output CSS custom properties
+        echo '<style id="coai-floating-chat-customizer-css">';
+        echo ':root {';
+        echo '--coai-floating-button-bg-color: ' . esc_attr($button_bg_color) . ';';
+        echo '--coai-floating-button-hover-bg-color: ' . esc_attr($button_hover_bg_color) . ';';
+        echo '--coai-floating-button-shadow-color: ' . esc_attr($button_shadow_color) . ';';
+        echo '--coai-floating-button-hover-shadow-color: ' . esc_attr($button_hover_shadow_color) . ';';
+        echo '--coai-chat-container-bg-color: ' . esc_attr($container_bg_color) . ';';
+        echo '--coai-chat-container-shadow-color: ' . esc_attr($container_shadow_color) . ';';
+        echo '--coai-chat-container-custom-border-color: ' . esc_attr($container_border_color) . ';';
+        echo '--coai-chat-container-border-radius: ' . esc_attr($container_border_radius) . ';';
+        echo '--coai-chat-container-border-width: ' . esc_attr($container_border_width) . ';';
+        echo '--coai-chat-header-bg-color: ' . esc_attr($header_bg_color) . ';';
+        echo '--coai-chat-header-text-color: ' . esc_attr($header_text_color) . ';';
+        echo '--coai-close-button-color: ' . esc_attr($this->get_contrast_color($header_bg_color)) . ';';
+        echo '--coai-close-button-hover-bg-color: ' . esc_attr($this->hex_to_rgba($this->get_contrast_color($header_bg_color), 0.1)) . ';';
+        echo '}';
+        echo '</style>';
+    }
+
+    /*
+    * Convert hex color to rgba.
+    */
+    private function hex_to_rgba($hex, $alpha = 1) {
+        $hex = ltrim($hex, '#');
+        
+        if (strlen($hex) == 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        
+        return "rgba($r, $g, $b, $alpha)";
+    }
+
+    /*
+    * Get contrast color (black or white) based on background color.
+    */
+    private function get_contrast_color($hex) {
+        $hex = ltrim($hex, '#');
+        
+        if (strlen($hex) == 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        
+        $r = hexdec(substr($hex, 0, 2));
+        $g = hexdec(substr($hex, 2, 2));
+        $b = hexdec(substr($hex, 4, 2));
+        
+        // Calculate luminance
+        $luminance = (0.299 * $r + 0.587 * $g + 0.114 * $b) / 255;
+        
+        // Return black for light backgrounds, white for dark backgrounds
+        return $luminance > 0.5 ? '#000000' : '#ffffff';
+    }
+
+    /*
+    * Get color palette from theme or WordPress defaults.
+    */
+    private function get_color_palette() {
+        // Try to get theme color palette first
+        $theme_colors = get_theme_support('editor-color-palette');
+        
+        if ($theme_colors && isset($theme_colors[0])) {
+            $palette = array();
+            foreach ($theme_colors[0] as $color) {
+                $palette[] = $color['color'];
+            }
+            return $palette;
+        }
+        
+        // Fallback to WordPress default colors
+        return array(
+            '#000000', // Black
+            '#ffffff', // White
+            '#2271b1', // WordPress Blue
+            '#72aee6', // Light Blue
+            '#00a32a', // Green
+            '#00ba37', // Light Green
+            '#d63638', // Red
+            '#f86368', // Light Red
+            '#826eb4', // Purple
+            '#9ea3a8', // Gray
+            '#50575e', // Dark Gray
+            '#f0f0f1', // Light Gray
         );
     }
 }

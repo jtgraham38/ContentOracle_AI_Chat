@@ -7819,7 +7819,6 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     this.featured_content_button_classes = this.$el.getAttribute('data-contentoracle_featured_content_button_classes').split(" ");
     this.chat_message_seeder_items = JSON.parse(this.$el.getAttribute('data-contentoracle_chat_message_seeder_items'));
     this.is_in_widget_area = this.$el.getAttribute('data-contentoracle_is_in_widget_area');
-    console.log("is_in_widget_area", this.is_in_widget_area);
 
     //scroll to the top of the bottommost chat when the conversation updates
     this.$watch('conversation', () => {

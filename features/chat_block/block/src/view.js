@@ -36,8 +36,6 @@ Alpine.data('contentoracle_ai_chat', () => ({
 		this.chat_message_seeder_items = JSON.parse(this.$el.getAttribute('data-contentoracle_chat_message_seeder_items'));
 		this.is_in_widget_area = this.$el.getAttribute('data-contentoracle_is_in_widget_area');
 
-		console.log("is_in_widget_area", this.is_in_widget_area);
-
 		//scroll to the top of the bottommost chat when the conversation updates
 		this.$watch('conversation', () => {
 			this.scrollToBottomMostChat(); // Call the function when conversation updates
