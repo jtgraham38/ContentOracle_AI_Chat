@@ -236,12 +236,23 @@ class ContentOracleFloatingChat extends PluginFeature{
             return;
         }
 
-        // Add floating chat section
+        // Add floating chat panel
+        $wp_customize->add_panel(
+            'contentoracle-ai-chat',
+            array(
+                'title'    => __('ContentOracle AI Chat', 'contentoracle-ai-chat'),
+                'priority' => 160,
+                'description' => __('Customize your ContentOracle AI Chat settings and appearance.', 'contentoracle-ai-chat'),
+            )
+        );
+
+        // Add floating chat section within the panel
         $wp_customize->add_section(
             $this->prefixed('floating_chat_customizer_section'),
             array(
-                'title'    => __('ContentOracle AI Chat', 'contentoracle-ai-chat'),
-                'priority' => 200,
+                'title'    => __('Floating Chat Styling', 'contentoracle-ai-chat'),
+                'priority' => 10,
+                'panel'    => 'contentoracle-ai-chat',
                 'description' => __('Customize the appearance of your floating chat widget.', 'contentoracle-ai-chat'),
             )
         );

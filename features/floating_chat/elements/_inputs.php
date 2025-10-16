@@ -33,9 +33,9 @@ $enable_floating_site_chat = get_option($this->prefixed('enable_floating_site_ch
         $has_widgets = is_active_sidebar($widget_area_id);
         
         if ($has_widgets) {
-            $button_text = 'Edit Floating Chat Widgets';
+            $button_text = 'Edit Floating Chat Widget Content';
         } else {
-            $button_text = 'Add Floating Chat Widgets';
+            $button_text = 'Add Floating Chat Widget Content';
         }
         
         // Link to widgets page
@@ -46,10 +46,13 @@ $enable_floating_site_chat = get_option($this->prefixed('enable_floating_site_ch
             <a href="<?php echo esc_url($widgets_url); ?>" class="button button-primary">
                 <?php echo esc_html($button_text); ?>
             </a>
+            <a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=coai_chat_floating_chat_customizer_section')); ?>" class="button">
+                Edit Floating Chat Widget UI
+            </a>
         </p>
         
         <p>
-            <em>Use the "Floating Site Chat" widget area to add your chat widgets.</em>
+            <em>Use the "Floating Site Chat" widget area to add your chat widgets. You can edit widgets in the traditional widgets page or use the customizer for live preview.</em>
         </p>
     <?php else: ?>
         <h2>Global Site Chat</h2>
