@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.12.6
+Stable tag: 1.13.0
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -60,6 +60,12 @@ ContentOracle AI Chat bridges this gap by combining your unique content with AI'
 * Configurable chat log retention periods with automatic cleanup.
 * Bulk chat log management with delete functionality.
 * Chat log viewer with pagination and sorting capabilities.
+* Floating chat widget with site-wide button and customizable styling.
+* WordPress customizer integration for live preview of floating chat appearance.
+* Multiple icon options for floating chat button (chat bubble, question mark, robot, etc.).
+* Responsive floating chat design optimized for mobile devices.
+* Widget area system for managing floating chat content.
+* Neutral color scheme by default for better brand compatibility.
 
 
 == Installation ==
@@ -159,6 +165,17 @@ This plugin uses the following libraries:
 8. Customized block on the frontend.
 
 == Changelog ==
+= 1.13.0 =
+* Added floating chat widget feature with customizable button and styling options.
+* Implemented site-wide floating chat button that appears on all pages.
+* Added comprehensive customizer controls for floating chat appearance.
+* Created widget area system for floating chat content management.
+* Added multiple icon options for floating chat button (chat bubble, question mark, robot, etc.).
+* Implemented responsive design with larger buttons on mobile devices.
+* Added neutral color scheme by default for better brand compatibility.
+* Created admin interface for managing floating chat settings.
+* Added live preview functionality in WordPress customizer.
+
 = 1.12.6 =
 * Bug fix.
 
@@ -311,6 +328,9 @@ Behind-the-scenes improvements and bug fixes.
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.13.0 =
+Upgrade now for the new floating chat widget feature with customizable styling, multiple icon options, and responsive design optimized for all devices.
 
 = 1.12.6 =
 Bug fix.

@@ -17,6 +17,12 @@ That is where ContentOracle AI Chat comes in. ContentOracle AI Chat bridges the 
 - **NEW**: Bulk chat log management with delete functionality and pagination.
 - **NEW**: Automatic chat log cleanup via WordPress cron jobs.
 - **NEW**: Chat log viewer with sorting capabilities and message count display.
+- **NEW**: Floating chat widget with site-wide button and customizable styling.
+- **NEW**: WordPress customizer integration for live preview of floating chat appearance.
+- **NEW**: Multiple icon options for floating chat button (chat bubble, question mark, robot, etc.).
+- **NEW**: Responsive floating chat design optimized for mobile devices.
+- **NEW**: Widget area system for managing floating chat content.
+- **NEW**: Neutral color scheme by default for better brand compatibility.
 - Much more coming soon!
 
 ## Installation
@@ -55,3 +61,25 @@ Navigate to **ContentOracle > Analytics** in your WordPress admin to view all ch
 ### How does chat log retention work?
 
 The plugin automatically cleans up old chat logs based on your configured retention period (default 30 days). You can adjust this setting in the Analytics section, and the cleanup runs daily via WordPress cron jobs.
+
+### How do I set up the floating chat widget?
+
+Navigate to **ContentOracle > Global Site Chat** in your WordPress admin to enable the floating chat feature. Once enabled, you can customize the appearance through **Appearance > Customize > ContentOracle AI Chat** and manage the chat content through the **Floating Site Chat** widget area.
+
+## Recent Updates
+
+### Version 1.13.0 (Latest)
+- **NEW**: Added floating chat widget feature with customizable button and styling options
+- **NEW**: Implemented site-wide floating chat button that appears on all pages
+- **NEW**: Added comprehensive customizer controls for floating chat appearance
+- **NEW**: Created widget area system for floating chat content management
+- **NEW**: Added multiple icon options for floating chat button (chat bubble, question mark, robot, etc.)
+- **NEW**: Implemented responsive design with larger buttons on mobile devices
+- **NEW**: Added neutral color scheme by default for better brand compatibility
+- **NEW**: Created admin interface for managing floating chat settings
+- **NEW**: Added live preview functionality in WordPress customizer
+- **IMPROVED**: Updated CSS to use rem units for better responsiveness
+- **IMPROVED**: Enhanced mobile experience with larger touch targets
+
+### Version 1.12.6
+- Bug fixes and stability improvements
