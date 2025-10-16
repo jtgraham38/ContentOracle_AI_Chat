@@ -67,8 +67,8 @@
     box-shadow: 0 4px 20px var(--coai-chat-container-shadow-color, rgba(0, 0, 0, 0.15));
     border-radius: var(--coai-chat-container-border-radius, 8px);
     overflow: hidden;
-    background-color: var(--coai-chat-container-bg-color, #ffffff);
-    border: var(--coai-chat-container-border-width, 1px) solid var(--coai-chat-container-custom-border-color, #e0e0e0);
+    background-color: var(--coai-chat-container-bg-color, #f8f9fa);
+    border: var(--coai-chat-container-border-width, 1px) solid var(--coai-chat-container-custom-border-color, #dee2e6);
 }
 
 /* Ensure proper stacking context */
@@ -105,13 +105,13 @@
     right: 20px;
     width: 60px;
     height: 60px;
-    background: var(--coai-floating-button-bg-color, #007cba);
+    background: var(--coai-floating-button-bg-color, #6c757d);
     color: white;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     z-index: 999998;
-    box-shadow: 0 4px 20px var(--coai-floating-button-shadow-color, rgba(0, 124, 186, 0.3));
+    box-shadow: 0 4px 20px var(--coai-floating-button-shadow-color, rgba(108, 117, 125, 0.3));
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
@@ -120,9 +120,9 @@
 }
 
 .floating-chat-toggle:hover {
-    background: var(--coai-floating-button-hover-bg-color, #005a87);
+    background: var(--coai-floating-button-hover-bg-color, #5a6268);
     transform: scale(1.1);
-    box-shadow: 0 6px 25px var(--coai-floating-button-hover-shadow-color, rgba(0, 124, 186, 0.4));
+    box-shadow: 0 6px 25px var(--coai-floating-button-hover-shadow-color, rgba(90, 98, 104, 0.4));
 }
 
 .floating-chat-toggle:active {
@@ -149,7 +149,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--coai-chat-header-bg-color, #007cba);
+    background-color: var(--coai-chat-header-bg-color, #6c757d);
     padding: 0.75rem 1.25rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -162,7 +162,7 @@
 .close-chat-btn {
     background: none;
     border: none;
-    color: var(--coai-close-button-color, #333);
+    color: var(--coai-close-button-color, #495057);
     font-size: 24px;
     cursor: pointer;
     padding: 0;
@@ -182,7 +182,7 @@
 /* Chat Content */
 .floating-chat-content {
     display: block;
-    background-color: var(--coai-chat-container-bg-color, #ffffff);
+    background-color: var(--coai-chat-container-bg-color, #f8f9fa);
 }
 
 
@@ -211,13 +211,13 @@
 /* Dark mode support for floating elements */
 @media (prefers-color-scheme: dark) {
     .floating-chat-toggle {
-        background: var(--coai-floating-button-bg-color, #005a87);
-        box-shadow: 0 4px 20px var(--coai-floating-button-shadow-color, rgba(0, 90, 135, 0.4));
+        background: var(--coai-floating-button-bg-color, #495057);
+        box-shadow: 0 4px 20px var(--coai-floating-button-shadow-color, rgba(73, 80, 87, 0.4));
     }
 
     .floating-chat-toggle:hover {
-        background: var(--coai-floating-button-hover-bg-color, #004066);
-        box-shadow: 0 6px 25px var(--coai-floating-button-hover-shadow-color, rgba(0, 90, 135, 0.5));
+        background: var(--coai-floating-button-hover-bg-color, #343a40);
+        box-shadow: 0 6px 25px var(--coai-floating-button-hover-shadow-color, rgba(52, 58, 64, 0.5));
     }
 
 }

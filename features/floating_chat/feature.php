@@ -261,7 +261,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('floating_button_bg_color'),
             array(
-                'default'           => '#007cba',
+                'default'           => '#6c757d',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
             )
@@ -285,7 +285,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('floating_button_hover_bg_color'),
             array(
-                'default'           => '#005a87',
+                'default'           => '#5a6268',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
             )
@@ -309,7 +309,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_container_bg_color'),
             array(
-                'default'           => '#ffffff',
+                'default'           => '#f8f9fa',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
             )
@@ -333,7 +333,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_header_bg_color'),
             array(
-                'default'           => '#007cba',
+                'default'           => '#6c757d',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
             )
@@ -402,7 +402,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_container_border_color'),
             array(
-                'default'           => '#e0e0e0',
+                'default'           => '#dee2e6',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
             )
@@ -502,12 +502,12 @@ class ContentOracleFloatingChat extends PluginFeature{
         }
 
         // Get customizer values
-        $button_bg_color = get_theme_mod($this->prefixed('floating_button_bg_color'), '#007cba');
-        $button_hover_bg_color = get_theme_mod($this->prefixed('floating_button_hover_bg_color'), '#005a87');
-        $container_bg_color = get_theme_mod($this->prefixed('chat_container_bg_color'), '#ffffff');
-        $header_bg_color = get_theme_mod($this->prefixed('chat_header_bg_color'), '#007cba');
+        $button_bg_color = get_theme_mod($this->prefixed('floating_button_bg_color'), '#6c757d');
+        $button_hover_bg_color = get_theme_mod($this->prefixed('floating_button_hover_bg_color'), '#5a6268');
+        $container_bg_color = get_theme_mod($this->prefixed('chat_container_bg_color'), '#f8f9fa');
+        $header_bg_color = get_theme_mod($this->prefixed('chat_header_bg_color'), '#6c757d');
         $header_text_color = get_theme_mod($this->prefixed('chat_header_text_color'), '#ffffff');
-        $container_border_color = get_theme_mod($this->prefixed('chat_container_border_color'), '#e0e0e0');
+        $container_border_color = get_theme_mod($this->prefixed('chat_container_border_color'), '#dee2e6');
         $container_border_radius = get_theme_mod($this->prefixed('chat_container_border_radius'), '8px');
         $container_border_width = get_theme_mod($this->prefixed('chat_container_border_width'), '1px');
 
