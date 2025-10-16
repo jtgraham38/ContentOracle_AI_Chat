@@ -8,10 +8,10 @@ if (!defined('ABSPATH')) {
 $widget_area_id = $this->prefixed('floating_chat_widget_area');
 
 // Get the customizable header text
-$header_text = get_theme_mod($this->prefixed('chat_header_text'), 'AI Chat');
+$header_text = get_option($this->prefixed('chat_header_text'), 'AI Chat');
 
 // Get the customizable button icon
-$button_icon = get_theme_mod($this->prefixed('floating_button_icon'), 'chat-bubble');
+$button_icon = get_option($this->prefixed('floating_button_icon'), 'chat-bubble');
 $icon_emoji = $this->get_icon_emoji($button_icon);
 
 // Check if the widget area has widgets

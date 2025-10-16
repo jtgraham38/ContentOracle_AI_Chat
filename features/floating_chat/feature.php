@@ -261,6 +261,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('floating_button_bg_color'),
             array(
+                'type'              => 'option',
                 'default'           => '#6c757d',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
@@ -285,6 +286,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('floating_button_hover_bg_color'),
             array(
+                'type'              => 'option',
                 'default'           => '#5a6268',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
@@ -309,6 +311,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_container_bg_color'),
             array(
+                'type'              => 'option',
                 'default'           => '#f8f9fa',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
@@ -333,6 +336,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_header_bg_color'),
             array(
+                'type'              => 'option',
                 'default'           => '#6c757d',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
@@ -357,6 +361,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_header_text_color'),
             array(
+                'type'              => 'option',
                 'default'           => '#ffffff',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
@@ -381,6 +386,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_header_text'),
             array(
+                'type'              => 'option',
                 'default'           => 'AI Chat',
                 'sanitize_callback' => 'sanitize_text_field',
                 'transport'         => 'refresh',
@@ -402,6 +408,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_container_border_color'),
             array(
+                'type'              => 'option',
                 'default'           => '#dee2e6',
                 'sanitize_callback' => 'sanitize_hex_color',
                 'transport'         => 'refresh',
@@ -426,6 +433,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_container_border_radius'),
             array(
+                'type'              => 'option',
                 'default'           => '8px',
                 'sanitize_callback' => 'sanitize_text_field',
                 'transport'         => 'refresh',
@@ -448,6 +456,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('chat_container_border_width'),
             array(
+                'type'              => 'option',
                 'default'           => '1px',
                 'sanitize_callback' => 'sanitize_text_field',
                 'transport'         => 'refresh',
@@ -470,6 +479,7 @@ class ContentOracleFloatingChat extends PluginFeature{
         $wp_customize->add_setting(
             $this->prefixed('floating_button_icon'),
             array(
+                'type'              => 'option',
                 'default'           => 'chat-bubble',
                 'sanitize_callback' => 'sanitize_text_field',
                 'transport'         => 'refresh',
@@ -502,14 +512,14 @@ class ContentOracleFloatingChat extends PluginFeature{
         }
 
         // Get customizer values
-        $button_bg_color = get_theme_mod($this->prefixed('floating_button_bg_color'), '#6c757d');
-        $button_hover_bg_color = get_theme_mod($this->prefixed('floating_button_hover_bg_color'), '#5a6268');
-        $container_bg_color = get_theme_mod($this->prefixed('chat_container_bg_color'), '#f8f9fa');
-        $header_bg_color = get_theme_mod($this->prefixed('chat_header_bg_color'), '#6c757d');
-        $header_text_color = get_theme_mod($this->prefixed('chat_header_text_color'), '#ffffff');
-        $container_border_color = get_theme_mod($this->prefixed('chat_container_border_color'), '#dee2e6');
-        $container_border_radius = get_theme_mod($this->prefixed('chat_container_border_radius'), '8px');
-        $container_border_width = get_theme_mod($this->prefixed('chat_container_border_width'), '1px');
+        $button_bg_color = get_option($this->prefixed('floating_button_bg_color'), '#6c757d');
+        $button_hover_bg_color = get_option($this->prefixed('floating_button_hover_bg_color'), '#5a6268');
+        $container_bg_color = get_option($this->prefixed('chat_container_bg_color'), '#f8f9fa');
+        $header_bg_color = get_option($this->prefixed('chat_header_bg_color'), '#6c757d');
+        $header_text_color = get_option($this->prefixed('chat_header_text_color'), '#ffffff');
+        $container_border_color = get_option($this->prefixed('chat_container_border_color'), '#dee2e6');
+        $container_border_radius = get_option($this->prefixed('chat_container_border_radius'), '8px');
+        $container_border_width = get_option($this->prefixed('chat_container_border_width'), '1px');
 
         // Convert hex colors to rgba for shadows
         $button_shadow_color = $this->hex_to_rgba($button_bg_color, 0.3);
