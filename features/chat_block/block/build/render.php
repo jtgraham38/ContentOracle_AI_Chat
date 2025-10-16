@@ -150,6 +150,7 @@ foreach ($backtrace as $trace) {
 }
 
 ?>
+
 <div 
     id="<?php echo esc_attr( $chat_id ) ?>" 
     style="<?php echo esc_attr($root_inline_styles) ?>" 

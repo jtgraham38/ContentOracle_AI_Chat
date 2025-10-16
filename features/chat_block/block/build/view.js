@@ -7843,15 +7843,25 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     //if we are in a widget area, attempt to load the conversation from local storage
     if (this.is_in_widget_area) {
       //get the conversation from local storage
-      const conversation = localStorage.getItem('contentoracle_ai_floating_chat_conversation');
-      if (conversation) {
-        this.conversation = JSON.parse(conversation);
+      const conversationData = localStorage.getItem('contentoracle_ai_floating_chat_conversation');
+      if (conversationData) {
+        const parsedData = JSON.parse(conversationData);
+        // Check if the conversation is less than a week old
+        const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        if (parsedData.timestamp && parsedData.timestamp > oneWeekAgo) {
+          this.conversation = parsedData.conversation;
+        }
       }
 
       //get the chat log id from local storage
-      const chat_log_id = localStorage.getItem('contentoracle_ai_floating_chat_chat_log_id');
-      if (chat_log_id) {
-        this.chat_log_id = chat_log_id;
+      const chatLogData = localStorage.getItem('contentoracle_ai_floating_chat_chat_log_id');
+      if (chatLogData) {
+        const parsedLogData = JSON.parse(chatLogData);
+        // Check if the chat log is less than a week old
+        const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        if (parsedLogData.timestamp && parsedLogData.timestamp > oneWeekAgo) {
+          this.chat_log_id = parsedLogData.chat_log_id;
+        }
       }
     }
     //otherwise, if we are not in the global chat widget area, then send a message from the url params
@@ -7940,7 +7950,10 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
     //if we are in a widget area, save the conversation to local storage
     if (this.is_in_widget_area) {
-      localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+      localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify({
+        conversation: this.conversation,
+        timestamp: Date.now()
+      }));
     }
 
     //send the request
@@ -7981,9 +7994,15 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
         //if we are in a widget area, save the conversation to local storage
         if (this.is_in_widget_area) {
-          localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+          localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify({
+            conversation: this.conversation,
+            timestamp: Date.now()
+          }));
           if (this.chat_log_id) {
-            localStorage.setItem('contentoracle_ai_floating_chat_chat_log_id', this.chat_log_id);
+            localStorage.setItem('contentoracle_ai_floating_chat_chat_log_id', JSON.stringify({
+              chat_log_id: this.chat_log_id,
+              timestamp: Date.now()
+            }));
           }
         }
         console.log("conversation", this.conversation, "chat_log_id", this.chat_log_id);
@@ -8019,7 +8038,10 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
 
     //if we are in a widget area, save the conversation to local storage
     if (this.is_in_widget_area) {
-      localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+      localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify({
+        conversation: this.conversation,
+        timestamp: Date.now()
+      }));
     }
 
     //initialize the xhr request
@@ -8143,9 +8165,15 @@ alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('contentoracle_ai_chat', (
     xhr.onload = function () {
       //if we are in a widget area, save the conversation to local storage
       if (this.is_in_widget_area) {
-        localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify(this.conversation));
+        localStorage.setItem('contentoracle_ai_floating_chat_conversation', JSON.stringify({
+          conversation: this.conversation,
+          timestamp: Date.now()
+        }));
         if (this.chat_log_id) {
-          localStorage.setItem('contentoracle_ai_floating_chat_chat_log_id', this.chat_log_id);
+          localStorage.setItem('contentoracle_ai_floating_chat_chat_log_id', JSON.stringify({
+            chat_log_id: this.chat_log_id,
+            timestamp: Date.now()
+          }));
         }
       }
       console.log("conversation", this.conversation, "chat_log_id", this.chat_log_id);
