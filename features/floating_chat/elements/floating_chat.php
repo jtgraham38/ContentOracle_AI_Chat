@@ -41,11 +41,33 @@ if (is_active_sidebar($widget_area_id)) {
         if (container.style.display === 'none' || container.style.display === '') {
             container.style.display = 'block';
             toggle.style.display = 'none';
+            // Save state to localStorage
+            localStorage.setItem('coai_floating_chat_open', 'true');
         } else {
             container.style.display = 'none';
             toggle.style.display = 'block';
+            // Save state to localStorage
+            localStorage.setItem('coai_floating_chat_open', 'false');
         }
     }
+
+    // Restore chat state on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('coai_chat_floating_chat_container');
+        const toggle = document.getElementById('coai_floating_chat_toggle');
+        
+        if (container && toggle) {
+            const isOpen = localStorage.getItem('coai_floating_chat_open');
+            
+            if (isOpen === 'true') {
+                container.style.display = 'block';
+                toggle.style.display = 'none';
+            } else {
+                container.style.display = 'none';
+                toggle.style.display = 'block';
+            }
+        }
+    });
     </script>
     <?php
 }
