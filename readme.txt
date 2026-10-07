@@ -3,7 +3,7 @@ Contributors: jtgraham38
 Tags: ai, search, content, rag, chat  
 Requires at least: 6.5  
 Tested up to: 6.8.1
-Stable tag: 1.13.0
+Stable tag: 1.13.1
 License: GPLv3 or later  
 License URI: https://www.gnu.org/licenses/gpl-3.0.html  
 
@@ -165,6 +165,9 @@ This plugin uses the following libraries:
 8. Customized block on the frontend.
 
 == Changelog ==
+= 1.13.1 =
+* Display updates for global chat.
+
 = 1.13.0 =
 * Added floating chat widget feature with customizable button and styling options.
 * Implemented site-wide floating chat button that appears on all pages.
@@ -328,6 +331,9 @@ Behind-the-scenes improvements and bug fixes.
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.13.1 =
+Changes to global site chat display.
 
 = 1.13.0 =
 Upgrade now for the new floating chat widget feature with customizable styling, multiple icon options, and responsive design optimized for all devices.
